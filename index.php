@@ -113,7 +113,7 @@
 		Enjoy !
 	
 	*/
-	define('ATOMIK_VERSION', '1.1');
+	define('ATOMIK_VERSION', '1.2');
 	
 	// -------------------------------------------------------------------------------------------------------
 	// Application configuration
@@ -146,6 +146,7 @@
 	$_database_func_selectdb = 'mysql_select_db';
 	$_database_func_query = 'mysql_query';
 	$_database_func_fetch = 'mysql_fetch_array';
+	$_database_func_escape = 'mysql_escape_string';
 	
 	
 	// -------------------------------------------------------------------------------------------------------
@@ -463,21 +464,23 @@ END;
 	/**
 	 * Insert data into the database
 	 * The data array keys are columns name and their
-	 * associated values the data. Values need to be escaped
-	 * by you.
+	 * associated values the data. 
 	 *
 	 * @param string $table
 	 * @param array $data
+	 * @param bool $escape OPTIONAL
 	 * @return mixed
 	 */
-	function db_insert($table, $data)
+	function db_insert($table, $data, $escape = false)
 	{
-		$rows = array();
+		global $_database_func_escape;
+		
+		$cols = array();
 		$values = array();
-		foreach($data as $row => $value)
+		foreach($data as $col => $value)
 		{
-			$rows[] = $row;
-			$values[] = $value;
+			$cols[] = $col;
+			$values[] = ($escape ? "'" . $_database_func_escape($value) . "'" : $value);
 		}
 
 		$query = "INSERT INTO $table(" . implode(', ', $cols) . ") VALUES(" . implode(', ', $values) . ")";
