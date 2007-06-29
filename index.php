@@ -48,6 +48,9 @@
 		php index.php generate page_name
 		(Replace page_name with the name of your page)
 		
+		You can also only create a file in the presentation folder as pages don't
+		always need logic. It act like said before but with no logic.
+		
 		USING A LAYOUT
 		
 		In common case, all pages have the same layout. To define a layout, 
@@ -108,7 +111,7 @@
 		Enjoy !
 	
 	*/
-	define('ATOMIK_VERSION', '1.0');
+	define('ATOMIK_VERSION', '1.1');
 	
 	// -------------------------------------------------------------------------------------------------------
 	// Application configuration
@@ -245,6 +248,10 @@
 		if(file_exists($current_page_logic))
 		{
 			include($current_page_logic);
+		}
+		elseif(file_exists($current_page_presentation))
+		{
+			// no logic
 		}
 		else
 		{
