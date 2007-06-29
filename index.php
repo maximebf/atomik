@@ -71,9 +71,11 @@
 		
 		You can define a database connection. It will automatically started and 
 		stopped. Modify the lines in the database connection section.
-		You can use the "db_query" function to query the database. Rows will
-		be returned in an array. You can also get the raw results passing false
-		has a second argument.
+		You can use the "db_query" function to query the database. The "db_select"
+		function allow you to get rows in an array. 
+		You can also get the raw results using "db_query".
+		You can also use "db_insert", which take as argument the table name and
+		an array listing data(array keys are column name, values are data).
 		Using this function also allow you a basic database abstraction ! You can
 		change your database provider with no worries about compatibility: just
 		edit the configuration.
@@ -432,26 +434,56 @@ END;
 		global $_includes_folder;
 		require_once($_includes_folder . $include . '.php');
 	}
-	
+
 	/**
 	 * Query the database
+	 * 
+	 * @param string $query
+	 * @return mixed
+	 */
+	function db_query($query)
+	{
+		global $_database_func_query;
+		return $_database_func_query($query);
+	}
+	
+	/**
+	 * Select data from the database
 	 *
 	 * @param string $query
-	 * @param bool $fetch_results OPTIONAL Whether to return an array rather than raw results (default true)
 	 * @param bool $unique OPTIONAL Only one row (default false)
 	 * @return mixed
 	 */
-	function db_query($query, $fetch_results = true, $unique = false)
+	function db_select($query, $unique = false)
 	{
-		global $_database_func_query;
-		
-		$results = $_database_func_query($query);
-		if($fetch_results)
-			return db_fetch_results($results, $unique);
-		else
-			return $results;
+		$results = db_query($query);
+		return db_fetch_results($results, $unique);
 	}
 	
+	/**
+	 * Insert data into the database
+	 * The data array keys are columns name and their
+	 * associated values the data. Values need to be escaped
+	 * by you.
+	 *
+	 * @param string $table
+	 * @param array $data
+	 * @return mixed
+	 */
+	function db_insert($table, $data)
+	{
+		$rows = array();
+		$values = array();
+		foreach($data as $row => $value)
+		{
+			$rows[] = $row;
+			$values[] = $value;
+		}
+
+		$query = "INSERT INTO $table(" . implode(', ', $cols) . ") VALUES(" . implode(', ', $values) . ")";
+		return db_query($query);
+	}
+
 	/**
 	 * Transform raw results to an array of row
 	 *
