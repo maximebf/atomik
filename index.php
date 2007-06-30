@@ -129,6 +129,10 @@
 	$_cache_pages = array(); // pages which should be cached (name without extension)
 	$_cache_time = 3600; // in second
 	
+	// errors
+	$_error_handler = true; // whether to catch errors or not
+	$_error_display = true; // display error information
+	
 	
 	// -------------------------------------------------------------------------------------------------------
 	// Database connection
@@ -189,6 +193,10 @@
 	
 	if(isset($_SERVER['HTTP_HOST'])) // calling from a web browser
 	{
+		// hanlde errors
+		if($_error_handler)
+			set_error_handler('error_handler', E_ALL);
+		
 		// default page 
 		if(!isset($_GET[$_page_trigger]))
 			$_GET[$_page_trigger] = $_default_page;
@@ -263,7 +271,7 @@
 				call_user_func($_database_func_deconn, $db);
 				
 			// 404 error
-			header("HTTP/1.0 404 Not Found");
+			header('HTTP/1.0 404 Not Found');
 			if(file_exists($_404_filename))
 				include($_404_filename);
 			else
@@ -304,9 +312,11 @@
 				// saving page
 				$cache_time = time() + $_cache_time;
 				$content = '<!--CacheTime:' . $cache_time . '-->' . $content;
-				$file = fopen($current_page_cache, 'w');
-				fwrite($file, $content);
-				fclose($file);
+				if($file = fopen($current_page_cache, 'w'))
+				{
+					fwrite($file, $content);
+					fclose($file);
+				}
 			}
 			
 			echo $content;
@@ -356,15 +366,19 @@
 	</body>
 </html>
 END;
-				$file = fopen($_layout_filename, 'w');
-				fwrite($file, $layout);
-				fclose($file);
-				
+				if($file = fopen($_layout_filename, 'w'))
+				{
+					fwrite($file, $layout);
+					fclose($file);
+				}
+				else
+					echo "\t\tCan't write to file\n";
+					
 				if(in_array('--with-cache', $_SERVER['argv']) || in_array('--full', $_SERVER['argv']))
 				{
 					echo " \t-> Creating cache folder and setting permissions to 777\n";
 					mkdir($_cache_folder);
-					@chmod($_cache_folder, 0777);
+					chmod($_cache_folder, 0777);
 				}
 				
 				if(in_array('--with-htaccess', $_SERVER['argv']) || in_array('--full', $_SERVER['argv']))
@@ -380,9 +394,13 @@ END;
 	
 </IfModule>
 END;
-					$file = fopen(dirname(__FILE__) . '/.htaccess', 'w');
-					fwrite($file, $htaccess);
-					fclose($file);
+					if($file = fopen(dirname(__FILE__) . '/.htaccess', 'w'))
+					{
+						fwrite($file, $htaccess);
+						fclose($file);
+					}
+					else
+						echo "\t\tCan't write to file\n";
 				}
 				
 				$_SERVER['argv'] = array('index.php', 'generate', $_default_page);
@@ -404,9 +422,13 @@ END;
 				
 				// logic
 				echo "\t->Generating logic script\n";
-				$file = fopen($_logic_folder . $page, 'w');
-				fwrite($file, "<?php\n\n\t// Logic goes here\n\n?>");
-				fclose($file);
+				if($file = fopen($_logic_folder . $page, 'w'))
+				{
+					fwrite($file, "<?php\n\n\t// Logic goes here\n\n?>");
+					fclose($file);
+				}
+				else
+					echo "\t\tCan't write to file\n";
 				
 				// presentation
 				echo "\t->Generating presentation script\n";
@@ -457,8 +479,12 @@ END;
 	 */
 	function db_select($query, $unique = false)
 	{
-		$results = db_query($query);
-		return db_fetch_results($results, $unique);
+		if($results = db_query($query))
+		{
+			return db_fetch_results($results, $unique);
+		}
+		else
+			return false;
 	}
 	
 	/**
@@ -502,6 +528,7 @@ END;
 		while($row = $_database_func_fetch($results))
 		{
 			$rows[] = $row;
+			if($unique) break;
 		}
 		
 		if($unique) $rows = $rows[0];
@@ -515,5 +542,22 @@ END;
 	{
 		@session_write_close();
 		header('Location: ' . $location);
+		exit;
+	}
+	
+	/**
+	 * Hanlde errors
+	 *
+	 * @param int $errno
+	 * @param string $errstr
+	 * @param string $errfile
+	 * @param int $errline
+	 * @param mixed $errcontext
+	 */
+	function error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
+	{
+		global $_error_display;
+		echo '<h1>Error !</h1>';
+		if($_error_display) echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile . '<br/>Line: ' . $errline . '</p>';
 		exit;
 	}
