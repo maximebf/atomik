@@ -8,7 +8,7 @@
 		Redistributions of files must retain the above copyright notice.
 		(http://www.opensource.org/licenses/mit-license.php)
 		
-		A very (very) simple php "framework" allowing you
+		A very (very) simple php "micro framework" allowing you
 		to rigorously organize your application. Logic is 
 		separated from presentation as any well coded application
 		should do. Support database connection and cache !
@@ -17,10 +17,10 @@
 		
 		Just copy this script in the root folder of your website. It should
 		be name index.php. Open a command line and call:
-		php index.php init [--with-htaccess] [--with-cache]
+		php index.php init [--with-htaccess] [--with-cache] [--full]
 		This will create your application structure. The option "--with-htaccess"
 		will also create the .htaccess file for url rewriting. "--with-cache" will create
-		the cache folder.
+		the cache folder. The option "--full" apply all options.
 		
 		HOW IT WORKS
 		
@@ -113,7 +113,7 @@
 		Enjoy !
 	
 	*/
-	define('ATOMIK_VERSION', '1.2');
+	define('ATOMIK_VERSION', '1.3');
 	
 	// -------------------------------------------------------------------------------------------------------
 	// Application configuration
@@ -150,7 +150,7 @@
 	$_database_func_selectdb = 'mysql_select_db';
 	$_database_func_query = 'mysql_query';
 	$_database_func_fetch = 'mysql_fetch_array';
-	$_database_func_escape = 'mysql_escape_string';
+	$_database_func_escape = 'mysql_real_escape_string';
 	
 	
 	// -------------------------------------------------------------------------------------------------------
@@ -195,14 +195,25 @@
 	{
 		// hanlde errors
 		if($_error_handler)
-			set_error_handler('error_handler', E_ALL);
+			set_error_handler('error_handler');
 		
 		// default page 
 		if(!isset($_GET[$_page_trigger]))
-			$_GET[$_page_trigger] = $_default_page;
-			
+		{
+			$current_page = $_default_page;
+		}
+		else
+		{
+			$current_page = $_GET[$_page_trigger];
+			// checking if no dot are in the page name
+			// to avoid any hack attempt
+			if(strpos($current_page, '.') !== false)
+			{
+				trigger404();
+			}
+		}
+		
 		// current page
-		$current_page = $_GET[$_page_trigger];
 		$current_page_logic = $_logic_folder . $current_page . '.php';
 		$current_page_presentation = $_presentation_folder . $current_page . '.php';
 		
@@ -266,17 +277,7 @@
 		}
 		else
 		{
-			// closing database
-			if($_database)
-				call_user_func($_database_func_deconn, $db);
-				
-			// 404 error
-			header('HTTP/1.0 404 Not Found');
-			if(file_exists($_404_filename))
-				include($_404_filename);
-			else
-				echo '<h1>404 - File not found</h1>';
-			exit;
+			trigger404();
 		}
 		
 		// post dispatch (before render) actions
@@ -546,6 +547,29 @@ END;
 	}
 	
 	/**
+	 * Trigger a 404 error
+	 */
+	function trigger404()
+	{
+		global $_database;
+		global $_database_func_deconn;
+		global $_404_filename;
+		
+		// closing database and session
+		if($_database)
+			@call_user_func($_database_func_deconn);
+		@session_write_close();
+			
+		// 404 error
+		header('HTTP/1.0 404 Not Found');
+		if(file_exists($_404_filename))
+			include($_404_filename);
+		else
+			echo '<h1>404 - File not found</h1>';
+		exit;
+	}
+	
+	/**
 	 * Hanlde errors
 	 *
 	 * @param int $errno
@@ -556,6 +580,9 @@ END;
 	 */
 	function error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
 	{
+		if(error_reporting() == 0)
+			return;
+			
 		global $_error_display;
 		echo '<h1>Error !</h1>';
 		if($_error_display) echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile . '<br/>Line: ' . $errline . '</p>';
