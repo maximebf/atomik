@@ -11,7 +11,7 @@
 		A very (very) simple php "micro framework" allowing you
 		to rigorously organize your application. Logic is 
 		separated from presentation as any well coded application
-		should do. Support database connection and cache !
+		should do. 
 		
 		INSTALLATION
 		
@@ -32,8 +32,10 @@
 		
 		You can modify the configuration directly into this script. Just edit the
 		lines bellow this comment under the configuration section.
+		You can access configuration key using config_get(KEY). Define a value using
+		config_set(KEY, VALUE).
 		You can use an external config file for a cleaner style. Simply create
-		config.php inside the same directory as this script.
+		config.php inside the same directory as this script and use config_set().
 		
 		HOW TO CREATE A PAGE
 		
@@ -67,19 +69,6 @@
 		"_header.php" and a "_footer.php" and then include them in each of your
 		page's presentation (only layouts are hanlde by this script).
 		
-		DATABASE
-		
-		You can define a database connection. It will automatically started and 
-		stopped. Modify the lines in the database connection section.
-		You can use the "db_query" function to query the database. The "db_select"
-		function allow you to get rows in an array. 
-		You can also get the raw results using "db_query".
-		You can also use "db_insert", which take as argument the table name and
-		an array listing data(array keys are column name, values are data).
-		Using this function also allow you a basic database abstraction ! You can
-		change your database provider with no worries about compatibility: just
-		edit the configuration.
-		
 		ADD PRE AND POST DISPATCH LOGIC
 		
 		Sometimes you need some action to be done before and after each page. This
@@ -91,7 +80,7 @@
 		
 		The default 404 error (when page is not found) isn't pretty at all. You can 
 		create your own page by creating a "404.php" file in the same directory as
-		this script. You can access global variables like $current_page.
+		this script.
 		
 		USING URL REWRITING (APACHE)
 		
@@ -109,136 +98,172 @@
 			
 		</IfModule>
 		
+		PACKAGES
+		
+		Helper functions are organized in packages. A package can be loaded using the
+		package function. Packages are defined in the "packages" folder. The test package will
+		be for example "packages/test.php". Package must be defined following this scheme:
+		
+		<?php
+			function package_NAME()
+			{
+				function myFunction()
+				{
+				}
+			}
+		?>
+		
+		Replace NAME with your package name. It can contain any number of function.
+		
+		BUILT-IN PACKAGES
+		
+			ERROR:
+				Handle errors
+			
+			SESSION:
+				Automatically start sessions
+			
+			UTILS:
+				Some useful functions
+			
+			DB:
+				You can use the "db_query" function to query the database. The "db_select"
+				function allow you to get rows in an array. 
+				You can also get the raw results using "db_query".
+				You can also use "db_insert", which take as argument the table name and
+				an array listing data(array keys are column name, values are data).
+				Using this function also allow you a basic database abstraction ! You can
+				change your database provider with no worries about compatibility: just
+				edit the configuration.
 		
 		Enjoy !
 	
 	*/
-	define('ATOMIK_VERSION', '1.3');
-	
-	// -------------------------------------------------------------------------------------------------------
-	// Application configuration
-	
-	// session are automatically started
-	$_auto_session = true;
-	
-	// print execution time at the end of the page (html comment)
-	$_print_execution_time = true;
-	
-	//cache
-	$_cache_enabled = false;
-	$_cache_pages = array(); // pages which should be cached (name without extension)
-	$_cache_time = 3600; // in second
-	
-	// errors
-	$_error_handler = true; // whether to catch errors or not
-	$_error_display = true; // display error information
+	define('ATOMIK_VERSION', '1.4');
 	
 	
-	// -------------------------------------------------------------------------------------------------------
-	// Database connection
-	
-	// whether to connect to a database or not
-	$_database = false; 
-	
-	// connection information
-	$_database_args = array('localhost', 'root', ''); // in the order of the connection function
-	$_database_db = 'database'; // comment this line if no database selection is needed
-	
-	// functions (default are for mysql)
-	$_database_func_conn = 'mysql_connect';
-	$_database_func_deconn = 'mysql_close';
-	$_database_func_selectdb = 'mysql_select_db';
-	$_database_func_query = 'mysql_query';
-	$_database_func_fetch = 'mysql_fetch_array';
-	$_database_func_escape = 'mysql_real_escape_string';
+	/***********************************************************************************************
+	   										CONFIGURATION
+	***********************************************************************************************/
 	
 	
-	// -------------------------------------------------------------------------------------------------------
-	// Core configuration
+	$_CONFIG = array(
 	
-	// page
-	$_page_trigger = 'page'; // the GET argument containing the page name
-	$_default_page = 'index';
+		//---------------------------------------------------------------------------
+		//						  Global configuration
+		//---------------------------------------------------------------------------
+		
+		'session' 				=> true,
+		'print_execution_time' 	=> true,
+		
+		'packages'				=> array('error', 'session', 'utils'),
+		
+		//---------------------------------------------------------------------------
+		//						  Packages configuration
+		//---------------------------------------------------------------------------
+		
+		'cache' 					=> false,
+		'cache_pages' 				=> array(),
+		'cache_time' 				=> 3600,
+		
+		'error_handler' 			=> true,
+		'error_display' 			=> true,	
+		
+		'database'					=> false,
+		'database_args' 			=> array('localhost', 'root', ''),
+		'database_db' 				=> 'database',
+		'database_func_connect' 	=> 'mysql_connect',
+		'database_func_close' 		=> 'mysql_close',
+		'database_func_selectdb' 	=> 'mysql_select_db',
+		'database_func_query' 		=> 'mysql_query',
+		'database_func_fetch' 		=> 'mysql_fetch_array',
+		'database_func_escape' 		=> 'mysql_real_escape_string',
+		
+		//---------------------------------------------------------------------------
+		//							Core configuration
+		//---------------------------------------------------------------------------
+		
+		'page_trigger' 		=> 'page',
+		'default_page' 		=> 'index',
+		
+		'folders_packages'		=> dirname(__FILE__) . '/packages/',
+		'folders_logic' 		=> dirname(__FILE__) . '/logic/',
+		'folders_presentation' 	=> dirname(__FILE__) . '/presentation/',
+		'folders_includes' 		=> dirname(__FILE__) . '/includes/',
+		'folders_packages' 		=> dirname(__FILE__) . '/packages/',
+		'folders_cache' 		=> dirname(__FILE__) . '/cache/',
+		
+		'filenames_pre_dispatch' 	=> dirname(__FILE__) . '/pre_dispatch.php',
+		'filenames_post_dispatch' 	=> dirname(__FILE__) . '/post_dispatch.php',
+		'filenames_404' 			=> dirname(__FILE__) . '/404.php',
+		'filenames_layout' 			=> dirname(__FILE__) . '/presentation/_layout.php',
+		'filenames_config' 			=> dirname(__FILE__) . '/config.php'
+	);
 	
-	// folders
-	$_logic_folder = dirname(__FILE__) . '/logic/';
-	$_presentation_folder = dirname(__FILE__) . '/presentation/';
-	$_includes_folder = dirname(__FILE__) . '/includes/';
-	$_cache_folder = dirname(__FILE__) . '/cache/';
-	
-	// filenames
-	$_pre_dispatch_filename = dirname(__FILE__) . '/pre_dispatch.php';
-	$_post_dispatch_filename = dirname(__FILE__) . '/post_dispatch.php';
-	$_404_filename = dirname(__FILE__) . '/404.php';
-	$_layout_filename = $_presentation_folder . '_layout.php';
-	$_config_filename = dirname(__FILE__) . '/config.php';
 	
 	
 	
-	// -------------------------------------------------------------------------------------------------------
-	//					DO NOT EDIT BELLOW
-	// -------------------------------------------------------------------------------------------------------
+	/***********************************************************************************************
+	   											CORE
+	***********************************************************************************************/
 	
 	
-	// -------------------------------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 	// Core
+	//---------------------------------------------------------------------------
 	
-	$START_TIME = time() + microtime();
+	config_set('start_time', time() + microtime());
 	
 	// loading external configuration
-	if(file_exists($_config_filename))
+	if(file_exists(config_get('filenames_config')))
 	{
-		include($_config_filename);
+		include(config_get('filenames_config'));
 	}
 	
 	if(isset($_SERVER['HTTP_HOST'])) // calling from a web browser
-	{
-		// hanlde errors
-		if($_error_handler)
-			set_error_handler('error_handler');
-		
+	{		
 		// default page 
-		if(!isset($_GET[$_page_trigger]))
+		if(!isset($_GET[config_get('page_trigger')]))
 		{
-			$current_page = $_default_page;
+			config_set('current_page', config_get('default_page'));
 		}
 		else
 		{
-			$current_page = $_GET[$_page_trigger];
+			config_set('current_page', $_GET[config_get('page_trigger')]);
 			// checking if no dot are in the page name
 			// to avoid any hack attempt
-			if(strpos($current_page, '.') !== false)
+			if(strpos(config_get('current_page'), '..') !== false)
 			{
 				trigger404();
 			}
 		}
 		
 		// current page
-		$current_page_logic = $_logic_folder . $current_page . '.php';
-		$current_page_presentation = $_presentation_folder . $current_page . '.php';
+		config_set('current_page_logic', config_get('folders_logic') . config_get('current_page') . '.php');
+		config_set('current_page_presentation',  config_get('folders_presentation') . config_get('current_page') . '.php');
 		
 		// cache
-		if($_cache_enabled)
+		if(config_get('cache'))
 		{
-			$current_page_cache = $_cache_folder . md5($_SERVER['REQUEST_URI']) . '.php';
-			if(file_exists($current_page_cache))
+			config_set('current_page_cache', config_get('folders_cache') . md5($_SERVER['REQUEST_URI']) . '.php');
+			if(file_exists(config_get('current_page_cache')))
 			{
 				ob_start();
-				include($current_page_cache);
+				include(config_get('current_page_cache'));
 				$cache = ob_get_clean();
 				if(preg_match('/^<!--CacheTime:(\\d+)-->/', $cache, $match))
 				{
 					if(time() >= $match[1])
 					{
 						// cache has expired
-						@unlink($current_page_cache);
+						@unlink(config_get('current_page_cache'));
 						unset($cache);
 					}
 					else
 					{
 						echo $cache;
 						
-						if($_print_execution_time)
+						if(config_get('print_execution_time'))
 						{
 							$EXEC_TIME = round(time() + microtime() - $START_TIME, 4);
 							echo "\n<!--ExecutionTime(seconds):$EXEC_TIME-->";
@@ -249,29 +274,21 @@
 				}
 			}
 		}
-		
-		// session
-		if($_auto_session)
-			session_start();
-		
-		// database connection
-		if($_database)
-		{
-			$db = call_user_func_array($_database_func_conn, $_database_args);
-			if(isset($_database_db))
-				call_user_func($_database_func_selectdb, $_database_db, $db);
-		}
+	
+		// loading packages
+		foreach(config_get('packages') as $package)
+			package($package);
 		
 		// pre dispatch action
-		if(file_exists($_pre_dispatch_filename))
-			include($_pre_dispatch_filename);
+		if(file_exists(config_get('filenames_pre_dispatch')))
+			include(config_get('filenames_pre_dispatch'));
 		
 		// loading page
-		if(file_exists($current_page_logic))
+		if(file_exists(config_get('current_page_logic')))
 		{
-			include($current_page_logic);
+			include(config_get('current_page_logic'));
 		}
-		elseif(file_exists($current_page_presentation))
+		elseif(file_exists(config_get('current_page_presentation')))
 		{
 			// no logic
 		}
@@ -281,39 +298,43 @@
 		}
 		
 		// post dispatch (before render) actions
-		if(file_exists($_post_dispatch_filename))
-			include($_post_dispatch_filename);
-			
-		// database disconnection
-		if($_database)
-		{
-			call_user_func($_database_func_deconn, $db);
-		}
+		if(file_exists(config_get('filenames_post_dispatch')))
+			include(config_get('filenames_post_dispatch'));
 		
 		// rendering page
-		if(file_exists($current_page_presentation))
+		if(file_exists(config_get('current_page_presentation')))
 		{
 			ob_start();
-			include($current_page_presentation);
+			include(config_get('current_page_presentation'));
 			$content = ob_get_clean();
 			
-			if(file_exists($_layout_filename))
+			if(file_exists(config_get('filenames_layout')))
 			{
 				// using layout
 				$content_for_layout = $content;
 				ob_start();
-				include($_layout_filename);
+				include(config_get('filenames_layout'));
 				$content = ob_get_clean();
 				unset($content_for_layout);
 			}
 			
 			// cache
-			if($_cache_enabled && in_array($current_page, $_cache_pages))
+			if(config_get('cache') && (in_array(config_get('current_page'), array_keys(config_get('cache_pages')))) ||
+										in_array(config_get('current_page'), config_get('cache_pages')))
 			{
+				if(in_array(config_get('current_page'), array_keys(config_get('cache_pages'))))
+				{
+				
+					$pages = config_get('cache_pages');
+					$time = $pages[config_get('current_page')];
+				}
+				else
+					$time = config_get('cache_time');
+					
 				// saving page
-				$cache_time = time() + $_cache_time;
+				$cache_time = time() + $time;
 				$content = '<!--CacheTime:' . $cache_time . '-->' . $content;
-				if($file = fopen($current_page_cache, 'w'))
+				if($file = fopen(config_get('current_page_cache'), 'w'))
 				{
 					fwrite($file, $content);
 					fclose($file);
@@ -322,16 +343,19 @@
 			
 			echo $content;
 			
-			if($_print_execution_time)
+			if(config_get('print_execution_time'))
 			{
-				$EXEC_TIME = round(time() + microtime() - $START_TIME, 4);
-				echo "\n<!--ExecutionTime(seconds):$EXEC_TIME-->";
+				$exec_time = round(time() + microtime() - config_get('start_time'), 4);
+				echo "\n<!--ExecutionTime(seconds):$exec_time-->";
 			}
 		}
 	}
 	
-	// -------------------------------------------------------------------------------------------------------
-	// Console
+	
+	/***********************************************************************************************
+												CONSOLE
+	***********************************************************************************************/
+	
 	
 	else // calling from the command line
 	{
@@ -342,13 +366,16 @@
 			if(is_writable(dirname(__FILE__)))
 			{
 				echo "\t-> Creating logic folder\n";
-				mkdir($_logic_folder);
+				mkdir(config_get('folders_logic'));
 					
 				echo " \t-> Creating presentation folder\n";
-				mkdir($_presentation_folder);
+				mkdir(config_get('folders_presentation'));
+				
+				echo " \t-> Creating packages folder\n";
+				mkdir(config_get('folders_packages'));
 				
 				echo " \t-> Creating includes folder\n";
-				mkdir($_includes_folder);
+				mkdir(config_get('folders_includes'));
 				
 				echo " \t-> Creating styles folder\n";
 				mkdir(dirname(__FILE__) . '/styles');
@@ -367,7 +394,7 @@
 	</body>
 </html>
 END;
-				if($file = fopen($_layout_filename, 'w'))
+				if($file = fopen(config_get('filenames_layout'), 'w'))
 				{
 					fwrite($file, $layout);
 					fclose($file);
@@ -378,20 +405,21 @@ END;
 				if(in_array('--with-cache', $_SERVER['argv']) || in_array('--full', $_SERVER['argv']))
 				{
 					echo " \t-> Creating cache folder and setting permissions to 777\n";
-					mkdir($_cache_folder);
-					chmod($_cache_folder, 0777);
+					mkdir(config_get('folders_cache'));
+					chmod(config_get('folders_cache'), 0777);
 				}
 				
 				if(in_array('--with-htaccess', $_SERVER['argv']) || in_array('--full', $_SERVER['argv']))
 				{
 					echo "\t-> Creating .htaccess\n";
+					$trigger = config_get('page_trigger');
 					$htaccess = <<<END
 <IfModule mod_rewrite.c>
 	RewriteEngine on
 	
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^(.*)\$ index.php?page=\$1 [QSA,L]
+	RewriteRule ^(.*)\$ index.php?$trigger=\$1 [QSA,L]
 	
 </IfModule>
 END;
@@ -423,7 +451,7 @@ END;
 				
 				// logic
 				echo "\t->Generating logic script\n";
-				if($file = fopen($_logic_folder . $page, 'w'))
+				if($file = fopen(config_get('folders_logic') . $page, 'w'))
 				{
 					fwrite($file, "<?php\n\n\t// Logic goes here\n\n?>");
 					fclose($file);
@@ -433,7 +461,7 @@ END;
 				
 				// presentation
 				echo "\t->Generating presentation script\n";
-				touch($_presentation_folder . $page);
+				touch(config_get('folders_presentation') . $page);
 			}
 			else
 				echo "Missing page name";
@@ -443,9 +471,10 @@ END;
 	}
 	
 	
-	// -------------------------------------------------------------------------------------------------------
-	// Functions
-	
+	/***********************************************************************************************
+												FUNCTIONS
+	***********************************************************************************************/
+		
 	
 	/*
 	 * Include a file from the includes folder
@@ -455,95 +484,68 @@ END;
 	 */
 	function needed($include)
 	{
-		global $_includes_folder;
-		require_once($_includes_folder . $include . '.php');
+		require_once(config_get('folders_includes') . $include . '.php');
+	}
+	
+	/**
+	 * Load a package
+	 *
+	 * @param string $package
+	 * @param array $arg OPTIONAL
+	 */
+	function package($package, $args = array())
+	{
+		if(!function_exists('package_' . $package))
+		{
+			if(file_exists(config_get('folders_packages') . $package . '.php'))
+			{
+				require_once(config_get('folders_packages') . $package . '.php');
+			}
+			else
+			{
+				trigger_error('Missing package: ' . $package, E_WARNING);
+				return;
+			}
+		}
+		
+		call_user_func_array('package_' . $package, $args);
+	}
+	
+	/**
+	 * Get a config key
+	 *
+	 * @param string $key
+	 * @param mixed $default OPTIONAL
+	 * @return mixed
+	 */
+	function config_get($key, $default = '')
+	{
+		global $_CONFIG;
+		return isset($_CONFIG[$key]) ? $_CONFIG[$key] : $default;
 	}
 
 	/**
-	 * Query the database
+	 * Set a config key
 	 * 
-	 * @param string $query
-	 * @return mixed
+	 * @param string $key
+	 * @param mixed $value
 	 */
-	function db_query($query)
+	function config_set($key, $value)
 	{
-		global $_database_func_query;
-		return $_database_func_query($query);
+		global $_CONFIG;
+		$_CONFIG[$key] = $value;
 	}
 	
 	/**
-	 * Select data from the database
+	 * Check if a config key is defined
 	 *
-	 * @param string $query
-	 * @param bool $unique OPTIONAL Only one row (default false)
-	 * @return mixed
+	 * @param string $key
+	 * @return bool
 	 */
-	function db_select($query, $unique = false)
+	function config_isset($key)
 	{
-		if($results = db_query($query))
-		{
-			return db_fetch_results($results, $unique);
-		}
-		else
-			return false;
-	}
-	
-	/**
-	 * Insert data into the database
-	 * The data array keys are columns name and their
-	 * associated values the data. 
-	 *
-	 * @param string $table
-	 * @param array $data
-	 * @param bool $escape OPTIONAL
-	 * @return mixed
-	 */
-	function db_insert($table, $data, $escape = false)
-	{
-		global $_database_func_escape;
-		
-		$cols = array();
-		$values = array();
-		foreach($data as $col => $value)
-		{
-			$cols[] = $col;
-			$values[] = ($escape ? "'" . $_database_func_escape($value) . "'" : $value);
-		}
-
-		$query = "INSERT INTO $table(" . implode(', ', $cols) . ") VALUES(" . implode(', ', $values) . ")";
-		return db_query($query);
-	}
-
-	/**
-	 * Transform raw results to an array of row
-	 *
-	 * @param mixed $results
-	 * @param bool $unique OPTIONAL Only one row (default false)
-	 * @return array
-	 */
-	function db_fetch_results($results, $unique = false)
-	{
-		global $_database_func_fetch;
-		
-		$rows = array();
-		while($row = $_database_func_fetch($results))
-		{
-			$rows[] = $row;
-			if($unique) break;
-		}
-		
-		if($unique) $rows = $rows[0];
-		return $rows;
-	}
-	
-	/**
-	 * Redirect
-	 */
-	function redirect($location)
-	{
-		@session_write_close();
-		header('Location: ' . $location);
-		exit;
+		global $_CONFIG;
+		return isset($_CONFIG[$key]);
 	}
 	
 	/**
@@ -551,40 +553,180 @@ END;
 	 */
 	function trigger404()
 	{
-		global $_database;
-		global $_database_func_deconn;
-		global $_404_filename;
-		
-		// closing database and session
-		if($_database)
-			@call_user_func($_database_func_deconn);
-		@session_write_close();
-			
 		// 404 error
 		header('HTTP/1.0 404 Not Found');
-		if(file_exists($_404_filename))
-			include($_404_filename);
+		if(file_exists(config_get('filenames_404')))
+			include(config_get('filenames_404'));
 		else
 			echo '<h1>404 - File not found</h1>';
 		exit;
 	}
 	
+	
+	/***********************************************************************************************
+											BUILT-IN PACKAGES
+	***********************************************************************************************/
+
+	
 	/**
-	 * Hanlde errors
-	 *
-	 * @param int $errno
-	 * @param string $errstr
-	 * @param string $errfile
-	 * @param int $errline
-	 * @param mixed $errcontext
+	 * PACKAGE: ERROR
 	 */
-	function error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
+	function package_error()
 	{
-		if(error_reporting() == 0)
-			return;
-			
-		global $_error_display;
-		echo '<h1>Error !</h1>';
-		if($_error_display) echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile . '<br/>Line: ' . $errline . '</p>';
-		exit;
+		/**
+		 * Hanlde errors
+		 *
+		 * @param int $errno
+		 * @param string $errstr
+		 * @param string $errfile
+		 * @param int $errline
+		 * @param mixed $errcontext
+		 */
+		function error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
+		{
+			if($errno <= error_reporting())
+			{
+				echo '<h1>Error !</h1>';
+				if(config_get('error_display')) echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile . '<br/>Line: ' . $errline . '</p>';
+				exit;
+			}
+		}
+		
+		if(config_get('error_handler'))
+			set_error_handler('error_handler');
+	
 	}
+	
+	/**
+	 * PACKAGE: SESSION
+	 */
+	function package_session()
+	{
+		session_start();
+	}
+	
+	/**
+	 * PACKAGE: UTILS
+	 */
+	function package_utils()
+	{
+		/**
+		 * Redirect
+		 */
+		function redirect($location)
+		{
+			@session_write_close();
+			header('Location: ' . $location);
+			exit;
+		}
+	}
+	
+	/**
+	 * PACKAGE: DB
+	 */
+	function package_db()
+	{
+		/**
+		 * Connect to the database
+		 *
+		 * @param array $args OPTIONAL
+		 */
+		function db_connect($arg = array())
+		{
+			if(empty($args)) $args = config_get('database_args');
+			
+			$_GLOBALS['db'] = call_user_func_array(config_get('database_func_connect'), $args);
+			if(config_get('database_db', '') != '')
+				return call_user_func(config_get('database_func_selectdb'), config_get('database_db'), $_GLOBALES['db']);
+			return false;
+		}
+		
+		/**
+		 * Close the database connection
+		 */
+		function db_close()
+		{
+			return call_user_func(config_get('database_func_close'), $_GLOBALS['db']);
+		}
+		
+		/**
+		 * Query the database
+		 * 
+		 * @param string $query
+		 * @return mixed
+		 */
+		function db_query($query)
+		{
+			return call_user_func(config_get('database_func_query'), $query);
+		}
+	
+		/**
+		 * Select data from the database
+		 *
+		 * @param string $query
+		 * @param bool $unique OPTIONAL Only one row (default false)
+		 * @return mixed
+		 */
+		function db_select($query, $unique = false)
+		{
+			if($results = db_query($query))
+			{
+				return db_fetch_results($results, $unique);
+			}
+			else
+				return false;
+		}
+	
+		/**
+		 * Insert data into the database
+		 * The data array keys are columns name and their
+		 * associated values the data. 
+		 *
+		 * @param string $table
+		 * @param array $data
+		 * @param bool $escape OPTIONAL
+		 * @return mixed
+		 */
+		function db_insert($table, $data, $escape = false)
+		{
+			$cols = array();
+			$values = array();
+			foreach($data as $col => $value)
+			{
+				$cols[] = $col;
+				$values[] = ($escape ? "'" . call_user_func(config_get('database_func_escape'), $value) . "'" : $value);
+			}
+
+			$query = "INSERT INTO $table(" . implode(', ', $cols) . ") VALUES(" . implode(', ', $values) . ")";
+			return db_query($query);
+		}
+
+		/**
+		 * Transform raw results to an array of row
+		 *
+		 * @param mixed $results
+		 * @param bool $unique OPTIONAL Only one row (default false)
+		 * @return array
+		 */
+		function db_fetch_results($results, $unique = false)
+		{
+			global $_database_func_fetch;
+		
+			$rows = array();
+			while($row = $_database_func_fetch($results))
+			{
+				$rows[] = $row;
+				if($unique) break;
+			}
+		
+			if($unique) $rows = $rows[0];
+			return $rows;
+		}
+		
+		if(config_get('database'))
+			db_connect();
+	}
+	
+		
+	
+	
