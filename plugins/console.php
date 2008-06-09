@@ -32,7 +32,7 @@
 		
 		if ($_SERVER['argc'] <= 1) {
 			events_fire('console_end');
-			core_end();
+			atomik_end();
 		}
 		
 		/* array where registered commands are stored */
@@ -51,7 +51,7 @@
 		/* checks if the command is registered */
 		if (!array_key_exists($command, $_CONSOLE)) {
 			echo "The command $command does not exists\n";
-			core_end();
+			atomik_end();
 		}
 		
 		/* executes the callback */
@@ -61,7 +61,7 @@
 		events_fire('console_end', array($command, $arguments));
 		
 		echo "\n\nDone\n";
-		core_end();
+		atomik_end();
 	}
 	events_register('core_start', 'console_core_start');
 	
@@ -207,7 +207,6 @@
 		
 		/* creates the .htaccess file */
 		if (in_array('--htaccess', $arguments)) {
-		
 			$trigger = config_get('core_url_trigger');
 			$htaccess = "<IfModule mod_rewrite.c>\n\t"
 			          . "RewriteEngine on\n\t"

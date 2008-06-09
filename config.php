@@ -3,17 +3,18 @@
 config_merge(array(
 
 	'plugins' => array(
-		'console',
+		/*'console',
 		'db',
 		'layout',
 		'cache',
 		'session',
-		'controller'
+		'lang',
+		'cms'*/
 	),
 
 	'database' 				=> true,
 	'database_args' 		=> array('localhost', 'root', 'mysql*root'),
-	'database_schema'		=> 'ronchon',
+	'database_schema'		=> 'atomik',
 	
 	'cache' 				=> false,
 	'cache_requests' 		=> array(

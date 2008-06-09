@@ -18,7 +18,7 @@
 	/* starts the session when the core starts */
 	function session_core_start()
 	{
-		session_start();
+		@session_start();
 		
 		/* messages for the current request */
 		$_SESSION['__FLASH_CURRENT'] = array();

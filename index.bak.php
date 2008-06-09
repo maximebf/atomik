@@ -67,18 +67,13 @@
 		load_plugin($plugin);
 	}
 	
-	/* registers the error handler */
-	if (config_get('core_handles_errors', true) === true) {
-		set_error_handler('atomik_error_handler');
-	}
-	
 	/* core is starting */
 	events_fire('core_start');
 	
 	/* retreives the requested url and saves it into the configuration */
 	if (!isset($_GET[config_get('core_url_trigger')]) || empty($_GET[config_get('core_url_trigger')])) {
 		/* no trigger specified, using default page name */
-		config_set('request', config_get('core_default_action'));
+		config_set('request_url', config_get('core_default_action'));
 	} else {
 		$url = ltrim($_GET[config_get('core_url_trigger')], '/');
 		
@@ -88,9 +83,16 @@
 			trigger404();
 		}
 		
-		config_set('request', $url);
+		config_set('request_url', $url);
 		unset($url);
 	}
+	
+	/* sets the action script filename */
+	config_set('request_action', 
+		config_get('core_paths_actions') . config_get('request_url') . '.php');
+	/* sets the template filename */
+	config_set('request_template',  
+		config_get('core_paths_templates') . config_get('request_url') . '.php');
 	
 	/* all configuration has been set, ready to dispatch */
 	events_fire('core_before_dispatch');
@@ -100,17 +102,35 @@
 		include(config_get('core_filenames_pre_dispatch'));
 	}
 	
-	/* executes the action */
-	if (atomik_execute_action(config_get('request'), true, true, false) === false) {
+	atomik_execute_action(config_get('request'));
+	
+	/* the action is going to be executed */
+	events_fire('core_before_action');
+	
+	if (file_exists(config_get('request_action'))) {
+		/* execute the action */
+		config_set('template_vars', atomik_execute_action(
+		require(config_get('request_action'));
+	} else if (!file_exists(config_get('request_template'))) {
+		/* no action and no template, 404 */
 		trigger404();
+	}
+	
+	/* the action has been executed */
+	events_fire('core_after_action');
+	
+	/* global post dispatch action */
+	if (file_exists(config_get('core_filenames_post_dispatch'))) {
+		require(config_get('core_filenames_post_dispatch'));
 	}
 	
 	/* dispatch done */
 	events_fire('core_after_dispatch');
 	
-	/* global post dispatch action */
-	if (file_exists(config_get('core_filenames_post_dispatch'))) {
-		require(config_get('core_filenames_post_dispatch'));
+	if (file_exists(config_get('request_template'))) {
+		atomik_render_template(
+			config_get('request_template'), config_get('template_vars'), true
+		);
 	}
 	
 	/* end */
@@ -124,83 +144,40 @@
 	
 	/**
 	 * Executes an action
-	 *
-	 * @see atomik_render_template()
-	 * @param string $action
-	 * @param bool $render OPTIONAL (default true)
-	 * @param bool $echo OPTIONAL (default false)
-	 * @param bool $triggerError OPTIONAL (default true)
-	 * @return array|string|bool
 	 */
-	function atomik_execute_action($action, $render = true, $echo = false, $triggerError = true)
+	function atomik_execute_action($action, $render = true, $echo = false)
 	{
-		/* action and template filenames and existence */
-		$actionFilename = config_get('core_paths_actions') . $action . '.php';
-		$actionExists = file_exists($actionFilename);
-		$templateFilename = config_get('core_paths_templates') . $action . '.php';
-		$templateExists = file_exists($templateFilename);
-		
-		/* checks if at least the action file or the template file is defined */
-		if (!$actionExists && !$templateExistss) {
-			if ($triggerError) {
-				trigger_error('Action ' . $action . ' does not exists', E_USER_ERROR);
-			}
+		$_actionFilename = config_get('core_paths_actions') . $action . '.php';
+		$_templateFilename = config_get('core_paths_templates') . $action . '.php';
+		if (!file_exists($_actionFilename) && !file_exists($_templateFilename)) {
 			return false;
 		}
 	
+		/* the action is going to be executed */
 		events_fire('core_before_action', array($action));
 	
-		/* executes the action */
-		if ($actionExists) {
-			$vars = atomik_execute_action_scope($actionFilename);
-			/* retreives the render variable from the action scope */
-			if (isset($vars['render'])) {
-				$render = $vars['render'];
-			}
-		}
+		require();
+		$vars = get_defined_vars();
 	
+		/* the action has been executed */
 		events_fire('core_after_action', array($action));
 		
-		/* returns $vars if the template is not rendered or if the template
-		 * file does not exists */
-		if (!$render || !$templateExists) {
+		if (!$render) {
 			return $vars;
 		}
 		
-		/* renders the template associated to the action */
-		return atomik_render_template($action, $vars, $echo, $triggerError);
-	}
-	
-	/**
-	 * Requires the actions file inside a clean scope and returns defined
-	 * variables
-	 *
-	 * @param string $__action_filename
-	 * @return array
-	 */
-	function atomik_execute_action_scope($__action_filename)
-	{
-		require($__action_filename);
-		$vars = get_defined_vars();
-		unset($vars['__action_filename']);
-		return $vars;
+		return atomik_render_template($action, $vars, $echo);
 	}
 	
 	/**
 	 * Renders a template
-	 *
-	 * @param string $template
-	 * @param array $vars OPTIONAL
-	 * @param bool $echo OPTIONAL (default false)
-	 * @param bool $triggerError OPTIONAL (default true)
-	 * @return string|bool
 	 */
 	function atomik_render_template($template, $vars = array(), $echo = false, $triggerError = true)
 	{
-		/* template filename */
-		$filename = config_get('core_paths_templates') . $template . '.php';
+		events_fire('core_before_template', array($template));
 		
-		/* checks if the file exists */
+		$filename = config_get('core_paths_template') . $template . '.php';
+		
 		if (!file_exists($filename)) {
 			if ($triggerError) {
 				trigger_error('Template ' . $filename . ' not found', E_USER_WARNING);
@@ -208,22 +185,18 @@
 			return false;
 		}
 		
-		events_fire('core_before_template', array($template));
-		
-		/* render the template in its own scope */
-		$output = atomik_render_template_scope($filename, $vars);
+		atomik_render_template_include($filename, $vars)
 		
 		events_fire('core_after_template', array(&$output));
 		
-		/* checks if it's needed to echo the output */
 		if (!$echo) {
 			return $output;
 		}
 		
 		/* echo output */
-		events_fire('core_before_output', array($template, &$output));
+		events_fire('core_before_output', array(&$output));
 		echo $output;
-		events_fire('core_after_output', array($template, $output));
+		events_fire('core_after_output', array($output));
 	}
 	
 	/**
@@ -233,13 +206,15 @@
 	 * @param array $vars OPTIONAL
 	 * @return string
 	 */
-	function atomik_render_template_scope($__template_filename, $vars = array())
+	function atomik_render_template_include($filename, $vars = array())
 	{
 		extract($vars);
 		ob_start();
-		include($__template_filename);
-		return ob_get_clean();
+		include($filename);
+		$output = ob_get_clean();
+		return $output;
 	}
+
 
 	/**
 	 * Fires the core_end event and exits the application
@@ -250,31 +225,6 @@
 	{
 		events_fire('core_end', array($success));
 		exit;
-	}
-	
-	/**
-	 * Hanldes errors
-	 *
-	 * @param int $errno
-	 * @param string $errstr
-	 * @param string $errfile
-	 * @param int $errline
-	 * @param mixed $errcontext
-	 */
-	function atomik_error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
-	{
-		if ($errno <= error_reporting()) {
-			$args = func_get_args();
-			events_fire('core_error', $args);
-		
-			echo '<h1>An error has occured!</h1>';
-			if (config_get('core_display_errors', true)) {
-				echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile .
-				     '<br/>Line: ' . $errline . '</p>';
-			}
-		
-			core_end();
-		}
 	}
 	
 	
@@ -519,7 +469,7 @@
 			echo '<h1>404 - File not found</h1>';
 		}
 		
-		atomik_end();
+		core_end();
 	}
 
 	/**
@@ -542,6 +492,42 @@
 	function needed($include)
 	{
 		require_once(config_get('core_paths_includes') . $include . '.php');
+	}
+
+	
+	/* -------------------------------------------------------------------------------------------
+	 *  Error handler
+	 * ------------------------------------------------------------------------------------------ */
+	
+	
+	/**
+	 * Hanldes errors
+	 *
+	 * @param int $errno
+	 * @param string $errstr
+	 * @param string $errfile
+	 * @param int $errline
+	 * @param mixed $errcontext
+	 */
+	function atomik_error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
+	{
+		if ($errno <= error_reporting()) {
+			$args = func_get_args();
+			events_fire('core_error', $args);
+		
+			echo '<h1>An error has occured!</h1>';
+			if (config_get('core_display_errors', true)) {
+				echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile .
+				     '<br/>Line: ' . $errline . '</p>';
+			}
+		
+			core_end();
+		}
+	}
+	
+	/* register the error handler */
+	if (config_get('core_handles_errors', true) === true) {
+		set_error_handler('atomik_error_handler');
 	}
 	
 

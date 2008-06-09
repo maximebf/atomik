@@ -77,6 +77,7 @@
 		if (file_exists($cacheFilename)) {
 			/* last modified time */
 			$cacheTime = filemtime($cacheFilename);
+			/* TODO */
 			$actionTime = filemtime(config_get('request_action'));
 			$templateTime = filemtime(config_get('request_template'));
 			
@@ -90,7 +91,7 @@
 			
 			/* checks if there is a cache limit */
 			$diff = time() - $cacheTime;
-			if ($diff > $requests[config_get('request_url')]) {
+			if ($diff > $requests[config_get('request_url')]) { /* TODO */
 				/* invalidates the cache */
 				@unlink($cacheFilename);
 				ob_start();
@@ -125,7 +126,7 @@
 		echo $output;
 		
 		$cacheFilename = config_get('cache_filename');
-		$url = config_get('request_url');
+		$url = config_get('request_url'); /* TODO */
 		
 		/* checks if the current url is cacheable */
 		$requests = config_get('cache_requests');
