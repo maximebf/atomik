@@ -1,25 +1,19 @@
 <?php
-
 	/**
 	 * Atomik Framework
-	 * A one script PHP Framework
-	 * 	
-	 
-	 * CHANGES IN 1.5:
-	 * 	- New event system. Allow to extend the framework using callback functions
-	 * 	- Almost all built-in features become packages
-	 * 	- New config_merge() function
+	 * A micro PHP Framework
 	 * 
-	 *
 	 * @version 2.0
 	 * @package Atomik
 	 * @author 2008 (c) Maxime Bouroumeau-Fuseau
 	 * @license http://www.opensource.org/licenses/mit-license.php
 	 * @link http://pimpmycode.fr/atomik
-	 *
-	 *
 	 */
+	 
 	define('ATOMIK_VERSION', '2.0');
+	 
+	/* the ONLY one global variable! */
+	$_ATOMIK = array();
 	
 	/* -------------------------------------------------------------------------------------------
 	 *  DEFAULT CONFIGURATION
@@ -27,27 +21,30 @@
 
 	config_merge(array(
 
-		/* Plugins */
+		/* plugins */
+		'plugins'						=> array(),
 	
-		'plugins'				=> array(),
-	
-		/* Core configuration */
-	
-		'core_url_trigger' 				=> 'url',
+		/* request */
+		'core_action_trigger' 			=> 'action',
 		'core_default_action' 			=> 'index',
-		'core_handles_error'			=> true,
+		
+		/* error management */
+		'core_handles_errors'			=> false,
 		'core_display_errors'			=> true,
 	
+		/* paths */
 		'core_paths_root'				=> './',
 		'core_paths_plugins'			=> './plugins/',
 		'core_paths_actions' 			=> './actions/',
 		'core_paths_templates'	 		=> './templates/',
 		'core_paths_includes'			=> './includes/',
 	
+		/* filenames */
+		'core_filenames_config' 		=> './config.php',
 		'core_filenames_pre_dispatch' 	=> './pre_dispatch.php',
 		'core_filenames_post_dispatch' 	=> './post_dispatch.php',
 		'core_filenames_404' 			=> './404.php',
-		'core_filenames_config' 		=> './config.php',
+		'core_filenames_error' 			=> './error.php',
 	
 		'start_time' 					=> time() + microtime()
 	));
@@ -56,6 +53,11 @@
 	/* -------------------------------------------------------------------------------------------
 	 *  CORE
 	 * ------------------------------------------------------------------------------------------ */
+	
+	/* registers the error handler */
+	if (config_get('core_handles_errors', true) === true) {
+		set_error_handler('atomik_error_handler');
+	}
 	 
 	/* loads external configuration */
 	if (file_exists(config_get('core_filenames_config'))) {
@@ -67,29 +69,22 @@
 		load_plugin($plugin);
 	}
 	
-	/* registers the error handler */
-	if (config_get('core_handles_errors', true) === true) {
-		set_error_handler('atomik_error_handler');
-	}
-	
 	/* core is starting */
 	events_fire('core_start');
 	
 	/* retreives the requested url and saves it into the configuration */
-	if (!isset($_GET[config_get('core_url_trigger')]) || empty($_GET[config_get('core_url_trigger')])) {
+	if (!isset($_GET[config_get('core_action_trigger')]) || empty($_GET[config_get('core_action_trigger')])) {
 		/* no trigger specified, using default page name */
 		config_set('request', config_get('core_default_action'));
 	} else {
-		$url = ltrim($_GET[config_get('core_url_trigger')], '/');
+		config_set('request', ltrim($_GET[config_get('core_action_trigger')], '/'));
 		
 		/* checking if no dot are in the page name to avoid any hack attempt and if no 
 		 * underscore is use as first character in a segment */
-		if (strpos($url, '..') !== false || substr($url, 0, 1) == '_' || strpos($url, '/_') !== false) {
-			trigger404();
+		if (strpos(config_get('request'), '..') !== false || substr(config_get('request'), 0, 1) == '_' || 
+			strpos(config_get('request'), '/_') !== false) {
+				trigger404();
 		}
-		
-		config_set('request', $url);
-		unset($url);
 	}
 	
 	/* all configuration has been set, ready to dispatch */
@@ -134,41 +129,47 @@
 	 */
 	function atomik_execute_action($action, $render = true, $echo = false, $triggerError = true)
 	{
+		$template = $action;
+		$vars = array();
+	
+		events_fire('core_before_action', array(&$action, &$template, &$render, &$echo, &$triggerError));
+		
 		/* action and template filenames and existence */
 		$actionFilename = config_get('core_paths_actions') . $action . '.php';
 		$actionExists = file_exists($actionFilename);
-		$templateFilename = config_get('core_paths_templates') . $action . '.php';
+		$templateFilename = config_get('core_paths_templates') . $template . '.php';
 		$templateExists = file_exists($templateFilename);
 		
 		/* checks if at least the action file or the template file is defined */
-		if (!$actionExists && !$templateExistss) {
+		if (!$actionExists && !$templateExists) {
 			if ($triggerError) {
 				trigger_error('Action ' . $action . ' does not exists', E_USER_ERROR);
 			}
 			return false;
 		}
 	
-		events_fire('core_before_action', array($action));
-	
 		/* executes the action */
 		if ($actionExists) {
 			$vars = atomik_execute_action_scope($actionFilename);
-			/* retreives the render variable from the action scope */
-			if (isset($vars['render'])) {
-				$render = $vars['render'];
+			/* retreives the _render variable from the action scope */
+			if (isset($vars['_render'])) {
+				$render = $vars['_render'];
+			}
+			/* retreives the _template variable from the action scope */
+			if (isset($vars['_template'])) {
+				$template = $vars['_template'];
 			}
 		}
 	
-		events_fire('core_after_action', array($action));
+		events_fire('core_after_action', array($action, &$template, &$vars, &$render, &$echo, &$triggerError));
 		
-		/* returns $vars if the template is not rendered or if the template
-		 * file does not exists */
-		if (!$render || !$templateExists) {
+		/* returns $vars if the template is not rendered */
+		if (!$render) {
 			return $vars;
 		}
 		
 		/* renders the template associated to the action */
-		return atomik_render_template($action, $vars, $echo, $triggerError);
+		return atomik_render_template($template, $vars, $echo, $triggerError);
 	}
 	
 	/**
@@ -180,9 +181,18 @@
 	 */
 	function atomik_execute_action_scope($__action_filename)
 	{
+		global $_ATOMIK;
 		require($__action_filename);
-		$vars = get_defined_vars();
-		unset($vars['__action_filename']);
+		
+		/* retreives "public" variables (not prefixed with an underscore) */
+		$definedVars = get_defined_vars();
+		$vars = array();
+		foreach ($definedVars as $name => $value) {
+			if (substr($name, 0, 1) != '_') {
+				$vars[$name] = $value;
+			}
+		}
+		
 		return $vars;
 	}
 	
@@ -197,6 +207,8 @@
 	 */
 	function atomik_render_template($template, $vars = array(), $echo = false, $triggerError = true)
 	{
+		events_fire('core_before_template', array(&$template, &$vars, &$echo, &$triggerError));
+		
 		/* template filename */
 		$filename = config_get('core_paths_templates') . $template . '.php';
 		
@@ -208,12 +220,10 @@
 			return false;
 		}
 		
-		events_fire('core_before_template', array($template));
-		
 		/* render the template in its own scope */
 		$output = atomik_render_template_scope($filename, $vars);
 		
-		events_fire('core_after_template', array(&$output));
+		events_fire('core_after_template', array($template, &$output, &$vars, &$filename, &$echo, &$triggerError));
 		
 		/* checks if it's needed to echo the output */
 		if (!$echo) {
@@ -263,17 +273,26 @@
 	 */
 	function atomik_error_handler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
 	{
+		/* handles errors depending on the level defined with error_reporting */
 		if ($errno <= error_reporting()) {
 			$args = func_get_args();
 			events_fire('core_error', $args);
+			
+			/* checks if the user defined error file is available */
+			if (file_exists(config_get('core_filenames_error'))) {
+				include config_get('core_filenames_error');
+				atomik_end(false);
+			}
 		
 			echo '<h1>An error has occured!</h1>';
+			
+			/* only display error information if core_display_errors is sot to true */
 			if (config_get('core_display_errors', true)) {
 				echo '<p>' . $errstr . '</p><p>Code:' . $errno . '<br/>File: ' . $errfile .
 				     '<br/>Line: ' . $errline . '</p>';
 			}
 		
-			core_end();
+			atomik_end(false);
 		}
 	}
 	
@@ -291,14 +310,15 @@
 	 */
 	function load_plugin($plugin, $args = array())
 	{
-		/* global variables to saves loaded plugins name */
-		global $_PLUGINS;
-		if ($_PLUGINS === null) {
-			$_PLUGINS = array();
+		global $_ATOMIK;
+		
+		/* initialize the plugins array */
+		if (!isset($_ATOMIK['plugins'])) {
+			$_ATOMIK['plugins'] = array();
 		}
 		
 		/* checks if the plugin is already loaded */
-		if (in_array($plugin, $_PLUGINS)) {
+		if (in_array($plugin, $_ATOMIK['plugins'])) {
 			return;
 		}
 		
@@ -330,21 +350,26 @@
 		
 		events_fire('core_after_plugin', array($plugin));
 		
-		/* stores the plugin name inside $_PLUGINS so we won't load it twice */
-		$_PLUGINS[] = $plugin;
+		/* stores the plugin name inside $_ATOMIK['plugins'] so we won't load it twice */
+		$_ATOMIK['plugins'][] = $plugin;
 	}
 	
 	/**
-	 * Checks if a package is already loaded
+	 * Checks if a plugin is already loaded
 	 *
-	 * @param string $package
+	 * @param string $plugin
 	 * @return bool
 	 */
 	function plugin_loaded($plugin)
 	{
-		/* global variables to saves loaded packages name */
-		global $_PLUGINS;
-		return in_array($plugin, $_PLUGINS);
+		global $_ATOMIK;
+		
+		/* initialize the plugins array */
+		if (!isset($_ATOMIK['plugins'])) {
+			$_ATOMIK['plugins'] = array();
+		}
+		
+		return in_array($plugin, $_ATOMIK['plugins']);
 	}
 	
 	
@@ -360,8 +385,9 @@
 	 */
 	function config_merge($array)
 	{
-		global $_CONFIG;
-		$_CONFIG = array_merge(is_array($_CONFIG) ? $_CONFIG : array(), $array);
+		global $_ATOMIK;
+		$_ATOMIK['config'] = array_merge(is_array($_ATOMIK['config']) ? 
+									$_ATOMIK['config'] : array(), $array);
 	}
 	
 	/**
@@ -373,32 +399,8 @@
 	 */
 	function config_get($key, $default = '')
 	{
-		global $_CONFIG;
-		return array_key_exists($key, $_CONFIG) ? $_CONFIG[$key] : $default;
-	}
-	
-	/**
-	 * Gets a config value from the array accessed with $key
-	 *
-	 * @param string $key
-	 * @param string $subKey
-	 * @param mixed $default OPTIONAL Default value if the key is not found
-	 * @return mixed
-	 */
-	function config_get_deep($key, $subKey, $default = '')
-	{
-		global $_CONFIG;
-		
-		/* checks if the config key exists */
-		if (!array_key_exists($key, $_CONFIG)) {
-			return $default;
-		}
-		/* checks if it's an array and that the sub key exists */
-		if (!is_array($_CONFIG[$key]) || !array_key_exists($subKey, $_CONFIG[$key])) {
-			return $default;
-		}
-		
-		return $_CONFIG[$key][$subKey];
+		global $_ATOMIK;
+		return array_key_exists($key, $_ATOMIK['config']) ? $_ATOMIK['config'][$key] : $default;
 	}
 
 	/**
@@ -409,27 +411,8 @@
 	 */
 	function config_set($key, $value)
 	{
-		global $_CONFIG;
-		$_CONFIG[$key] = $value;
-	}
-
-	/**
-	 * Sets a key/value pair inside the config value defined by $key
-	 * 
-	 * @param string $key
-	 * @param string $subKey
-	 * @param mixed $value
-	 */
-	function config_set_deep($key, $subKey, $value)
-	{
-		global $_CONFIG;
-		
-		/* checks if $key exists, initialize it if not */
-		if (!array_key_exists($key, $_CONFIG)) {
-			$_CONFIG[$key] = array();
-		}
-		
-		$_CONFIG[$key][$subKey] = $value;
+		global $_ATOMIK;
+		$_ATOMIK['config'][$key] = $value;
 	}
 	
 	/**
@@ -439,8 +422,8 @@
 	 */
 	function config_set_default($values)
 	{
-		global $_CONFIG;
-		$_CONFIG = array_merge($values, $_CONFIG);
+		global $_ATOMIK;
+		$_ATOMIK['config'] = array_merge($values, $_ATOMIK['config']);
 	}
 	
 	/**
@@ -451,8 +434,8 @@
 	 */
 	function config_isset($key)
 	{
-		global $_CONFIG;
-		return array_key_exists($key, $_CONFIG);
+		global $_ATOMIK;
+		return array_key_exists($key, $_ATOMIK['config']);
 	}
 	
 	
@@ -469,14 +452,20 @@
 	 */
 	function events_register($event, $callback)
 	{
-		global $_EVENTS;
+		global $_ATOMIK;
 		
-		if (!isset($_EVENTS[$event])) {
-			/* creates the array to store callbacks */
-			$_EVENTS[$event] = array();
+		/* initialize the events array */
+		if (!isset($_ATOMIK['events'])) {
+			$_ATOMIK['events'] = array();
 		}
 		
-		$_EVENTS[$event][] = $callback;
+		/* initialize the current event array */
+		if (!isset($_ATOMIK['events'][$event])) {
+			$_ATOMIK['events'][$event] = array();
+		}
+		
+		/* stores the callback */
+		$_ATOMIK['events'][$event][] = $callback;
 	}
 	
 	/**
@@ -487,10 +476,10 @@
 	 */
 	function events_fire($event, $args = array())
 	{
-		global $_EVENTS;
+		global $_ATOMIK;
 		
-		if (isset($_EVENTS[$event])) {
-			foreach ($_EVENTS[$event] as $callback) {
+		if (isset($_ATOMIK['events'][$event])) {
+			foreach ($_ATOMIK['events'][$event] as $callback) {
 				call_user_func_array($callback, $args);
 			}
 		}
@@ -541,7 +530,26 @@
 	 */
 	function needed($include)
 	{
+		global $_ATOMIK;
 		require_once(config_get('core_paths_includes') . $include . '.php');
+	}
+	
+	/**
+	 * Returns an url for the action
+	 * TODO
+	 *
+	 * @param string $action
+	 * @return string
+	 */
+	function get_url($action)
+	{
+		$url = 'index.php?' . config_get('core_action_trigger') . '=' . $action;
+		
+		$args = func_get_args();
+		unset($args[0]);	
+		events_fire('get_url', array($action, &$url, $args));
+		
+		return $url;
 	}
 	
 

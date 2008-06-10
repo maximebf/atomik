@@ -3,13 +3,14 @@
 config_merge(array(
 
 	'plugins' => array(
-		/*'console',
+		'console',
+		'session',
 		'db',
 		'layout',
-		'cache',
-		'session',
 		'lang',
-		'cms'*/
+		'cache',
+		'cms',
+		'ajax'
 	),
 
 	'database' 				=> true,
@@ -19,6 +20,10 @@ config_merge(array(
 	'cache' 				=> false,
 	'cache_requests' 		=> array(
 		'index' => 20
+	),
+	
+	'layout_templates'		=> array(
+		'index' => './templates/_index_layout.php'
 	)
 
 ));

@@ -38,14 +38,19 @@
 	 
 	/* default configuration */
 	config_set_default(array(
+	
 		/* enable/disable the cache */
 		'cache' 				=> false,
+		
 		/* directory where to stored cached file */
 		'cache_dir'				=> config_get('core_paths_root') . 'cache/',
+		
 		/* requests to cache */
 		'cache_requests' 		=> array(),
+		
 		/* default time for how long the cached file are used */
 		'cache_default_time' 	=> 3600
+		
 	));
 
 	/**
@@ -75,11 +80,12 @@
 		config_set('cache_requests', $requests);
 		
 		if (file_exists($cacheFilename)) {
+			$request = config_get('request');
+			
 			/* last modified time */
 			$cacheTime = filemtime($cacheFilename);
-			/* TODO */
-			$actionTime = filemtime(config_get('request_action'));
-			$templateTime = filemtime(config_get('request_template'));
+			$actionTime = filemtime(config_get('core_paths_actions') . $request . '.php');
+			$templateTime = filemtime(config_get('core_paths_templates') . $request . '.php');
 			
 			/* checks if the action or the template have been modified */
 			if ($cacheTime < $actionTime || $cacheTime < $templateTime) {
@@ -91,7 +97,7 @@
 			
 			/* checks if there is a cache limit */
 			$diff = time() - $cacheTime;
-			if ($diff > $requests[config_get('request_url')]) { /* TODO */
+			if ($diff > $requests[$request]) {
 				/* invalidates the cache */
 				@unlink($cacheFilename);
 				ob_start();
@@ -126,11 +132,11 @@
 		echo $output;
 		
 		$cacheFilename = config_get('cache_filename');
-		$url = config_get('request_url'); /* TODO */
+		$request = config_get('request');
 		
 		/* checks if the current url is cacheable */
 		$requests = config_get('cache_requests');
-		if (isset($requests[$url])) {
+		if (isset($requests[$request])) {
 			/* saves output to file */
 			if ($file = fopen($cacheFilename, 'w')) {
 				fwrite($file, $output);
@@ -152,17 +158,15 @@
 	{
 		$directory = config_get('cache_dir');
 		
-		if (in_array('--with-cache', $args) || in_array('--full', $args)) {
-			/* creates cache directory */
-			console_mkdir($directory, 1);
-			
-			/* sets permissions to 777 */
-			console_print('Setting permissions for cache directory', 1);
-			if (!@chmod($directory, 0777)) {
-				console_fail();
-			}
-			console_success();
+		/* creates cache directory */
+		console_mkdir($directory, 1);
+		
+		/* sets permissions to 777 */
+		console_print('Setting permissions for cache directory', 1);
+		if (!@chmod($directory, 0777)) {
+			console_fail();
 		}
+		console_success();
 	}
 	events_register('console_init', 'cache_console_init');
 	

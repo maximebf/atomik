@@ -4,7 +4,7 @@
 	 *
 	 * Automatically starts a session
 	 * Adds support for flash messages which are messages that
-	 * are available once in the new request
+	 * are available once in the next request
 	 *
 	 * @version 2.0
 	 * @package Atomik
@@ -39,35 +39,94 @@
 	 * Adds a message that will be accessible on the next request
 	 *
 	 * @param string $message
+	 * @param string $label OPTIONAL anything you want, error or valid for example
 	 * @param bool $current OPTIONAL (default false) Adds the message to the current request
 	 */
-	function add_flash_message($message, $current = false)
+	function add_flash_message($message, $label = 'default', $current = false)
 	{
-		$_SESSION['__FLASH' . ($current ? '_CURRENT' : '')][] = $message;
+		/* checks if the session key exists */
+		$key = '__FLASH' . ($current ? '_CURRENT' : '');
+		if (!isset($_SESSION[$key])) {
+			$_SESSION[$key] = array();
+		}
+		
+		/* checks if the label exists */
+		if (!isset($_SESSION[$key][$label])) {
+			$_SESSION[$key][$label] = array();
+		}
+		
+		$_SESSION[$key][$label][] = $message;
 	}
 	
 	/**
 	 * Gets all flash messages defined for this request
 	 *
+	 * @param string $label OPTIONAL (default null) Set to null to retreive all messages
 	 * @return array
 	 */
-	function get_flash_messages()
+	function get_flash_messages($label = null)
 	{
-		$messages = $_SESSION['__FLASH_CURRENT'];
-		$_SESSION['__FLASH_CURRENT'] = array();
+		/* if $label is null, returns all the messages of all labels */
+		if ($label === null) {
+			$messages = $_SESSION['__FLASH_CURRENT'];
+			$_SESSION['__FLASH_CURRENT'] = array();
+			return $messages;
+		}
+		
+		/* checks if the label exists */
+		if (!isset($_SESSION['__FLASH_CURRENT'][$label])) {
+			return array();
+		}
+		
+		/* gets all messages and empty the array */
+		$messages = $_SESSION['__FLASH_CURRENT'][$label];
+		$_SESSION['__FLASH_CURRENT'][$label] = array();
+		
 		return $messages;
 	}
 	
 	/**
 	 * Retreives the next message in the stack
 	 *
-	 * @return string|bool Returns false when there's no more messages
+	 * @param string $label OPTIONAL (default null) Set to null to retreive from all messages
+	 * @return array|string|bool Returns false when there's no more messages
 	 */
-	function get_flash_message()
+	function get_flash_message($label = null)
 	{
-		if (count($_SESSION['__FLASH_CURRENT'])) {
-			return array_shift($_SESSION['__FLASH_CURRENT']);
+		/* if $label is null, returns the next message whatever the label */
+		if ($label === null) {
+			/* no labels */
+			if (count($_SESSION['__FLASH_CURRENT']) == 0) {
+				return false;
+			}
+			
+			/* gets the next message */
+			foreach ($_SESSION['__FLASH_CURRENT'] as $label => $messages) {
+				$message = array_shift($messages);
+				break;
+			}
+			
+			/* deletes the label if no more messages */
+			if (count($_SESSION['__FLASH_CURRENT'][$label]) == 0) {
+				unset($_SESSION['__FLASH_CURRENT'][$label]);
+			}
+			
+			return array($label, $message);
 		}
-		return false;
+		
+		/* checks if the label exists */
+		if (!isset($_SESSION['__FLASH_CURRENT'][$label])) {
+			return false;
+		}
+		
+		/* returns the next message */
+		$message = array_shift($_SESSION['__FLASH_CURRENT'][$label]);
+		
+		/* deletes the label if no more messages */
+		if (count($_SESSION['__FLASH_CURRENT'][$label]) == 0) {
+			unset($_SESSION['__FLASH_CURRENT'][$label]);
+		}
+		
+		return $message;
 	}
 	

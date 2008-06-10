@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<title>Atomik</title>
+		<script type="text/javascript" src="scripts/jquery-1.2.3.min.js"></script>
 	</head>
 	<body>
 	

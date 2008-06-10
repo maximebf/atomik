@@ -136,14 +136,15 @@
 		/* retreives routes */
 		$routes = array_reverse(array_merge(array(
 			/* default route */
-			':controller/:action' => array(
+			':controller/:action/:id' => array(
 				'controller' => 'index',
-				'action' => 'index'
+				'action' => 'index',
+				'id' => null
 			)
 		)), config_get('controller_routes'));
 		
 		/* retreives the url */
-		$uri = trim(config_get('request_url'), '/');
+		$uri = trim(config_get('request'), '/');
 		$uriSegments = explode('/', $uri);
 		
 		/* searches for a route matching the uri */
@@ -161,7 +162,7 @@
 						/* this segment is defined in the uri */
 						$request[substr($segments[$i], 1)] = $uriSegments[$i];
 						$segments[$i] = $uriSegments[$i];
-					} else if (!isset($default[substr($segments[$i], 1)])) {
+					} else if (!array_key_exists(substr($segments[$i], 1), $default)) {
 						/* not defined in the uri and no default value */
 						$valid = false;
 						break;
@@ -205,9 +206,19 @@
 	events_register('core_before_dispatch', 'controller_router');
 	
 	/**
+	 * Changes the action name for atomik to find the file
+	 */
+	function controller_before_action(&$action)
+	{
+		$request = config_get('controller_request');
+		$action = $request['controller'];
+	}
+	events_register('core_before_action', 'controller_before_action');
+	
+	/**
 	 * Dispatch the request to the controller action
 	 */
-	function controller_dispatch()
+	function controller_dispatch($action, &$template, &$vars, $render, $echo, $triggerError)
 	{
 		events_fire('controller_before_dispatch');
 		$request = config_get('controller_request');
@@ -230,7 +241,7 @@
 			trigger404();
 		}
 		
-		events_fire('controller_before_action', array(&$instance));
+		events_fire('controller_before_action', array($request, &$instance));
 		
 		/* executes beforeAction if it exists */
 		if (method_exists($instance, '_beforeAction')) {
@@ -245,23 +256,22 @@
 			$instance->_afterAction($request);
 		}
 		
-		events_fire('controller_after_action', array(&$instance));
+		events_fire('controller_after_action', array($request, &$instance));
 		
 		/* gets the instance properties and sets them in the global scope for the view */
-		$vars = get_object_vars($instance);
-		foreach ($vars as $name => $value) {
+		$vars = array();
+		foreach (get_object_vars($instance) as $name => $value) {
 			if (substr($name, 0, 1) != '_') {
-				$GLOBALS[$name] = $value;
+				$vars[$name] = $value;
 			}
 		}
 		
 		/* override request_template with the view filename */
-		config_set('request_template', config_get('core_paths_templates') . 
-			$request['controller'] . '/' . $request['action'] . '.php');
+		$template = $request['controller'] . '/' . $request['action'];
 		
 		events_fire('controller_after_dispatch', array($instance));
 	}
-	events_register('core_after_dispatch', 'controller_dispatch');
+	events_register('core_after_action', 'controller_dispatch');
 	
 	/**
 	 * Overrides default generator behaviour

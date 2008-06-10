@@ -43,7 +43,7 @@
 
 	/* replaces new keys value with old keys value */
 	compat_config_set_new('packages', 'plugins');
-	compat_config_set_new('core_page_trigger', 'core_url_trigger');
+	compat_config_set_new('core_page_trigger', 'core_action_trigger');
 	compat_config_set_new('core_default_page', 'core_default_action');
 	compat_config_set_new('core_folder_packages', 'core_paths_plugins');
 	compat_config_set_new('core_folder_logic', 'core_paths_actions');
@@ -54,10 +54,15 @@
 	 */
 	function compat_before_dispatch()
 	{
-		/* sets an old key value with the value of a new key */
-		compat_config_set_old('current_page', 'request_url');
-		compat_config_set_old('core_page_logic', 'request_action');
-		compat_config_set_old('core_page_presentation', 'request_template');
+		/* sets old keys value */
+		
+		compat_config_set_old('current_page', 'request');
+		
+		config_set('core_page_logic', 
+			config_get('core_paths_actions') . config_get('request') . '.php');
+			
+		config_set('core_page_presentation', 
+			config_get('core_paths_templates') . config_get('request') . '.php');
 		
 		/* fires the old core_ready event */
 		events_fire('core_ready');
@@ -87,7 +92,7 @@
 	/**
 	 * Handles the new core_after_template event
 	 */
-	function compat_after_template(&$output)
+	function compat_after_template($template, &$output)
 	{
 		/* fires the old core_content_ready event */
 		events_fire('core_content_ready', array(&$output));
@@ -97,7 +102,7 @@
 	/**
 	 * Handles the new core_before_output event
 	 */
-	function compat_before_output(&$output)
+	function compat_before_output($template, &$output)
 	{
 		/* fires the old core_before_print event */
 		events_fire('core_before_print', array(&$output));
@@ -107,7 +112,7 @@
 	/**
 	 * Handles the new core_after_output event
 	 */
-	function compat_after_output($output)
+	function compat_after_output($template, $output)
 	{
 		/* fires the old core_after_print event */
 		events_fire('core_after_print', array($output));

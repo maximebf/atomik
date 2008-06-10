@@ -13,15 +13,30 @@
 	 
 	/* default configuration */
 	config_set_default(array(
+	
+		/* enable/disable auto connection */
 		'database'					=> false,
+		
+		/* arguments for the database_func_connect function */
 		'database_args' 			=> array('localhost', 'root', ''),
+		
+		/* database schema to use */
 		'database_schema' 			=> 'schema',
-		'database_func_connect' 	=> 'mysql_connect',
-		'database_func_close' 		=> 'mysql_close',
-		'database_func_selectdb' 	=> 'mysql_select_db',
-		'database_func_query' 		=> 'mysql_query',
-		'database_func_fetch' 		=> 'mysql_fetch_array',
-		'database_func_escape' 		=> 'mysql_real_escape_string'
+		
+		/* adapter, set to false to directly define functions */
+		'database_adapter'			=> 'mysql',
+		
+		/* predefined adapters */
+		'database_adapters' => array(
+			'mysql' => array(
+				'mysql_connect',
+				'mysql_close',
+				'mysql_select_db',
+				'mysql_query',
+				'mysql_fetch_array',
+				'mysql_real_escape_string'
+			)
+		)
 	));
 
 	/**
@@ -30,11 +45,32 @@
 	 * @param array $args OPTIONAL Arguments passed to the database_func_connect function
 	 * @return mixed Value returned by the database_connect function
 	 */
-	function db_connect($arg = array())
+	function db_connect($args = array())
 	{
 		if (count($args) === 0) {
 			/* retreives database_func_connect args from the config */
 			$args = config_get('database_args', array());
+		}
+		
+		/* loads an adapter */
+		if (($adapter = config_get('database_adapter', 'mysql')) !== false) {
+			$adapters = config_get('database_adapters');
+			
+			/* checks if the adapter exists */
+			if (!isset($adapters[$adapter])) {
+				trigger_error('Database adapter ' . $adapter . ' not found', E_USER_ERROR);
+				return;
+			}
+			
+			/* merge adapter functions inside the config */
+			config_merge(array(
+				'database_func_connect' 	=> $adapters[$adapter][0],
+				'database_func_close' 		=> $adapters[$adapter][1],
+				'database_func_selectdb' 	=> $adapters[$adapter][2],
+				'database_func_query' 		=> $adapters[$adapter][3],
+				'database_func_fetch' 		=> $adapters[$adapter][4],
+				'database_func_escape' 		=> $adapters[$adapter][5]
+			));
 		}
 	
 		/* calls the connection functions */
@@ -301,7 +337,7 @@
 	 *
 	 * @param mixed $results
 	 * @param bool $unique OPTIONAL Only one row (default false)
-	 * @return array
+	 * @return array|bool Returns false only if $unique is true and no results were returned
 	 */
 	function db_fetch_results($results, $unique = false)
 	{
@@ -316,6 +352,9 @@
 
 		/* only retreives one row, no need to wrap it into an array */
 		if($unique) {
+			if (count($rows) == 0) {
+				return false;
+			}
 			$rows = $rows[0];
 		}
 		

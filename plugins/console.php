@@ -28,6 +28,7 @@
 	 */
 	function console_core_start()
 	{
+		global $_ATOMIK;
 		echo "Atomik " . ATOMIK_VERSION . " Console\n";
 		
 		if ($_SERVER['argc'] <= 1) {
@@ -36,9 +37,8 @@
 		}
 		
 		/* array where registered commands are stored */
-		global $_CONSOLE;
-		if ($_CONSOLE === null) {
-			$_CONSOLE = array();
+		if (!isset($_ATOMIK['console'])) {
+			$_ATOMIK['console'] = array();
 		}
 		
 		/* get parameters from the command line arguments */
@@ -49,13 +49,13 @@
 		events_fire('console_start', array($command, $arguments));
 		
 		/* checks if the command is registered */
-		if (!array_key_exists($command, $_CONSOLE)) {
+		if (!array_key_exists($command, $_ATOMIK['console'])) {
 			echo "The command $command does not exists\n";
 			atomik_end();
 		}
 		
 		/* executes the callback */
-		call_user_func($_CONSOLE[$command], $arguments);
+		call_user_func($_ATOMIK['console'][$command], $arguments);
 		
 		/* console ends */
 		events_fire('console_end', array($command, $arguments));
@@ -74,11 +74,11 @@
 	 */
 	function console_register($command, $callback)
 	{
-		global $_CONSOLE;
-		if ($_CONSOLE === null) {
-			$_CONSOLE = array();
+		global $_ATOMIK;
+		if (!isset($_ATOMIK['console'])) {
+			$_ATOMIK['console'] = array();
 		}
-		$_CONSOLE[$command] = $callback;
+		$_ATOMIK['console'][$command] = $callback;
 	}
 	
 	/**
@@ -207,7 +207,7 @@
 		
 		/* creates the .htaccess file */
 		if (in_array('--htaccess', $arguments)) {
-			$trigger = config_get('core_url_trigger');
+			$trigger = config_get('core_action_trigger');
 			$htaccess = "<IfModule mod_rewrite.c>\n\t"
 			          . "RewriteEngine on\n\t"
 			          . "RewriteCond %{REQUEST_FILENAME} !-f\n\t"
