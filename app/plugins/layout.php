@@ -77,7 +77,7 @@
 			
 			/* renders layout */
 			ob_start();
-			include($templates[$template]);
+			include(config_get('core_paths_templates') . $templates[$template]);
 			$output = ob_get_clean();
 		}
 	}

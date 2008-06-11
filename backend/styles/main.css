@@ -1,0 +1,372 @@
+/* ----------------------------------------------------------------
+
+	Atomik Backend Main Stylesheet
+
+---------------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------
+	[ Body ]
+*/
+
+body {
+	background: #f7f9e3;
+	font-family: Arial, sans-serif;
+	font-size: 95%;
+	margin: 0px;
+	padding: 0px;
+}
+
+a,
+a:link,
+a:visited {
+	color: #9bb815;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+img {
+	border: 0px;
+}
+
+.clear {
+	clear: both;
+}
+
+/* ----------------------------------------------------------------
+	[ Header ]
+*/
+
+#header {
+	background: #deea7a;
+	color: #8e9d10;
+	padding: 10px 10px 0px 10px;
+}
+
+	#header h1 {
+		font-size: 1.5em;
+		margin: 0px;
+	}
+	
+	#header-info {
+		color: #333805;
+		float: right;
+	}
+	
+/* ----------------------------------------------------------------
+	[ Menu ]
+*/
+
+#menu {
+	list-style: none;
+	margin: 0px;
+	margin-top: 15px;
+	padding: 0px;
+}
+
+	#menu li {
+		display: inline;
+		margin: 0px
+		padding: 0px;
+	}
+
+	#menu li.right {
+		float: right;
+	}
+	
+	#menu li a {
+		background: #aebc35;
+    	color: #f5f8d9;
+		display: block;
+		float: left;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 16px;
+		margin-left: 3px;
+		padding: 6px 8px 5px;
+	}
+	
+	#menu li.selected a {
+		background: #f7f9e3;
+		color: #000;
+	}
+	
+/* ----------------------------------------------------------------
+	[ Messages ]
+*/
+
+#messages .message {
+	margin: 10px;
+	padding: 10px;
+}
+
+#messages .success {
+	background: #ebf4e1;
+	border: 3px solid #436d16;
+}
+
+#messages .error {
+	background: #f3e8e8;
+	border: 3px solid #d42525;
+}
+
+/* ----------------------------------------------------------------
+	[ Main ]
+*/
+
+#main-wrapper {
+	float: left;
+	width: 75%;
+}
+	#main, 
+	#sidebar {
+		background: #fff;
+		margin: 10px;
+	}
+		#main h1,
+		#sidebar .sidebar-action {
+			background: #dae0aa;
+			color: #50580e;
+			font-size: 1.2em;
+			margin: 0px;
+			padding: 10px;
+		}
+	
+		#content {
+			padding: 10px;
+		}
+	
+/* ----------------------------------------------------------------
+	[ Sidebar ]
+*/
+
+#sidebar-wrapper {
+	float: right;
+	width: 25%;
+}
+
+	#sidebar {
+		margin-left: 0px;
+	}
+	
+		#sidebar .sidebar-action {
+			display: block;
+			line-height: 37px;
+			margin-bottom: 10px;
+			padding: 0px;
+		}
+	
+		#sidebar .sidebar-action:hover {
+				background: #cdd48f;
+		}
+	
+			#sidebar .sidebar-action img {
+				background: #afb76a;
+				padding: 3px;
+				vertical-align: middle;
+			}
+
+/* ----------------------------------------------------------------
+	[ Footer ]
+*/
+
+#footer {
+	clear: both;
+	color: #b5ba8a;
+	margin: 10px;
+}
+
+/* ----------------------------------------------------------------
+	[ Forms ]
+*/
+
+.form {
+}
+
+	.form dl {
+		list-style: none;
+		margin: 0px;
+		padding: 0px;
+	}
+	
+		.form dl dt span.needed {
+			color: #cc0000;
+			cursor: help;
+			font-weight: bold;
+		}
+	
+		.form-input,
+		.form-textarea {
+			border: 3px solid #e5ecc4;
+			padding: 2px;
+			width: 99%;
+		}
+	
+		.form-textarea {
+			height: 150px;
+		}
+		
+		.form-button {
+			background: #e9f4b5;
+			border: 2px solid #8da420;
+			cursor: pointer;
+			font-size: 1.1em;
+			font-weight: bold;
+			padding: 5px;
+		}
+		
+		a.form-link-button {
+			padding: 2px;
+			text-decoration: underline;
+		}
+		
+		a.form-link-button:hover {
+			background: #e8efc8;
+		}
+
+/* ----------------------------------------------------------------
+	[ Simple form ]
+*/
+
+.form-simple dl dt {
+	clear: left;
+	float: left;
+	position: relative;
+	text-align: right;
+	width: 7em;
+}
+
+.form-simple dl dd {
+	clear: right;
+	margin-bottom: 0.8em;
+	margin-left: 7.5em;
+	padding-left: 0.5em;
+}
+
+.form-simple dl dd.buttons {
+	margin-top: 2em;
+}
+
+/* ----------------------------------------------------------------
+	[ Content form ]
+*/
+
+.form-content dl dt {
+	color: #949f5f;
+	display: block;
+	font-size: 1.2em;
+	font-weight: bold;
+	padding: 5px;
+	width: auto;
+}
+
+.form dl dd {
+	margin: 5px;
+	margin-bottom: 20px;
+}
+
+.form dl dd.buttons {
+}
+
+/* ----------------------------------------------------------------
+	[ Tabs ]
+*/
+
+.ui-tabs-nav {
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+	.ui-tabs-nav li {
+		display: inline;
+		margin: 0px;
+		padding: 0px;
+	}
+	
+		.ui-tabs-nav li a {
+			background: #e8e8e8;
+			color: #989898;
+			display: block;
+			float: left;
+			margin-right: 6px;
+			padding: 6px 8px 4px;
+		}
+		
+		.ui-tabs-nav li.ui-tabs-selected a {
+			background: #989898;
+			color: #fff;
+		}
+		
+.ui-tabs-panel {
+	background: #989898;
+	clear: both;
+	padding: 3px;
+}
+		
+.ui-tabs-hide {
+	display: none;
+}
+		
+	.ui-tabs-panel .tabs-body {
+		background: #fff;
+		padding: 10px;
+	}
+
+/* ----------------------------------------------------------------
+	[ Tree ]
+*/
+
+.tree dt.directory {
+	background: none;
+}
+
+	.tree dt.directory a.collapse {
+		background: url(../images/collapse.png) left 50% no-repeat;
+		display: block;
+		float: left;
+		height: 17px;
+		width: 17px;
+	}
+
+.tree dd {
+	margin: 0px
+}
+
+/* ----------------------------------------------------------------
+	[ File list ]
+*/
+
+.file-list {
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+	.file-list-row {
+		background: url(../images/page.png) no-repeat;
+		border-bottom: 1px solid #bfbfbf;
+		padding-left: 35px;
+		font-weight: bold;
+		height: 35px;
+		line-height: 35px;
+		position: relative;
+	}
+
+	.file-list .hover {
+		background-color: #f6f9dc;
+	}
+	
+		.file-list-row .file-list-name {
+			color: #000;
+		}
+
+		.file-list-row .file-list-actions {
+			position: absolute;
+			right: 10px;
+			top: 3px;
+		}
+

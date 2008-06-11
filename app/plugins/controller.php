@@ -124,7 +124,13 @@
 	 * @link http://pimpmycode.fr/atomik
 	 */
  
-	config_set('controller_version', '1.1');
+ 	/* default configuration */
+	config_set_default(array(
+	
+		/* version */
+		'controller_version' 	=> '1.1'
+		
+	));
 	
 	/**
 	 * Rewrite the url and build the request
@@ -141,7 +147,7 @@
 				'action' => 'index',
 				'id' => null
 			)
-		)), config_get('controller_routes'));
+		), config_get('controller_routes', array())), true);
 		
 		/* retreives the url */
 		$uri = trim(config_get('request'), '/');
@@ -198,6 +204,7 @@
 		
 		/* overrides request_action */
 		config_set('request_action', config_get('core_paths_actions') . $request['controller'] . '.php');
+		
 		/* saves the request */
 		config_set('controller_request', $request);
 		
@@ -220,7 +227,7 @@
 	 */
 	function controller_dispatch($action, &$template, &$vars, $render, $echo, $triggerError)
 	{
-		events_fire('controller_before_dispatch');
+		events_fire('controller_before_dispatch', array(&$template, &$vars));
 		$request = config_get('controller_request');
 		
 		/* checks if the action starts with an underscore */
@@ -228,8 +235,10 @@
 			trigger404();
 		}
 		
-		/* finds the controller class */
+		/* controller class name */
 		$classname = ucfirst(strtolower($request['controller'])) . 'Controller';
+		
+		/* checks if the controller class exists */
 		if (!class_exists($classname)) {
 			trigger_error('Controller ' . $classname . ' not found', E_USER_ERROR);
 			return;
@@ -241,7 +250,7 @@
 			trigger404();
 		}
 		
-		events_fire('controller_before_action', array($request, &$instance));
+		events_fire('controller_before_action', array(&$request, &$instance));
 		
 		/* executes beforeAction if it exists */
 		if (method_exists($instance, '_beforeAction')) {
@@ -256,7 +265,7 @@
 			$instance->_afterAction($request);
 		}
 		
-		events_fire('controller_after_action', array($request, &$instance));
+		events_fire('controller_after_action', array(&$request, &$instance));
 		
 		/* gets the instance properties and sets them in the global scope for the view */
 		$vars = array();
@@ -269,7 +278,7 @@
 		/* override request_template with the view filename */
 		$template = $request['controller'] . '/' . $request['action'];
 		
-		events_fire('controller_after_dispatch', array($instance));
+		events_fire('controller_after_dispatch', array($instance, &$template, &$vars));
 	}
 	events_register('core_after_action', 'controller_dispatch');
 	

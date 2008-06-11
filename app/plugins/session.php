@@ -130,3 +130,27 @@
 		return $message;
 	}
 	
+	/**
+	 * Returns the number of messages
+	 *
+	 * @return int
+	 */
+	function count_flash_messages($label = null)
+	{
+		/* if $label is null, returns all the messages of all labels */
+		if ($label === null) {
+			$count = 0;
+			foreach ($_SESSION['__FLASH_CURRENT'] as $msgs) {
+				$count += count($msgs);
+			}
+			return $count;
+		}
+		
+		/* checks if the label exists */
+		if (!isset($_SESSION['__FLASH_CURRENT'][$label])) {
+			return 0;
+		}
+		
+		return count($_SESSION['__FLASH_CURRENT'][$label]);
+	}
+	

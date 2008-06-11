@@ -13,13 +13,15 @@
 	define('ATOMIK_VERSION', '2.0');
 	 
 	/* the ONLY one global variable! */
-	$_ATOMIK = array();
+	if (!isset($_ATOMIK)) {
+		$_ATOMIK = array();
+	}
 	
 	/* -------------------------------------------------------------------------------------------
 	 *  DEFAULT CONFIGURATION
 	 * ------------------------------------------------------------------------------------------ */
 
-	config_merge(array(
+	config_set_default(array(
 
 		/* plugins */
 		'plugins'						=> array(),
@@ -33,22 +35,21 @@
 		'core_display_errors'			=> true,
 	
 		/* paths */
-		'core_paths_root'				=> './',
-		'core_paths_plugins'			=> './plugins/',
-		'core_paths_actions' 			=> './actions/',
-		'core_paths_templates'	 		=> './templates/',
-		'core_paths_includes'			=> './includes/',
+		'core_paths_root'				=> './app/',
+		'core_paths_plugins'			=> './app/plugins/',
+		'core_paths_actions' 			=> './app/actions/',
+		'core_paths_templates'	 		=> './app/templates/',
+		'core_paths_includes'			=> './app/includes/',
 	
 		/* filenames */
-		'core_filenames_config' 		=> './config.php',
-		'core_filenames_pre_dispatch' 	=> './pre_dispatch.php',
-		'core_filenames_post_dispatch' 	=> './post_dispatch.php',
-		'core_filenames_404' 			=> './404.php',
-		'core_filenames_error' 			=> './error.php',
+		'core_filenames_config' 		=> './app/config.php',
+		'core_filenames_pre_dispatch' 	=> './app/pre_dispatch.php',
+		'core_filenames_post_dispatch' 	=> './app/post_dispatch.php',
+		'core_filenames_404' 			=> './app/404.php',
+		'core_filenames_error' 			=> './app/error.php',
 	
 		'start_time' 					=> time() + microtime()
 	));
-
 
 	/* -------------------------------------------------------------------------------------------
 	 *  CORE
@@ -77,13 +78,28 @@
 		/* no trigger specified, using default page name */
 		config_set('request', config_get('core_default_action'));
 	} else {
-		config_set('request', ltrim($_GET[config_get('core_action_trigger')], '/'));
+		config_set('request', trim($_GET[config_get('core_action_trigger')], '/'));
 		
 		/* checking if no dot are in the page name to avoid any hack attempt and if no 
 		 * underscore is use as first character in a segment */
 		if (strpos(config_get('request'), '..') !== false || substr(config_get('request'), 0, 1) == '_' || 
 			strpos(config_get('request'), '/_') !== false) {
 				trigger404();
+		}
+	}
+	
+	/* checks if url rewriting is used */
+	if (!config_isset('use_rewrite')) {
+		config_set('use_rewrite', isset($_SERVER['REDIRECT_URL']));
+	}
+	
+	/* retreives the base url */
+	if (!config_isset('base_url')) {
+		if (config_get('use_rewrite')) {
+			config_set('base_url', substr($_SERVER['REDIRECT_URL'], 0, 
+				-strlen($_GET[config_get('core_action_trigger')])));
+		} else {
+			config_set('base_url', dirname($_SERVER['SCRIPT_NAME']) . '/');
 		}
 	}
 	
@@ -137,8 +153,7 @@
 		/* action and template filenames and existence */
 		$actionFilename = config_get('core_paths_actions') . $action . '.php';
 		$actionExists = file_exists($actionFilename);
-		$templateFilename = config_get('core_paths_templates') . $template . '.php';
-		$templateExists = file_exists($templateFilename);
+		$templateExists = file_exists(config_get('core_paths_templates') . $template . '.php');
 		
 		/* checks if at least the action file or the template file is defined */
 		if (!$actionExists && !$templateExists) {
@@ -164,7 +179,7 @@
 		events_fire('core_after_action', array($action, &$template, &$vars, &$render, &$echo, &$triggerError));
 		
 		/* returns $vars if the template is not rendered */
-		if (!$render) {
+		if (!$render || !file_exists(config_get('core_paths_templates') . $template . '.php')) {
 			return $vars;
 		}
 		
@@ -207,7 +222,7 @@
 	 */
 	function atomik_render_template($template, $vars = array(), $echo = false, $triggerError = true)
 	{
-		events_fire('core_before_template', array(&$template, &$vars, &$echo, &$triggerError));
+		events_fire('core_template_start', array(&$template, &$vars, &$echo, &$triggerError));
 		
 		/* template filename */
 		$filename = config_get('core_paths_templates') . $template . '.php';
@@ -219,6 +234,8 @@
 			}
 			return false;
 		}
+		
+		events_fire('core_before_template', array(&$template, &$vars, &$echo, &$triggerError, &$filename));
 		
 		/* render the template in its own scope */
 		$output = atomik_render_template_scope($filename, $vars);
@@ -307,6 +324,7 @@
 	 *
 	 * @param string $plugin
 	 * @param array $args OPTIONAL
+	 * @return bool Success
 	 */
 	function load_plugin($plugin, $args = array())
 	{
@@ -319,14 +337,14 @@
 		
 		/* checks if the plugin is already loaded */
 		if (in_array($plugin, $_ATOMIK['plugins'])) {
-			return;
+			return true;
 		}
 		
 		events_fire('core_before_plugin', array(&$plugin));
 		
 		/* checks if plugin has been set to false from one of the event callbacks */
 		if ($plugin === false) {
-			return;
+			return false;
 		}
 		
 		/* checks if the atomik_plugin_NAME function is defined */
@@ -338,7 +356,7 @@
 			} else {
 				/* plugin not found */
 				trigger_error('Missing plugin: ' . $plugin, E_USER_WARNING);
-				return;
+				return false;
 			}
 		}
 		
@@ -352,6 +370,7 @@
 		
 		/* stores the plugin name inside $_ATOMIK['plugins'] so we won't load it twice */
 		$_ATOMIK['plugins'][] = $plugin;
+		return true;
 	}
 	
 	/**
@@ -423,7 +442,8 @@
 	function config_set_default($values)
 	{
 		global $_ATOMIK;
-		$_ATOMIK['config'] = array_merge($values, $_ATOMIK['config']);
+		$_ATOMIK['config'] = array_merge($values, is_array($_ATOMIK['config']) ? 
+									$_ATOMIK['config'] : array());
 	}
 	
 	/**
@@ -511,17 +531,6 @@
 		atomik_end();
 	}
 
-	/**
-	 * Redirects to another url
-	 *
-	 * @param string $destination
-	 */
-	function redirect($destination)
-	{
-		header('Location: ' . $destination);
-		core_end();
-	}
-
 	/*
 	 * Includes a file from the includes folder
 	 * Do not specify the extension
@@ -533,18 +542,56 @@
 		global $_ATOMIK;
 		require_once(config_get('core_paths_includes') . $include . '.php');
 	}
+
+	/**
+	 * Redirects to another url
+	 *
+	 * @see get_url()
+	 * @param string $url
+	 * @param bool $useGetUrl OPTIONAL (default true)
+	 */
+	function redirect($url, $useGetUrl = true)
+	{
+		/* uses get_url() */
+		if ($useGetUrl) {
+			$url = get_url($url);
+		}
+		
+		/* redirects */
+		header('Location: ' . $url);
+		atomik_end();
+	}
 	
 	/**
-	 * Returns an url for the action
-	 * TODO
+	 * Returns an url for the action depending on whether url rewriting
+	 * is used or not
 	 *
 	 * @param string $action
 	 * @return string
 	 */
 	function get_url($action)
 	{
-		$url = 'index.php?' . config_get('core_action_trigger') . '=' . $action;
+		/* base url */
+		$url = rtrim(config_get('base_url', '.'), '/') . '/';
 		
+		/* removes the query string from the action */
+		$queryString = '';
+		if (strpos($action, '?') !== false) {
+			$parts = explode('?', $action);
+			$action = $parts[0];
+			$queryString = $parts[1];
+		}
+		
+		/* checks if url rewriting is used */
+		if (config_get('use_rewrite', false) === true) {
+			$url .= $action . '?' . $queryString;
+		} else {
+			/* no url rewriting, using index.php */
+			$url .= 'index.php?' . config_get('core_action_trigger') 
+			      . '=' . $action . '&' . $queryString;
+		}
+		
+		/* trigger an event */
 		$args = func_get_args();
 		unset($args[0]);	
 		events_fire('get_url', array($action, &$url, $args));
