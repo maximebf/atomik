@@ -1,1 +1,1 @@
-<?php echo $text; ?>
+<?php echo __($text); ?>

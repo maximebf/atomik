@@ -13,7 +13,7 @@ class Atomik_Backend
 	 */
 	public static function getModules()
 	{
-		return config_get('backend_modules');
+		return Atomik::get('backend/modules');
 	}
 	
 	/**
@@ -23,7 +23,6 @@ class Atomik_Backend
 	 */
 	public static function getModuleName()
 	{
-		$request = config_get('controller_request');
-		return $request['controller'];
+		return Atomik::get('controller/request/controller');
 	}
 }

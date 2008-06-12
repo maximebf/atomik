@@ -2,7 +2,7 @@
 	<div id="main">
 		<h1><?php echo __($template->getName()); ?></h1>
 		<div id="content">
-			<form action="<?php echo get_url('pages/save'); ?>" method="post" class="form form-content">
+			<form action="<?php echo Atomik::url('pages/save'); ?>" method="post" class="form form-content">
 				<input type="hidden" name="file" value="<?php echo $file; ?>" />
 				<dl>
 					<?php foreach ($template->getFields() as $field): ?>
@@ -36,7 +36,7 @@
 					<dd class="buttons">
 						<input type="submit" value="<?php echo __('Save'); ?>" class="form-button" />
 						<?php echo __('or'); ?> 
-						<a href="<?php echo get_url('pages/index'); ?>" class="form-link-button" title="<?php echo __('Cancel'); ?>">
+						<a href="<?php echo Atomik::url('pages/index'); ?>" class="form-link-button" title="<?php echo __('Cancel'); ?>">
 							<?php echo __('Cancel'); ?>
 						</a>
 					</dd>

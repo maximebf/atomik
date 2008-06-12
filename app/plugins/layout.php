@@ -1,66 +1,76 @@
 <?php
-	/**
-	 * LAYOUT
-	 *
-	 * Adds layout support to templates
-	 *
-	 * @version 2.0
-	 * @package Atomik
-	 * @subpackage Layout
-	 * @author Maxime Bouroumeau-Fuseau
-	 * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
-	 * @license http://www.opensource.org/licenses/mit-license.php
-	 * @link http://pimpmycode.fr/atomik
-	 */
-	 
-	/* default configuration */
-	config_set_default(array(
-	
-		/* layout used troughout the site, false to disable */
-		'layout_global' 	=> config_get('core_paths_templates') . '_layout.php',
-		
-		/* layout used on a pair template basis */
-		'layout_templates'	=> array()
-		
-	));
+/**
+ * Atomik Framework
+ * 
+ * @package Atomik
+ * @subpackage Layout
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
 
+/* default configuration */
+Atomik::setDefault(array(
+    'layout' => array(
+
+    	/* layout used troughout the site, false to disable */
+    	'global' 	=> '_layout.php',
+    	
+    	/* layout used on a pair template basis */
+    	'templates'	=> array()
+
+    )
+));
+
+/**
+ * Layout plugin
+ *
+ * Adds layout support to templates
+ *
+ * @package Atomik
+ * @subpackage Layout
+ */
+class LayoutPlugin
+{
+	protected static $_disable = false;
+	
 	/**
 	 * Starts output buffering to capture the whole output
 	 */
-	function layout_before_dispatch()
+	public static function onAtomikDispatchBefore()
 	{
 		/* checks if global layout is enabled */
-		if (config_get('layout_global', false) === false) {
+		if (Atomik::get('layout/global', false) === false) {
 			return;
 		}
 		ob_start();
 	}
-	events_register('core_before_dispatch', 'layout_before_dispatch');
 	 
 	 /**
 	  * Renders the global layout
 	  */
-	function layout_after_dispatch()
+	public static function onAtomikDispatchAfter()
 	{
 		/* checks if global layout is enabled */
-		if (config_get('layout_global', false) === false) {
+		if (($globalFilename = Atomik::get('layout/global', false)) === false) {
 			return;
 		}
+		
 		$output = ob_get_clean();
 		
 		/* checks if the layout is enabled */
-		if (config_get('layout', true) !== false) {
+		if (self::$_disable === false) {
 			$content_for_layout = $output;
 			
 			/* renders global layout */
 			ob_start();
-			include(config_get('layout_global'));
+			include(Atomik::get('atomik/paths/templates') . $globalFilename);
 			$output = ob_get_clean();
 		}
 		
 		echo $output;
 	}
-	events_register('core_after_dispatch', 'layout_after_dispatch');
 
 	/**
 	 * Renders the layout associated to a template
@@ -68,46 +78,45 @@
 	 * @param string $template Template name
 	 * @param string $output Template output
 	 */
-	function layout_render_template($template, &$output)
+	public static function onAtomikRenderAfter($template, &$output)
 	{
-		$templates = config_get('layout_templates');
+		$templates = Atomik::get('layout/templates');
 		
-		if (config_get('layout', true) !== false && isset($templates[$template])) {
+		if (self::$_disable === false && isset($templates[$template])) {
 			$content_for_layout = $output;
 			
 			/* renders layout */
 			ob_start();
-			include(config_get('core_paths_templates') . $templates[$template]);
+			include(Atomik::get('atomik/paths/templates') . $templates[$template]);
 			$output = ob_get_clean();
 		}
 	}
-	events_register('core_after_template', 'layout_render_template');
 
 	/**
 	 * Disables the layout
 	 */
-	function disable_layout()
+	public static function disable($disable = true)
 	{
-		config_set('layout', false);
+		self::$_disable = $disable;
 	}
 
 	/**
 	 * Creates the layout file when the init command is called
 	 * needs the console plugin
 	 */
-	function layout_console_init()
+	public static function onConsoleInit()
 	{
-		console_print('Generating layouts', 1);
+		ConsolePlugin::println('Generating layouts', 1);
 		
 		$layout = "<html>\n\t<head>\n\t\t<title>Atomik</title>\n\t</head>\n\t<body>\n\t\t"
 				. "<?php echo \$content_for_layout; ?>\n\t</body>\n</html>";
-		console_touch(config_get('layout_global'), $layout, 2);
+				
+		ConsolePlugin::touch(Atomik::get('layout/global'), $layout, 2);
 		
-		$layouts = config_get('layout_templates');
+		$layouts = Atomik::get('layout/templates');
 		foreach ($layouts as $filename) {
 			$layout = "<?php echo \$content_for_layout; ?>";
-			console_touch($filename, $layout, 2);
+			ConsolePlugin::touch($filename, $layout, 2);
 		}
 	}
-	events_register('console_init', 'layout_console_init');
-
+}

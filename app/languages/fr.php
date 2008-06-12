@@ -1,8 +1,7 @@
 <?php
 
-set_language_messages(array(
+LangPlugin::setMessages(array(
 
-	'hello world' 	=> 'bonjour le monde',
-	'hello %s'		=> 'bonjour %s'
+	'hello world!' 	=> 'bonjour le monde!'
 
 ));

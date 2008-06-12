@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Atomik Backend</title>
-		<link rel="stylesheet" type="text/css" href="<?php echo config_get('base_url') ?>styles/main.css" />
-		<script type="text/javascript" src="<?php echo config_get('base_url') ?>scripts/jquery-1.2.6.min.js"></script>
-		<script type="text/javascript" src="<?php echo config_get('base_url') ?>scripts/jquery-ui-personalized-1.5.min.js"></script>
-		<script type="text/javascript" src="<?php echo config_get('base_url') ?>scripts/main.js"></script>
+		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::get('base_url') ?>styles/main.css" />
+		<script type="text/javascript" src="<?php echo Atomik::get('base_url') ?>scripts/jquery-1.2.6.min.js"></script>
+		<script type="text/javascript" src="<?php echo Atomik::get('base_url') ?>scripts/jquery-ui-personalized-1.5.min.js"></script>
+		<script type="text/javascript" src="<?php echo Atomik::get('base_url') ?>scripts/main.js"></script>
 	</head>
 	<body>
 		<div id="body">
@@ -18,7 +18,7 @@
 				<ul id="menu">
 					<?php foreach (Atomik_Backend::getModules() as $controller => $module): ?>
 						<li class="<?php if (Atomik_Backend::getModuleName() == $controller) echo 'selected '; echo $module[1]; ?>">
-							<a href="<?php echo get_url($controller) ?>">
+							<a href="<?php echo Atomik::url($controller) ?>">
 								<?php echo __(ucfirst($module[0])); ?>
 							</a>
 						</li>
@@ -28,9 +28,9 @@
 				<div class="clear"></div>
 			</div>
 			
-			<?php if (count_flash_messages()): ?>
+			<?php if (SessionPlugin::countMessages()): ?>
 				<div id="messages">
-					<?php foreach (get_flash_messages() as $label => $messages): ?>
+					<?php foreach (SessionPlugin::getMessages() as $label => $messages): ?>
 						<?php foreach ($messages as $message): ?>
 							<div class="message <?php echo $label ?>">
 								<?php echo $message ?>

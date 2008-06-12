@@ -5,7 +5,7 @@
 		<ul class="file-list">
 			<?php foreach ($templates as $template): ?>
 				<li class="file-list-row">
-					<a href="<?php echo get_url('content/edit&type=' . $template->getTable()); ?>" class="file-list-name">
+					<a href="<?php echo Atomik::url('content/edit&type=' . $template->getTable()); ?>" class="file-list-name">
 						<?php echo $template->getName(); ?>
 					</a>
 					<div class="file-list-actions">

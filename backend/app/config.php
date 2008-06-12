@@ -1,79 +1,73 @@
 <?php
 
-/* backend configuration */
-config_merge(array(
+/* includes user config */
+include ('../app/config.php');
 
-	/* backend modules list
-	 * The keys are the controllers name and the value
-	 * must be an array with as first item the text
-	 * that will appear in the menu and as second item
-	 * the position in the menu
-	 * Will be added in the same order */
-	'backend_modules'				=> array(
-	
-		'dashboard'	=> array('Dashboard'		, 'left'),
-		/*'content'	=> array('Content'			, 'left'),*/
-		'pages' 	=> array('Pages'			, 'left'),
-		
-		'admin' 	=> array('Administration'	, 'right'),
-		'doc' 		=> array('Documentation'	, 'right')
-	
-	),
-	
-	/* prefix to use for atomik tables */
-	'backend_db_prefix'				=> 'atomik_',
+/* resets default configuration */
+Atomik::set(array(
 
+    'atomik' => array(
+    
+    	/* request */
+    	'trigger' 			    => 'action',
+    	'default_action' 		=> 'index',
+    	
+    	/* error management */
+    	'catch_errors'			=> false,
+    	'display_errors'		=> true,
+    
+    	/* paths */
+        'paths' => array(
+        	'root'				=> './app/',
+        	'plugins'			=> '../app/plugins/',
+        	'actions' 			=> './app/actions/',
+        	'templates'	 		=> './app/templates/',
+        	'includes'			=> './app/libraries/'
+        ),
+    
+    	/* filenames */
+        'filenames' => array(
+        	'config' 		    => './app/config.php',
+        	'pre_dispatch' 	    => './app/pre_dispatch.php',
+        	'post_dispatch' 	=> './app/post_dispatch.php',
+        	'404' 			    => './app/404.php',
+        	'error' 			=> './app/error.php'
+        )
+    	
+    )
+    
+));
 
-	/* ----------------- resets the default configuration ---------------- */
+/* gets backend config */
+if (Atomik::has('plugins/backend')) {
+    Atomik::set('backend', Atomik::get('plugins/backend'));
+} else if (Atomik::has('backend')) {
+    Atomik::set('backend', Atomik::get('backend'));
+}
 
+/*  backend plugins configuration  */
+Atomik::set('plugins', array(
 
-	/* plugins used by the backend */
-	'plugins' 						=> array('pdo', 'layout', 'session', 'lang', 'controller'),
+    /* gets user configuration for the db */
+    'db' => Atomik::get('plugins/db', array()),
 
-	/* request */
-	'core_default_action' 			=> 'index',
-	
-	/* error management */
-	'core_handles_errors'			=> false,
-	'core_display_errors'			=> true,
+	'layout', 
+	'session', 
+	'lang', 
 
-	/* paths */
-	'core_paths_root'				=> './app/',
-	'core_paths_plugins'			=> '../app/plugins/', /* uses the user app plugins */
-	'core_paths_actions' 			=> './app/actions/',
-	'core_paths_templates'	 		=> './app/templates/',
-	'core_paths_includes'			=> './app/libraries/',
-
-	/* filenames */
-	'core_filenames_config' 		=> './app/config.php',
-	'core_filenames_pre_dispatch' 	=> './app/pre_dispatch.php',
-	'core_filenames_post_dispatch' 	=> './app/post_dispatch.php',
-	'core_filenames_404' 			=> './app/404.php',
-	'core_filenames_error' 			=> './app/error.php',
-	
-	
-	/* ----------------- backend plugins configuration ---------------- */
-
-
-	/* where to find user templates */
-	'templates_dir'					=> '../app/templates',
-	
-	/* routes */
-	'controller_routes'				=> array(
-		'index' => array(
-			'controller' => 'dashboard',
-			'action' => 'index'
-		)
-	),
-	
-	/* database */
-	'database'						=> true,
-	'database_dsn'					=> 'mysql:host=localhost;dbname=atomik',
-	'database_username'				=> 'atomik',
-	'database_password'				=> 'atomik'
-
+	'controller' => array(
+        /* routes */
+		'routes'=> array(
+    		'index' => array(
+    			'controller' => 'dashboard',
+    			'action' => 'index'
+    		)
+    	)
+    	
+	)
+    	
 ));
 
 /* loads the Atomik_Backend class */
-needed('Atomik/Backend');
+Atomik::needed('Atomik/Backend');
 

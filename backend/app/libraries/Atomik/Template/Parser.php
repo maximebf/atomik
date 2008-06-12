@@ -56,6 +56,13 @@ class Atomik_Template_Parser
 	protected $_regexp = '/(<(?P<tag>.+)\s(.*class="(.*atomik.*)".*)>)((?s).*)(<\/\k<tag>>)/U';
 	
 	/**
+	 * Database table name
+	 *
+	 * @var string
+	 */
+	protected $_table;
+	
+	/**
 	 * Finds all supported templates and load them
 	 *
 	 * @return Atomik_Template_Parser
@@ -63,7 +70,7 @@ class Atomik_Template_Parser
 	public static function getTemplatesFromDir($dir = null)
 	{
 		if ($dir === null) {
-			$dir = config_get('templates_dir');
+			$dir = Atomik::get('backend/templates_dir');
 		}
 		
 		/* go through all files of the template directory and loads
@@ -117,6 +124,7 @@ class Atomik_Template_Parser
 		$this->_content = $content; 
 		$this->_filename = $filename;
 		$this->_editable = false;
+		$this->_table = Atomik::get('backend/db_prefix') . 'content';
 		
 		/* checks if the template is editable */
 		if (preg_match('/<!--\s?Atomik:Page=(.+)\s?-->/', $content, $match)) {
@@ -255,8 +263,7 @@ class Atomik_Template_Parser
 	protected function _getValuesFromDb()
 	{
 		/* finds all fields for the current filename */
-		$stmt = Db::findAll(config_get('backend_db_prefix') . 'content', 
-					array('template' => $this->_filename));
+		$stmt = Db::findAll($this->_table, array('template' => $this->_filename));
 		
 		/* fetches values */
 		$values = array();

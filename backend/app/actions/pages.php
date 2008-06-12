@@ -1,7 +1,7 @@
 <?php
 
 /* Atomik_TemplateParser */
-needed('Atomik/Template/Parser');
+Atomik::needed('Atomik/Template/Parser');
 	
 /**
  * Pages manager
@@ -18,10 +18,10 @@ class PagesController
 	/**
 	 * Before actions
 	 */
-	public function _beforeAction()
+	public function _before()
 	{
 		/* saves the full content table name */
-		$this->_table = config_get('backend_db_prefix') . 'content';
+		$this->_table = Atomik::get('backend/db_prefix') . 'content';
 	}
 	
 	/**
@@ -39,8 +39,8 @@ class PagesController
 	{
 		/* retreives the file real path and checks if the file exists */
 		if (($this->file = @realpath($_GET['file'])) === false) {
-			add_flash_message('File ' . $this->file . ' does not exists', 'error');
-			redirect('pages/index');
+			SessionPlugin::flash('File ' . $this->file . ' does not exists', 'error');
+			Atomik::redirect('pages/index');
 		}
 		
 		/* parses the template to retreives fields */
@@ -48,8 +48,8 @@ class PagesController
 		
 		/* checks if the template is editable */
 		if (!$this->template->isEditable()) {
-			add_flash_message('The file ' . $this->file . ' is not editable', 'error');
-			redirect('pages/index');
+			SessionPlugin::flash('The file ' . $this->file . ' is not editable', 'error');
+			Atomik::redirect('pages/index');
 		}
 	}
 	
@@ -60,14 +60,14 @@ class PagesController
 	{
 		/* checks if there are post data */
 		if (!count($_POST)) {
-			redirect('pages/index');
+			Atomik::redirect('pages/index');
 		}
 		
 		/* checks if all values are present */
 		if (!isset($_POST['file']) || empty($_POST['file']) || 
 			!isset($_POST['fields']) || !is_array($_POST['fields'])) {
-				add_flash_message('An error occured', 'error');
-				redirect('pages/index');	
+				SessionPlugin::flash('An error occured', 'error');
+				Atomik::redirect('pages/index');	
 		}
 		
 		$filename = $_POST['file'];
@@ -77,8 +77,8 @@ class PagesController
 		/* checks for new fields */
 		if (isset($_POST['newFields'])) {
 			if (!is_array($_POST['newFields'])) {
-				add_flash_message('An error occured', 'error');
-				redirect('pages/index');
+				SessionPlugin::flash('An error occured', 'error');
+				Atomik::redirect('pages/index');
 			}
 			$newFields = $_POST['newFields'];
 		}
@@ -102,7 +102,7 @@ class PagesController
 		}
 		
 		/* success */
-		add_flash_message('Saved successfuly!', 'success');
-		redirect('pages/edit?file=' . $filename);
+		SessionPlugin::flash('Saved successfuly!', 'success');
+		Atomik::redirect('pages/edit?file=' . $filename);
 	}
 }

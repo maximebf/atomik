@@ -1,44 +1,65 @@
 <?php
-	/**
-	 * CONSOLE
-	 *
-	 * CLI commands to simplify administration
-	 * 
-	 * index.php command [arg1 [arg2 [...]]]
-	 *
-	 * Two builtin commands: init and generate (see end of this file)
-	 *
-	 * @version 1.0
-	 * @package Atomik
-	 * @subpackage Console
-	 * @author Maxime Bouroumeau-Fuseau
-	 * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
-	 * @license http://www.opensource.org/licenses/mit-license.php
-	 * @link http://pimpmycode.fr/atomik
-	 */
-	 
-	/* checks if we are in the CLI */
-	if (isset($_SERVER['HTTP_HOST'])) {
-		return;
-	}
+/**
+ * Atomik Framework
+ * 
+ * @package Atomik
+ * @subpackage Console
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
+ 
 
+/**
+ * Console plugin
+ *
+ * CLI commands to simplify administration
+ * 
+ * index.php command [arg1 [arg2 [...]]]
+ *
+ * Two builtin commands: init and generate
+ *
+ * @package Atomik
+ * @subpackage Console
+ */
+class ConsolePlugin
+{
+    /**
+     * Registered commands
+     *
+     * @var array
+     */
+    protected static $_commands = array();
+    
+    /**
+     * Checks we're in console mode
+     *
+     * @return bool
+     */
+    public static function start()
+    {
+    	/* checks if we are in the CLI */
+    	if (isset($_SERVER['HTTP_HOST'])) {
+    		return false;
+    	}
+    	
+    	/* registers builtin commands */
+    	self::register('init', array('ConsolePlugin', 'init'));
+    	self::register('generate', array('ConsolePlugin', 'generate'));
+    }
+    
 	/**
 	 * Display the console and execute callbacks associated
 	 * to the command
 	 */
-	function console_core_start()
+	public static function onAtomikStart()
 	{
-		global $_ATOMIK;
 		echo "Atomik " . ATOMIK_VERSION . " Console\n";
 		
 		if ($_SERVER['argc'] <= 1) {
-			events_fire('console_end');
-			atomik_end();
-		}
-		
-		/* array where registered commands are stored */
-		if (!isset($_ATOMIK['console'])) {
-			$_ATOMIK['console'] = array();
+			Atomik::fireEvent('Console::End');
+			Atomik::end(true);
 		}
 		
 		/* get parameters from the command line arguments */
@@ -46,24 +67,23 @@
 		$arguments = array_slice($_SERVER['argv'], 2);
 		
 		/* console starts */
-		events_fire('console_start', array($command, $arguments));
+		Atomik::fireEvent('Console::Start', array(&$command, &$arguments));
 		
 		/* checks if the command is registered */
-		if (!array_key_exists($command, $_ATOMIK['console'])) {
+		if (!array_key_exists($command, self::$_commands)) {
 			echo "The command $command does not exists\n";
-			atomik_end();
+			Atomik::end(true);
 		}
 		
 		/* executes the callback */
-		call_user_func($_ATOMIK['console'][$command], $arguments);
+		call_user_func(self::$_commands[$command], $arguments);
 		
 		/* console ends */
-		events_fire('console_end', array($command, $arguments));
+		Atomik::fireEvent('Console::End', array($command, $arguments));
 		
 		echo "\n\nDone\n";
-		atomik_end();
+		Atomik::end();
 	}
-	events_register('core_start', 'console_core_start');
 	
 	/**
 	 * Registers a callback to call when a command is
@@ -72,13 +92,9 @@
 	 * @param string $command
 	 * @param callback $callback
 	 */
-	function console_register($command, $callback)
+	public static function register($command, $callback)
 	{
-		global $_ATOMIK;
-		if (!isset($_ATOMIK['console'])) {
-			$_ATOMIK['console'] = array();
-		}
-		$_ATOMIK['console'][$command] = $callback;
+		self::$_commands[$command] = $callback;
 	}
 	
 	/**
@@ -87,7 +103,7 @@
 	 * @param string $message
 	 * @param int $indent OPTIONAL Indentation
 	 */
-	function console_print($message, $indent = 0)
+	public static function println($message, $indent = 0)
 	{		
 		echo "\n" . str_repeat("\t", $indent) . $message;
 	}
@@ -98,7 +114,7 @@
 	 * @param string $message OPTIONAL
 	 * @return bool TRUE
 	 */
-	function console_success($message = '')
+	public static function success($message = '')
 	{
 		echo ' [SUCCESS' . (!empty($message) ? ': ' . $message : '') . ']';
 		return true;
@@ -110,7 +126,7 @@
 	 * @param string $message OPTIONAL
 	 * @return bool FALSE
 	 */
-	function console_fail($message = '')
+	public static function fail($message = '')
 	{
 		echo ' [FAIL' . (!empty($message) ? ': ' . $message : '') . ']';
 		return false;
@@ -124,26 +140,26 @@
 	 * @param string $message OPTIONAL Message to announce the action
 	 * @return bool
 	 */
-	function console_mkdir($dir, $indent = 0, $message = 'Creating directory: ')
+	public static function mkdir($dir, $indent = 0, $message = 'Creating directory: ')
 	{
-		console_print($message . $dir, $indent);
+		self::println($message . $dir, $indent);
 		
 		/* checks if the file exists */
 		if (file_exists($dir)) {
 			if (!is_dir($dir)) {
 				/* it exists but it's not a directory */
-				return console_fail('Already exists and is not a directory');
+				return self::fail('Already exists and is not a directory');
 			} else {
 				/* it exists and it's a directory, no need to continue */
-				return console_success('Already exists');
+				return self::success('Already exists');
 			}
 		}
 		
 		/* creates the directory */
 		if (!@mkdir($dir)) {
-			return console_fail();
+			return self::fail();
 		}
-		return console_success();
+		return self::success();
 	}
 	
 	/**
@@ -155,18 +171,16 @@
 	 * @param string $message OPTIONAL Message to announce the action
 	 * @return bool
 	 */
-	function console_touch($filename, $content = '', $indent = 0, $message = 'Creating file: ')
+	public static function touch($filename, $content = '', $indent = 0, $message = 'Creating file: ')
 	{
-		console_print($message . $filename, $indent);
+		self::println($message . $filename, $indent);
 		
 		/* writes the file */
-		if (($file = fopen($filename, 'w')) === false) {
-			return console_fail();
+		if (file_put_contents($filename, $content) === false) {
+			return self::fail();
 		}
-		fwrite($file, $content);
-		fclose($file);
 		
-		return console_success();
+		return self::success();
 	}
 	
 	/**
@@ -175,39 +189,39 @@
 	 *
 	 * @param array $arguments
 	 */
-	function console_init($arguments)
+	public static function init($arguments)
 	{
-		console_print('Creating directory structure');
+		self::println('Creating directory structure');
 		
 		/* checks if current directory is writeable */
 		if (!is_writeable(dirname(__FILE__))) {
-			return console_fail('Current directory is not writeable');
+			return self::fail('Current directory is not writeable');
 		}
 		
 		/* creates the actions directory */
-		console_mkdir(config_get('core_paths_actions'), 1);
+		self::mkdir(Atomik::get('atomik/paths/actions'), 1);
 			
 		/* creates the templates directory */
-		console_mkdir(config_get('core_paths_templates'), 1);
+		self::mkdir(Atomik::get('atomik/paths/templates'), 1);
 		
 		/* creates the plugins directory */
-		console_mkdir(config_get('core_paths_plugins'), 1);
+		self::mkdir(Atomik::get('atomik/paths/plugins'), 1);
 		
 		/* creates the includes directory */
-		console_mkdir(config_get('core_paths_includes'), 1);
+		self::mkdir(Atomik::get('atomik/paths/includes'), 1);
 		
 		/* creates the styles directory */
-		console_mkdir(dirname(__FILE__) . '/styles', 1);
+		self::mkdir(dirname(__FILE__) . '/styles', 1);
 		
 		/* creates the images directory */
-		console_mkdir(dirname(__FILE__) . '/images', 1);
+		self::mkdir(dirname(__FILE__) . '/images', 1);
 		
 		/* fires an event so other package can do stuff too */
-		events_fire('console_init', array($arguments));
+		Atomik::fireEvent('Console::Init', array($arguments));
 		
 		/* creates the .htaccess file */
 		if (in_array('--htaccess', $arguments)) {
-			$trigger = config_get('core_action_trigger');
+			$trigger = Atomik::get('atomik/trigger');
 			$htaccess = "<IfModule mod_rewrite.c>\n\t"
 			          . "RewriteEngine on\n\t"
 			          . "RewriteCond %{REQUEST_FILENAME} !-f\n\t"
@@ -215,13 +229,12 @@
 					  . "RewriteRule ^(.*)\$ index.php?$trigger=\$1 [QSA,L]\n"
 					  . "</IfModule>";
 						
-			console_touch('.htaccess', $htaccess);
+			self::touch('.htaccess', $htaccess);
 		}
 		
 		/* generate the default action scripts */
-		console_generate(array(config_get('core_default_action')));
+		self::generate(array(Atomik::get('atomik/default_action')));
 	}
-	console_register('init', 'console_init');
 	
 	/**
 	 * Generate command.
@@ -229,22 +242,21 @@
 	 *
 	 * @param array $arguments
 	 */
-	function console_generate($arguments)
+	public static function generate($arguments)
 	{
 		foreach ($arguments as $action) {
-			console_print('Generating ' . $action);
+			self::println('Generating ' . $action);
 			$filename = ltrim($action, '/') . '.php';
 			
 			/* creates the action file */
-			console_touch(config_get('core_paths_actions') . $filename, 
+			self::touch(Atomik::get('atomik/paths/actions') . $filename, 
 				"<?php\n\n\t/* Logic goes here */\n", 1);
 		
 			/* creates the template file */
-			console_touch(config_get('core_paths_templates') . $filename, '', 1);
+			self::touch(Atomik::get('atomik/paths/templates') . $filename, '', 1);
 		
 			/* fires an event to allow packages to extend the generate command */
-			events_fire('console_generate', array($action));
+			Atomik::fireEvent('Console::Generate', array($action));
 		}
 	}
-	console_register('generate', 'console_generate');
-	
+}

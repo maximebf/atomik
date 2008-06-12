@@ -5,7 +5,7 @@
 	</head>
 	<body>
 	
-		<?php foreach (get_flash_messages() as $message): ?>
+		<?php foreach (SessionPlugin::getMessages() as $message): ?>
 			<h2><?php echo $message ?></h2>
 		<?php endforeach; ?>
 	

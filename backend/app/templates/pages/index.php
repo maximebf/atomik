@@ -6,7 +6,7 @@
 				<dl id="tree" class="file-list tree">
 					<?php
 						foreach ($templates as $template) {
-							echo atomik_render_template('pages/_page', array('template' => $template));
+							echo Atomik::render('pages/_page', array('template' => $template));
 						}
 					?>
 				</dl>
