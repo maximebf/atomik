@@ -28,8 +28,8 @@
 				<div class="clear"></div>
 			</div>
 			
-			<?php if (SessionPlugin::countMessages()): ?>
-				<div id="messages">
+			<div id="messages">
+    			<?php if (SessionPlugin::countMessages()): ?>
 					<?php foreach (SessionPlugin::getMessages() as $label => $messages): ?>
 						<?php foreach ($messages as $message): ?>
 							<div class="message <?php echo $label ?>">
@@ -37,9 +37,9 @@
 							</div>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
-				</div>
-				<script type="text/javascript">setTimeout('hideFlashMessages()', 5000);</script>
-			<?php endif; ?>
+    				<script type="text/javascript">setTimeout('Atomik.hideMessages()', 5000);</script>
+    			<?php endif; ?>
+			</div>
 			
 			<?php echo $content_for_layout ?>
 			

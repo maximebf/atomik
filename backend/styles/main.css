@@ -121,8 +121,7 @@ img {
 	float: left;
 	width: 75%;
 }
-	#main, 
-	#sidebar {
+	#main {
 		background: #fff;
 		margin: 10px;
 	}
@@ -149,6 +148,8 @@ img {
 }
 
 	#sidebar {
+		color: #595f22;
+		margin: 10px;
 		margin-left: 0px;
 	}
 	
@@ -161,13 +162,42 @@ img {
 	
 		#sidebar .sidebar-action:hover {
 				background: #cdd48f;
+				text-decoration: none;
 		}
 	
 			#sidebar .sidebar-action img {
 				background: #afb76a;
 				padding: 3px;
+				margin-right: 5px;
 				vertical-align: middle;
 			}
+			
+		#sidebar .sidebar-block {
+			margin-bottom: 30px;
+		}
+	
+			#sidebar .sidebar-block h2 {
+				background: #dae0aa;
+				color: #71773b;
+				cursor: pointer;
+				font-size: 1em;
+				margin: 0px;
+				margin-bottom: 7px;
+				padding: 3px;
+			}
+	
+			#sidebar .sidebar-block ul {
+				color: #dadeb8;
+				list-style-position: inside;
+				list-style-type: square;
+				margin: 0px;
+				padding: 0px;
+			}
+	
+				#sidebar .sidebar-block ul li {
+					margin: 4px;
+					padding: 0px;
+				}
 
 /* ----------------------------------------------------------------
 	[ Footer ]
@@ -210,6 +240,14 @@ img {
 		}
 		
 		.form-button {
+			background: #e9f4b5;
+			border: 1px solid #8da420;
+			cursor: pointer;
+			margin-top: 3px;
+			padding: 3px;
+		}
+		
+		.form-button-big {
 			background: #e9f4b5;
 			border: 2px solid #8da420;
 			cursor: pointer;

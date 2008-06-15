@@ -10,22 +10,6 @@
  * @link http://www.atomikframework.com
  */
 
-/* default configuration */
-Atomik::setDefault(array(
-    'lang' => array(
-
-    	/* default language */
-    	'language'	    => 'en',
-    	
-    	/* autodetect browser language */
-    	'autodetect'    => true,
-    	
-    	/* directory where language files are stored */
-    	'dir' 		    => Atomik::get('atomik/paths/root') . 'languages/'
-	
-    )
-));
-
 /**
  * Lang plugin
  *
@@ -34,12 +18,41 @@ Atomik::setDefault(array(
  */
 class LangPlugin
 {
+	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+    public static $config = array(
+
+    	/* default language */
+    	'language'	    => 'en',
+    	
+    	/* autodetect browser language */
+    	'autodetect'    => true,
+    	
+    	/* directory where language files are stored */
+    	'dir' 		    => './app/languages/'
+	
+    );
+    
     /**
      * Text messages
      *
      * @var array
      */
     protected static $_messages = array();
+    
+    /**
+     * Plugin starts
+     *
+     * @param array $config
+     */
+    public static function start($config)
+    {
+        /* config */
+        self::$config = array_merge(self::$config, $config);
+    }
     
     /**
      * Sets the language
@@ -49,14 +62,14 @@ class LangPlugin
     	@session_start();
     	
     	/* language already discovered */
-    	if (isset($_SESSION['__LANG']) && self::exists($_SESSION['lang'])) {
+    	if (isset($_SESSION['__LANG']) && self::exists($_SESSION['__LANG'])) {
     		self::set($_SESSION['__LANG']);
     		return;
     	}
     	
     	/* autodetects language using HTTP_ACCEPT_LANGUAGE 
     	 * Language tag: primaryLang-subLang;q=? */
-    	if (Atomik::get('lang/autodetect') === true) {
+    	if (self::$config['autodetect'] === true) {
     		$acceptLanguages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
     		foreach ($acceptLanguages as $language) {
     			/* checks if sublang is supported */
@@ -75,7 +88,7 @@ class LangPlugin
     	}
     	
     	/* uses default language */
-    	if (self::exists($lang = Atomik::get('lang/language'))) {
+    	if (self::exists($lang = self::$config['language'])) {
     		self::set($lang);
     	}
     }
@@ -89,8 +102,7 @@ class LangPlugin
     public static function exists($language)
     {
     	/* filename of the language file */
-    	$dir = Atomik::get('lang/dir');
-    	$filename = $dir . $language . '.php';
+    	$filename = Atomik::path($language . '.php', self::$config['dir']);
     	
     	/* checks if the file exists */
     	return file_exists($filename);
@@ -107,12 +119,11 @@ class LangPlugin
     	
     	/* uses the default language */
     	if ($language === null) {
-    		$language = Atomik::get('lang/language');
+    		$language = self::$config['language'];
     	}
     	
     	/* filename of the language file */
-    	$dir = Atomik::get('lang/dir');
-    	$filename = $dir . $language . '.php';
+    	$filename = Atomik::path($language . '.php', self::$config['dir']);
     	
     	/* checks if the file exists */
     	if (!file_exists($filename)) {
@@ -123,7 +134,8 @@ class LangPlugin
     	include $filename;
     	
     	/* sets the current language */
-    	Atomik::set('lang/language', $language);
+    	Atomik::set('language', $language);
+    	self::$config['language'] = $language;
     	$_SESSION['__LANG'] = $language;
     }
     
@@ -134,7 +146,7 @@ class LangPlugin
      */
     public static function get()
     {
-    	return Atomik::get('lang/language');
+    	return self::$config['language'];
     }
     
     /**

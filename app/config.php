@@ -13,7 +13,7 @@ Atomik::set(array(
             'username'    => 'atomik',
             'password'    => 'atomik'
         ),
-
+        
         'backend' => array(
 
         	/* backend modules list
@@ -30,7 +30,8 @@ Atomik::set(array(
         		'pages' 	=> array('Pages'			, 'left'),
         		
         		'doc' 		=> array('Documentation'	, 'right'),
-        		'admin' 	=> array('Administration'	, 'right')
+        		'admin' 	=> array('Administration'	, 'right'),
+        		'users' 	=> array('Users'	        , 'right')
         	
         	),
     

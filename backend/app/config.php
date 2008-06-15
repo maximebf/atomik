@@ -16,17 +16,17 @@ Atomik::set(array(
     	'catch_errors'			=> false,
     	'display_errors'		=> true,
     
-    	/* paths */
-        'paths' => array(
+    	/* dirs */
+        'dirs' => array(
         	'root'				=> './app/',
         	'plugins'			=> '../app/plugins/',
-        	'actions' 			=> './app/actions/',
+        	'actions' 			=> './app/modules/',
         	'templates'	 		=> './app/templates/',
         	'includes'			=> './app/libraries/'
         ),
     
-    	/* filenames */
-        'filenames' => array(
+    	/* files */
+        'files' => array(
         	'config' 		    => './app/config.php',
         	'pre_dispatch' 	    => './app/pre_dispatch.php',
         	'post_dispatch' 	=> './app/post_dispatch.php',
@@ -34,16 +34,11 @@ Atomik::set(array(
         	'error' 			=> './app/error.php'
         )
     	
-    )
+    ),
+    
+    'url_rewriting'				=> true
     
 ));
-
-/* gets backend config */
-if (Atomik::has('plugins/backend')) {
-    Atomik::set('backend', Atomik::get('plugins/backend'));
-} else if (Atomik::has('backend')) {
-    Atomik::set('backend', Atomik::get('backend'));
-}
 
 /*  backend plugins configuration  */
 Atomik::set('plugins', array(
@@ -51,22 +46,31 @@ Atomik::set('plugins', array(
     /* gets user configuration for the db */
     'db' => Atomik::get('plugins/db', array()),
 
-	'layout', 
+	'layout' => array(
+        'global' => '_layout.php'
+    ),
+     
 	'session', 
 	'lang', 
 
 	'controller' => array(
         /* routes */
 		'routes'=> array(
+            
     		'index' => array(
-    			'controller' => 'dashboard',
+                'controller' => 'dashboard',
     			'action' => 'index'
     		)
+    		
     	)
     	
-	)
-    	
+	),
+
+	'backend' => Atomik::get('plugins/backend', array())
+	
 ));
+
+Atomik::set('plugins/db/prefix', Atomik::get('plugins/backend/db_prefix', 'atomik_'));
 
 /* loads the Atomik_Backend class */
 Atomik::needed('Atomik/Backend');

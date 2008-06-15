@@ -2,11 +2,11 @@
 	<div id="main">
 		<h1><?php echo __('Pages') ?></h1>
 		<div id="content">
-			<?php if(count($templates) > 0): ?>
+			<?php if(count($pages) > 0): ?>
 				<dl id="tree" class="file-list tree">
 					<?php
-						foreach ($templates as $template) {
-							echo Atomik::render('pages/_page', array('template' => $template));
+						foreach ($pages as $page) {
+							echo Atomik::render('_page', array('page' => $page));
 						}
 					?>
 				</dl>

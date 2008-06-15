@@ -10,19 +10,6 @@
  * @link http://www.atomikframework.com
  */
 
-/* default configuration */
-Atomik::setDefault(array(
-    'layout' => array(
-
-    	/* layout used troughout the site, false to disable */
-    	'global' 	=> '_layout.php',
-    	
-    	/* layout used on a pair template basis */
-    	'templates'	=> array()
-
-    )
-));
-
 /**
  * Layout plugin
  *
@@ -33,7 +20,34 @@ Atomik::setDefault(array(
  */
 class LayoutPlugin
 {
-	protected static $_disable = false;
+	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+	public static $config = array(
+
+    	/* layout used troughout the site, false to disable */
+    	'global' 	=> '_layout.php',
+    	
+    	/* layout used on a pair template basis */
+    	'templates'	=> array(),
+	
+	    /* whether layout are disabled or not */
+	    'disable' 	=> false
+
+    );
+	
+    /**
+     * Plugin starts
+     *
+     * @param array $config
+     */
+	public static function start($config)
+    {
+        /* config */
+        self::$config = array_merge(self::$config, $config);
+    }
 	
 	/**
 	 * Starts output buffering to capture the whole output
@@ -41,7 +55,7 @@ class LayoutPlugin
 	public static function onAtomikDispatchBefore()
 	{
 		/* checks if global layout is enabled */
-		if (Atomik::get('layout/global', false) === false) {
+		if (self::$config['global'] === false) {
 			return;
 		}
 		ob_start();
@@ -53,19 +67,19 @@ class LayoutPlugin
 	public static function onAtomikDispatchAfter()
 	{
 		/* checks if global layout is enabled */
-		if (($globalFilename = Atomik::get('layout/global', false)) === false) {
+		if (($global = self::$config['global']) === false) {
 			return;
 		}
 		
 		$output = ob_get_clean();
 		
 		/* checks if the layout is enabled */
-		if (self::$_disable === false) {
+		if (self::$config['disable'] === false) {
 			$content_for_layout = $output;
 			
 			/* renders global layout */
 			ob_start();
-			include(Atomik::get('atomik/paths/templates') . $globalFilename);
+			include(Atomik::path($global, Atomik::get('atomik/dirs/templates')));
 			$output = ob_get_clean();
 		}
 		
@@ -80,14 +94,14 @@ class LayoutPlugin
 	 */
 	public static function onAtomikRenderAfter($template, &$output)
 	{
-		$templates = Atomik::get('layout/templates');
+		$templates = self::$config['templates'];
 		
-		if (self::$_disable === false && isset($templates[$template])) {
+		if (self::$config['disable'] === false && isset($templates[$template])) {
 			$content_for_layout = $output;
 			
 			/* renders layout */
 			ob_start();
-			include(Atomik::get('atomik/paths/templates') . $templates[$template]);
+			include(Atomik::path($templates[$template], Atomik::get('atomik/dirs/templates')));
 			$output = ob_get_clean();
 		}
 	}
@@ -97,7 +111,7 @@ class LayoutPlugin
 	 */
 	public static function disable($disable = true)
 	{
-		self::$_disable = $disable;
+		self::$config['disable'] = $disable;
 	}
 
 	/**
@@ -107,16 +121,19 @@ class LayoutPlugin
 	public static function onConsoleInit()
 	{
 		ConsolePlugin::println('Generating layouts', 1);
+		$templates = Atomik::get('atomik/dirs/templates');
 		
-		$layout = "<html>\n\t<head>\n\t\t<title>Atomik</title>\n\t</head>\n\t<body>\n\t\t"
-				. "<?php echo \$content_for_layout; ?>\n\t</body>\n</html>";
-				
-		ConsolePlugin::touch(Atomik::get('layout/global'), $layout, 2);
+		if (($global = self::$config['global']) !== false) {
 		
-		$layouts = Atomik::get('layout/templates');
-		foreach ($layouts as $filename) {
+    		$layout = "<html>\n\t<head>\n\t\t<title>Atomik</title>\n\t</head>\n\t<body>\n\t\t"
+    				. "<?php echo \$content_for_layout; ?>\n\t</body>\n</html>";
+    				
+    		ConsolePlugin::touch(Atomik::path($templates) . $global, $layout, 2);
+		}
+			
+		foreach (self::$config['templates'] as $filename) {
 			$layout = "<?php echo \$content_for_layout; ?>";
-			ConsolePlugin::touch($filename, $layout, 2);
+			ConsolePlugin::touch(Atomik::path($templates) . $filename, $layout, 2);
 		}
 	}
 }

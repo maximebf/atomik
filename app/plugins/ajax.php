@@ -10,9 +10,20 @@
  * @link http://www.atomikframework.com
  */
 
-/* default configuration */
-Atomik::setDefault(array(
-	'ajax' => array(
+/**
+ * Ajax plugin
+ *
+ * @package Atomik
+ * @subpackage Ajax
+ */
+class AjaxPlugin
+{
+	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+    public static $config = array(
 
     	/* disabe layouts for all templates when it's an ajax request */
     	'disable_layout'	=> true,
@@ -26,30 +37,26 @@ Atomik::setDefault(array(
     	
     	/* actions where ajax will be available */
     	'allowed'		=> array()
-
-    )
-));
-
-/**
- * Ajax plugin
- *
- * @package Atomik
- * @subpackage Ajax
- */
-class AjaxPlugin
-{
+    
+    );
+    
     /**
      * Returns false if it's not an AJAX request so
      * events are not automatically registered
      * 
+     * @param array $config
      * @return bool
      */
-    public static function start()
+    public static function start($config)
     {
+        /* config */
+        self::$config = array_merge(self::$config, $config);
+        
         /* checks if this is an ajax request */
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
         	return false;
         }
+        
         return true;
     }
     
@@ -58,7 +65,7 @@ class AjaxPlugin
 	 */
 	public static function onAtomikStart()
 	{
-		if (Atomik::get('ajax/disable_layout', true)) {
+		if (self::$config['disable_layout']) {
 			/* needs the layout plugin */
 			if (Atomik::isPluginLoaded('layout')) {
 				LayoutPlugin::disable();
@@ -79,12 +86,12 @@ class AjaxPlugin
 		}
 		
 		/* checks if ajax is enabled for this action */
-		if (Atomik::get('ajax/allow_all', true)) {
-			if (in_array($action, Atomik::get('ajax/restricted'))) {
+		if (self::$config['allow_all']) {
+			if (in_array($action, self::$config['restricted'])) {
 				return;
 			}
 		} else {
-			if (!in_array($action, Atomik::get('ajax/allowed'))) {
+			if (!in_array($action, self::$config['allowed'])) {
 				return;
 			}
 		}

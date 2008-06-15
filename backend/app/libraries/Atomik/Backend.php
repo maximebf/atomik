@@ -13,7 +13,26 @@ class Atomik_Backend
 	 */
 	public static function getModules()
 	{
-		return Atomik::get('backend/modules');
+	    $confModules = Atomik::get('plugins/backend/modules', array());
+	    $modules = array();
+	    
+	    /* lists modules */
+	    $dir = Atomik::path(Atomik::get('atomik/dirs/actions'));
+	    foreach (new DirectoryIterator($dir) as $file) {
+	        $filename = $file->getFilename();
+	        if (substr($filename, 0, 1) == '.' || !$file->isDir()) {
+	            continue;
+	        }
+	        if (!isset($confModules[$filename])) {
+	            /* modules is not already defined in configuration */
+	            $modules[$filename] = array(ucfirst($filename), 'left');
+	        } else {
+	            /* modules is defined in config */
+	            $modules[$filename] = $confModules[$filename];
+	        }
+	    }
+		
+	    return $modules;
 	}
 	
 	/**
@@ -23,6 +42,6 @@ class Atomik_Backend
 	 */
 	public static function getModuleName()
 	{
-		return Atomik::get('controller/request/controller');
+		return Atomik::get('controller_request/controller');
 	}
 }

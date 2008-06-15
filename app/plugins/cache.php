@@ -9,25 +9,6 @@
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
- 
-/* default configuration */
-Atomik::setDefault(array(
-    'cache' => array(
-    
-    	/* enable/disable the cache */
-    	'enable' 				=> false,
-    	
-    	/* directory where to stored cached file */
-    	'dir'				=> Atomik::get('atomik/paths/root') . 'cache/',
-    	
-    	/* requests to cache */
-    	'requests' 		=> array(),
-    	
-    	/* default time for how long the cached file are used */
-    	'default_time' 	=> 3600
-    
-    )	
-));
 
 /**
  * Cache plugin
@@ -62,39 +43,71 @@ Atomik::setDefault(array(
  */
 class CachePlugin
 {
+	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+    public static $config = array(
+    
+    	/* enable/disable the cache */
+    	'enable' 		=> false,
+    	
+    	/* directory where to stored cached file */
+    	'dir'			=> './app/cache/',
+    	
+    	/* requests to cache */
+    	'requests' 		=> array(),
+    	
+    	/* default time for how long the cached file are used */
+    	'default_time' 	=> 3600
+    
+    );
+    
+    /**
+     * Plugin starts
+     *
+     * @param array $config
+     */
+    public static function start($config)
+    {
+        /* config */
+        self::$config = array_merge(self::$config, $config);
+    }
+    
     /**
      * Check if this request is in cache and if not starts output buffering
      */
-    function onAtomikDispatchBefore()
+    public static function onAtomikDispatchBefore()
     {
     	/* checks if the cache is enabled */
-    	if (Atomik::get('cache/enable', false) === false) {
+    	if (self::$config['enable'] === false) {
     		return;
     	}
     	
     	/* filename of the cached file associated to this uri */
-    	$cacheFilename = Atomik::get('cache/dir') . md5($_SERVER['REQUEST_URI']) . '.php';
-    	Atomik::set('cache/filename', $cacheFilename);
+    	$cacheFilename = Atomik::path(self::$config['dir']) . md5($_SERVER['REQUEST_URI']) . '.php';
+    	self::$config['filename'] = $cacheFilename;
     	
     	/* rebuilds the cache_requests array */
-    	$defaultTime = Atomik::get('cache/default_time', 3600);
+    	$defaultTime = self::$config['default_time'];
     	$requests = array();
-    	foreach (Atomik::get('cache_requests') as $request => $time) {
+    	foreach (self::$config['requests'] as $request => $time) {
     		if ($time == 0) {
     			$requests[$request] = $defaultTime;
     		} else if ($time > 0) {
     			$requests[$request] = $time;
     		}
     	}
-    	Atomik::set('cache/requests', $requests);
+    	self::$config['requests'] = $requests;
     	
     	if (file_exists($cacheFilename)) {
     		$request = Atomik::get('request');
     		
     		/* last modified time */
     		$cacheTime = filemtime($cacheFilename);
-    		$actionTime = filemtime(Atomik::get('atomik/paths/actions') . $request . '.php');
-    		$templateTime = filemtime(Atomik::get('atomik/paths/templates') . $request . '.php');
+    		$actionTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/actions')));
+    		$templateTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/templates')));
     		
     		/* checks if the action or the template have been modified */
     		if ($cacheTime < $actionTime || $cacheTime < $templateTime) {
@@ -128,10 +141,10 @@ class CachePlugin
      *
      * @param bool $succes Core end success
      */
-    function onAtomikEnd($success)
+    public static function onAtomikEnd($success)
     {
     	/* checks if we cache this request */
-    	if (!$success || Atomik::get('cache/enable', false) === false) {
+    	if (!$success || self::$config['enable'] === false) {
     		return;
     	}
     	
@@ -139,11 +152,11 @@ class CachePlugin
     	$output = ob_get_clean();
     	echo $output;
     	
-    	$cacheFilename = Atomik::get('cache/filename');
+    	$cacheFilename = self::$config['filename'];
     	$request = Atomik::get('request');
     	
     	/* checks if the current url is cacheable */
-    	$requests = Atomik::get('cache/requests');
+    	$requests = self::$config['requests'];
     	if (isset($requests[$request])) {
     		/* saves output to file */
     		@file_put_contents($cacheFilename, $output);
@@ -156,19 +169,19 @@ class CachePlugin
      *
      * @param array $args
      */
-    function onConsoleInit($args)
+    public static function onConsoleInit($args)
     {
-    	$directory = Atomik::get('cache/dir');
-    	
-    	/* creates cache directory */
-    	ConsolePlugin::mkdir($directory, 1);
-    	
-    	/* sets permissions to 777 */
-    	ConsolePlugin::println('Setting permissions for cache directory', 1);
-    	if (!@chmod($directory, 0777)) {
-    		ConsolePlugin::fail();
-    	}
-    	ConsolePlugin::success();
+        foreach (Atomik::path(self::$config['dir'], true) as $directory) {
+        	/* creates cache directory */
+        	ConsolePlugin::mkdir($directory, 1);
+        	
+        	/* sets permissions to 777 */
+        	ConsolePlugin::println('Setting permissions', 2);
+        	if (!@chmod($directory, 0777)) {
+        		ConsolePlugin::fail();
+        	}
+        	ConsolePlugin::success();
+        }
     }
 }
     

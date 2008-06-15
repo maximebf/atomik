@@ -9,30 +9,17 @@
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
- 
-/* default configuration */
-Atomik::setDefault(array(
-    'db' => array (
 
-    	/* enable/disable auto connection */
-    	'autoconnect'	=> false,
-    	
-    	/* connection string (see PDO) */
-    	'dsn' 			=> 'mysql:host=localhost;dbname=atomik',
-    	
-    	/* username */
-    	'username'		=> 'root',
-    	
-    	/* password */
-    	'password'		=> ''
-    	
-    )
-));
+/* configuration */
+Db::$config = array_merge(Db::$config, $config);
 
 /* automatic connection */
-if (Atomik::get('db/autoconnect', false) === true) {
+if (isset($config['autoconnect']) && $config['autoconnect'] == true) {
 	Atomik::registerEvent('Atomik::Dispatch::Before', array('Db', 'connect'));
 }
+
+/* registers the db selector namespace */
+Atomik::registerSelector('db', array('Db', 'selector'));
 
 /**
  * Helpers function for handling databases
@@ -43,6 +30,27 @@ if (Atomik::get('db/autoconnect', false) === true) {
 class Db
 {
 	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+    public static $config = array (
+    	
+    	/* connection string (see PDO) */
+    	'dsn' 			=> 'mysql:host=localhost;dbname=atomik',
+    	
+    	/* username */
+    	'username'		=> 'root',
+    	
+    	/* password */
+    	'password'		=> '',
+    
+        /* database tables prefix */
+        'prefix'		=> ''
+    	
+    );
+    
+	/**
 	 * The pdo instance
 	 *
 	 * @var PDO
@@ -51,19 +59,20 @@ class Db
 	
 	/**
 	 * Connects to the database using the config values
-	 *
-	 * @return Db
 	 */
 	public static function connect()
 	{
 		/* connection information */
-		$dsn = Atomik::get('db/dsn');
-		$username = Atomik::get('db/username');
-		$password = Atomik::get('db/password');
+		$dsn = self::$config['dsn'];
+		$username = self::$config['username'];
+		$password = self::$config['password'];
 	
 		/* creates the pdo instance */
-		self::$pdo = new PDO($dsn, $username, $password);
-		return self::$pdo;
+		try {
+		    self::$pdo = new PDO($dsn, $username, $password);
+		} catch (Exception $e) {
+		    throw new Exception('Database connection failed');
+		}
 	}
 	
 	/**
@@ -146,10 +155,11 @@ class Db
 	 *
 	 * @param string $table
 	 * @param array $data
-	 * @return bool
+	 * @return bool|int Last insert id or false
 	 */
 	public static function insert($table, $data)
 	{
+	    $table = self::$config['prefix'] . $table;
 		$fields = array_keys($data);
 		$values = array_values($data);
 
@@ -159,7 +169,10 @@ class Db
 	
 		/* creates and executes the statement */
 		$stmt = self::$pdo->prepare($sql);
-		return $stmt->execute($values);
+		if ($stmt->execute($values)) {
+		    return self::$pdo->lastInsertId();
+		}
+		return false;
 	}
 	
 	/**
@@ -187,7 +200,8 @@ class Db
 		$params = array_merge(array_values($data), $values);
 
 		/* builds the sql string */
-		$sql = 'UPDATE ' . $table . ' SET ' . $fields . $where;
+		$sql = 'UPDATE ' . implode(', ', $tables) . ' SET ' . $fields . $where;
+		print $sql;
 	
 		/* creates and executes the statement */
 		$stmt = self::$pdo->prepare($sql);
@@ -216,6 +230,22 @@ class Db
 	}
 	
 	/**
+	 * Atomik selector
+	 *
+	 * @param string $selector
+	 * @param array $params
+	 */
+	public static function selector($selector, $params = array())
+	{
+	    /* checks if only a table name is used */
+	    if (preg_match('/^[a-z_\-]+$/', $selector)) {
+	        return self::findAll($selector, $params);
+	    }
+	    
+	    return self::query($selector, $params);
+	}
+	
+	/**
 	 * Buids and executes a SELECT query
 	 *
 	 * @see Db::buildWhere()
@@ -225,7 +255,7 @@ class Db
 	 * @param string $limit OPTIONAL
 	 * @return PDOStatement
 	 */
-	public static function executeSelect($tables, $where = null, $orderBy = '', $limit = '')
+	protected static function executeSelect($tables, $where = null, $orderBy = '', $limit = '')
 	{
 		/* creates the sql where clause */
 		list($tables, $where, $values) = self::buildWhere($tables, $where);
@@ -241,7 +271,7 @@ class Db
 		}
 	
 		/* build the sql string */
-		$sql = 'SELECT * FROM ' . implode(', ', array_keys($tables)) 
+		$sql = 'SELECT * FROM ' . implode(', ', $tables) 
 			 . $where . $orderBy . $limit;
 		
 		/* creates and executes the pdo statement */	 
@@ -275,7 +305,7 @@ class Db
 	 * @param string $operator OPTIONAL (default ' AND ')
 	 * @return array
 	 */
-	public static function buildWhere($tables, $where = null, $operator = ' AND ')
+	protected static function buildWhere($tables, $where = null, $operator = ' AND ')
 	{
 		$sql = '';
 		
@@ -292,7 +322,12 @@ class Db
 		/* creates the sql condition for each key/value pair */
 		$conditions = array();
 		$values = array();
+		$prefixedTables = array();
 		foreach ($tables as $table => $fields) {
+		    /* adds the prefix to the table name */
+		    $table = self::$config['prefix'] . $table;
+		    $prefixedTables[] = $table;
+		    
 			foreach ($fields as $field => $value) {
 				/* escapes the value */	
 				if (!is_array($value)) {
@@ -306,7 +341,7 @@ class Db
 			$sql = ' WHERE ' . implode($operator, $conditions);
 		}
 		
-		return array($tables, $sql, $values);
+		return array($prefixedTables, $sql, $values);
 	}
 }
 

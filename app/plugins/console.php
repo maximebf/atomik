@@ -199,16 +199,24 @@ class ConsolePlugin
 		}
 		
 		/* creates the actions directory */
-		self::mkdir(Atomik::get('atomik/paths/actions'), 1);
+		foreach (Atomik::path(Atomik::get('atomik/dirs/actions'), true) as $path) {
+		    self::mkdir($path, 1);
+		}
 			
 		/* creates the templates directory */
-		self::mkdir(Atomik::get('atomik/paths/templates'), 1);
+		foreach (Atomik::path(Atomik::get('atomik/dirs/templates'), true) as $path) {
+		    self::mkdir($path, 1);
+		}
 		
 		/* creates the plugins directory */
-		self::mkdir(Atomik::get('atomik/paths/plugins'), 1);
+		foreach (Atomik::path(Atomik::get('atomik/dirs/plugins'), true) as $path) {
+		    self::mkdir($path, 1);
+		}
 		
 		/* creates the includes directory */
-		self::mkdir(Atomik::get('atomik/paths/includes'), 1);
+		foreach (Atomik::path(Atomik::get('atomik/dirs/includes'), true) as $path) {
+		    self::mkdir($path, 1);
+		}
 		
 		/* creates the styles directory */
 		self::mkdir(dirname(__FILE__) . '/styles', 1);
@@ -224,12 +232,13 @@ class ConsolePlugin
 			$trigger = Atomik::get('atomik/trigger');
 			$htaccess = "<IfModule mod_rewrite.c>\n\t"
 			          . "RewriteEngine on\n\t"
+			          . "RewriteRule ^app/ - [L,F]\n\t"
 			          . "RewriteCond %{REQUEST_FILENAME} !-f\n\t"
 					  .	"RewriteCond %{REQUEST_FILENAME} !-d\n\t"
-					  . "RewriteRule ^(.*)\$ index.php?$trigger=\$1 [QSA,L]\n"
+					  . "RewriteRule ^(.*)$ index.php?$trigger=\$1 [L,QSA]\n"
 					  . "</IfModule>";
 						
-			self::touch('.htaccess', $htaccess);
+			self::touch(dirname(__FILE__) . '/.htaccess', $htaccess);
 		}
 		
 		/* generate the default action scripts */
@@ -249,11 +258,11 @@ class ConsolePlugin
 			$filename = ltrim($action, '/') . '.php';
 			
 			/* creates the action file */
-			self::touch(Atomik::get('atomik/paths/actions') . $filename, 
+			self::touch(Atomik::path(Atomik::get('atomik/dirs/actions')) . $filename, 
 				"<?php\n\n\t/* Logic goes here */\n", 1);
 		
 			/* creates the template file */
-			self::touch(Atomik::get('atomik/paths/templates') . $filename, '', 1);
+			self::touch(Atomik::path(Atomik::get('atomik/dirs/templates')) . $filename, '', 1);
 		
 			/* fires an event to allow packages to extend the generate command */
 			Atomik::fireEvent('Console::Generate', array($action));

@@ -1,4 +1,3 @@
-<!-- Atomik:Page=Article -->
 
 <h1 class="atomik" id="title">
 	Default Title
@@ -14,4 +13,8 @@
 
 <span class="atomik" id="author">
 	Maxime
+</span>
+
+<span class="atomik" id="date">
+	15/06/08
 </span>

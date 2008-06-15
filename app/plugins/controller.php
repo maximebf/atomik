@@ -9,16 +9,6 @@
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
- 
-/* default configuration */
-Atomik::setDefault(array(
-    'controller' => array(
-
-    	/* version */
-    	'version' 	=> '1.1'
-	
-    )
-));
 
 /**
  * Controller plugin
@@ -143,6 +133,28 @@ Atomik::setDefault(array(
 class ControllerPlugin
 {
 	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+    public static $config = array(
+        
+        /* routes */
+        'routes' => array()
+    
+    );
+    
+    /**
+     * Plugin starts
+     *
+     * @param array $config
+     */
+    public static function start($config)
+    {
+        self::$config = array_merge(self::$config, $config);
+    }
+    
+	/**
 	 * Rewrite the url and build the request
 	 */
 	public static function onAtomikDispatchBefore()
@@ -157,7 +169,7 @@ class ControllerPlugin
 				'action' => 'index',
 				'id' => null
 			)
-		), Atomik::get('controller/routes', array())), true);
+		), self::$config['routes']), true);
 		
 		/* retreives the url */
 		$uri = trim(Atomik::get('request'), '/');
@@ -212,18 +224,24 @@ class ControllerPlugin
 			Atomik::trigger404();
 		}
 		
-		/* saves the request */
-		Atomik::set('controller/request', $request);
+		Atomik::fireEvent('Controller::Router::End', array(&$request));
 		
-		Atomik::fireEvent('Controller::Router::End');
+		/* saves the request */
+		Atomik::set('controller_request', $request);
 	}
 	
 	/**
 	 * Changes the action name for atomik to find the file
 	 */
-	public static function onAtomikExecuteStart(&$action)
+	public static function onAtomikExecuteStart(&$action, &$template)
 	{
-		$action = Atomik::get('controller/request/controller');
+	    $request = Atomik::get('controller_request');
+	    
+	    /* overrides action name */
+		$action = $request['controller'];
+		
+		/* overrides template's filename */
+		$template = $request['controller'] . '/' . $request['action'];
 	}
 	
 	/**
@@ -231,8 +249,8 @@ class ControllerPlugin
 	 */
 	public static function onAtomikExecuteAfter($action, &$template, &$vars, &$render, &$echo, &$triggerError)
 	{
-		Atomik::fireEvent('Controller::Dispatch::Before', array(&$template, &$vars));
-		$request = Atomik::get('controller/request');
+		$request = Atomik::get('controller_request');
+		Atomik::fireEvent('Controller::Dispatch::Before', array(&$request, &$template, &$vars));
 		
 		/* checks if the action starts with an underscore */
 		if (substr($request['action'], 0, 1) == '_') {
@@ -251,7 +269,7 @@ class ControllerPlugin
 		/* creates the controller instance */
 		$instance = new $classname();
 		if (!method_exists($instance, $request['action'])) {
-			Atomik::trigger404();
+		    Atomik::trigger404();
 		}
 		
 		Atomik::fireEvent('Controller::Action::Before', array(&$request, &$instance));
@@ -279,10 +297,7 @@ class ControllerPlugin
 			}
 		}
 		
-		/* override request_template with the view filename */
-		$template = $request['controller'] . '/' . $request['action'];
-		
-		Atomik::fireEvent('Controller::Dispatch::After', array($instance, &$template, &$vars));
+		Atomik::fireEvent('Controller::Dispatch::After', array($request, $instance, &$template, &$vars));
 	}
 	
 	/**
@@ -293,11 +308,11 @@ class ControllerPlugin
 		ConsolePlugin::println('Generating controller structure');
 		
 		/* adds a class definition inside the action file */
-		$filename = Atomik::get('atomik/paths/actions') . $action . '.php';
+		$filename = Atomik::path($action . '.php', Atomik::get('atomik/dirs/actions'));
 		ConsolePlugin::touch($filename, "<?php\n\nclass " . ucfirst($action) . "Controller\n{\n}\n", 1);
 		
 		/* removes the presentation file and replaces it with a directory */
-		$templatePath = Atomik::get('atomik/paths/templates');
+		$templatePath = Atomik::path(Atomik::get('atomik/dirs/templates'));
 		@unlink($templatePath . $action . '.php');
 		ConsolePlugin::mkdir($templatePath . $action, 1);
 	}
