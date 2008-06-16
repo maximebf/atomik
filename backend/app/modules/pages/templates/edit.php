@@ -9,6 +9,7 @@
     		<div id="content">
     				<input type="hidden" name="id" value="<?php echo $page->getId(); ?>" />
     				<input type="hidden" name="version" value="<?php echo $page->getVersion(); ?>" />
+    				<input type="hidden" name="lang" value="<?php echo $page->getLanguage(); ?>" />
     				<dl>
     					<?php foreach ($page->getFields() as $field): ?>
     						<dt>
@@ -58,7 +59,7 @@
 				<textarea name="note" class="form-textarea" style="width: 299px; height: 50px"></textarea>
 				<a href="javascript:;" class="form-link-button" id="create-version-cancel">
 					<?php echo __('Cancel'); ?>
-				</a> or 
+				</a> <?php echo __('or') ?> 
 				<input type="submit" value="<?php echo __('Create'); ?>" class="form-button" />
 			</form>
 		</div>
@@ -73,7 +74,7 @@
 		
 		<div class="sidebar-block">
 			<h2><?php echo __('Versions'); ?></h2>
-			<strong>You are currently editing version:</strong>
+			<strong><?php echo __('You are currently editing version') ?>:</strong>
 			<ul>
 				<li>
 					<a href="<?php echo Atomik::url('pages/edit?id=' . $page->getId() . '&version=' . $page->getVersion()) ?>">
@@ -82,7 +83,7 @@
 				</li>
 			</ul>
 			<?php if (count($versions = $page->getVersions()) - 1 > 0): ?>
-    			Other version of this page:
+    			<?php echo __('Other version of this page') ?>:
     			<ul>
     				<?php
                         foreach ($versions as $version) {
@@ -99,29 +100,42 @@
 		
 		<div class="sidebar-block">
 			<h2><?php echo __('Language'); ?></h2>
-			You are currently editing this page in:
+			<?php echo __('You are currently editing this page in') ?>:
 			<ul>
-				<li><a href="#">en</a></li>
+				<li>
+					<a href="<?php echo Atomik::url('pages/edit?id=' . $page->getId() . '&version=' . $page->getVersion() . '&lang=' . $page->getLanguage()) ?>">
+					    <?php echo $page->getLanguage() ?>
+					</a>
+				</li>
 			</ul>
-			This page also exist in:
-			<ul>
-				<li><a href="#">fr</a></li>
-			</ul>
-			Edit this page in a new language: 
-			<select>
+			<?php if (count($pageLangs) - 1 > 0): ?>
+				<?php echo __('This page also exist in') ?>:
+    			<ul>
+    				<?php
+                        foreach ($pageLangs as $lang) {
+                            if ($lang != $page->getLanguage()) {
+                                echo '<li><a href="' . Atomik::url('pages/edit?id=' . $page->getId() 
+                                   . '&version=' . $page->getVersion() . '&lang=' . $lang) . '">' 
+                                   . $lang . '</a></li>';
+                            }
+                        }
+    				?>
+    			</ul>
+			<?php endif; ?>
+			<?php echo __('Edit this page in a new language') ?>: 
+			<select id="page-new-lang">
 				<option selected="selected"></option>
-				<option>en</option>
+				<?php
+                    foreach (LangPlugin::getDefinedLanguages($langDirs) as $lang) {
+                        if (!in_array($lang, $pageLangs)) {
+                            echo '<option value="' . $lang . '">' . $lang . '</option>';
+                        }
+                    }
+				?>
 			</select>
 		</div>
 		
-		<div class="sidebar-block">
-			<h2><?php echo __('Activities'); ?></h2>
-			<ul>
-				<li>
-					paul modified the page 2 days ago
-				</li>
-			</ul>
-		</div>
+		<?php Atomik::fireEvent('Backend::Pages::Sidebar', array($page)); ?>
 	</div>
 </div>
 <script type="text/javascript">
@@ -158,5 +172,12 @@
     	$('#create-version-cancel').click(function() {
     		$(this).parent().parent().slideUp('slow');
     	});
+		
+		$('#page-new-lang').change(function() {
+			if ($(this).val() != '') {
+				document.location = '<?php echo Atomik::url('pages/edit?id=' . $page->getId() . '&version=' . $page->getVersion() . '&lang=') ?>' + $(this).val();
+			}
+		});
+		
     });
 </script>

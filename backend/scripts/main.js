@@ -2,8 +2,15 @@
  * Helpers functions for the backend
  */
  
- var Atomik = {
- 
+$(document).ready(function() {
+	$('.file-list-row').hover(
+		function() { $(this).addClass('hover'); },
+		function() { $(this).removeClass('hover'); }
+	);
+});
+
+var Atomik = {
+	
 	/**
 	 * Hides messages
 	 */

@@ -12,11 +12,11 @@
 				</dl>
 			<?php else: ?>
 				<p>
-					<strong>It seems that none of your pages are editable.</strong>
+					<strong><?php echo __('It seems that none of your pages are editable') ?>.</strong>
 				</p>
 				<p>
-					Have a look to the documentation to discover how to make your pages
-					editable from the backend.
+					<?php echo __('Have a look to the documentation to discover how ' .
+									'to make your pages editable from the backend'); ?>.
 				</p>
 			<?php endif; ?>
 		</div>
@@ -24,6 +24,7 @@
 </div>
 <div id="sidebar-wrapper">
 	<div id="sidebar">
-		
+		<p><?php echo __('Pages are templates that you made editable through the backend') ?>.</p>
+		<p><?php echo __('Simply add the atomik class to any of your HTML elements') ?>.</p>
 	</div>
 </div>

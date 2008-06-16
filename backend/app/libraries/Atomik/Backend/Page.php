@@ -40,6 +40,20 @@ class Atomik_Backend_Page
 	protected $_fields;
 	
 	/**
+	 * Values
+	 *
+	 * @var array
+	 */
+	protected $_values = null;
+	
+	/**
+	 * Language to use
+	 *
+	 * @var string
+	 */
+	protected $_lang = null;
+	
+	/**
 	 * The regexp to match fields
 	 *
 	 * @var string
@@ -194,7 +208,78 @@ class Atomik_Backend_Page
 	}
 	
 	/**
-	 * Returns the page current version
+	 * Edit the age in a new language
+	 *
+	 * @param string $lang
+	 */
+	public function setLanguage($lang = null)
+	{
+	    if ($lang !== null) {
+	        $this->_lang = $lang;
+	        return;
+	    }
+	    
+        /* checks if the lang plugin is loaded */    	    
+	    if (Atomik::isPluginLoaded('lang')) {
+	        $this->_lang = LangPlugin::$config['language'];
+	        return;
+	    }
+	    
+	    /* checks for the default_language config key */
+	    $this->_lang = Atomik::get('plugins/backend/default_language', 'en');
+	}
+	
+	/**
+	 * Get the current page language
+	 *
+	 * @return string
+	 */
+	public function getLanguage()
+	{
+	    if ($this->_lang === null) {
+	        $this->setLanguage();
+	    }
+	    
+	    return $this->_lang;
+	}
+	
+	/**
+	 * Get all languages in which the page is available
+	 *
+	 * @return array
+	 */
+	public function getLanguages()
+	{
+	    $languages = array();
+	    $query = 'select lang from ' . Db::$config['prefix'] . 'pages_fields where page_id=? and version=? group by lang';
+	    
+	    $stmt = Db::query($query, array($this->_row['id'], $this->_version));
+	    while ($row = $stmt->fetch()) {
+	        $languages[] = $row['lang'];
+	    }
+	    
+	    if (!in_array($this->_lang, $languages)) {
+	        $languages[] = $this->_lang;
+	    }
+	    
+	    return $languages;
+	}
+	
+	/**
+	 * Sets the version to use
+	 *
+	 * @param int $version
+	 */
+	public function setVersion($version)
+	{
+    	Db::update('pages', array('version' => $version), array('id' => $this->_row['id']));
+    	$this->_version = $version;
+	    $this->_row['version'] = $version;
+	    $this->_values = null;
+	}
+	
+	/**
+	 * Returns the current version
 	 *
 	 * @return int
 	 */
@@ -203,6 +288,11 @@ class Atomik_Backend_Page
 		return $this->_version;
 	}
 	
+	/**
+	 * Gets current version info (i.e. notes)
+	 *
+	 * @return string
+	 */
 	public function getVersionInfo()
 	{
 	    $row = Db::find('pages_versions', array(
@@ -213,16 +303,30 @@ class Atomik_Backend_Page
 	    return $row['note'];
 	}
 	
+	/**
+	 * Gets all versions of the page
+	 *
+	 * @return array
+	 */
 	public function getVersions()
 	{
-	    return Db::findAll('pages_versions', array('page_id' => $this->_row['id']), 'id DESC')->fetchAll();
+	    $stmt = Db::findAll('pages_versions', array('page_id' => $this->_row['id']), 'id DESC');
+	    return $stmt->fetchAll();
 	}
 	
+	/**
+	 * Creates a new version of the page
+	 *
+	 * @param string $note
+	 * @return int The new version
+	 */
 	public function createNewVersion($note = '')
 	{
+	    /* select the higher version of the page */
 	    $query = 'select max(version) from ' . Db::$config['prefix'] . 'pages_versions where page_id=?';
 	    $max = Db::query($query, array($this->_row['id']))->fetchColumn();
 	    
+	    /* creates the new version */
 	    $success = Db::insert('pages_versions', array(
 	        'page_id' => $this->_row['id'],
 	        'version' => ++$max,
@@ -233,7 +337,12 @@ class Atomik_Backend_Page
 	        return false;
 	    }
 	    
+	    /* updates page version to the new one */
     	Db::update('pages', array('version' => $max), array('id' => $this->_row['id']));
+    	$this->update($this->_row['name'], $this->_getValuesFromDb());
+    	$this->_version = $max;
+	    $this->_row['version'] = $max;
+	    $this->_values = null;
 	    
 	    return $max;
 	}
@@ -335,7 +444,8 @@ class Atomik_Backend_Page
 	 */
 	public function update($name, $fields)
 	{
-		$actualFields = $this->_getValuesFromDb(true);
+	    $lang = $this->getLanguage();
+		$actualFields = $this->_getValuesFromDb();
 		
 		/* saves fields values in the database */
 		foreach ($fields as $field => $value) {
@@ -345,14 +455,16 @@ class Atomik_Backend_Page
 					'page_id' => $this->_row['id'],
 					'field_name' => $field,
 					'value' => $value,
-				    'version' => $this->_version
+				    'version' => $this->_version,
+				    'lang' => $lang
 				));
 			} else {
 				/* updates the existing entry */
 				Db::update('pages_fields', array('value' => $value), array(
 					'page_id' => $this->_row['id'],
 					'field_name' => $field,
-				    'version' => $this->_version
+				    'version' => $this->_version,
+				    'lang' => $lang
 				));
 			}
 		}
@@ -368,20 +480,26 @@ class Atomik_Backend_Page
 	 *
 	 * @return array
 	 */
-	protected function _getValuesFromDb($forceVersion = false)
+	protected function _getValuesFromDb()
 	{
-	    $query = 'select * from ' . Db::$config['prefix'] . 'pages_fields where page_id=? AND version'
-               . ($forceVersion ? '=' : '<=') . '? ORDER BY version ASC';
+	    /* checks if we have already fetch values */
+	    if ($this->_values !== null) {
+	        return $this->_values;
+	    }
 	    
 		/* finds all fields for the current filename */
-		$stmt = Db::query($query, array($this->_row['id'], $this->_version));
+		$stmt = Db::findAll('pages_fields', array(
+			'page_id' => $this->_row['id'], 
+			'version' => $this->_version,
+		    'lang' => $this->getLanguage()
+	    ));
 		
 		/* fetches values */
-		$values = array();
+		$this->_values = array();
 		while ($row = $stmt->fetch()) {
-			$values[$row['field_name']] = $row['value'];
+			$this->_values[$row['field_name']] = $row['value'];
 		}
 		
-		return $values;
+		return $this->_values;
 	}
 }

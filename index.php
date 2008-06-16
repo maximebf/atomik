@@ -30,7 +30,7 @@ Atomik::set(array(
         	'plugins'			=> './app/plugins/',
         	'actions' 			=> './app/actions/',
         	'templates'	 		=> './app/templates/',
-        	'includes'			=> './app/includes/'
+        	'includes'			=> array('./app/includes/', './app/libraries')
         ),
     
     	/* files */
@@ -131,6 +131,15 @@ class Atomik
     		if (file_exists($filename = self::get('atomik/files/config'))) {
     			require($filename);
     		}
+    		
+    		/* adds includes dirs to php include path */
+    		$includePath = '';
+    		foreach (self::path(self::get('atomik/dirs/includes'), true) as $dir) {
+    		    if (@is_dir($dir)) {
+    		        $includePath .= PATH_SEPARATOR . $dir;
+    		    }
+    		}
+    		set_include_path(get_include_path() . $includePath);
 	        
     		/* registers the error handler */
     		if (self::get('atomik/catch_errors', true) === true) {

@@ -40,6 +40,9 @@ Atomik::set(array(
     
 ));
 
+/* saves user plugin configuration */
+Atomik::set('user_app_plugins', Atomik::get('plugins'));
+
 /*  backend plugins configuration  */
 Atomik::set('plugins', array(
 

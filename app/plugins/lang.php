@@ -97,15 +97,48 @@ class LangPlugin
      * Checks if a language is supported
      *
      * @param string $language
+     * @param string|array $dirs OPTIONAL Directories where language files are stored
      * @return bool
      */
-    public static function exists($language)
+    public static function exists($language, $dirs = null)
     {
+        if ($dirs === null) {
+            $dirs = self::$config['dir'];
+        }
+        
     	/* filename of the language file */
-    	$filename = Atomik::path($language . '.php', self::$config['dir']);
+    	$filename = Atomik::path($language . '.php', $dirs);
     	
     	/* checks if the file exists */
     	return file_exists($filename);
+    }
+    
+    /**
+     * Gets defined languages
+     * 
+     * @param string|array $dirs OPTIONAL Directories where language files are stored
+     * @return array
+     */
+    public static function getDefinedLanguages($dirs = null)
+    {
+        if ($dirs === null) {
+            $dirs = self::$config['dir'];
+        }
+        
+        $languages = array();
+        foreach (Atomik::path($dirs, true) as $dir) {
+            if (is_dir($dir)) {
+                foreach (new DirectoryIterator($dir) as $file) {
+                    $filename = $file->getFilename();
+                    if ($filename{0} == '.' || $file->isDir()) {
+                        continue;
+                    }
+                    $languages[] = substr($filename, 0, strrpos($filename, '.'));
+                }
+            }
+        }
+        
+        return $languages;
     }
     
     /**
