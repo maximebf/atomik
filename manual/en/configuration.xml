@@ -1,4 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="configuration" xmlns="http://docbook.org/ns/docbook">
 	<title>Configuration</title>
+	<para>
+		In Atomik, the way configuration works is a bit different. Rather than
+		having a dedicated system, it offers a global store where anything can
+		be saved for the time of a request.
+	</para>
+	<para>
+		This global store act like an associative array with key/value pairs.
+	</para>
+	<section>
+		<title>Accessors</title>
+		<para>
+			Accessors are methods provided by the Atomik class that allow you to 
+			access the global store. They are four of them: <methodname>get</methodname>, 
+			<methodname>set</methodname>, <methodname>has</methodname> and 
+			<methodname>delete</methodname>.
+		</para>
+		<para>
+			The <methodname>get</methodname> method allow you to retreive the value
+			associated to the key passed as first argument. If a second argument is 
+			specified it will be use as a default value in the case where the key is
+			not found.
+		</para>
+		<example>
+			<title>Using the <methodname>get</methodname> method</title>
+			<programlisting>
+				<![CDATA[
+					echo Atomik::get('key');
+					echo Atomik::get('keyThatDoesntExist', 'defaultValue');
+				]]>
+			</programlisting>
+		</example>
+		<para>
+			The <methodname>set</methodname> method allow you to define a key and its
+			associated value. It will overwrite an existing value.
+		</para>
+		<example>
+			<title>Using the <methodname>set</methodname> method</title>
+			<programlisting>
+				<![CDATA[
+					Atomik::set('key', 'value');
+				]]>
+			</programlisting>
+		</example>
+		<para>
+			The <methodname>has</methodname> and the <methodname>delete</methodname>
+			methods only take a key as argument. The first one checks if the key exists
+			and the second delete the key and its value.
+		</para>
+		<example>
+			<title>Using the <methodname>has</methodname> and <methodname>delete</methodname> methods</title>
+			<programlisting>
+				<![CDATA[
+					if (Atomik::has('key')) {
+						Atomik::delete('key');
+					}
+				]]>
+			</programlisting>
+		</example>
+	</section>
+	<section>
+		<title>Using paths in keys</title>
+		<para>
+			Paths can be used to access nested arrays. Each key in the path as to point to a nested
+			array unless it's the last one. Keys are separated by the slash character. 
+		</para>
+		<example>
+			<title>Using paths</title>
+			<programlisting>
+				<![CDATA[
+					Atomik::set('users', array(
+						'paul' => array(
+							'id' => 1,
+							'age' => 20
+						),
+						'peter' => array(
+							'id' => 2,
+							'age' => 33
+						)
+					));
+					
+					$paul = Atomik::get('users/paul'); // returns an array
+					$paulAge = Atomik::get('users/paul/age'); // returns 20
+					$peterId = Atomik::get('users/peter/id'); // returns 2
+					
+					Atomik::set('users/sofia', array(
+						'id' => 3,
+						'age' => 25
+					));
+					
+					$sofiaAge = Atomik::get('users/sofia/age');
+				]]>
+			</programlisting>
+		</example>
+	</section>
 </chapter>
