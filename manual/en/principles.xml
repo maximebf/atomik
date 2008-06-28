@@ -22,7 +22,7 @@
 			Atomik is not an MVC framework according to the definition of MVC (it can 
 			however become one with plugins...). Still  it follows the same idea.
 			The application logic, called action, and the presentation layer, called 
-			templates, are divided into two different files. The action and is executed
+			template, are divided into two different files. The action is executed
 			and then the template is rendered. Both of them is what make a web page.
 		</para>
 		<para id="p2">

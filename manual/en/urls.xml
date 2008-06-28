@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="urls" xmlns="http://docbook.org/ns/docbook">
 	<title>URLs</title>
+	<para>
+		Atomik provides a simple url mechanism. Whatever the page is, the url
+		must always point to Atomik script, i.e. <filename>index.php</filename>
+	</para>
+	<para>
+		The url should contain a parameter which specify which action to trigger.
+		This parameters can be modified in the configuration but its default name
+		is <quote>action</quote>.
+	</para>
+	<para>
+		The value of the parameter must contain only the action name
+		without any extension. So for example if you have an <filename>home.php</filename>
+		file in the <filename>actions</filename> directory or/and an 
+		<filename>home.php</filename> file in the <filename>templates</filename>
+		directory, you can must use <quote>home</quote> as parameter to call this action.
+	</para>
+	<para>
+		For an action to be callable, an action file or a template file must at least exists.
+	</para>
+	<para>
+		If the action parameter is not found in the query string, Atomik will use the default
+		action defines in its configuration (the <quote>atomik/default_action</quote> key).
+		The default is <quote>index</quote>.
+	</para>
 </chapter>
