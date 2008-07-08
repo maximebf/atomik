@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="actions_templates" xmlns="http://docbook.org/ns/docbook">
+	<title>Actions and templates</title>
+	<section>
+		<title>Introduction</title>
+		<para>
+			Without using Atomik, one way of doing things would have been to create a file
+			per page. The page logic (i.e. connecting to a database, handling form data...) would
+			have been at the top of the file followed by the HTML. 
+		</para>
+		<example>
+			<title>A file in the old way</title>
+			<programlisting>
+				<![CDATA[
+					<?php
+						if (count($_POST)) {
+							echo 'Form data received!';
+						}
+					?>
+					<form>
+						<input type="text" name="data" />
+						<input type="submit" value="send" />
+					</form>
+				]]>
+			</programlisting>
+		</example>
+		<para>
+			This is BAD!! The application logic and the presentation layer should always be separated.
+		</para>
+		<para>
+			Now let's imagine that rather than directly doing both part in the same file we split it.
+			We would have three file: one with the logic, one with the HTML and on that include both.
+		</para>
+		<example>
+			<title>Splitting into multiple files</title>
+			<programlisting>
+				<![CDATA[
+					/* ------------- page_logic.php ---------------
+					
+					<?php
+						if (count($_POST)) {
+							echo 'Form data received!';
+						}
+					
+					/* ------------- page_html.php ---------------
+					
+					<form>
+						<input type="text" name="data" />
+						<input type="submit" value="send" />
+					</form>
+					
+					/* ------------- page.php ---------------
+					
+					<?php
+						include 'page_logic.php';
+						include 'page_html.php';
+				]]>
+			</programlisting>
+		</example>
+		<para>
+			Now replace the third file (the one with the includes) with Atomik and you'll have the concept
+			behind Atomik. The logic script is named an action and the html one a template.
+		</para>
+	</section>
+	<section>
+		<title>Actions</title>
+		<para>
+			Actions are stored in the <filename>/app/actions</filename> directory. Both the action and the 
+			template filename must have the same name.
+		</para>
+		<para>
+			The content of the action file is free. It can be anything you want. So you just do your
+			logic as you used to.
+		</para>
+		<note>
+			Be aware that action run in their own scope and not in the global scope as you
+			might think.
+		</note>
+		<para>
+			Variables declare in the action are forwarded to the template. If you want to keep some
+			variables private (i.e. which will only be available in your action) prefixed them
+			with an underscore.
+		</para>
+		<example>
+			<title>Private variables in actions</title>
+			<programlisting>
+				<![CDATA[
+					<?php
+						$myPublicVariable = 'value';
+						$_myPrivateVariable = 'secret';
+				]]>
+			</programlisting>
+		</example>
+		<note>
+			You shouldn't use <function>echo</function> or write any HTML code inside an action.
+			As said before, the goal of an action is to separate the logic from the presentation. Thus
+			mix-in both in the action file would be a non-sense!
+		</note>
+	</section>
+	<section>
+		<title>Templates</title>
+		<para>
+			Templates are stored in the <filename>/app/templates</filename> directory.
+		</para>
+		<para>
+			The content of the template file is, as the action file, free. It should mostly be text or 
+			HTML (or any presentation content, such as XML).
+		</para>
+		<para>
+			PHP can be used to print variables from the action or to provide presentation logic like
+			loops.
+		</para>
+		<example>
+			<title>Example template</title>
+			<programlisting>
+				<![CDATA[
+					<html>
+						<head>
+							<title>Example</title>
+						</head>
+						<body>
+							<?php echo $myPublicVariable; ?>
+						</body>
+					</html>
+				]]>
+			</programlisting>
+		</example>
+	</section>
+	<section>
+		<title>Calling actions or templates programmatically</title>
+		<para>
+			When executing a request, the action and/or the template associated to it are
+			automatically called. You can however call other actions or render other
+			templates using Atomik's API.
+		</para>
+		<para>
+			The most useful use of this it to render partial templates, small part of presentation
+			code that is reusable.
+		</para>
+		<section>
+			<title>Executing actions</title>
+			<para>
+				To execute an action use the <methodname>Atomik::execute()</methodname> method. It takes
+				as first argument the action name.
+			</para>
+			<para>
+				By default, if a template with the same name is found, it is rendered and the return value
+				of the <methodname>execute()</methodname> method is the template output.
+			</para>
+			<para>
+				If no template is found or <code>false</code> is used as second argument, the return value
+				is an array containing all <quote>public</quote> variables from the action.
+			</para>
+			<example>
+				<title>Calling an action programmatically</title>
+				<programlisting>
+					<![CDATA[
+						$templateOutput = Atomik::execute('myAction');
+						$variables = Atomik::execute('myAction', false);
+					]]>
+				</programlisting>
+			</example>
+		</section>
+		<section>
+			<title>Rendering templates</title>
+			<para>
+				To render a template use the <methodname>Atomik::render()</methodname> method.
+			</para>
+			<para>
+				It takes as first argument the template name and optionally as second argument
+				an array of key/value pairs representing variables.
+			</para>
+			<para>
+				The method returns the template output.
+			</para>
+			<example>
+				<title>Rendering a template programmatically</title>
+				<programlisting>
+					<![CDATA[
+						$templateOutput = Atomik::render('myTemplate');
+						$templateOutput = Atomik::render('myTemplate', array('var' => 'value'));
+					]]>
+				</programlisting>
+			</example>
+		</section>
+		<para>
+			For more information on both methods, see the API reference.
+		</para>
+	</section>
+</chapter>

@@ -10,7 +10,7 @@
 	<section id="simplicity-and-kiss">
 		<title>Simplicity and the KISS principle</title>
 		<para id="p1">
-			KISS (Keet It Simple Stupid) is a principle which goal is to keep things the
+			KISS (Keep It Simple Stupid) is a principle which goal is to keep things the
 			simplest possible. Atomik has been build from the beginning with this idea in 
 			mind. It simply works and is nearly bug free. Just unzip your downloaded package
 			and start working!
@@ -46,16 +46,16 @@
 		</para>
 		<para id="p5">
 			Atomik respects the convention over configuration principle. However it hasn't forget
-			the configurarion aspect and even its core features can be modified. 
+			the configuration aspect and even its core features can be modified. 
 			For example, if you want drop the logic and presentation separation 
-			(howeber highly discourage) and do everything in a single file, you can.
+			(however highly discourage) and do everything in a single file, you can.
 		</para>
 	</section>
 	<section id="selectors">
 		<title>Selectors</title>
 		<para id="p6">
 			Like in modern javascript frameworks, Atomik offer selectors, or at least the same idea.
-			Selectors are a way to quicly access some features or some data of Atomik or plugins.
+			Selectors are a way to quickly access some features or some data of Atomik or plugins.
 			Their simpler to learn than a complicated API and offer a uniform way of doing things. 
 		</para>
 	</section>

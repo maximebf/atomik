@@ -1,4 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="events" xmlns="http://docbook.org/ns/docbook">
+<chapter id="events" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Events</title>
+	<para>
+		Events are one of the most important concept in Atomik.
+		Callback can be registered on any events. When an event
+		is fired (or triggered), all attached callbacks are called. 
+	</para>
+	<note>
+		<title>Events declaration</title>
+		<para>
+			Events are implicitely declared when they're fired.
+		</para>
+	</note>
+	<section>
+		<title>Registering to events</title>
+		<para>
+			Atomik provides the <methodname>registerEvent</methodname> method.
+			It takes as first argument an event name and as second a callback.
+			See <link xlink:href="http://fr2.php.net/callback">http://fr2.php.net/callback</link> 
+			for more information on callbacks.
+		</para>
+		<example>
+			<title>Registering to an event</title>
+			<programlisting>
+				<![CDATA[
+					function myEventCallback()
+					{
+						// ...
+					}
+					
+					function myArgEventCallback($arg1, $arg2)
+					{
+						// ...
+					}
+					
+					Atomik::registerEvent('myEvent', 'myEventCallback');
+					Atomik::registerEvent('myArgEvent', 'myArgEventCallback');
+				]]>
+			</programlisting>
+		</example>
+	</section>
+	<section>
+		<title>Firing events</title>
+		<para>
+			Events are fired using the <methodname>fireEvent</methodname> method
+			provided by Atomik. It takes as first argument the event name and
+			optionally as second an array of arguments for callbacks.
+		</para>
+		<example>
+			<title>Registering to an event</title>
+			<programlisting>
+				<![CDATA[
+					Atomik::fireEvent('myEvent');
+					Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));
+				]]>
+			</programlisting>
+		</example>
+	</section>
+	<section>
+		<title>Events naming convention</title>
+		<para>
+		
+		</para>
+	</section>
 </chapter>

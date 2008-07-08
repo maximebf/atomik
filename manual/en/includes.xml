@@ -1,4 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="includes" xmlns="http://docbook.org/ns/docbook">
 	<title>Includes</title>
+	<para>
+		Includes are php files containing common logic that you 
+		include in your actions.
+	</para>
+	<para>
+		Includes are stored in the <filename>/app/includes</filename> and/or
+		<filename>/app/libraries</filename> directories.
+	</para>
+	<para>
+		To include a file from one of these directories use the
+		<methodname>Atomik::needed()</methodname> method. It takes as first
+		argument the path to the filename you wish to include relative to the
+		previous directories and without the extension.
+	</para>
+	<example>
+		<title>Using includes</title>
+		<para>
+			Let's say we've created the file <filename>/app/includes/common.php</filename>
+		</para>
+		<programlisting>
+			<![CDATA[
+				Atomik::needed('common');
+			]]>
+		</programlisting>
+		<para>
+			You can use directories. To include a file stored at
+			<filename>/app/includes/libs/db.php</filename>:
+		</para>
+		<programlisting>
+			<![CDATA[
+				Atomik::needed('libs/db');
+			]]>
+		</programlisting>
+	</example>
 </chapter>
