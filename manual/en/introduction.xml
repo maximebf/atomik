@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="introduction" xmlns="http://docbook.org/ns/docbook">
 	<title>Introduction</title>
-	<para id="p1">
+	<para>
 		Atomik is a free, open-source, micro framework for PHP5. Atomik is built for small 
 		web applications that do not need heavy frameworks but still want powerful features. 
 		It is build with the KISS principle in mind as well as speed and simplicity.
 		Atomik is also an ideal introduction for beginners to the world of web
 		development frameworks. 
 	</para>
-	<para id="p2">
+	<para>
 		Here's a list of some Atomik features:
-		<simplelist>
-			<member>Very small footprint (less than 30kb)</member>
-			<member>Flexible licensing (MIT)</member>
-			<member>Very simple to use</member>
-			<member>It simply works</member>
-			<member>Application logic separated from the presentation layer</member>
-			<member>Plugins</member>
-			<member>Highly extensible</member>
-			<member>Atomik Selectors</member>
-		</simplelist>
+		<itemizedlist>
+			<listitem>Very small footprint (less than 30kb)</listitem>
+			<listitem>Flexible licensing (MIT)</listitem>
+			<listitem>Very simple to use</listitem>
+			<listitem>It simply works</listitem>
+			<listitem>Application logic separated from the presentation layer</listitem>
+			<listitem>Plugins</listitem>
+			<listitem>Highly extensible</listitem>
+			<listitem>Atomik Selectors</listitem>
+		</itemizedlist>
 	</para>
 </chapter>

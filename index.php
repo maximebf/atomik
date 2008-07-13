@@ -240,58 +240,7 @@ class Atomik
 	        }
 	        
 			self::fireEvent('Atomik::Error', array($e));
-			
-			/* checks if the user defined error file is available */
-			if (file_exists($filename = self::get('atomik/files/error'))) {
-				include($filename);
-				self::end(false);
-			}
-			
-			$attributes = self::get('atomik/error_report_attrs');
-		
-			echo '<div ' . $attributes['atomik-error'] . '>'
-			   . '<span ' . $attributes['atomik-error-title'] . '>'
-			   . 'An error has occured!</span>';
-			
-			/* only display error information if atomik/display_errors is true */
-			if (self::get('atomik/display_errors', false) === false) {
-			    echo '</div>';
-			    self::end(false);
-			}
-			
-			/* builds the html erro report */
-			$html = '<br />An error of type <strong>' . get_class($e) . '</strong> '
-			      . 'was caught at <strong>line ' . $e->getLine() . '</strong><br />'
-			      . 'in file <strong>' . $e->getFile() . '</strong>'
-			      . '<p>' . $e->getMessage() . '</p>'
-				  . '<table ' . $attributes['atomik-error-lines'] . '>';
-			
-		    /* builds the table which display the lines around the error */
-			$lines = file($e->getFile());
-			$start = $e->getLine() - 7;
-			$start = $start < 0 ? 0 : $start;
-			$end = $e->getLine() + 7;
-			$end = $end > count($lines) ? count($lines) : $end; 
-			for($i = $start; $i < $end; $i++) {
-			    /* color the line with the error. with standard Exception, lines are */
-				if($i == $e->getLine() - (get_class($e) != 'ErrorException' ? 1 : 0)) {
-					$html .= '<tr ' . $attributes['atomik-error-line-error'] . '><td>';
-				}
-				else {
-					$html .= '<tr ' . $attributes['atomik-error-line'] . '>'
-					       . '<td ' . $attributes['atomik-error-line-number'] . '>';
-				}
-				$html .= $i . '</td><td ' . $attributes['atomik-error-line-text'] . '>' 
-				       . (isset($lines[$i]) ? htmlspecialchars($lines[$i]) : '') . '</td></tr>';
-			}
-			
-			$html .= '</table>'
-			       . '<strong>Stack:</strong><p ' . $attributes['atomik-error-stack'] . '>' 
-			       . nl2br($e->getTraceAsString())
-			       . '</p></div>';
-			
-			echo $html;
-		
+			self::renderException($e);
 			self::end(false);
 	    }
 	}
@@ -445,7 +394,7 @@ class Atomik
 	/**
 	 * Sets a key/value pair in the store
 	 * 
-	 * If the first argument is an array, it merges values recursively.
+	 * If the first argument is an array, values are merged recursively.
 	 * 
 	 * You can set values from sub arrays by using a path like key.
 	 * For example, to set the value inside the array $array[key1][key2]
@@ -727,23 +676,23 @@ class Atomik
 		/* checks if the *Plugin class is defined. The use of this class
 		 * is not mandatory in plugin file */
 		if (class_exists($pluginClass)) {
-		    $registerEvents = true;
+		    $registerEventsCallback = true;
 		    
 			/* call the start method on the plugin class if it's defined */
 		    if (method_exists($pluginClass, 'start')) {
 		        array_unshift($arguments, $config);
     		    if (call_user_func_array(array($pluginClass, 'start'), $arguments) === false) {
-    		        $registerEvents = false;
+    		        $registerEventsCallback = false;
     		    }
 		    }
 		    
-		    /* automatically register events for methods starting with "on" */
-		    if ($registerEvents) {
+		    /* automatically registers events callback for methods starting with "on" */
+		    if ($registerEventsCallback) {
     		    $methods = get_class_methods($pluginClass);
     		    foreach ($methods as $method) {
     		        if (preg_match('/^on[A-Z].*$/', $method)) {
     		            $event = preg_replace('/(?<=\\w)([A-Z])/', '::\1', substr($method, 2));
-    		            self::registerEvent($event, array($pluginClass, $method));
+    		            self::listenEvent($event, array($pluginClass, $method));
     		        }
     		    }
 		    }
@@ -779,7 +728,7 @@ class Atomik
 	 * @param string $event
 	 * @param callback $callback
 	 */
-	public static function registerEvent($event, $callback)
+	public static function listenEvent($event, $callback)
 	{
 		/* initialize the current event array */
 		if (!isset(self::$_events[$event])) {
@@ -878,6 +827,44 @@ class Atomik
 	}
 	
 	/**
+	 * Returns an url for the action depending on whether url rewriting
+	 * is used or not
+	 *
+	 * @param string $action
+	 * @param bool $useIndex OPTIONAL (default true) Whether to use index.php in the url
+	 * @return string
+	 */
+	public static function url($action, $useIndex = true)
+	{
+		/* base url */
+		$url = rtrim(self::get('base_url', '.'), '/') . '/';
+		
+		/* removes the query string from the action */
+		$queryString = '';
+		if (strpos($action, '?') !== false) {
+			$parts = explode('?', $action);
+			$action = $parts[0];
+			$queryString = $parts[1];
+		}
+		
+		/* checks if url rewriting is used */
+		if (!$useIndex || self::get('url_rewriting', false) === true) {
+			$url .= $action . (!empty($queryString) ? '?' . $queryString : '');
+		} else {
+			/* no url rewriting, using index.php */
+			$url .= 'index.php?' . self::get('atomik/trigger') 
+			      . '=' . $action . '&' . $queryString;
+		}
+		
+		/* trigger an event */
+		$args = func_get_args();
+		unset($args[0]);	
+		self::fireEvent('Atomik::Url', array($action, &$url, $args));
+		
+		return $url;
+	}
+	
+	/**
 	 * Triggers a 404 error
 	 */
 	public static function trigger404()
@@ -931,44 +918,6 @@ class Atomik
 	}
 	
 	/**
-	 * Returns an url for the action depending on whether url rewriting
-	 * is used or not
-	 *
-	 * @param string $action
-	 * @param bool $useIndex OPTIONAL (default true) Whether to use index.php in the url
-	 * @return string
-	 */
-	public static function url($action, $useIndex = true)
-	{
-		/* base url */
-		$url = rtrim(self::get('base_url', '.'), '/') . '/';
-		
-		/* removes the query string from the action */
-		$queryString = '';
-		if (strpos($action, '?') !== false) {
-			$parts = explode('?', $action);
-			$action = $parts[0];
-			$queryString = $parts[1];
-		}
-		
-		/* checks if url rewriting is used */
-		if (!$useIndex || self::get('url_rewriting', false) === true) {
-			$url .= $action . (!empty($queryString) ? '?' . $queryString : '');
-		} else {
-			/* no url rewriting, using index.php */
-			$url .= 'index.php?' . self::get('atomik/trigger') 
-			      . '=' . $action . '&' . $queryString;
-		}
-		
-		/* trigger an event */
-		$args = func_get_args();
-		unset($args[0]);	
-		self::fireEvent('Atomik::Url', array($action, &$url, $args));
-		
-		return $url;
-	}
-	
-	/**
 	 * Catch errors and throw ErrorException
 	 *
 	 * @param int $errno
@@ -983,5 +932,66 @@ class Atomik
 		if ($errno <= error_reporting()) {
 		    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 		}
+	}
+	
+	/**
+	 * Renders an exception
+	 * 
+	 * @param Exception $exception
+	 * @param bool $return OPTIONAL Return the output instead of printing it
+	 * @return string
+	 */
+	public static function renderException($exception, $return = false)
+	{	
+		/* checks if the user defined error file is available */
+		if (file_exists($filename = self::get('atomik/files/error'))) {
+			include($filename);
+			self::end(false);
+		}
+		
+		$attributes = self::get('atomik/error_report_attrs');
+	
+		echo '<div ' . $attributes['atomik-error'] . '>'
+		   . '<span ' . $attributes['atomik-error-title'] . '>'
+		   . 'An error has occured!</span>';
+		
+		/* only display error information if atomik/display_errors is true */
+		if (self::get('atomik/display_errors', false) === false) {
+		    echo '</div>';
+		    self::end(false);
+		}
+		
+		/* builds the html erro report */
+		$html = '<br />An error of type <strong>' . get_class($e) . '</strong> '
+		      . 'was caught at <strong>line ' . $e->getLine() . '</strong><br />'
+		      . 'in file <strong>' . $e->getFile() . '</strong>'
+		      . '<p>' . $e->getMessage() . '</p>'
+			  . '<table ' . $attributes['atomik-error-lines'] . '>';
+		
+	    /* builds the table which display the lines around the error */
+		$lines = file($e->getFile());
+		$start = $e->getLine() - 7;
+		$start = $start < 0 ? 0 : $start;
+		$end = $e->getLine() + 7;
+		$end = $end > count($lines) ? count($lines) : $end; 
+		for($i = $start; $i < $end; $i++) {
+		    /* color the line with the error. with standard Exception, lines are */
+			if($i == $e->getLine() - (get_class($e) != 'ErrorException' ? 1 : 0)) {
+				$html .= '<tr ' . $attributes['atomik-error-line-error'] . '><td>';
+			}
+			else {
+				$html .= '<tr ' . $attributes['atomik-error-line'] . '>'
+				       . '<td ' . $attributes['atomik-error-line-number'] . '>';
+			}
+			$html .= $i . '</td><td ' . $attributes['atomik-error-line-text'] . '>' 
+			       . (isset($lines[$i]) ? htmlspecialchars($lines[$i]) : '') . '</td></tr>';
+		}
+		
+		$html .= '</table>'
+		       . '<strong>Stack:</strong><p ' . $attributes['atomik-error-stack'] . '>' 
+		       . nl2br($e->getTraceAsString())
+		       . '</p></div>';
+		
+		echo $html;
 	}
 }

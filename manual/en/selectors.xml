@@ -23,42 +23,40 @@
 	</para>
 	<para>
 		The only built-in selector (and the only one which doesn't need any namespace) gives the 
-		availability to query through arrays. It has alreay been covered in the Configuration section.
+		availability to query through arrays. It has alreay been covered in the Accessors and 
+		configuration section.
 	</para>
 	<example>
 		<title>Using the built-in selector</title>
 		<programlisting>
 			<![CDATA[
-				// setting value in the global store
-				Atomik::set(array(
-					'key1' => array(
-						'key2' => 'value'
-					)
-				));
-				
-				// selecting a value from the global store
-				$value = A('key1/key2');
-			]]>
+// setting value in the global store
+Atomik::set(array(
+	'key1' => array(
+		'key2' => 'value'
+	)
+));
+
+// selecting a value from the global store
+$value = A('key1/key2');]]>
 		</programlisting>
 	</example>
 	<para>
-		Plugins can provide there own selectors namespace. For example, the db plugin brings with
+		Plugins can provide their own selector namespace. For example, the db plugin brings with
 		it the db namespace which allow you to do sql queries.
 	</para>
 	<example>
 		<title>Using selectors with the db plugin</title>
 		<programlisting>
 			<![CDATA[
-			
-				// selecting a value from the global store
-				$value = A('key1/key2/key3');
-				
-				// selecting all posts
-				$allPosts = A('db:SELECT * FROM posts');
-				
-				// selecting the first post
-				$firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));
-			]]>
+// selecting a value from the global store
+$value = A('key1/key2/key3');
+
+// selecting all posts
+$allPosts = A('db:SELECT * FROM posts');
+
+// selecting the first post
+$firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));]]>
 		</programlisting>
 	</example>
 	<para>

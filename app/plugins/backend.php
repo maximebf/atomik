@@ -67,7 +67,7 @@ class BackendPlugin
             /** Atomik_Template_Parser */
             require_once self::$config['dir'] . 'app/libraries/Atomik/Backend/Page.php';
             /* registers the event */
-            Atomik::registerEvent('Atomik::Render::After', 
+            Atomik::listenEvent('Atomik::Render::After', 
                 array('BackendPlugin', 'frontendOnAtomikRenderAfter'));
                 
         	/* do not auto register events */

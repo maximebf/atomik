@@ -49,7 +49,7 @@ class SessionPlugin
         $_SESSION['__FLASH'] = array();
         
         /* cleany close the session when atomik ends */
-        Atomik::registerEvent('Atomik::End', 'session_write_close');
+        Atomik::listenEvent('Atomik::End', 'session_write_close');
         
         /* no needs to automatically register events */
         return false;

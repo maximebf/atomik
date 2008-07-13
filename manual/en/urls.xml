@@ -25,4 +25,16 @@
 		action defines in its configuration (the <quote>atomik/default_action</quote> key).
 		The default is <quote>index</quote>.
 	</para>
+	<para>
+		For cleaner and prettier url you can use url rewriting. Simply the code below into
+		a <filename>.htaccess</filename> file in the same directory as Atomik core file.
+		<programlisting>
+RewriteEngine on
+RewriteRule ^app/ - [L,F]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
+		</programlisting>
+		This code will also prevent access to the <filename>app</filename> folder from the web.
+	</para>
 </chapter>

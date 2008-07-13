@@ -3,44 +3,40 @@
 	<title>Events</title>
 	<para>
 		Events are one of the most important concept in Atomik.
-		Callback can be registered on any events. When an event
-		is fired (or triggered), all attached callbacks are called. 
+		Callback can be registered to listen on any events. When an event
+		is fired (or triggered), all listening callbacks are called. 
 	</para>
 	<note>
-		<title>Events declaration</title>
-		<para>
-			Events are implicitely declared when they're fired.
-		</para>
+		Events are implicitely declared when they're fired.
 	</note>
-	<section>
-		<title>Registering to events</title>
+	<sect1 id="listening-events">
+		<title>Listening to events</title>
 		<para>
-			Atomik provides the <methodname>registerEvent</methodname> method.
+			Atomik provides the <methodname>listenEvent</methodname> method.
 			It takes as first argument an event name and as second a callback.
-			See <link xlink:href="http://fr2.php.net/callback">http://fr2.php.net/callback</link> 
+			See <link xlink:href="http://php.net/callback">http://php.net/callback</link> 
 			for more information on callbacks.
 		</para>
 		<example>
-			<title>Registering to an event</title>
+			<title>Listening to an event</title>
 			<programlisting>
 				<![CDATA[
-					function myEventCallback()
-					{
-						// ...
-					}
-					
-					function myArgEventCallback($arg1, $arg2)
-					{
-						// ...
-					}
-					
-					Atomik::registerEvent('myEvent', 'myEventCallback');
-					Atomik::registerEvent('myArgEvent', 'myArgEventCallback');
-				]]>
+function myEventCallback()
+{
+	// ...
+}
+
+function myArgEventCallback($arg1, $arg2)
+{
+	// ...
+}
+
+Atomik::listenEvent('myEvent', 'myEventCallback');
+Atomik::listenEvent('myArgEvent', 'myArgEventCallback');]]>
 			</programlisting>
 		</example>
-	</section>
-	<section>
+	</sect1>
+	<sect1 id="firing-events">
 		<title>Firing events</title>
 		<para>
 			Events are fired using the <methodname>fireEvent</methodname> method
@@ -48,19 +44,41 @@
 			optionally as second an array of arguments for callbacks.
 		</para>
 		<example>
-			<title>Registering to an event</title>
+			<title>Firing events</title>
 			<programlisting>
 				<![CDATA[
-					Atomik::fireEvent('myEvent');
-					Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));
-				]]>
+Atomik::fireEvent('myEvent');
+Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));]]>
 			</programlisting>
 		</example>
-	</section>
-	<section>
+	</sect1>
+	<sect1 id="events-naming-convention">
 		<title>Events naming convention</title>
 		<para>
-		
+			While events name can be anything you want, Atomik uses a naming convention for its own events.
 		</para>
-	</section>
+		<para>
+			Events are composed using <quote>Atomik</quote> or a plugin name, followed by the method from which the
+			event was fired and optionnally the event name. Each part is separated using ":" twice and should
+			start with an upper case.
+		</para>
+		<example>
+			<title>Example of event naming</title>
+			<para>
+				The method <methodname>Atomik::dispatch()</methodname>
+				fires an event named <quote>Atomik::Dispatch::Start</quote>.
+			</para>
+		</example>
+	</sect1>
+	<sect1 id="events-schema">
+		<title>Overview of available Atomik events</title>
+		<figure>
+			<title>Simple schema illustrating Atomik events flow</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/events.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</sect1>
 </chapter>

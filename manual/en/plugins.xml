@@ -1,4 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="plugins" xmlns="http://docbook.org/ns/docbook">
 	<title>Plugins</title>
+	<para>
+		Plugins are a simple way to extend Atomik. As said before, the framework doesn't
+		come with a lot of features. However it provides a nice and powerful plugin system.
+	</para>
+	<sect1 id="using-plugins">
+		<title>Using plugins</title>
+		<sect2 id="installing-plugins">
+			<title>Installing a plugin</title>
+			<para>
+				Plugins are stored in the <filename>app/plugins</filename> directory. 
+				Simply copy the plugin file into this directory.
+			</para>
+		</sect2>
+		<sect2 id="activating-configuring-plugins">
+			<title>Activating and configuring a plugin</title>
+			<para>
+				Plugins are not automatically activated. To do so, it's needed to add an
+				entry in the <quote>plugins</quote> configuration key.
+			</para>
+			<example>
+				<title>Activating a plugin</title>
+				<programlisting>
+					<![CDATA[
+Atomik::set('plugins', array(
+	'db',
+	'layout'
+));]]>
+				</programlisting>
+			</example>
+			<para>
+				Some plugins need custom configuration which can be specified in the
+				plugins config key.
+			</para>
+			<example>
+				<title>Plugin custom configuration</title>
+				<programlisting>
+					<![CDATA[
+Atomik::set('plugins', array(
+	'db' => array(
+           'dsn'         => 'mysql:host=localhost;dbname=atomik',
+           'username'    => 'atomik',
+           'password'    => 'atomik'
+	),
+	'layout'
+));]]>
+				</programlisting>
+			</example>
+		</sect2>
+	</sect1>
+	<sect1 id="developing-plugins">
+		<title>Developing plugins</title>
+		<sect2 id="plugin-file">
+			<title>The plugin file</title>
+			<para>
+				A plugin is made of one file named the same way. For example the db plugin is in the file
+				<filename>db.php</filename>.
+			</para>
+			<para>
+				Plugins are loaded at the beginning of a request, just after the configuration 
+				has been loaded. The content of the file is free or it can be a class.
+			</para>
+		</sect2>
+		<sect2 id="plugin-custom-configuration">
+			<title>Plugin custom configuration</title>
+			<para>
+				As said in the "Using plugins" section, plugins can have custom configuration.
+				To retrieve this configuration a $config variable is automatically available.
+				It contains the array used in the configuration.
+			</para>
+			<example>
+				<title>Retrieving plugin custom configuration</title>
+				<para>
+					In the configuration file:
+				</para>
+				<programlisting>
+					<![CDATA[
+Atomik::set('plugins', array(
+	'myPlugin' => array(
+           'name' => 'Peter'
+	)
+));]]>
+				</programlisting>
+				<para>
+					In the plugin file:
+				</para>
+				<programlisting>
+					<![CDATA[
+echo 'hello ' . $config['name'];]]>
+				</programlisting>
+			</example>
+		</sect2>
+		<sect2 id="plugin-class">
+			<title>Using a class</title>
+			<para>
+				For better application design it is advise to use a class to define your plugin.
+				When loading a plugin, it will look for a class named like the plugin suffixed with
+				<quote>Plugin</quote>.
+			</para>
+			<para>
+				If this class has a static <methodname>start</methodname> method, it will be called,
+				with the plugin custom configuration as argument, when the plugin is loaded.
+			</para>
+			<example>
+				<title>Plugin class</title>
+				<para>
+					The plugin class for a plugin named db
+				</para>
+				<programlisting>
+					<![CDATA[
+class DbPlugin
+{
+	public static function start($config)
+	{
+		// $config['name'] == 'Peter'
+	}
+}]]>
+				</programlisting>
+			</example>
+			<para>
+				The class can contain static methods that will be automatically registered as callback
+				on events. These methods have to start by "on" followed by the event name without
+				the double ":".
+			</para>
+			<example>
+				<title>Plugin class with event callback methods</title>
+				<programlisting>
+					<![CDATA[
+class DbPlugin
+{
+	public static onAtomikDispatchStart()
+	{
+		// listener for Atomik::Dispatch::Start
+	}
+}]]>
+				</programlisting>
+			</example>
+			<para>
+				You can prevent automatic callback registration by returning false in the start
+				method.
+			</para>
+		</sect2>
+	</sect1>
 </chapter>

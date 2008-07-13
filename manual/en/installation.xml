@@ -1,84 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="installation" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Installation</title>
-	<section id="requirements">
+	<sect1 id="requirements">
 		<title>Requirements</title>
-		<para id="p1">
-			<simplelist>
-				<member>HTTP Server. Apache with mod_rewrite is a good choice.</member>
-				<member>PHP 5 or greater</member>
-			</simplelist>
+		<para>
+			<itemizedlist>
+				<listitem>HTTP Server. Apache with mod_rewrite is a good choice.</listitem>
+				<listitem>PHP 5 or greater</listitem>
+			</itemizedlist>
 		</para>
-	</section>
-	<section id="download">
+	</sect1>
+	<sect1 id="download">
 		<title>Download</title>
-		<para id="p1">
+		<para>
 			You can download Atomik from the <link xlink:href="http://www.atomikframework.com/download">Atomik website</link>
 		</para>
-		<para id="p2">
+		<para>
 			Atomik is distributed under two forms:
-			<simplelist>
-				<member>An archive containg a full directory structure</member>
-				<member>A single file</member>
-			</simplelist>
+			<itemizedlist>
+				<listitem>An archive containg a full directory structure</listitem>
+				<listitem>A single file</listitem>
+			</itemizedlist>
 		</para>
-		<para id="p3">
+		<para>
 			You can create your own Atomik distribution online with Atomik Builder. It allows you to pack in plugins and
 			pre-configure your installation online.
 		</para>
-	</section>
-	<section id="installation">
+	</sect1>
+	<sect1 id="installation-installation">
 		<title>Installation</title>
-		<section id="method1">
+		<sect2 id="installation-archive">
 			<title>Using an archive</title>
-			<para id="p1">
+			<para>
 				<orderedlist>
 					<listitem>
-						<para id="p2">
+						<para>
 							Unzip the downloaded archive
 						</para>
 					</listitem>
 					<listitem>
-						<para id="p3">
+						<para>
 							Upload or move Atomik files and folders into a directory
 							available from the web.
 						</para>
 					</listitem>
 					<listitem>
-						<para id="p4">
+						<para>
 							Code!
 						</para>
 					</listitem>
 				</orderedlist>
 			</para>
-		</section>
-		<section id="method2">
+		</sect2>
+		<sect2 id="installation-file">
 			<title>Using the all-in-one index.php</title>
-			<para id="p1">
+			<para>
 				<orderedlist>
 					<listitem>
-						<para id="p2">
+						<para>
 							Copy the index.php file to a directory available from the web
 						</para>
 					</listitem>
 					<listitem>
-						<para id="p3">
+						<para>
 							Open a terminal and enter the following command:
 							<command>php index.php init</command>
 						</para>
-						<para id="p4">
+						<para>
 							You can also use the <parameter>--htaccess</parameter> option to
 							create a .htaccess file:
 							<command>php index.php init --htaccess</command>
 						</para>
 					</listitem>
 					<listitem>
-						<para id="p5">
+						<para>
 							Code!
 						</para>
 					</listitem>
 				</orderedlist>
 			</para>
-		</section>
-	</section>
+		</sect2>
+	</sect1>
 </chapter>

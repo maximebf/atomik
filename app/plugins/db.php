@@ -15,7 +15,7 @@ Db::$config = array_merge(Db::$config, $config);
 
 /* automatic connection */
 if (isset($config['autoconnect']) && $config['autoconnect'] == true) {
-	Atomik::registerEvent('Atomik::Dispatch::Before', array('Db', 'connect'));
+	Atomik::listenEvent('Atomik::Dispatch::Before', array('Db', 'connect'));
 }
 
 /* registers the db selector namespace */

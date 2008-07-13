@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="actions_templates" xmlns="http://docbook.org/ns/docbook">
+<chapter id="actions-templates" xmlns="http://docbook.org/ns/docbook">
 	<title>Actions and templates</title>
-	<section>
+	<sect1 id="actions-templates-introduction">
 		<title>Introduction</title>
 		<para>
 			Without using Atomik, one way of doing things would have been to create a file
@@ -9,19 +9,18 @@
 			have been at the top of the file followed by the HTML. 
 		</para>
 		<example>
-			<title>A file in the old way</title>
+			<title>A php script, the old way</title>
 			<programlisting>
 				<![CDATA[
-					<?php
-						if (count($_POST)) {
-							echo 'Form data received!';
-						}
-					?>
-					<form>
-						<input type="text" name="data" />
-						<input type="submit" value="send" />
-					</form>
-				]]>
+<?php
+	if (count($_POST)) {
+		echo 'Form data received!';
+	}
+?>
+<form>
+	<input type="text" name="data" />
+	<input type="submit" value="send" />
+</form>]]>
 			</programlisting>
 		</example>
 		<para>
@@ -33,39 +32,45 @@
 		</para>
 		<example>
 			<title>Splitting into multiple files</title>
+			<para>
+				page_logic.php
+			</para>
 			<programlisting>
 				<![CDATA[
-					/* ------------- page_logic.php ---------------
-					
-					<?php
-						if (count($_POST)) {
-							echo 'Form data received!';
-						}
-					
-					/* ------------- page_html.php ---------------
-					
-					<form>
-						<input type="text" name="data" />
-						<input type="submit" value="send" />
-					</form>
-					
-					/* ------------- page.php ---------------
-					
-					<?php
-						include 'page_logic.php';
-						include 'page_html.php';
-				]]>
+<?php
+if (count($_POST)) {
+	echo 'Form data received!';
+}]]>
+			</programlisting>
+			<para>
+				page_html.php
+			</para>
+			<programlisting>
+				<![CDATA[
+<form>
+	<input type="text" name="data" />
+	<input type="submit" value="send" />
+</form>]]>
+			</programlisting>
+			<para>
+				page.php
+			</para>
+			<programlisting>
+				<![CDATA[
+<?php
+include 'page_logic.php';
+include 'page_html.php';]]>
 			</programlisting>
 		</example>
 		<para>
 			Now replace the third file (the one with the includes) with Atomik and you'll have the concept
-			behind Atomik. The logic script is named an action and the html one a template.
+			behind Atomik. The logic script is named an action and the html a template.
 		</para>
-	</section>
-	<section>
+	</sect1>
+	<sect1 id="actions">
 		<title>Actions</title>
 		<para>
-			Actions are stored in the <filename>/app/actions</filename> directory. Both the action and the 
+			Actions are stored in the <filename>app/actions</filename> directory. Both the action and the 
 			template filename must have the same name.
 		</para>
 		<para>
@@ -85,10 +90,9 @@
 			<title>Private variables in actions</title>
 			<programlisting>
 				<![CDATA[
-					<?php
-						$myPublicVariable = 'value';
-						$_myPrivateVariable = 'secret';
-				]]>
+<?php
+$myPublicVariable = 'value';
+$_myPrivateVariable = 'secret';]]>
 			</programlisting>
 		</example>
 		<note>
@@ -96,11 +100,11 @@
 			As said before, the goal of an action is to separate the logic from the presentation. Thus
 			mix-in both in the action file would be a non-sense!
 		</note>
-	</section>
-	<section>
+	</sect1>
+	<sect1 id="templates">
 		<title>Templates</title>
 		<para>
-			Templates are stored in the <filename>/app/templates</filename> directory.
+			Templates are stored in the <filename>app/templates</filename> directory.
 		</para>
 		<para>
 			The content of the template file is, as the action file, free. It should mostly be text or 
@@ -114,19 +118,26 @@
 			<title>Example template</title>
 			<programlisting>
 				<![CDATA[
-					<html>
-						<head>
-							<title>Example</title>
-						</head>
-						<body>
-							<?php echo $myPublicVariable; ?>
-						</body>
-					</html>
-				]]>
+<html>
+	<head>
+		<title>Example</title>
+	</head>
+	<body>
+		<?php echo $myPublicVariable; ?>
+	</body>
+</html>]]>
 			</programlisting>
 		</example>
-	</section>
-	<section>
+		<figure>
+			<title>A little schema to sum up!</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/actions_templates.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</sect1>
+	<sect1 id="actions-templates-programmatically">
 		<title>Calling actions or templates programmatically</title>
 		<para>
 			When executing a request, the action and/or the template associated to it are
@@ -137,7 +148,7 @@
 			The most useful use of this it to render partial templates, small part of presentation
 			code that is reusable.
 		</para>
-		<section>
+		<sect2 id="executing-actions">
 			<title>Executing actions</title>
 			<para>
 				To execute an action use the <methodname>Atomik::execute()</methodname> method. It takes
@@ -155,13 +166,12 @@
 				<title>Calling an action programmatically</title>
 				<programlisting>
 					<![CDATA[
-						$templateOutput = Atomik::execute('myAction');
-						$variables = Atomik::execute('myAction', false);
-					]]>
+$templateOutput = Atomik::execute('myAction');
+$variables = Atomik::execute('myAction', false);]]>
 				</programlisting>
 			</example>
-		</section>
-		<section>
+		</sect2>
+		<sect2 id="rendering-templates">
 			<title>Rendering templates</title>
 			<para>
 				To render a template use the <methodname>Atomik::render()</methodname> method.
@@ -177,14 +187,13 @@
 				<title>Rendering a template programmatically</title>
 				<programlisting>
 					<![CDATA[
-						$templateOutput = Atomik::render('myTemplate');
-						$templateOutput = Atomik::render('myTemplate', array('var' => 'value'));
-					]]>
+$templateOutput = Atomik::render('myTemplate');
+$templateOutput = Atomik::render('myTemplate', array('var' => 'value'));]]>
 				</programlisting>
 			</example>
-		</section>
+		</sect2>
 		<para>
 			For more information on both methods, see the API reference.
 		</para>
-	</section>
+	</sect1>
 </chapter>

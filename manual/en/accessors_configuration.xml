@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="accessors-configuration" xmlns="http://docbook.org/ns/docbook">
+	<title>Accessors and configuration</title>
+	<para>
+		In Atomik, the way configuration works is a bit different. Rather than
+		having a dedicated system, it offers a global store where anything can
+		be saved for the time of a request.
+	</para>
+	<para>
+		This global store act like an associative array with key/value pairs.
+	</para>
+	<sect1 id="accessors">
+		<title>Accessors</title>
+		<para>
+			Accessors are methods provided by the Atomik class that allow you to 
+			access the global store. They are four of them: <methodname>get</methodname>, 
+			<methodname>set</methodname>, <methodname>has</methodname> and 
+			<methodname>delete</methodname>.
+		</para>
+		<para>
+			The <methodname>get</methodname> method allow you to retreive the value
+			associated to the key passed as first argument. If a second argument is 
+			specified it will be use as a default value in the case where the key is
+			not found.
+		</para>
+		<example>
+			<title>Using the <methodname>get</methodname> method</title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::get('key');
+echo Atomik::get('keyThatDoesntExist', 'defaultValue');]]>
+			</programlisting>
+		</example>
+		<para>
+			The <methodname>set</methodname> method allow you to define a key and its
+			associated value. It will overwrite an existing value.
+		</para>
+		<para>
+			This accessor can also take an array as argument to set multiple key/value pairs
+			at once. This array will be merged with the store.
+		</para>
+		<example>
+			<title>Using the <methodname>set</methodname> method</title>
+			<para>
+				Setting one key
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::set('key', 'value');]]>
+			</programlisting>
+			<para>
+				Setting multiple keys
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::set(array(
+	'key1' => 'value1',
+	'key2' => 'value2'
+));]]>
+			</programlisting>
+		</example>
+		<para>
+			The <methodname>has</methodname> and the <methodname>delete</methodname>
+			methods only take a key as argument. The first one checks if the key exists
+			and the second delete the key and its value.
+		</para>
+		<example>
+			<title>Using the <methodname>has</methodname> and <methodname>delete</methodname> methods</title>
+			<programlisting>
+				<![CDATA[
+if (Atomik::has('key')) {
+	Atomik::delete('key');
+}]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="path-in-keys">
+		<title>Using paths in keys</title>
+		<para>
+			Paths can be used to access nested arrays. Each key in the path as to point to a nested
+			array unless it's the last one. Keys are separated by a slash. 
+		</para>
+		<example>
+			<title>Using paths</title>
+			<programlisting>
+				<![CDATA[
+Atomik::set('users', array(
+	'paul' => array(
+		'id' => 1,
+		'age' => 20
+	),
+	'peter' => array(
+		'id' => 2,
+		'age' => 33
+	)
+));
+
+$paul = Atomik::get('users/paul'); // returns an array
+$paulAge = Atomik::get('users/paul/age'); // returns 20
+$peterId = Atomik::get('users/peter/id'); // returns 2
+
+Atomik::set('users/sofia', array(
+	'id' => 3,
+	'age' => 25
+));
+
+$sofiaAge = Atomik::get('users/sofia/age');]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="accessors-with-any-arrays">
+		<title>Using accessors with any arrays</title>
+		<para>
+			Accessors can be used on any array. You need to pass as argument an array
+			(the position depends on the method). See the API guide for more information.
+			Still, here's an example:
+		</para>
+		<example>
+			<title>Using accessors with any array</title>
+			<programlisting>
+				<![CDATA[
+$array = array();
+
+Atomik::set('key', 'value', $array);
+
+echo Atomik::get('key', null, $array);]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="configuration-file">
+		<title>The configuration file</title>
+		<para>
+			Atomik provides a default configuration for everything (to fullfill the convention
+			over configuration principle). However, you can override it and provide plugin's
+			configuration or even your own.
+		</para>
+		<para>
+			To do so, there is two possibilities: 
+			<itemizedlist>
+				<listitem>
+					modify Atomik's core file (<filename>index.php</filename>)
+				</listitem>
+				<listitem>
+					create a <filename>config.php</filename> file in the same directory as
+					Atomik's core file
+				</listitem>
+			</itemizedlist>
+		</para>
+		<para>
+			The first method is greatly discourage. It can however be useful if you want to
+			create your own Atomik distribution (this should be the only reason to use this
+			method).
+		</para>
+		<para>
+			The second method is of course the prefered one. It allows clearer configuration
+			in a unique place, perfect for maintenance. Just create a <filename>config.php</filename>
+			file in the same directory as Atomik's core file (<filename>index.php</filename>).
+			In this file, you can use accessors (the <methodname>set</methodname> method of course)
+			to define configuration keys.
+		</para>
+		<example>
+			<title>Exemple <filename>config.php</filename> file</title>
+			<programlisting>
+				<![CDATA[
+<?php
+
+/* configuration */
+Atomik::set(array(
+
+	'key1' => 'value1',
+	
+	'key2' => value2',
+	
+	'key3' => array(
+	
+		'key3.1' => 'value3.1'
+	
+	)
+
+));]]>
+			</programlisting>
+		</example>
+		<para>
+			The configuration filename can be overrided in Atomik's core configuration.
+		</para>
+	</sect1>
+</chapter>

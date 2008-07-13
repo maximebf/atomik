@@ -10,8 +10,8 @@ Atomik::set(array(
         'db' => array(
             'autoconnect' => true,
             'dsn'         => 'mysql:host=localhost;dbname=atomik',
-            'username'    => 'atomik',
-            'password'    => 'atomik'
+            'username'    => 'root',
+            'password'    => 'mysql*root'
         ),
         
         'backend' => array(
