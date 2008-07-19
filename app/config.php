@@ -11,7 +11,7 @@ Atomik::set(array(
             'autoconnect' => true,
             'dsn'         => 'mysql:host=localhost;dbname=atomik',
             'username'    => 'root',
-            'password'    => 'mysql*root'
+            'password'    => ''
         ),
         
         'backend' => array(
