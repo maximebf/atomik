@@ -34,9 +34,7 @@ Atomik::set(array(
         	'error' 			=> './app/error.php'
         )
     	
-    ),
-    
-    'url_rewriting'				=> true
+    )
     
 ));
 

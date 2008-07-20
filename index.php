@@ -299,7 +299,7 @@ class Atomik
 	 * @param string $__action_filename
 	 * @return array
 	 */
-	protected static function _executeInScope($__action_filename)
+	public static function _executeInScope($__action_filename)
 	{
 		require($__action_filename);
 		
@@ -366,7 +366,7 @@ class Atomik
 	 * @param array $vars OPTIONAL
 	 * @return string
 	 */
-	protected static function _renderInScope($__template_filename, $vars = array())
+	public static function _renderInScope($__template_filename, $vars = array())
 	{
 		extract($vars);
 		ob_start();

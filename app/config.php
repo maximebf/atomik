@@ -51,6 +51,8 @@ Atomik::set(array(
 		'layout',
         'session',
         'lang'
-	)
+	),
+	
+	'url_rewriting' => false
     
 ));

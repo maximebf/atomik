@@ -82,7 +82,7 @@ class SessionPlugin
 	/**
 	 * Gets all flash messages defined for this request
 	 *
-	 * @param string $label OPTIONAL (default null) Set to null to retreive all messages
+	 * @param string $label OPTIONAL (default null) Retreives messages only from the specified label
 	 * @return array
 	 */
 	public static function getMessages($label = null)
@@ -109,7 +109,7 @@ class SessionPlugin
 	/**
 	 * Retreives the next message in the stack
 	 *
-	 * @param string $label OPTIONAL (default null) Set to null to retreive from all messages
+	 * @param string $label OPTIONAL (default null) Retreives messages only from the specified label
 	 * @return array|string|bool Returns false when there's no more messages
 	 */
 	public static function getNextMessage($label = null)

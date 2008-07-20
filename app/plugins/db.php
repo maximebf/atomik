@@ -102,7 +102,7 @@ class Db
 	}
 	
 	/**
-	 * Prepare a statement
+	 * Prepares a statement
 	 *
 	 * @see PDO::prepare()
 	 * @param string $query
@@ -115,7 +115,7 @@ class Db
 	}
 	
 	/**
-	 * Find the first row matching the arguments
+	 * Finds the first row matching the arguments
 	 *
 	 * @see Db::buildWhere()
 	 * @param string|array $tables

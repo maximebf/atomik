@@ -13,9 +13,7 @@
 /**
  * Cache plugin
  *
- * Cache the whole output or a request.
- *
- * To enable the cache, sets the cache config key to true.
+ * Cache the whole output of a request.
  *
  * Specify which requests to cache using the cache_requests
  * config key. cache_requests value must be an array where its keys
@@ -49,9 +47,6 @@ class CachePlugin
 	 * @var array 
 	 */
     public static $config = array(
-    
-    	/* enable/disable the cache */
-    	'enable' 		=> false,
     	
     	/* directory where to stored cached file */
     	'dir'			=> './app/cache/',
@@ -80,11 +75,6 @@ class CachePlugin
      */
     public static function onAtomikDispatchBefore()
     {
-    	/* checks if the cache is enabled */
-    	if (self::$config['enable'] === false) {
-    		return;
-    	}
-    	
     	/* filename of the cached file associated to this uri */
     	$cacheFilename = Atomik::path(self::$config['dir']) . md5($_SERVER['REQUEST_URI']) . '.php';
     	self::$config['filename'] = $cacheFilename;
@@ -144,7 +134,7 @@ class CachePlugin
     public static function onAtomikEnd($success)
     {
     	/* checks if we cache this request */
-    	if (!$success || self::$config['enable'] === false) {
+    	if (!$success) {
     		return;
     	}
     	

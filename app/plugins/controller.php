@@ -155,7 +155,7 @@ class ControllerPlugin
     }
     
 	/**
-	 * Rewrite the url and build the request
+	 * Rewrites the url and build the request
 	 */
 	public static function onAtomikDispatchBefore()
 	{
@@ -276,7 +276,7 @@ class ControllerPlugin
 		
 		/* executes beforeAction if it exists */
 		if (method_exists($instance, '_before')) {
-			$instance->_before(&$request);
+			$instance->_before($request);
 		}
 		
 		/* call the method named like the action with the request as unique argument */

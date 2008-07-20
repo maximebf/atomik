@@ -30,7 +30,7 @@ class LayoutPlugin
     	/* layout used troughout the site, false to disable */
     	'global' 	=> '_layout.php',
     	
-    	/* layout used on a pair template basis */
+    	/* layout used on a per template basis */
     	'templates'	=> array(),
 	
 	    /* whether layout are disabled or not */
@@ -75,12 +75,10 @@ class LayoutPlugin
 		
 		/* checks if the layout is enabled */
 		if (self::$config['disable'] === false) {
-			$content_for_layout = $output;
-			
-			/* renders global layout */
-			ob_start();
-			include(Atomik::path($global, Atomik::get('atomik/dirs/templates')));
-			$output = ob_get_clean();
+			$output = Atomik::_renderInScope(
+				Atomik::path($global, Atomik::get('atomik/dirs/templates')),
+				array('content_for_layout' => $output)
+			);
 		}
 		
 		echo $output;
@@ -97,12 +95,10 @@ class LayoutPlugin
 		$templates = self::$config['templates'];
 		
 		if (self::$config['disable'] === false && isset($templates[$template])) {
-			$content_for_layout = $output;
-			
-			/* renders layout */
-			ob_start();
-			include(Atomik::path($templates[$template], Atomik::get('atomik/dirs/templates')));
-			$output = ob_get_clean();
+			$output = Atomik::_renderInScope(
+				Atomik::path($templates[$template], Atomik::get('atomik/dirs/templates')),
+				array('content_for_layout' => $output)
+			);
 		}
 	}
 

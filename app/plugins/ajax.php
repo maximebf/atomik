@@ -96,6 +96,16 @@ class AjaxPlugin
 			}
 		}
 		
+		self::endWithJson($vars);
+	}
+	
+	/**
+	 * Output vars as json and exits
+	 *
+	 * @param array $vars
+	 */
+	public static function endWithJson($vars = array())
+	{
 		/* builds the json string */
 		$json = self::encode($vars);
 		

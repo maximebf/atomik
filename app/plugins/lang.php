@@ -224,6 +224,7 @@ if (!function_exists('__')) {
      */
     function __($text)
     {
-        return LangPlugin::_($text);
+    	$args = func_get_args();
+    	return call_user_func_array(array('LangPlugin', '_'), $args);
     }
 }

@@ -59,12 +59,11 @@ class BackendPlugin
     {
         /* config */
         self::$config = array_merge(self::$config, $config);
-        
         self::$_backend = defined('ATOMIK_BACKEND');
         
         /* checks if it's used in the frontend */
         if (!self::$_backend) {
-            /** Atomik_Template_Parser */
+            /** Atomik_Backend_Page */
             require_once self::$config['dir'] . 'app/libraries/Atomik/Backend/Page.php';
             /* registers the event */
             Atomik::listenEvent('Atomik::Render::After', 
