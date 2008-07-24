@@ -16,69 +16,31 @@
 			You can download Atomik from the <link xlink:href="http://www.atomikframework.com/download">Atomik website</link>
 		</para>
 		<para>
-			Atomik is distributed under two forms:
-			<itemizedlist>
-				<listitem>An archive containg a full directory structure</listitem>
-				<listitem>A single file</listitem>
-			</itemizedlist>
-		</para>
-		<para>
-			You can create your own Atomik distribution online with Atomik Builder. It allows you to pack in plugins and
-			pre-configure your installation online.
+			You can create your own Atomik distribution online. It allows you to pack in only the 
+			plugins you want.
 		</para>
 	</sect1>
 	<sect1 id="installation-installation">
 		<title>Installation</title>
-		<sect2 id="installation-archive">
-			<title>Using an archive</title>
-			<para>
-				<orderedlist>
-					<listitem>
-						<para>
-							Unzip the downloaded archive
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							Upload or move Atomik files and folders into a directory
-							available from the web.
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							Code!
-						</para>
-					</listitem>
-				</orderedlist>
-			</para>
-		</sect2>
-		<sect2 id="installation-file">
-			<title>Using the all-in-one index.php</title>
-			<para>
-				<orderedlist>
-					<listitem>
-						<para>
-							Copy the index.php file to a directory available from the web
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							Open a terminal and enter the following command:
-							<command>php index.php init</command>
-						</para>
-						<para>
-							You can also use the <parameter>--htaccess</parameter> option to
-							create a .htaccess file:
-							<command>php index.php init --htaccess</command>
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							Code!
-						</para>
-					</listitem>
-				</orderedlist>
-			</para>
-		</sect2>
+		<para>
+			<orderedlist>
+				<listitem>
+					<para>
+						Unzip the downloaded archive
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Upload or move Atomik files and folders into a directory
+						available from the web.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Code!
+					</para>
+				</listitem>
+			</orderedlist>
+		</para>
 	</sect1>
 </chapter>

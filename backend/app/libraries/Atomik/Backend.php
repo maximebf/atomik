@@ -14,7 +14,7 @@ class Atomik_Backend
 	public static function getModules()
 	{
 	    $confModules = Atomik::get('plugins/Backend/modules', array());
-	    $modules = array();
+	    $availableModules = array();
 	    
 	    /* lists modules */
 	    $dir = Atomik::path(Atomik::get('atomik/dirs/actions'));
@@ -23,16 +23,23 @@ class Atomik_Backend
 	        if (substr($filename, 0, 1) == '.' || !$file->isDir()) {
 	            continue;
 	        }
-	        if (!isset($confModules[$filename])) {
-	            /* modules is not already defined in configuration */
-	            $modules[$filename] = array(ucfirst($filename), 'left');
-	        } else {
-	            /* modules is defined in config */
-	            $modules[$filename] = $confModules[$filename];
-	        }
+	        $availableModules[] = $filename;
+	    }
+	    
+	    $modules = array();
+	    
+	    foreach ($confModules as $filename => $module) {
+	    	if (in_array($filename, $availableModules)) {
+	    		$modules[$filename] = $module;
+	    	}
+	    }
+	    
+	    foreach ($availableModules as $filename) {
+	    	if (!isset($confModules[$filename])) {
+	    		$modules[$filename] = array(ucfirst($filename), 'left');
+	    	}
 	    }
 		
-	    var_dump($confModules);
 	    return $modules;
 	}
 	

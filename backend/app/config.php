@@ -1,7 +1,8 @@
 <?php
 
 /* includes user config */
-include ('../app/config.php');
+//include ('../app/config.php');
+include ('../example/app/config.php');
 
 /* resets default configuration */
 Atomik::set(array(

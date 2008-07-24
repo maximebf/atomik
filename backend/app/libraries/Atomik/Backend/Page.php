@@ -68,7 +68,7 @@ class Atomik_Backend_Page
 	public static function getPagesFromDir($dirs = null)
 	{
 		if ($dirs === null) {
-			$dirs = Atomik::get('plugins/backend/templates_dir', array());
+			$dirs = Atomik::get('plugins/Backend/templates_dir', array());
 		}
 		$pages = array();
 		
@@ -226,7 +226,7 @@ class Atomik_Backend_Page
 	    }
 	    
 	    /* checks for the default_language config key */
-	    $this->_lang = Atomik::get('plugins/backend/default_language', 'en');
+	    $this->_lang = Atomik::get('plugins/Backend/default_language', 'en');
 	}
 	
 	/**

@@ -42,13 +42,13 @@ Atomik::set(array(
         	),
     
         	/* where the backend is located */
-        	'dir'		        => './backend/',
+        	'dir'		        => '../backend/',
         	
         	/* prefix to use for atomik tables */
         	'db_prefix'		    => 'atomik_',
         
         	/* where to find user templates */
-        	'templates_dir'		=> '../app/templates'
+        	'templates_dir'		=> '../example/app/templates'
         
         ),
         
