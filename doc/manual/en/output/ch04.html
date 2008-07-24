@@ -49,7 +49,7 @@
 			specified it will be use as a default value in the case where the key is
 			not found.
 		</p>
-		<div class="example"><a id="id3366717"></a><p class="title"><b>Example 4.1. Using the <code class="methodname">get</code> method</b></p><div class="example-contents">
+		<div class="example"><a id="id3366541"></a><p class="title"><b>Example 4.1. Using the <code class="methodname">get</code> method</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -65,7 +65,7 @@ echo Atomik::get('keyThatDoesntExist', 'defaultValue');
 			This accessor can also take an array as argument to set multiple key/value pairs
 			at once. This array will be merged with the store.
 		</p>
-		<div class="example"><a id="id3366747"></a><p class="title"><b>Example 4.2. Using the <code class="methodname">set</code> method</b></p><div class="example-contents">
+		<div class="example"><a id="id3366572"></a><p class="title"><b>Example 4.2. Using the <code class="methodname">set</code> method</b></p><div class="example-contents">
 			
 			<p>
 				Setting one key
@@ -90,7 +90,7 @@ Atomik::set(array(
 			methods only take a key as argument. The first one checks if the key exists
 			and the second delete the key and its value.
 		</p>
-		<div class="example"><a id="id3366790"></a><p class="title"><b>Example 4.3. Using the <code class="methodname">has</code> and <code class="methodname">delete</code> methods</b></p><div class="example-contents">
+		<div class="example"><a id="id3366615"></a><p class="title"><b>Example 4.3. Using the <code class="methodname">has</code> and <code class="methodname">delete</code> methods</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -106,7 +106,7 @@ if (Atomik::has('key')) {
 			Paths can be used to access nested arrays. Each key in the path as to point to a nested
 			array unless it's the last one. Keys are separated by a slash. 
 		</p>
-		<div class="example"><a id="id3366828"></a><p class="title"><b>Example 4.4. Using paths</b></p><div class="example-contents">
+		<div class="example"><a id="id3366653"></a><p class="title"><b>Example 4.4. Using paths</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -141,7 +141,7 @@ $sofiaAge = Atomik::get('users/sofia/age');
 			(the position depends on the method). See the API guide for more information.
 			Still, here's an example:
 		</p>
-		<div class="example"><a id="id3366860"></a><p class="title"><b>Example 4.5. Using accessors with any array</b></p><div class="example-contents">
+		<div class="example"><a id="id3366685"></a><p class="title"><b>Example 4.5. Using accessors with any array</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -181,7 +181,7 @@ echo Atomik::get('key', null, $array);
 			In this file, you can use accessors (the <code class="methodname">set</code> method of course)
 			to define configuration keys.
 		</p>
-		<div class="example"><a id="id3366943"></a><p class="title"><b>Example 4.6. Exemple <code class="filename">config.php</code> file</b></p><div class="example-contents">
+		<div class="example"><a id="id3366766"></a><p class="title"><b>Example 4.6. Exemple <code class="filename">config.php</code> file</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				

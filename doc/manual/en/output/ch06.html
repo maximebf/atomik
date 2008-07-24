@@ -34,7 +34,7 @@
 			per page. The page logic (i.e. connecting to a database, handling form data...) would
 			have been at the top of the file followed by the HTML. 
 		</p>
-		<div class="example"><a id="id3367088"></a><p class="title"><b>Example 6.1. A php script, the old way</b></p><div class="example-contents">
+		<div class="example"><a id="id3366913"></a><p class="title"><b>Example 6.1. A php script, the old way</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -56,7 +56,7 @@
 			Now let's imagine that rather than directly doing both part in the same file we split it.
 			We would have three file: one with the logic, one with the HTML and on that include both.
 		</p>
-		<div class="example"><a id="id3367114"></a><p class="title"><b>Example 6.2. Splitting into multiple files</b></p><div class="example-contents">
+		<div class="example"><a id="id3366939"></a><p class="title"><b>Example 6.2. Splitting into multiple files</b></p><div class="example-contents">
 			
 			<p>
 				page_logic.php
@@ -112,7 +112,7 @@ include 'page_html.php';
 			variables private (i.e. which will only be available in your action) prefixed them
 			with an underscore.
 		</p>
-		<div class="example"><a id="id3367194"></a><p class="title"><b>Example 6.3. Private variables in actions</b></p><div class="example-contents">
+		<div class="example"><a id="id3367018"></a><p class="title"><b>Example 6.3. Private variables in actions</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -140,7 +140,7 @@ $_myPrivateVariable = 'secret';
 			PHP can be used to print variables from the action or to provide presentation logic like
 			loops.
 		</p>
-		<div class="example"><a id="id3367246"></a><p class="title"><b>Example 6.4. Example template</b></p><div class="example-contents">
+		<div class="example"><a id="id3367071"></a><p class="title"><b>Example 6.4. Example template</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -154,7 +154,7 @@ $_myPrivateVariable = 'secret';
 &lt;/html&gt;
 			</pre>
 		</div></div><br class="example-break" />
-		<div class="figure"><a id="id3367259"></a><p class="title"><b>Figure 6.1. A little schema to sum up!</b></p><div class="figure-contents">
+		<div class="figure"><a id="id3367084"></a><p class="title"><b>Figure 6.1. A little schema to sum up!</b></p><div class="figure-contents">
 			
 			<div class="mediaobject"><img src="images/actions_templates.png" alt="A little schema to sum up!" /></div>
 		</div></div><br class="figure-break" />
@@ -184,7 +184,7 @@ $_myPrivateVariable = 'secret';
 				If no template is found or <code class="code">false</code> is used as second argument, the return value
 				is an array containing all “<span class="quote">public</span>” variables from the action.
 			</p>
-			<div class="example"><a id="id3367349"></a><p class="title"><b>Example 6.5. Calling an action programmatically</b></p><div class="example-contents">
+			<div class="example"><a id="id3367174"></a><p class="title"><b>Example 6.5. Calling an action programmatically</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
@@ -205,7 +205,7 @@ $variables = Atomik::execute('myAction', false);
 			<p>
 				The method returns the template output.
 			</p>
-			<div class="example"><a id="id3367390"></a><p class="title"><b>Example 6.6. Rendering a template programmatically</b></p><div class="example-contents">
+			<div class="example"><a id="id3367215"></a><p class="title"><b>Example 6.6. Rendering a template programmatically</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					

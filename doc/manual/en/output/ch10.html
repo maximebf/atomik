@@ -45,7 +45,7 @@
 				Plugins are not automatically activated. To do so, it's needed to add an
 				entry in the “<span class="quote">plugins</span>” configuration key.
 			</p>
-			<div class="example"><a id="id3367819"></a><p class="title"><b>Example 10.1. Activating a plugin</b></p><div class="example-contents">
+			<div class="example"><a id="id3367644"></a><p class="title"><b>Example 10.1. Activating a plugin</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
@@ -59,7 +59,7 @@ Atomik::set('plugins', array(
 				Some plugins need custom configuration which can be specified in the
 				plugins config key.
 			</p>
-			<div class="example"><a id="id3367838"></a><p class="title"><b>Example 10.2. Plugin custom configuration</b></p><div class="example-contents">
+			<div class="example"><a id="id3367663"></a><p class="title"><b>Example 10.2. Plugin custom configuration</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
@@ -95,7 +95,7 @@ Atomik::set('plugins', array(
 				To retrieve this configuration a $config variable is automatically available.
 				It contains the array used in the configuration.
 			</p>
-			<div class="example"><a id="id3367906"></a><p class="title"><b>Example 10.3. Retrieving plugin custom configuration</b></p><div class="example-contents">
+			<div class="example"><a id="id3367731"></a><p class="title"><b>Example 10.3. Retrieving plugin custom configuration</b></p><div class="example-contents">
 				
 				<p>
 					In the configuration file:
@@ -128,7 +128,7 @@ echo 'hello ' . $config['name'];
 				If this class has a static <code class="methodname">start</code> method, it will be called,
 				with the plugin custom configuration as argument, when the plugin is loaded.
 			</p>
-			<div class="example"><a id="id3367961"></a><p class="title"><b>Example 10.4. Plugin class</b></p><div class="example-contents">
+			<div class="example"><a id="id3367786"></a><p class="title"><b>Example 10.4. Plugin class</b></p><div class="example-contents">
 				
 				<p>
 					The plugin class for a plugin named db
@@ -149,7 +149,7 @@ class DbPlugin
 				on events. These methods have to start by "on" followed by the event name without
 				the double ":".
 			</p>
-			<div class="example"><a id="id3367985"></a><p class="title"><b>Example 10.5. Plugin class with event callback methods</b></p><div class="example-contents">
+			<div class="example"><a id="id3367810"></a><p class="title"><b>Example 10.5. Plugin class with event callback methods</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
