@@ -34,7 +34,9 @@ Atomik::set(array(
         	'error' 			=> './app/error.php'
         )
     	
-    )
+    ),
+    
+    'url_rewriting' => true
     
 ));
 
@@ -45,16 +47,16 @@ Atomik::set('user_app_plugins', Atomik::get('plugins'));
 Atomik::set('plugins', array(
 
     /* gets user configuration for the db */
-    'db' => Atomik::get('plugins/db', array()),
+    'Db' => Atomik::get('plugins/Db', array()),
 
-	'layout' => array(
+	'Layout' => array(
         'global' => '_layout.php'
     ),
      
-	'session', 
-	'lang', 
+	'Session', 
+	'Lang', 
 
-	'controller' => array(
+	'Controller' => array(
         /* routes */
 		'routes'=> array(
             
@@ -67,7 +69,7 @@ Atomik::set('plugins', array(
     	
 	),
 
-	'backend' => Atomik::get('plugins/backend', array())
+	'Backend' => Atomik::get('plugins/Backend', array())
 	
 ));
 

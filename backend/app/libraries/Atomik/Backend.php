@@ -13,7 +13,7 @@ class Atomik_Backend
 	 */
 	public static function getModules()
 	{
-	    $confModules = Atomik::get('plugins/backend/modules', array());
+	    $confModules = Atomik::get('plugins/Backend/modules', array());
 	    $modules = array();
 	    
 	    /* lists modules */
@@ -32,6 +32,7 @@ class Atomik_Backend
 	        }
 	    }
 		
+	    var_dump($confModules);
 	    return $modules;
 	}
 	

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 2. Core principles</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Framework Manual" />
+    <link rel="up" href="index.html" title="Atomik Framework Manual" />
+    <link rel="prev" href="ch01.html" title="Chapter 1. Introduction" />
+    <link rel="next" href="ch03.html" title="Chapter 3. Installation" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 2. Core principles</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="ch01.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="ch03.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="principles"></a>Chapter 2. Core principles</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch02.html#simplicity-and-kiss">Simplicity and the KISS principle</a></span></dt><dt><span class="sect1"><a href="ch02.html#actions-and-templates">Actions and Templates</a></span></dt><dt><span class="sect1"><a href="ch02.html#extensivity-and-plugins">Extensivity and Plugins</a></span></dt><dt><span class="sect1"><a href="ch02.html#selectors">Selectors</a></span></dt></dl></div>
+	
+	<p>
+		Atomik alone does not provide a lot of features. It basically provide a simple
+		directory structure and a dispatch mechanism. The whole point of Atomik is to
+		extend it through plugins. You build the framework you want with the features
+		you need.
+	</p>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="simplicity-and-kiss"></a>Simplicity and the KISS principle</h2></div></div></div>
+		
+		<p>
+			KISS (Keep It Simple Stupid) is a principle which goal is to keep things the
+			simplest possible. Atomik has been build from the beginning with this idea in 
+			mind. It simply works and is nearly bug free. Just unzip your downloaded package
+			and start working!
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-and-templates"></a>Actions and Templates</h2></div></div></div>
+		
+		<p>
+			Atomik is not an MVC framework according to the definition of MVC (it can 
+			however become one with plugins...). Still  it follows the same idea.
+			The application logic, called action, and the presentation layer, called 
+			template, are divided into two different files. The action is executed
+			and then the template is rendered. Both of them is what make a web page.
+		</p>
+		<p>
+			How you code actions and templates is your business! Atomik only provides the
+			dispatch mechanism. The only other thing it does is pass variables defined
+			in the action to the template.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extensivity-and-plugins"></a>Extensivity and Plugins</h2></div></div></div>
+		
+		<p>
+			As said before, the whole point of Atomik is being highly extensible. Nearly
+			all actions (execute an action, render a template...) can be override. This
+			is made possible through an event system. Before and after each actions, 
+			and sometimes during, events are fired. Multiple callbacks can be registered for
+			each events which allow to modify the way Atomik acts.
+		</p>
+		<p>
+			Atomik also have a plugin loader. It can automatically bind events to the plugin
+			class methods.
+		</p>
+		<p>
+			Atomik respects the convention over configuration principle. However it hasn't forget
+			the configuration aspect and even its core features can be modified. 
+			For example, if you want to drop the logic and presentation separation 
+			(however highly discourage) and do everything in a single file, you can.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="selectors"></a>Selectors</h2></div></div></div>
+		
+		<p>
+			Like in modern javascript frameworks, Atomik offer selectors, or at least the same idea.
+			Selectors are a way to quickly access some features or some data of Atomik or plugins.
+			Their simpler to learn than a complicated API and offer a uniform way of doing things. 
+		</p>
+	</div>
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="ch01.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="ch03.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 1. Introduction </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Chapter 3. Installation</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
