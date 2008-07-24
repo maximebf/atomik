@@ -1,3 +1,3 @@
 <?php
 
-	require '../index.php';
+	require '../Atomik.php';

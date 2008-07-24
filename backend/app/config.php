@@ -19,7 +19,7 @@ Atomik::set(array(
     	/* dirs */
         'dirs' => array(
         	'root'				=> './app/',
-        	'plugins'			=> '../app/plugins/',
+        	/*'plugins'			=> '../app/plugins/', */ // keep user configuration
         	'actions' 			=> './app/modules/',
         	'templates'	 		=> './app/templates/',
         	'includes'			=> './app/libraries/'
@@ -73,7 +73,7 @@ Atomik::set('plugins', array(
 	
 ));
 
-Atomik::set('plugins/db/prefix', Atomik::get('plugins/backend/db_prefix', 'atomik_'));
+Atomik::set('plugins/Db/prefix', Atomik::get('plugins/Backend/db_prefix', 'atomik_'));
 
 /* loads the Atomik_Backend class */
 Atomik::needed('Atomik/Backend');
