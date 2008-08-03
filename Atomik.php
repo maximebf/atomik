@@ -18,7 +18,7 @@
  * @link http://www.atomikframework.com
  */
 	 
-define('ATOMIK_VERSION', '2.0');
+define('ATOMIK_VERSION', '2.1');
 
 /* -------------------------------------------------------------------------------------------
  *  DEFAULT CONFIGURATION
@@ -34,6 +34,9 @@ Atomik::set(array(
     	/* request */
     	'trigger' 			    => 'action',
     	'default_action' 		=> 'index',
+
+		/* register the class autoloader */
+		'class_autoload'		=> true,
     
     	/* dirs */
         'dirs' => array(
@@ -155,6 +158,14 @@ class Atomik
     		/* registers the error handler */
     		if (self::get('atomik/catch_errors', true) === true) {
     			set_error_handler(array('Atomik', 'errorHandler'));
+    		}
+    		
+    		/* registers the class autoload handler */
+    		if (self::get('atomik/class_autoload', true) === true) {
+    			if (!function_exists('spl_autoload_register')) {
+    				throw new Exception('Missing spl_autoload_register function');
+    			}
+    			spl_autoload_register(array('Atomik', 'needed'));
     		}
     	
     		/* loads plugins */
@@ -678,19 +689,30 @@ class Atomik
 		
 		/* checks if the *Plugin class is defined */
 		$pluginClass = $plugin . 'Plugin';
-		if (!class_exists($pluginClass)) {
-			if (($filename = self::path($plugin . '.php', self::get('atomik/dirs/plugins'))) !== false) {
-				/* loads the plugin */
-				require($filename);
-			} else {
-				/* plugin not found */
-				throw new Exception('Missing plugin: ' . $plugin);
+		if (!class_exists($pluginClass, false)) {
+			
+			/* tries to load the plugin from a file */
+			if (($filename = self::path($plugin . '.php', self::get('atomik/dirs/plugins'))) === false) {
+				/* no file, checks for a directory */
+				if (($dirname = self::path($plugin, self::get('atomik/dirs/plugins'))) === false) {
+					/* plugin not found */
+					throw new Exception('Missing plugin (no file or no directory matching plugin name): ' . $plugin);
+				} else {
+					/* directory found, plugin file should be inside */
+					$filename = $dirname . '/' . $plugin . '.php';
+					if (!file_exists($filename)) {
+						throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
+					}
+				}
 			}
+			
+			/* loads the plugin */
+			require($filename);
 		}
 		
 		/* checks if the *Plugin class is defined. The use of this class
 		 * is not mandatory in plugin file */
-		if (class_exists($pluginClass)) {
+		if (class_exists($pluginClass, false)) {
 		    $registerEventsCallback = true;
 		    
 			/* call the start method on the plugin class if it's defined */
@@ -742,16 +764,22 @@ class Atomik
 	 *
 	 * @param string $event
 	 * @param callback $callback
+	 * @param int $priority OPTIONAL
+	 * @param bool $important OPTIONAL If a listener of the same priority already exists, register the new listener before the existing one. 
 	 */
-	public static function listenEvent($event, $callback)
+	public static function listenEvent($event, $callback, $priority = 50, $important = false)
 	{
 		/* initialize the current event array */
 		if (!isset(self::$_events[$event])) {
 			self::$_events[$event] = array();
 		}
 		
+		while (isset(self::$_events[$event][$priority])) {
+			$priority += $important ? -1 : 1;
+		}
+		
 		/* stores the callback */
-		self::$_events[$event][] = $callback;
+		self::$_events[$event][$priority] = $callback;
 	}
 	
 	/**
@@ -900,15 +928,29 @@ class Atomik
 	}
 
 	/*
-	 * Includes a file from the includes folder
-	 * Do not specify the extension
+	 * Includes a file
 	 *
-	 * @param string $include
+	 * @param string $include Filename or class name following the PEAR convention
+	 * @param bool $className OPTIONAL If false, $include can't be a class name
+	 * @param string|array $dirs OPTIONAL Include from specific directories rather than include path
 	 */
-	public static function needed($include)
+	public static function needed($include, $className = true, $dirs = null)
 	{
-		self::fireEvent('Atomik::Needed', array(&$include));
-	    require_once(self::path($include . '.php', self::get('atomik/dirs/includes')));
+		self::fireEvent('Atomik::Needed', array(&$include, &$className, &$dirs));
+		if ($include === null) {
+			return;
+		}
+		
+		if ($className && strpos($include, '_') !== false) {
+			$include = str_replace('_', DIRECTORY_SEPARATOR, $include);
+		}
+		$include .= '.php';
+		
+		if ($dirs !== null) {
+	    	require_once(self::path($include, $dirs));
+		} else {
+			require_once($include);
+		}
 	}
 
 	/**

@@ -1,11 +1,16 @@
-<h1>Posts from my blog</h1>
+<!-- Atomik:Page(name="Home" var="page") -->
+<!-- Atomik:ModelSet(name="Post" var="posts") -->
 
-<ul class="atomik" id="posts" rel="post">
-	<li>
-		<h1>
-			<a class="atomik" rel="post">
-				<span class="atomik" id="title"></span>
-			</a>
-		</h1>
-	</li>
+<h1><?php echo $page->title ?></h1>
+
+<ul>
+	<?php foreach ($posts as $post): ?>
+		<li>
+			<h1>
+				<a href="post/<?php echo $post->id ?>">
+					<span><?php echo $post->title ?></span>
+				</a>
+			</h1>
+		</li>
+	<?php endforeach; ?>
 </ul>

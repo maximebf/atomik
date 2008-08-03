@@ -1,14 +1,22 @@
-<div class="atomik" id="post" title="Post">
-	<h1 class="atomik" id="title"></h1>
+<!-- Atomik:Model(name="Post" var="post") -->
+<!-- Atomik:Reference(model="Post" has-many="Comment" as="comments" var="comment") -->
+<!-- Atomik:Reference(model="Post" has-one="User" as="user") -->
+
+<div>
+	<!-- Atomik:Field(name="Title" type="text") -->
+	<h1><?php echo $post->title ?></h1>
+	<span>
+		<?php echo $post->user->name ?>
+	</span>
 	<p>
-		A post by <span class="atomik" id="author" rel="users"></span>
+		<?php echo $post->body ?>
 	</p>
-	<p class="atomik" id="body"></p>
-	<ul class="atomik" id="comments" rel="comment">
-		<li>
-			<h1 class="atomik" id="title"></h1>
-			<p class="atomik" id="message"></p>
-		</li>
+	<ul>
+		<?php foreach ($post->comments as $comment): ?>
+			<li>
+				<h3><?php echo $comment->title ?></h3>
+				<p><?php echo $comment->text ?></p>
+			</li>
+		<?php endforeach; ?>
 	</ul>
-	<form class="atomik" rel="comment"></form>
 </div>

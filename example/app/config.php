@@ -55,7 +55,8 @@ Atomik::set(array(
         'Ajax',
 		'Layout',
         'Session',
-        'Lang'
+        'Lang',
+        'Model'
 	)
     
 ));
