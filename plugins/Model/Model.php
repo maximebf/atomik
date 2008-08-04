@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -23,7 +23,7 @@
  * Model plugin
  *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Plugins
  */
 class ModelPlugin
 {
@@ -52,7 +52,7 @@ class ModelPlugin
         self::$config = array_merge(self::$config, $config);
 		
 		/* adds include path */
-		$includes = array(dirname(__FILE__) . '/libraries');
+		$includes = array();
 		foreach (Atomik::path(self::$config['dirs'], true) as $dir) {
 			$includes[] = $dir;
 		}
@@ -60,9 +60,9 @@ class ModelPlugin
 		set_include_path(implode(PATH_SEPARATOR, $includes));
 
 		require_once 'Atomik/Model.php';
-		require_once 'ModelLocator.php';
 		
 		if (!empty(self::$config['default_adapter'])) {
+			require_once 'Atomik/Model/Builder.php';
 			Atomik::needed($adapter);
 			$adapter = call_user_func(array(self::$config['default_adapter'], 'getInstance'));
 			Atomik_Model_Builder::setDefaultAdapter($adapter);

@@ -20,16 +20,10 @@
  */
 
 /**
- * Session plugin
- *
- * Automatically starts a session
- * Adds support for flash messages which are messages that
- * are available once in the next request
- *
  * @package Atomik
  * @subpackage Session
  */
-class SessionPlugin
+class Atomik_Session
 {
     /**
      * Messages for the current session
@@ -39,9 +33,7 @@ class SessionPlugin
     protected static $_messages = array();
     
     /**
-     * Plugin initialization
-     *
-     * @return bool
+     * Starts the session
      */
     public static function start()
     {
@@ -56,12 +48,14 @@ class SessionPlugin
         
         /* messages for the next request */
         $_SESSION['__FLASH'] = array();
-        
-        /* cleany close the session when atomik ends */
-        Atomik::listenEvent('Atomik::End', 'session_write_close');
-        
-        /* no needs to automatically register events */
-        return false;
+    }
+    
+    /**
+     * Ends the session
+     */
+    public static function end()
+    {
+    	session_write_close();
     }
     
 	/**

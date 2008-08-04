@@ -703,6 +703,10 @@ class Atomik
 					if (!file_exists($filename)) {
 						throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
 					}
+					/* adds the libraries folder from the plugin directory to the include path */
+					if (@is_dir($dirname . '/libraries')) {
+						set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
+					}
 				}
 			}
 			
@@ -874,11 +878,16 @@ class Atomik
 	 * is used or not
 	 *
 	 * @param string $action
+	 * @param array $params OPTIONAL GET parameters
 	 * @param bool $useIndex OPTIONAL (default true) Whether to use index.php in the url
 	 * @return string
 	 */
-	public static function url($action, $useIndex = true)
+	public static function url($action = null, $params = array(), $useIndex = true)
 	{
+		if ($action === null) {
+			$action = self::get('request');
+		}
+		
 		/* base url */
 		$url = rtrim(self::get('base_url', '.'), '/') . '/';
 		
@@ -888,6 +897,11 @@ class Atomik
 			$parts = explode('?', $action);
 			$action = $parts[0];
 			$queryString = $parts[1];
+		}
+		
+		/* adds parameters to the query string */
+		foreach ($params as $param => $value) {
+			$queryString .= $param . '=' . urlencode($value);
 		}
 		
 		/* checks if url rewriting is used */

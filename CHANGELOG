@@ -1,0 +1,18 @@
+== CHANGELOG ==
+
+* = New feature
+! = Modification to existing feature
+# = Fixed bug
+
+----------- Atomik 2.1 --------------
+
+ * Events listener priorities
+ * Plugins can have their own directory
+ * Auto add to the include path of the libraries folder from plugin's directory (if exists)
+ ! Change to Atomik::needed(): support for class names (following the PEAR convention)
+ * Register Atomik::needed() as an autoload handler
+ ! Changes to Atomik::url(): second argument is now an array of GET parameters
+ ! Changes to the Db plugin: class Db replaced with Atomik_Db
+ ! Changes to the Session plugin: class SessionPlugin replaced with Atomik_Session
+ * New Model plugin
+ ! @subpackage for plugins has become "Plugins" (documentation)

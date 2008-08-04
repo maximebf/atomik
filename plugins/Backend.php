@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Backend
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -28,7 +28,7 @@ Atomik::loadPlugin('Db');
  * Enables backend features in the user application
  *
  * @package Atomik
- * @subpackage Backend
+ * @subpackage Plugins
  */
 class BackendPlugin
 {

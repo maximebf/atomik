@@ -5,7 +5,7 @@
 	</head>
 	<body>
 	
-		<?php foreach (SessionPlugin::getMessages() as $message): ?>
+		<?php foreach (Atomik_Session::getMessages() as $message): ?>
 			<h2><?php echo $message ?></h2>
 		<?php endforeach; ?>
 	

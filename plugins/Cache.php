@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Cache
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -46,7 +46,7 @@
  * action or the template associated to the request are modified.
  *
  * @package Atomik
- * @subpackage Cache
+ * @subpackage Plugins
  */
 class CachePlugin
 {

@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Plugins
+ * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -21,16 +21,9 @@
 
 /**
  * @package Atomik
- * @subpackage Plugins
+ * @subpackage Db
  */
-class UsersPlugin
+class Atomik_Db_Exception extends Exception
 {
-    public static $config = array(
-    
-    );
-    
-    public static function authenticate($username, $password)
-    {
-        
-    }
+	
 }

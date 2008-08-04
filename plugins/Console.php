@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Console
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -30,7 +30,7 @@
  * Two builtin commands: init and generate
  *
  * @package Atomik
- * @subpackage Console
+ * @subpackage Plugins
  */
 class ConsolePlugin
 {

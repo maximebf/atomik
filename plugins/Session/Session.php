@@ -20,17 +20,31 @@
  */
 
 /**
+ * Session plugin
+ *
  * @package Atomik
  * @subpackage Plugins
  */
-class UsersPlugin
+class SessionPlugin
 {
-    public static $config = array(
-    
-    );
-    
-    public static function authenticate($username, $password)
+    /**
+     * Plugin initialization
+     *
+     * @param array $config
+     * @return bool
+     */
+    public static function start($config)
     {
+    	/** Atomik_Session */
+        require_once 'Atomik/Session.php';
         
+        /* starts the session */
+        Atomik_Session::start();
+        
+        /* cleany close the session when atomik ends */
+        Atomik::listenEvent('Atomik::End', array('Atomik_Session', 'end'));
+        
+        /* no needs to automatically register events */
+        return false;
     }
 }

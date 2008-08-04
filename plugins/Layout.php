@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Layout
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -25,7 +25,7 @@
  * Adds layout support to templates
  *
  * @package Atomik
- * @subpackage Layout
+ * @subpackage Plugins
  */
 class LayoutPlugin
 {

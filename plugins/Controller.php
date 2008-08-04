@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Controller
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -137,7 +137,7 @@
  * Routes are match in reverse order.
  *
  * @package Atomik
- * @subpackage Controller
+ * @subpackage Plugins
  */
 class ControllerPlugin
 {

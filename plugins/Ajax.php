@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Ajax
+ * @subpackage Plugins
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -23,7 +23,7 @@
  * Ajax plugin
  *
  * @package Atomik
- * @subpackage Ajax
+ * @subpackage Plugins
  */
 class AjaxPlugin
 {
