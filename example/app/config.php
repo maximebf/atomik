@@ -4,9 +4,8 @@
 Atomik::set(array(
 
 	'atomik' => array(
-		'dirs' => array(
-			'plugins' => '../plugins/'
-		)
+		'dirs/plugins' => '../plugins/',
+		'catch_errors' => true
 	),
 
 	'plugins' => array(
@@ -24,7 +23,9 @@ Atomik::set(array(
 		'Layout',
         'Session',
         'Lang',
-        'Model'
+        'Model',
+        'Users',
+        'Backend'
 	)
     
 ));

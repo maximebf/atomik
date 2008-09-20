@@ -24,7 +24,7 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="plugins"></a>Chapter 10. Plugins</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch10.html#using-plugins">Using plugins</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch10.html#installing-plugins">Installing a plugin</a></span></dt><dt><span class="sect2"><a href="ch10.html#activating-configuring-plugins">Activating and configuring a plugin</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch10.html#developing-plugins">Developing plugins</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch10.html#plugin-file">The plugin file</a></span></dt><dt><span class="sect2"><a href="ch10.html#plugin-custom-configuration">Plugin custom configuration</a></span></dt><dt><span class="sect2"><a href="ch10.html#plugin-class">Using a class</a></span></dt></dl></dd></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="plugins"></a>Chapter 10. Plugins</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch10.html#using-plugins">Using plugins</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch10.html#installing-plugins">Installing a plugin</a></span></dt><dt><span class="sect2"><a href="ch10.html#activating-configuring-plugins">Activating and configuring a plugin</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch10.html#developing-plugins">Developing plugins</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch10.html#plugin-file">The plugin file</a></span></dt><dt><span class="sect2"><a href="ch10.html#plugin-custom-configuration">Plugin's custom configuration</a></span></dt><dt><span class="sect2"><a href="ch10.html#plugin-class">Using a class</a></span></dt></dl></dd></dl></div>
 	
 	<p>
 		Plugins are a simple way to extend Atomik. As said before, the framework doesn't
@@ -45,13 +45,13 @@
 				Plugins are not automatically activated. To do so, it's needed to add an
 				entry in the “<span class="quote">plugins</span>” configuration key.
 			</p>
-			<div class="example"><a id="id3367644"></a><p class="title"><b>Example 10.1. Activating a plugin</b></p><div class="example-contents">
+			<div class="example"><a id="id3337341"></a><p class="title"><b>Example 10.1. Activating a plugin</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
 Atomik::set('plugins', array(
-	'db',
-	'layout'
+	'Db',
+	'Layout'
 ));
 				</pre>
 			</div></div><br class="example-break" />
@@ -59,17 +59,17 @@ Atomik::set('plugins', array(
 				Some plugins need custom configuration which can be specified in the
 				plugins config key.
 			</p>
-			<div class="example"><a id="id3367663"></a><p class="title"><b>Example 10.2. Plugin custom configuration</b></p><div class="example-contents">
+			<div class="example"><a id="id3337357"></a><p class="title"><b>Example 10.2. Plugin with custom configuration</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
 Atomik::set('plugins', array(
-	'db' =&gt; array(
+	'Db' =&gt; array(
            'dsn'         =&gt; 'mysql:host=localhost;dbname=atomik',
            'username'    =&gt; 'atomik',
            'password'    =&gt; 'atomik'
 	),
-	'layout'
+	'Layout'
 ));
 				</pre>
 			</div></div><br class="example-break" />
@@ -80,22 +80,22 @@ Atomik::set('plugins', array(
 		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="plugin-file"></a>The plugin file</h3></div></div></div>
 			
 			<p>
-				A plugin is made of one file named the same way. For example the db plugin is in the file
-				<code class="filename">db.php</code>.
+				A plugin is made of one file named the same way. For example the Db plugin is in the file
+				<code class="filename">Db.php</code>. Plugin's file should always start with an uppercase letter.
 			</p>
 			<p>
-				Plugins are loaded at the beginning of a request, just after the configuration 
-				has been loaded. The content of the file is free or it can be a class.
+				Plugins are loaded at the beginning of a request, just after the configuration. 
+				The content of the file is free or it can be a class.
 			</p>
 		</div>
-		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="plugin-custom-configuration"></a>Plugin custom configuration</h3></div></div></div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="plugin-custom-configuration"></a>Plugin's custom configuration</h3></div></div></div>
 			
 			<p>
 				As said in the "Using plugins" section, plugins can have custom configuration.
 				To retrieve this configuration a $config variable is automatically available.
 				It contains the array used in the configuration.
 			</p>
-			<div class="example"><a id="id3367731"></a><p class="title"><b>Example 10.3. Retrieving plugin custom configuration</b></p><div class="example-contents">
+			<div class="example"><a id="id3337416"></a><p class="title"><b>Example 10.3. Retrieving plugin custom configuration</b></p><div class="example-contents">
 				
 				<p>
 					In the configuration file:
@@ -103,7 +103,7 @@ Atomik::set('plugins', array(
 				<pre class="programlisting">
 					
 Atomik::set('plugins', array(
-	'myPlugin' =&gt; array(
+	'MyPlugin' =&gt; array(
            'name' =&gt; 'Peter'
 	)
 ));
@@ -125,13 +125,13 @@ echo 'hello ' . $config['name'];
 				“<span class="quote">Plugin</span>”.
 			</p>
 			<p>
-				If this class has a static <code class="methodname">start</code> method, it will be called,
-				with the plugin custom configuration as argument, when the plugin is loaded.
+				If this class has a static <code class="methodname">start</code> method, it will be called
+				with the plugin's custom configuration as argument, when the plugin is loaded.
 			</p>
-			<div class="example"><a id="id3367786"></a><p class="title"><b>Example 10.4. Plugin class</b></p><div class="example-contents">
+			<div class="example"><a id="id3337480"></a><p class="title"><b>Example 10.4. Plugin class</b></p><div class="example-contents">
 				
 				<p>
-					The plugin class for a plugin named db
+					The plugin class for a plugin named Db
 				</p>
 				<pre class="programlisting">
 					
@@ -149,7 +149,7 @@ class DbPlugin
 				on events. These methods have to start by "on" followed by the event name without
 				the double ":".
 			</p>
-			<div class="example"><a id="id3367810"></a><p class="title"><b>Example 10.5. Plugin class with event callback methods</b></p><div class="example-contents">
+			<div class="example"><a id="id3337506"></a><p class="title"><b>Example 10.5. Plugin class with event callback methods</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					

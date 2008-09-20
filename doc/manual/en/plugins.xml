@@ -25,8 +25,8 @@
 				<programlisting>
 					<![CDATA[
 Atomik::set('plugins', array(
-	'db',
-	'layout'
+	'Db',
+	'Layout'
 ));]]>
 				</programlisting>
 			</example>
@@ -35,16 +35,16 @@ Atomik::set('plugins', array(
 				plugins config key.
 			</para>
 			<example>
-				<title>Plugin custom configuration</title>
+				<title>Plugin with custom configuration</title>
 				<programlisting>
 					<![CDATA[
 Atomik::set('plugins', array(
-	'db' => array(
+	'Db' => array(
            'dsn'         => 'mysql:host=localhost;dbname=atomik',
            'username'    => 'atomik',
            'password'    => 'atomik'
 	),
-	'layout'
+	'Layout'
 ));]]>
 				</programlisting>
 			</example>
@@ -55,16 +55,16 @@ Atomik::set('plugins', array(
 		<sect2 id="plugin-file">
 			<title>The plugin file</title>
 			<para>
-				A plugin is made of one file named the same way. For example the db plugin is in the file
-				<filename>db.php</filename>.
+				A plugin is made of one file named the same way. For example the Db plugin is in the file
+				<filename>Db.php</filename>. Plugin's file should always start with an uppercase letter.
 			</para>
 			<para>
-				Plugins are loaded at the beginning of a request, just after the configuration 
-				has been loaded. The content of the file is free or it can be a class.
+				Plugins are loaded at the beginning of a request, just after the configuration. 
+				The content of the file is free or it can be a class.
 			</para>
 		</sect2>
 		<sect2 id="plugin-custom-configuration">
-			<title>Plugin custom configuration</title>
+			<title>Plugin's custom configuration</title>
 			<para>
 				As said in the "Using plugins" section, plugins can have custom configuration.
 				To retrieve this configuration a $config variable is automatically available.
@@ -78,7 +78,7 @@ Atomik::set('plugins', array(
 				<programlisting>
 					<![CDATA[
 Atomik::set('plugins', array(
-	'myPlugin' => array(
+	'MyPlugin' => array(
            'name' => 'Peter'
 	)
 ));]]>
@@ -100,13 +100,13 @@ echo 'hello ' . $config['name'];]]>
 				<quote>Plugin</quote>.
 			</para>
 			<para>
-				If this class has a static <methodname>start</methodname> method, it will be called,
-				with the plugin custom configuration as argument, when the plugin is loaded.
+				If this class has a static <methodname>start</methodname> method, it will be called
+				with the plugin's custom configuration as argument, when the plugin is loaded.
 			</para>
 			<example>
 				<title>Plugin class</title>
 				<para>
-					The plugin class for a plugin named db
+					The plugin class for a plugin named Db
 				</para>
 				<programlisting>
 					<![CDATA[

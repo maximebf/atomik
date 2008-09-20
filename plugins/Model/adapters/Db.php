@@ -34,7 +34,7 @@ require_once 'Atomik/Model/Builder.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_Table implements Atomik_Model_Adapter_Interface
+class DbModelAdapter implements Atomik_Model_Adapter_Interface
 {
 	/**
 	 * @var Atomik_Db_Instance
@@ -44,14 +44,14 @@ class Atomik_Model_Adapter_Table implements Atomik_Model_Adapter_Interface
 	/**
 	 * Singleton instance
 	 *
-	 * @var Atomik_Model_Adapter_Table
+	 * @var DbModelAdapter
 	 */
 	protected static $_instance;
 	
 	/**
 	 * Gets the singleton
 	 *
-	 * @return Atomik_Model_Adapter_Table
+	 * @return DbModelAdapter
 	 */
 	public static function getInstance()
 	{
@@ -94,7 +94,7 @@ class Atomik_Model_Adapter_Table implements Atomik_Model_Adapter_Interface
 	 * Finds many models
 	 *
 	 * @param Atomik_Model_Builder $builder
-	 * @param array $where
+	 * @param array|string $where
 	 * @param string $orderBy
 	 * @param string $limit
 	 * @return array
@@ -115,14 +115,16 @@ class Atomik_Model_Adapter_Table implements Atomik_Model_Adapter_Interface
 	 * Finds one model
 	 *
 	 * @param Atomik_Model_Builder $builder
-	 * @param array $where
+	 * @param array|string $where
 	 * @param string $orderBy
 	 * @param string $limit
 	 * @return Atomik_Model
 	 */
 	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
 	{
-		$row = $this->getDb()->find($this->getTableName($builder), $where, $orderBy, $limit);
+		if (($row = $this->getDb()->find($this->getTableName($builder), $where, $orderBy, $limit)) === null) {
+			return null;
+		}
 		return $builder->createInstance($row, false);
 	}
 	
@@ -134,7 +136,7 @@ class Atomik_Model_Adapter_Table implements Atomik_Model_Adapter_Interface
 	 */
 	public function save(Atomik_Model $model)
 	{
-		$data = $model->toArray();
+		$data = $model->toArray($this);
 		$builder = $model->getBuilder();
 		$tableName = $this->getTableName($builder);
 		$primaryKey = $this->getPrimaryKey($builder);

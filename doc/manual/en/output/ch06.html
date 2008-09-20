@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Chapter 6. Actions and templates</title>
+    <title>Chapter 6. Actions and views</title>
     <link rel="stylesheet" href="styles.css" type="text/css" />
     <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
@@ -15,7 +15,7 @@
     <div class="navheader">
       <table width="100%" summary="Navigation header">
         <tr>
-          <th colspan="3" align="center">Chapter 6. Actions and templates</th>
+          <th colspan="3" align="center">Chapter 6. Actions and views</th>
         </tr>
         <tr>
           <td width="20%" align="left"><a accesskey="p" href="ch05.html">Prev</a> </td>
@@ -25,16 +25,16 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="actions-templates"></a>Chapter 6. Actions and templates</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch06.html#actions-templates-introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="ch06.html#actions">Actions</a></span></dt><dt><span class="sect1"><a href="ch06.html#templates">Templates</a></span></dt><dt><span class="sect1"><a href="ch06.html#actions-templates-programmatically">Calling actions or templates programmatically</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch06.html#executing-actions">Executing actions</a></span></dt><dt><span class="sect2"><a href="ch06.html#rendering-templates">Rendering templates</a></span></dt></dl></dd></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="actions-views"></a>Chapter 6. Actions and views</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch06.html#actions-views-introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="ch06.html#actions">Actions</a></span></dt><dt><span class="sect1"><a href="ch06.html#views">Views</a></span></dt><dt><span class="sect1"><a href="ch06.html#actions-views-programmatically">Calling actions or views programmatically</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch06.html#executing-actions">Executing actions</a></span></dt><dt><span class="sect2"><a href="ch06.html#rendering-views">Rendering views</a></span></dt></dl></dd></dl></div>
 	
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-templates-introduction"></a>Introduction</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-views-introduction"></a>Introduction</h2></div></div></div>
 		
 		<p>
 			Without using Atomik, one way of doing things would have been to create a file
 			per page. The page logic (i.e. connecting to a database, handling form data...) would
 			have been at the top of the file followed by the HTML. 
 		</p>
-		<div class="example"><a id="id3366913"></a><p class="title"><b>Example 6.1. A php script, the old way</b></p><div class="example-contents">
+		<div class="example"><a id="id3336546"></a><p class="title"><b>Example 6.1. A php script, the old way</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -56,10 +56,10 @@
 			Now let's imagine that rather than directly doing both part in the same file we split it.
 			We would have three file: one with the logic, one with the HTML and on that include both.
 		</p>
-		<div class="example"><a id="id3366939"></a><p class="title"><b>Example 6.2. Splitting into multiple files</b></p><div class="example-contents">
+		<div class="example"><a id="id3336579"></a><p class="title"><b>Example 6.2. Splitting into multiple files</b></p><div class="example-contents">
 			
 			<p>
-				page_logic.php
+				<code class="filename">page_logic.php</code>
 			</p>
 			<pre class="programlisting">
 				
@@ -69,7 +69,7 @@ if (count($_POST)) {
 }
 			</pre>
 			<p>
-				page_html.php
+				<code class="filename">page_html.php</code>
 			</p>
 			<pre class="programlisting">
 				
@@ -79,7 +79,7 @@ if (count($_POST)) {
 &lt;/form&gt;
 			</pre>
 			<p>
-				page.php
+				<code class="filename">page.php</code>
 			</p>
 			<pre class="programlisting">
 				
@@ -90,29 +90,29 @@ include 'page_html.php';
 		</div></div><br class="example-break" />
 		<p>
 			Now replace the third file (the one with the includes) with Atomik and you'll have the concept
-			behind Atomik. The logic script is named an action and the html a template.
+			behind Atomik. The logic script is named an action and the html a view.
 		</p>
 	</div>
 	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions"></a>Actions</h2></div></div></div>
 		
 		<p>
 			Actions are stored in the <code class="filename">app/actions</code> directory. Both the action and the 
-			template filename must have the same name.
+			view filename must have the same name.
 		</p>
 		<p>
 			The content of the action file is free. It can be anything you want. So you just do your
 			logic as you used to.
 		</p>
 		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
-			Be aware that action run in their own scope and not in the global scope as you
+			Be aware that actions run in their own scope and not in the global scope as you
 			might think.
 		</div>
 		<p>
-			Variables declare in the action are forwarded to the template. If you want to keep some
+			Variables declared in the action are forwarded to the view. If you want to keep some
 			variables private (i.e. which will only be available in your action) prefixed them
 			with an underscore.
 		</p>
-		<div class="example"><a id="id3367018"></a><p class="title"><b>Example 6.3. Private variables in actions</b></p><div class="example-contents">
+		<div class="example"><a id="id3336668"></a><p class="title"><b>Example 6.3. Private variables in actions</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -127,20 +127,20 @@ $_myPrivateVariable = 'secret';
 			mix-in both in the action file would be a non-sense!
 		</div>
 	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="templates"></a>Templates</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="views"></a>Views</h2></div></div></div>
 		
 		<p>
-			Templates are stored in the <code class="filename">app/templates</code> directory.
+			Views are stored in the <code class="filename">app/views</code> directory.
 		</p>
 		<p>
-			The content of the template file is, as the action file, free. It should mostly be text or 
+			The content of the view file is, as the action file, free. It should mostly be text or 
 			HTML (or any presentation content, such as XML).
 		</p>
 		<p>
 			PHP can be used to print variables from the action or to provide presentation logic like
 			loops.
 		</p>
-		<div class="example"><a id="id3367071"></a><p class="title"><b>Example 6.4. Example template</b></p><div class="example-contents">
+		<div class="example"><a id="id3336721"></a><p class="title"><b>Example 6.4. Example view</b></p><div class="example-contents">
 			
 			<pre class="programlisting">
 				
@@ -154,20 +154,20 @@ $_myPrivateVariable = 'secret';
 &lt;/html&gt;
 			</pre>
 		</div></div><br class="example-break" />
-		<div class="figure"><a id="id3367084"></a><p class="title"><b>Figure 6.1. A little schema to sum up!</b></p><div class="figure-contents">
+		<div class="figure"><a id="id3336733"></a><p class="title"><b>Figure 6.1. A little schema to sum up!</b></p><div class="figure-contents">
 			
-			<div class="mediaobject"><img src="images/actions_templates.png" alt="A little schema to sum up!" /></div>
+			<div class="mediaobject"><img src="images/actions_views.png" alt="A little schema to sum up!" /></div>
 		</div></div><br class="figure-break" />
 	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-templates-programmatically"></a>Calling actions or templates programmatically</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-views-programmatically"></a>Calling actions or views programmatically</h2></div></div></div>
 		
 		<p>
-			When executing a request, the action and/or the template associated to it are
+			When executing a request, the action and/or the view associated to it are
 			automatically called. You can however call other actions or render other
-			templates using Atomik's API.
+			views using Atomik's API.
 		</p>
 		<p>
-			The most useful use of this it to render partial templates, small part of presentation
+			The most useful use of this it to render partial views, small part of presentation
 			code that is reusable.
 		</p>
 		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="executing-actions"></a>Executing actions</h3></div></div></div>
@@ -177,40 +177,40 @@ $_myPrivateVariable = 'secret';
 				as first argument the action name.
 			</p>
 			<p>
-				By default, if a template with the same name is found, it is rendered and the return value
-				of the <code class="methodname">execute()</code> method is the template output.
+				By default, if a view with the same name is found, it is rendered and the return value
+				of the <code class="methodname">execute()</code> method is the view output.
 			</p>
 			<p>
-				If no template is found or <code class="code">false</code> is used as second argument, the return value
+				If no view is found or <code class="code">false</code> is used as second argument, the return value
 				is an array containing all “<span class="quote">public</span>” variables from the action.
 			</p>
-			<div class="example"><a id="id3367174"></a><p class="title"><b>Example 6.5. Calling an action programmatically</b></p><div class="example-contents">
+			<div class="example"><a id="id3336822"></a><p class="title"><b>Example 6.5. Calling an action programmatically</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
-$templateOutput = Atomik::execute('myAction');
+$viewOutput = Atomik::execute('myAction');
 $variables = Atomik::execute('myAction', false);
 				</pre>
 			</div></div><br class="example-break" />
 		</div>
-		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="rendering-templates"></a>Rendering templates</h3></div></div></div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="rendering-views"></a>Rendering views</h3></div></div></div>
 			
 			<p>
-				To render a template use the <code class="methodname">Atomik::render()</code> method.
+				To render a view use the <code class="methodname">Atomik::render()</code> method.
 			</p>
 			<p>
-				It takes as first argument the template name and optionally as second argument
+				It takes as first argument the view name and optionally as second argument
 				an array of key/value pairs representing variables.
 			</p>
 			<p>
-				The method returns the template output.
+				The method returns the view output.
 			</p>
-			<div class="example"><a id="id3367215"></a><p class="title"><b>Example 6.6. Rendering a template programmatically</b></p><div class="example-contents">
+			<div class="example"><a id="id3336864"></a><p class="title"><b>Example 6.6. Rendering a view programmatically</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
-$templateOutput = Atomik::render('myTemplate');
-$templateOutput = Atomik::render('myTemplate', array('var' =&gt; 'value'));
+$viewOutput = Atomik::render('myView');
+$viewOutput = Atomik::render('myView', array('var' =&gt; 'value'));
 				</pre>
 			</div></div><br class="example-break" />
 		</div>

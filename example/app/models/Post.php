@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @model-table posts
- * @model-has-many Comment as comments
+ * @table posts
+ * @has-many Comment as comments
  */
 class Post extends Atomik_Model
 {

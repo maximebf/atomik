@@ -91,7 +91,7 @@ class ConsolePlugin
 		Atomik::fireEvent('Console::End', array($command, $arguments));
 		
 		echo "\n\nDone\n";
-		Atomik::end();
+		Atomik::end(true);
 	}
 	
 	/**
@@ -213,7 +213,7 @@ class ConsolePlugin
 		}
 			
 		/* creates the templates directory */
-		foreach (Atomik::path(Atomik::get('atomik/dirs/templates'), true) as $path) {
+		foreach (Atomik::path(Atomik::get('atomik/dirs/views'), true) as $path) {
 		    self::mkdir($path, 1);
 		}
 		
@@ -271,7 +271,7 @@ class ConsolePlugin
 				"<?php\n\n\t/* Logic goes here */\n", 1);
 		
 			/* creates the template file */
-			self::touch(Atomik::path(Atomik::get('atomik/dirs/templates')) . $filename, '', 1);
+			self::touch(Atomik::path(Atomik::get('atomik/dirs/views')) . $filename, '', 1);
 		
 			/* fires an event to allow packages to extend the generate command */
 			Atomik::fireEvent('Console::Generate', array($action));

@@ -2,7 +2,7 @@
 <chapter id="introduction" xmlns="http://docbook.org/ns/docbook">
 	<title>Introduction</title>
 	<para>
-		Atomik is a free, open-source, micro framework for PHP5. Atomik is built for small 
+		Atomik is a free, open-source, micro framework for PHP5. Atomik is built for  
 		web applications that do not need heavy frameworks but still want powerful features. 
 		It is build with the KISS principle in mind as well as speed and simplicity.
 		Atomik is also an ideal introduction for beginners to the world of web

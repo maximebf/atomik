@@ -106,7 +106,7 @@ class CachePlugin
     		/* last modified time */
     		$cacheTime = filemtime($cacheFilename);
     		$actionTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/actions')));
-    		$templateTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/templates')));
+    		$templateTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/views')));
     		
     		/* checks if the action or the template have been modified */
     		if ($cacheTime < $actionTime || $cacheTime < $templateTime) {

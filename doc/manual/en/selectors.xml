@@ -15,7 +15,7 @@
 	</para>
 	<para>
 		Atomik also defines the <function>A()</function> function for quicker access. This
-		function is only a shortcut for <methodname>Atomik::get()</methodname>.
+		function is only a shortcut to <methodname>Atomik::get()</methodname>.
 	</para>
 	<para>
 		Namespaces are used to differentiate selectors. A namespace is only a word followed
@@ -42,11 +42,11 @@ $value = A('key1/key2');]]>
 		</programlisting>
 	</example>
 	<para>
-		Plugins can provide their own selector namespace. For example, the db plugin brings with
-		it the db namespace which allow you to do sql queries.
+		Plugins can provide their own selector namespace. For example, the Db plugin brings with
+		it the <quote>db</quote> namespace which allow you to do sql queries.
 	</para>
 	<example>
-		<title>Using selectors with the db plugin</title>
+		<title>Using selectors with the Db plugin</title>
 		<programlisting>
 			<![CDATA[
 // selecting a value from the global store
@@ -60,6 +60,6 @@ $firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));]]>
 		</programlisting>
 	</example>
 	<para>
-		See the db plugin documentation for more information. 
+		See the Db plugin documentation for more information. 
 	</para>
 </chapter>

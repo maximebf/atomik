@@ -13,12 +13,12 @@
 		<title>Accessors</title>
 		<para>
 			Accessors are methods provided by the Atomik class that allow you to 
-			access the global store. They are four of them: <methodname>get</methodname>, 
-			<methodname>set</methodname>, <methodname>has</methodname> and 
-			<methodname>delete</methodname>.
+			access the global store. They are five of them: <methodname>get</methodname>, 
+			<methodname>set</methodname>, <methodname>add</methodname>, 
+			<methodname>has</methodname> and <methodname>delete</methodname>.
 		</para>
 		<para>
-			The <methodname>get</methodname> method allow you to retreive the value
+			The <methodname>get</methodname> method allows you to retreive the value
 			associated to the key passed as first argument. If a second argument is 
 			specified it will be use as a default value in the case where the key is
 			not found.
@@ -32,7 +32,7 @@ echo Atomik::get('keyThatDoesntExist', 'defaultValue');]]>
 			</programlisting>
 		</example>
 		<para>
-			The <methodname>set</methodname> method allow you to define a key and its
+			The <methodname>set</methodname> method allows you to define a key and its
 			associated value. It will overwrite an existing value.
 		</para>
 		<para>
@@ -60,7 +60,23 @@ Atomik::set(array(
 			</programlisting>
 		</example>
 		<para>
-			The <methodname>has</methodname> and the <methodname>delete</methodname>
+			The <methodname>add</methodname> method works like the <methodname>set</methodname>
+			method but rather than replacing values when they already exists, adds them. For
+			example if the key points to an array, the value will be added to this array as a new
+			item. If the key points to a value which is not an array, it will be transformed to
+			one.
+		</para>
+		<example>
+			<title>Using the <methodname>add</methodname> method</title>
+			<programlisting>
+				<![CDATA[
+Atomik::set('key1', array('item1'));
+Atomik::add('key1', 'item2');
+$array = Atomik::get('key1'); // array('item1', 'item2')]]>
+			</programlisting>
+		</example>
+		<para>
+			The <methodname>has</methodname> and <methodname>delete</methodname>
 			methods only take a key as argument. The first one checks if the key exists
 			and the second delete the key and its value.
 		</para>
@@ -77,7 +93,7 @@ if (Atomik::has('key')) {
 	<sect1 id="path-in-keys">
 		<title>Using paths in keys</title>
 		<para>
-			Paths can be used to access nested arrays. Each key in the path as to point to a nested
+			Paths can be used to access nested arrays. Each key in the path has to point to a nested
 			array unless it's the last one. Keys are separated by a slash. 
 		</para>
 		<example>
@@ -111,9 +127,9 @@ $sofiaAge = Atomik::get('users/sofia/age');]]>
 	<sect1 id="accessors-with-any-arrays">
 		<title>Using accessors with any arrays</title>
 		<para>
-			Accessors can be used on any array. You need to pass as argument an array
-			(the position depends on the method). See the API guide for more information.
-			Still, here's an example:
+			Accessors can be used with any array. You need to pass as argument an array
+			(the position of the argument depends on the method). See the API guide for 
+			more information. Still, here's an example:
 		</para>
 		<example>
 			<title>Using accessors with any array</title>
@@ -141,8 +157,8 @@ echo Atomik::get('key', null, $array);]]>
 					modify Atomik's core file (<filename>index.php</filename>)
 				</listitem>
 				<listitem>
-					create a <filename>config.php</filename> file in the same directory as
-					Atomik's core file
+					create a <filename>config.php</filename> file in the 
+					<filename>app</filename> directory.
 				</listitem>
 			</itemizedlist>
 		</para>
@@ -154,7 +170,7 @@ echo Atomik::get('key', null, $array);]]>
 		<para>
 			The second method is of course the prefered one. It allows clearer configuration
 			in a unique place, perfect for maintenance. Just create a <filename>config.php</filename>
-			file in the same directory as Atomik's core file (<filename>index.php</filename>).
+			file in the <filename>app</filename> directory.
 			In this file, you can use accessors (the <methodname>set</methodname> method of course)
 			to define configuration keys.
 		</para>

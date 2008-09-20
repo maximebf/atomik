@@ -41,7 +41,7 @@
 		argument the path to the filename you wish to include relative to the
 		previous directories and without the extension.
 	</p>
-	<div class="example"><a id="id3367371"></a><p class="title"><b>Example 8.1. Using includes</b></p><div class="example-contents">
+	<div class="example"><a id="id3337023"></a><p class="title"><b>Example 8.1. Using includes</b></p><div class="example-contents">
 		
 		<p>
 			Let's say we've created the file <code class="filename">app/includes/common.php</code>
@@ -59,6 +59,24 @@ Atomik::needed('common');
 Atomik::needed('libs/db');
 		</pre>
 	</div></div><br class="example-break" />
+	<p>
+		<code class="methodname">Atomik::needed()</code> also allows you to include classes using
+		their name. To do so, classes have to follow the PEAR naming convention
+		(<a class="ulink" href="http://pear.php.net/manual/en/standards.naming.php" target="_top">http://pear.php.net/manual/en/standards.naming.php</a>).
+	</p>
+	<div class="example"><a id="id3337066"></a><p class="title"><b>Example 8.2. Including classes with their name</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+Atomik::needed('Atomik_Db');
+		</pre>
+	</div></div><br class="example-break" />
+	<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+		<p>
+			Since Atomik 2.1, <code class="methodname">Atomik::needed()</code> is automatically registered as
+			an spl_autoload handler.
+		</p>
+	</div>
 </div>
     <div class="navfooter">
       <hr />

@@ -6,13 +6,54 @@
 
 ----------- Atomik 2.1 --------------
 
+[Atomik]
+
+ ! Templates are renamed Views (however the template folder is still available)
  * Events listener priorities
  * Plugins can have their own directory
  * Auto add to the include path of the libraries folder from plugin's directory (if exists)
+ * Plugins can bring their assets (css, scripts) inside an assets folder
  ! Change to Atomik::needed(): support for class names (following the PEAR convention)
  * Register Atomik::needed() as an autoload handler
  ! Changes to Atomik::url(): second argument is now an array of GET parameters
- ! Changes to the Db plugin: class Db replaced with Atomik_Db
- ! Changes to the Session plugin: class SessionPlugin replaced with Atomik_Session
- * New Model plugin
  ! @subpackage for plugins has become "Plugins" (documentation)
+ ! Atomik::Start and Atomik:Dispatch::Before events have now a $cancel parameter
+ ! Atomik::_renderInScope() replaced with Atomik::renderFile()
+ * Atomik::fireEvent() now returns an array of each callback results
+ * Added Atomik::attachClassListeners()
+ ! Event Atomik::Redirect now occurs before the call to Atomik::url() (if any)
+ * Routes are now natively supported
+ * Added Atomik::route()
+ ! Atomik::loadPlugin(): $arguments parameter dropped (use $config instead)
+ ! Atomik::loadPlugin(): new parameters allow "plugins for plugins"
+ ! Atomik::_mergeRecursive() is now public
+ * Added Atomik::_dimensionizeArray()
+ ! Atomik::set() now use Atomik::_dimensionizeArray() when the first argument is an array
+ * Added Atomik::add()
+ * Added Atomik::debug()
+ 
+[DbPlugin]
+ 
+ ! Changes to the Db plugin: class Db replaced with Atomik_Db
+ ! $where argument can now be an sql condition string
+ 
+[SessionPlugin]
+
+ ! Changes to the Session plugin: class SessionPlugin replaced with Atomik_Session
+
+[ControllerPlugin]
+
+ * Added config keys default_controller and default_action
+ * New Atomik_Controller class (base class for controllers)
+ * Define route parameters as method doc comments
+ * Map request parameters to method parameters
+ * New argument for ControllerPlugin::start()
+ 
+[ModelPlugin]
+
+ * New plugin
+
+[BackendPlugin]
+
+ * New plugin
+ 

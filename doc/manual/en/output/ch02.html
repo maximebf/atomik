@@ -25,10 +25,10 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="principles"></a>Chapter 2. Core principles</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch02.html#simplicity-and-kiss">Simplicity and the KISS principle</a></span></dt><dt><span class="sect1"><a href="ch02.html#actions-and-templates">Actions and Templates</a></span></dt><dt><span class="sect1"><a href="ch02.html#extensivity-and-plugins">Extensivity and Plugins</a></span></dt><dt><span class="sect1"><a href="ch02.html#selectors">Selectors</a></span></dt></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="principles"></a>Chapter 2. Core principles</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch02.html#simplicity-and-kiss">Simplicity and the KISS principle</a></span></dt><dt><span class="sect1"><a href="ch02.html#actions-and-views">Actions and Views</a></span></dt><dt><span class="sect1"><a href="ch02.html#extensivity-and-plugins">Extensivity and Plugins</a></span></dt><dt><span class="sect1"><a href="ch02.html#selectors">Selectors</a></span></dt></dl></div>
 	
 	<p>
-		Atomik alone does not provide a lot of features. It basically provide a simple
+		Atomik alone does not provide a lot of features. It basically provides a simple
 		directory structure and a dispatch mechanism. The whole point of Atomik is to
 		extend it through plugins. You build the framework you want with the features
 		you need.
@@ -42,27 +42,27 @@
 			and start working!
 		</p>
 	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-and-templates"></a>Actions and Templates</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-and-views"></a>Actions and Views</h2></div></div></div>
 		
 		<p>
 			Atomik is not an MVC framework according to the definition of MVC (it can 
 			however become one with plugins...). Still  it follows the same idea.
 			The application logic, called action, and the presentation layer, called 
-			template, are divided into two different files. The action is executed
-			and then the template is rendered. Both of them is what make a web page.
+			view, are divided into two different files. The action is executed
+			and then the view is rendered. Both of them is what make a web page.
 		</p>
 		<p>
-			How you code actions and templates is your business! Atomik only provides the
+			How you code actions and views is your business! Atomik only provides the
 			dispatch mechanism. The only other thing it does is pass variables defined
-			in the action to the template.
+			in the action to the view.
 		</p>
 	</div>
 	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extensivity-and-plugins"></a>Extensivity and Plugins</h2></div></div></div>
 		
 		<p>
 			As said before, the whole point of Atomik is being highly extensible. Nearly
-			all actions (execute an action, render a template...) can be override. This
-			is made possible through an event system. Before and after each actions, 
+			all actions (execute an action, render a view...) can be overrided. This
+			is made possible through an event system. Before and after each methods, 
 			and sometimes during, events are fired. Multiple callbacks can be registered for
 			each events which allow to modify the way Atomik acts.
 		</p>

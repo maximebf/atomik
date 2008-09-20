@@ -39,9 +39,16 @@ class Atomik_Model_Builder
 	protected $_class;
 	
 	/**
-	 * @var Atomik_Model_Adapter_Interface
+	 * Model name
+	 *
+	 * @var string
 	 */
-	protected $_adapter;
+	protected $_name;
+	
+	/**
+	 * @var array
+	 */
+	protected $_adapters = array();
 	
 	/**
 	 * @var array
@@ -82,12 +89,18 @@ class Atomik_Model_Builder
 	 * Constructor
 	 *
 	 * @param string $class OPTIONAL
+	 * @param bool $isClass OPTIONAL (default true) If False the first parameter will be the model name
 	 */
-	public function __construct($class = null)
+	public function __construct($class = null, $isClass = true)
 	{
 		if ($class !== null) {
-			$this->_class = is_string($class) ? $class : get_class($class);
-			$this->_buildMetadata();
+			if ($isClass) {
+				$this->_class = is_string($class) ? $class : get_class($class);
+				$this->_name = $this->_class;
+				$this->_buildMetadata();
+			} else {
+				$this->_name = (string) $class;
+			}
 		}
 	}
 	
@@ -102,31 +115,68 @@ class Atomik_Model_Builder
 	}
 	
 	/**
-	 * Sets the adapter
+	 * Sets the model name
 	 *
-	 * @param Atomik_Model_Adapter_Interface $adapter
+	 * @param string $name
 	 */
-	public function setAdapter(Atomik_Model_Adapter_Interface $adapter = null)
+	public function setName($name)
 	{
-		if ($adapter === null) {
-			$adapter = self::getDefaultAdapter();
-		}
-		
-		$this->_metadata['adapter'] = get_class($adapter);
-		$this->_adapter = $adapter;
+		$this->_name = $name;
 	}
 	
 	/**
-	 * Gets the adapter
+	 * Gets the model name
 	 *
-	 * @return Atomik_Model_Adapter_Interface
+	 * @return string
 	 */
-	public function getAdapter()
+	public function getName()
 	{
-		if ($this->_adapter === null) {
-			$this->setAdapter();
+		return $this->_name;
+	}
+	
+	/**
+	 * Sets all adapters
+	 *
+	 * @param array $adapters
+	 */
+	public function setAdapters($adapters = null)
+	{
+		if ($adapters === null) {
+			$adapters = array(self::getDefaultAdapter());
 		}
-		return $this->_adapter;
+		
+		$this->_adapters = array();
+		foreach ($adapters as $adapter) {
+			$this->addAdapter($adapter);
+		}
+	}
+	
+	/**
+	 * Adds an adapter
+	 *
+	 * @param Atomik_Model_Adapter_Interface $adapter
+	 */
+	public function addAdapter(Atomik_Model_Adapter_Interface $adapter)
+	{
+		if (count($this->_adapters)) {
+			/* a prmiary key is needed if multiple adapters are used */
+			if (!isset($this->_metadata['primary-key'])) {
+				require_once 'Atomik/Model/Exception.php';
+				throw new Atomik_Model_Exception('Model has multiple adapters but no primary key: ' . $this->_name);
+			}
+		}
+		
+		$this->_adapters[] = $adapter;
+	}
+	
+	/**
+	 * Gets all adapters
+	 *
+	 * @return array
+	 */
+	public function getAdapters()
+	{
+		return $this->_adapters;
 	}
 	
 	/**
@@ -188,42 +238,50 @@ class Atomik_Model_Builder
 	protected function _buildMetadata()
 	{
 		if (isset(self::$_metadataCache[$this->_class])) {
+			/* using cached metadata */
 			$this->_metadata = self::$_metadataCache[$this->_class];
-		}
-		
-		$class = new ReflectionClass($this->_class);
-		$metadata = $this->_buildMetadataFromDocBlock($class->getDocComment());
-		
-		if (isset($metadata['adapter'])) {
-			$this->setAdapter($metadata['adapter']);
+			
 		} else {
-			$this->setAdapter();
-		}
-		
-		$metadata['fields'] = array();
-		foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
-			/* retreives property metadatas */
-			$propData = $this->_buildMetadataFromDocBlock($prop->getDocComment());
+			$class = new ReflectionClass($this->_class);
+			$metadata = $this->_buildMetadataFromDocBlock($class->getDocComment());
 			
-			/* jump to the next property if there is the ignore tag */
-			if (isset($propData['ignore'])) {
-				continue;
+			$metadata['fields'] = array();
+			foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
+				/* retreives property metadatas */
+				$propData = $this->_buildMetadataFromDocBlock($prop->getDocComment());
+				
+				/* jump to the next property if there is the ignore tag */
+				if (isset($propData['ignore'])) {
+					continue;
+				}
+				
+				/* adds the property name into the meta */
+				$propData['property'] = $prop->getName();
+				if (!isset($propData['name'])) {
+					$propData['name'] = $prop->getName();
+				}
+				
+				/* adds the property to the field list */
+				$metadata['fields'][] = $propData;
 			}
 			
-			/* adds the property name into the meta */
-			$propData['property'] = $prop->getName();
-			if (!isset($propData['name'])) {
-				$propData['name'] = $prop->getName();
-			}
-			
-			/* adds the property to the field list */
-			$metadata['fields'][] = $propData;
+			$this->_buildReferences($metadata);
+		
+			$this->_metadata = $metadata;
+			self::$_metadataCache[$this->_class] = $metadata;
 		}
 		
-		$this->_buildReferences($metadata);
-		
-		$this->_metadata = $metadata;
-		self::$_metadataCache[$this->_class] = $metadata;
+		if (isset($this->_metadata['adapter'])) {
+			if (!is_array($this->_metadata['adapter'])) {
+				$this->_metadata['adapter'] = array($this->_metadata['adapter']);
+			}
+			foreach ($this->_metadata['adapter'] as $adapter) {
+				$this->addAdapter(ModelPlugin::getAdapter($adapter));
+			}
+			
+		} else {
+			$this->setAdapters();
+		}
 	}
 	
 	/**
@@ -235,7 +293,7 @@ class Atomik_Model_Builder
 	protected function _buildMetadataFromDocBlock($doc)
 	{
 		$metadata = array();
-		preg_match_all('/@model-(.+)(\s.+|)$/mU', $doc, $matches);
+		preg_match_all('/@(.+)(\s.+|)$/mU', $doc, $matches);
 		
 		for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
 			$key = $matches[1][$i];

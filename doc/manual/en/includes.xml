@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="includes" xmlns="http://docbook.org/ns/docbook">
+<chapter id="includes" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Includes</title>
 	<para>
 		Includes are php files containing common logic that you 
@@ -33,4 +33,22 @@ Atomik::needed('common');]]>
 Atomik::needed('libs/db');]]>
 		</programlisting>
 	</example>
+	<para>
+		<methodname>Atomik::needed()</methodname> also allows you to include classes using
+		their name. To do so, classes have to follow the PEAR naming convention
+		(<link xlink:href="http://pear.php.net/manual/en/standards.naming.php">http://pear.php.net/manual/en/standards.naming.php</link>).
+	</para>
+	<example>
+		<title>Including classes with their name</title>
+		<programlisting>
+			<![CDATA[
+Atomik::needed('Atomik_Db');]]>
+		</programlisting>
+	</example>
+	<note>
+		<para>
+			Since Atomik 2.1, <methodname>Atomik::needed()</methodname> is automatically registered as
+			an spl_autoload handler.
+		</para>
+	</note>
 </chapter>

@@ -1,0 +1,3 @@
+<?php
+
+Atomik::loadPlugin('Controller');

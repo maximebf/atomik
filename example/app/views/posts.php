@@ -1,4 +1,4 @@
-<!-- Atomik:ListModel(name="Post" var="posts") -->
+<!-- Atomik:ModelList(name="Post" var="posts") -->
 
 <h1>Posts</h1>
 <ul>

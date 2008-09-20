@@ -29,6 +29,9 @@ Atomik::set(array(
 	/* plugins */
 	'plugins'				    => array(),
 
+	/* debug mode */
+	'debug' 					=> false,
+
     'atomik' => array(
     
     	/* request */
@@ -40,10 +43,17 @@ Atomik::set(array(
     
     	/* dirs */
         'dirs' => array(
+			'app'				=> './app',
         	'plugins'			=> './app/plugins/',
         	'actions' 			=> './app/actions/',
-        	'templates'	 		=> './app/templates/',
-        	'includes'			=> array('./app/includes/', './app/libraries')
+        	'views'	 		=> array(
+				'./app/views/',
+        		'./app/templates/'
+			),
+        	'includes'			=> array(
+        		'./app/includes/', 
+        		'./app/libraries/'
+			)
         ),
     
     	/* files */
@@ -54,6 +64,9 @@ Atomik::set(array(
         	'404' 			    => './app/404.php',
         	'error' 			=> './app/error.php'
         ),
+        
+        /* routes */
+        'routes' => array(),
     	
     	/* error management */
     	'catch_errors'			=> false,
@@ -74,6 +87,10 @@ Atomik::set(array(
     
     'start_time' 				=> time() + microtime()
 ));
+
+/* -------------------------------------------------------------------------------------------
+ *  CORE
+ * ------------------------------------------------------------------------------------------ */
 
 /* creates the A function (shortcut to Atomik::get) */
 if (!function_exists('A')) {
@@ -134,11 +151,11 @@ class Atomik
 	/**
 	 * Dispatches the request
 	 * 
-	 * @param string $request OPTIONAL
+	 * @param string $uri OPTIONAL
 	 */
-	public static function dispatch($request = null)
+	public static function dispatch($uri = null)
 	{
-	    /* wrap the whole app inside a try/catch block to catch all erros */
+	    /* wrap the whole app inside a try/catch block to catch all errors */
 	    try {
     		 
     		/* loads external configuration */
@@ -174,11 +191,14 @@ class Atomik
     		        $key = $value;
     		        $value = array();
     		    }
-    			self::loadPlugin($key, $value);
+    			self::loadPlugin(ucfirst($key), $value);
     		}
     	
     		/* core is starting */
-    		self::fireEvent('Atomik::Start');
+    		self::fireEvent('Atomik::Start', array(&$cancel));
+    		if ($cancel) {
+				self::end(true);
+    		}
     	
     		/* checks if url rewriting is used */
     		if (!self::has('url_rewriting')) {
@@ -186,27 +206,18 @@ class Atomik
     		}
     	
     		/* checks if it's needed to auto discover the request */
-    		if ($request === null) {
+    		if ($uri === null) {
     		    
         		/* retreives the requested url */
         		$trigger = self::get('atomik/trigger');
         		if (!isset($_GET[$trigger]) || empty($_GET[$trigger])) {
         		    
         			/* no trigger specified, using default page name */
-        			self::set('request', self::get('atomik/default_action'));
+        			$uri = self::get('atomik/default_action');
         			
         		} else {
         		    
-        		    $request = trim($_GET[$trigger], '/');
-        		
-        			/* checking if no dot are in the page name to avoid any hack attempt and if no 
-        			 * underscore is use as first character in a segment */
-        			if (strpos($request, '..') !== false || substr($request, 0, 1) == '_' 
-        			    || strpos($request, '/_') !== false) {
-        				    self::trigger404();
-        			}
-        			
-        			self::set('request', $request);
+        		    $uri = trim($_GET[$trigger], '/');
         		}
     	
         		/* retreives the base url */
@@ -222,16 +233,32 @@ class Atomik
         		
     		} else {
     		    /* sets the user defined request */
-    		    self::set('request', $request);
             	/* retreives the base url */
             	if (!self::has('base_url')) {
     			    /* finds the base url from the script name */
     				self::set('base_url', dirname($_SERVER['SCRIPT_NAME']) . '/');
             	}
     		}
+    		
+    		if(($request = self::route($uri, $_GET)) === false) {
+    			Atomik::trigger404();
+    		}
+        		
+        	/* checking if no dot are in the action name to avoid any hack attempt and if no 
+        	 * underscore is use as first character in a segment */
+        	if (strpos($request['action'], '..') !== false || substr($request['action'], 0, 1) == '_' 
+        	    || strpos($request['action'], '/_') !== false) {
+        		    self::trigger404();
+        	}
+    		
+    		self::set('request_uri', $uri);
+    		self::set('request', $request);
     	
     		/* all configuration has been set, ready to dispatch */
-    		self::fireEvent('Atomik::Dispatch::Before');
+    		self::fireEvent('Atomik::Dispatch::Before', array(&$cancel));
+    		if ($cancel) {
+				self::end(true);
+    		}
     	
     		/* global pre dispatch action */
     		if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
@@ -239,7 +266,7 @@ class Atomik
     		}
     	
     		/* executes the action */
-    		if (self::execute(self::get('request'), true, true, false) === false) {
+    		if (self::execute(self::get('request/action'), true, true, false, true) === false) {
     			self::trigger404();
     		}
     	
@@ -268,6 +295,91 @@ class Atomik
 	}
 	
 	/**
+	 * Parse an uri to extract parameters
+	 *
+	 * @param string $uri
+	 * @param array $params OPTIONAL
+	 * @param array $routes OPTIONAL By default, it uses the config key atomik/routes
+	 * @return array
+	 */
+	public static function route($uri, $params = array(), $routes = null)
+	{
+		if ($routes === null) {
+			$routes = self::get('atomik/routes');
+		}
+		
+		Atomik::fireEvent('Atomik::Router::Start', array(&$uri, &$routes));
+		
+		$components = parse_url($uri);
+		$uri = trim($components['path'], '/');
+		$uriSegments = explode('/', $uri);
+		if (isset($components['query'])) {
+			parse_str($components['query'], $query);
+			$params = array_merge($query, $params);
+		}
+		
+		/* searches for a route matching the uri */
+		$found = false;
+		$request = array();
+		foreach ($routes as $route => $default) {
+			if (!is_string($route)) {
+				$route = $default;
+				$default = array();
+			}
+			
+			$valid = true;
+			$segments = explode('/', trim($route, '/'));
+			$request = $default;
+			
+			for ($i = 0, $count = count($segments); $i < $count; $i++) {
+				if (substr($segments[$i], 0, 1) == ':') {
+					/* segment is a parameter */
+					if (isset($uriSegments[$i])) {
+						/* this segment is defined in the uri */
+						$request[substr($segments[$i], 1)] = $uriSegments[$i];
+						$segments[$i] = $uriSegments[$i];
+					} else if (!array_key_exists(substr($segments[$i], 1), $default)) {
+						/* not defined in the uri and no default value */
+						$valid = false;
+						break;
+					}
+				} else {
+					/* fixed segment */
+					if (!isset($uriSegments[$i]) || $uriSegments[$i] != $segments[$i]) {
+						$valid = false;
+						break;
+					}
+				}
+			}
+			
+			/* checks if route is valid and if controller and action params are set */
+			if ($valid && isset($request['action'])) {
+				$found = true;
+				/* if there's remaining segments in the uri, adding them as params */
+				if (($count = count($uriSegments)) > ($start = count($segments))) {
+					for ($i = $start; $i < $count; $i += 2) {
+						if (isset($uriSegments[$i + 1])) {
+							$request[$uriSegments[$i]] = $uriSegments[$i + 1];
+						}
+					}
+				}
+				break;
+			}
+		}
+		
+		if (!$found) {
+			/* route not found */
+			$request = array('action' => $uri);
+		}
+		
+		$request = array_merge($params, $request);
+		
+		Atomik::fireEvent('Atomik::Router::End', array(&$uri, &$request));
+		
+		return $request;
+	}
+	
+	/**
 	 * Executes an action
 	 *
 	 * @see Atomik::render()
@@ -275,17 +387,18 @@ class Atomik
 	 * @param bool $render OPTIONAL (default true)
 	 * @param bool $echo OPTIONAL (default false)
 	 * @param bool $triggerError OPTIONAL (default true)
+	 * @param bool $main OPTIONAL (default false) Whether it's the main action being executed
 	 * @return array|string|bool
 	 */
-	public static function execute($action, $render = true, $echo = false, $triggerError = true)
+	public static function execute($action, $render = true, $echo = false, $triggerError = true, $main = false)
 	{
 		$template = $action;
 		$vars = array();
 	
-		self::fireEvent('Atomik::Execute::Start', array(&$action, &$template, &$render, &$echo, &$triggerError));
+		self::fireEvent('Atomik::Execute::Start', array(&$action, &$template, &$render, &$echo, &$triggerError, &$main));
 		
 		$actionFilename = self::path($action . '.php', self::get('atomik/dirs/actions'));
-		$templateFilename = self::path($template . '.php', self::get('atomik/dirs/templates'));
+		$templateFilename = self::path($template . '.php', self::get('atomik/dirs/views'));
 		
 		/* checks if at least the action file or the template file is defined */
 		if ($actionFilename === false && $templateFilename === false) {
@@ -295,7 +408,7 @@ class Atomik
 			return false;
 		}
 	
-		self::fireEvent('Atomik::Execute::Before', array(&$action, &$template, &$render, &$echo, &$triggerError));
+		self::fireEvent('Atomik::Execute::Before', array(&$actionFilename, &$template, &$render, &$echo, &$triggerError, &$main));
 	
 		/* executes the action */
 		if ($actionFilename !== false) {
@@ -303,10 +416,10 @@ class Atomik
 			$vars = self::_executeInScope($actionFilename);
 		}
 	
-		self::fireEvent('Atomik::Execute::After', array($action, &$template, &$vars, &$render, &$echo, &$triggerError));
+		self::fireEvent('Atomik::Execute::After', array($actionFilename, &$template, &$vars, &$render, &$echo, &$triggerError, &$main));
 		
 		/* returns $vars if the template is not rendered */
-		if (!$render || $templateFilename === false) {
+		if (!$render || ($main && !$templateFilename)) {
 			return $vars;
 		}
 		
@@ -318,12 +431,12 @@ class Atomik
 	 * Requires the actions file inside a clean scope and returns defined
 	 * variables
 	 *
-	 * @param string $__action_filename
+	 * @param string $__actionFilename
 	 * @return array
 	 */
-	public static function _executeInScope($__action_filename)
+	public static function _executeInScope($__actionFilename)
 	{
-		require($__action_filename);
+		require($__actionFilename);
 		
 		/* retreives "public" variables (not prefixed with an underscore) */
 		$definedVars = get_defined_vars();
@@ -349,22 +462,21 @@ class Atomik
 	public static function render($template, $vars = array(), $echo = false, $triggerError = true)
 	{
 		/* template filename */
-		$filename = self::path($template . '.php', self::get('atomik/dirs/templates'));
+		$filename = self::path($template . '.php', self::get('atomik/dirs/views'));
 		
 		self::fireEvent('Atomik::Render::Start', array(&$template, &$vars, &$echo, &$triggerError, &$filename));
 		
 		/* checks if the file exists */
 		if ($filename === false) {
 			if ($triggerError) {
-				throw new Exception('Template ' . $filename . ' not found');
+				throw new Exception('Template ' . $template . ' not found');
 			}
 			return false;
 		}
 		
 		self::fireEvent('Atomik::Render::Before', array(&$template, &$vars, &$echo, &$triggerError, &$filename));
 		
-		/* render the template in its own scope */
-		$output = self::_renderInScope($filename, $vars);
+		$output = self::renderFile($filename, $vars);
 		
 		self::fireEvent('Atomik::Render::After', array($template, &$output, &$vars, &$filename, &$echo, &$triggerError));
 		
@@ -382,18 +494,29 @@ class Atomik
 	}
 	
 	/**
-	 * Renders a template in its own scope
+	 * Renders a file
 	 *
-	 * @param string $filename
-	 * @param array $vars OPTIONAL
-	 * @return string
+	 * @param string $__filename
+	 * @param array $__vars OPTIONAL
+	 * @param bool $__echo OPTIONAL
 	 */
-	public static function _renderInScope($__template_filename, $vars = array())
+	public static function renderFile($__filename, $__vars = array(), $__echo = false)
 	{
-		extract($vars);
+		self::fireEvent('Atomik::RenderFile::Before', array(&$__filename, &$__vars, &$__echo));
+		
+		/* render the template in its own scope */
+		extract($__vars);
 		ob_start();
-		include($__template_filename);
-		return ob_get_clean();
+		include($__filename);
+		$output = ob_get_clean();
+		
+		self::fireEvent('Atomik::RenderFile::After', array(&$__filename, &$output, $__vars, $__echo));
+		
+		if ($__echo) {
+			echo $output;
+		}
+		
+		return $output;
 	}
 
 	/**
@@ -417,58 +540,69 @@ class Atomik
 	 * Sets a key/value pair in the store
 	 * 
 	 * If the first argument is an array, values are merged recursively.
+	 * The array is first dimensionized
 	 * 
-	 * You can set values from sub arrays by using a path like key.
+	 * You can set values from sub arrays by using a path-like key.
 	 * For example, to set the value inside the array $array[key1][key2]
 	 * use the key 'key1/key2'
 	 * 
 	 * Can be used on any array by specifying the third argument
 	 *
+	 * @see Atomik::_dimensionizeArray()
 	 * @param array|string $key Can be an array to set many key/value
 	 * @param mixed $value OPTIONAL
 	 * @param array $array OPTIONAL
-	 * @param array $keys OPTIONAL INTERNAL
+	 * @param array $add OPTIONAL Whether to add values or replace them
 	 */
-	public static function set($key, $value = null, &$array = null, $keys = null)
+	public static function set($key, $value = null, &$array = null, $add = false)
 	{
 		/* if $data is null, uses the global store */
 		if ($array === null) {
 		    $array = &self::$_store;
 		}
+		
+		/* transforms a string key into a key/value array to 
+		 * use with _dimensionizeArray() */
+		if (!is_array($key) && $value !== null) {
+			$key = array($key => $value);
+		}
 	    
-	    /* checks if the key is an array */
-	    if (is_array($key)) {
-		    /* merges the store and the array */
-	        $array = self::_mergeRecursive($array, $key);
-		    return;
+	    if (!is_array($key)) {
+	    	return;
 	    }
 	    
-	    /* if $keys is null, it means that we have not recurse yet */
-	    if ($keys === null) {
-	        if (strpos($key, '/') === false) {
-	            /* simple key */
-	            self::$_store[$key] = $value;
-	            return;
-	        }
-	        /* the key is a path */
-	        $keys = explode('/', $key);
-	    }
-	    
-	    /* gets the next key in the path */
-	    $key = array_shift($keys);
-	    if (count($keys) == 0) {
-	        /* end of path, sets the value */
-	        $array[$key] = $value;
-	        return;
-	    }
-	    
-	    /* creates the array for the key if it doesn't exists */
-	    if (!array_key_exists($key, $array)) {
-	        $array[$key] = array();
-	    }
-	    
-	    /* goto the next segment */
-	    self::set(null, $value, $array[$key], $keys);
+    	$key = self::_dimensionizeArray($key);
+    	
+	    /* merges the store and the array */
+    	if ($add) {
+    		$array = array_merge_recursive($array, $key);
+    	} else {
+        	$array = self::_mergeRecursive($array, $key);
+    	}
+	}
+	
+	/**
+	 * Adds a value to the array pointed by the key
+	 * 
+	 * If the first argument is an array, values are merged recursively.
+	 * The array is first dimensionized
+	 * 
+	 * You can add values to sub arrays by using a path-like key.
+	 * For example, to add a value to the array $array[key1][key2]
+	 * use the key 'key1/key2'
+	 * 
+	 * If the value pointed by the key is not an array, it will be
+	 * transformed to one.
+	 * Can be used on any array by specifying the third argument
+	 *
+	 * @see Atomik::_dimensionizeArray()
+	 * @param array|string $key Can be an array to add many key/value
+	 * @param mixed $value OPTIONAL
+	 * @param array $array OPTIONAL
+	 */
+	public static function add($key, $value = null, &$array = null)
+	{
+		return self::set($key, $value, $array, true);
 	}
 	
 	/**
@@ -479,7 +613,7 @@ class Atomik
 	 * @param array $array2
 	 * @return array
 	 */
-	protected static function _mergeRecursive($array1, $array2)
+	public static function _mergeRecursive($array1, $array2)
 	{
 	    $array = $array1;
 	    foreach ($array2 as $key => $value) {
@@ -493,9 +627,55 @@ class Atomik
 	}
 	
 	/**
+	 * Recursively checks array for path-like keys (ie. keys containing slashes)
+	 * and transform them into multi dimensions array
+	 *
+	 * @param array $array
+	 * @return array
+	 */
+	public static function _dimensionizeArray($array)
+	{
+		$dimArray = array();
+		
+		foreach ($array as $key => $value) {
+			/* checks if the key is a path */
+			if (strpos($key, '/') !== false) {
+				$parts = explode('/', $key);
+				$firstPart = array_shift($parts);
+				/* recursively dimensionize the key */
+				$value = self::_dimensionizeArray(array(implode('/', $parts) => $value));
+				
+				if (isset($dimArray[$firstPart])) {
+					if (!is_array($dimArray[$firstPart])) {
+						/* if $firstPart exists but is not an array, drops the value and use an array */
+						$dimArray[$firstPart] = array();
+					}
+					/* merge recursively both arrays */
+					$dimArray[$firstPart] = self::_mergeRecursive($dimArray[$firstPart], $value);
+				} else {
+					$dimArray[$firstPart] = $value;
+				}
+				
+			} else if (is_array($value)) {
+				/* dimensionize sub arrays */
+				$value = self::_dimensionizeArray($value);
+				if (isset($dimArray[$key])) {
+					$dimArray[$key] = self::_mergeRecursive($dimArray[$key], $value);
+				} else {
+					$dimArray[$key] = $value;
+				}
+			} else {
+				$dimArray[$key] = $value;
+			}
+		}
+		
+		return $dimArray;
+	}
+	
+	/**
 	 * Gets a value using its associatied key from the store
 	 * 
-	 * You can fetch value from sub arrays by using a path like
+	 * You can fetch value from sub arrays by using a path-like
 	 * key. Separate each key with a slash. For example if you want 
 	 * to fetch the value from an $store[key1][key2][key3] you can use
 	 * key1/key2/key3
@@ -560,7 +740,7 @@ class Atomik
 	
 	/**
 	 * Checks if a key is defined in the store
-	 * Can check through sub array using a path like key
+	 * Can check through sub array using a path-like key
 	 * @see Atomik::get()
 	 * 
 	 * Can be used on any array by specifying the second argument
@@ -604,7 +784,7 @@ class Atomik
 	
 	/**
 	 * Deletes a key from the store
-	 * Can delete through sub array using a path like key
+	 * Can delete through sub array using a path-like key
 	 * @see Atomik::get()
 	 * 
 	 * Can be used on any array by specifying the second argument
@@ -667,39 +847,47 @@ class Atomik
 	 * Loads a plugin
 	 *
 	 * @param string $plugin
-	 * @param array $config OPTIONAL Configuration for this backend
-	 * @param array $arguments OPTIONAL Arguments to pass to the plugin
+	 * @param array $config OPTIONAL Configuration for this plugin
+	 * @param array $dirs OPTIONAL Directories from where to load the plugin
+	 * @param string $classNameTemplate OPTIONAL % will be replaced with the plugin name
+	 * @param bool $callStart OPTINAL Whether to call the start() method on the plugin class
 	 * @return bool Success
 	 */
-	public static function loadPlugin($plugin, $config = array(), $arguments = array())
+	public static function loadPlugin($plugin, $config = array(), $dirs = null, $classNameTemplate = '%Plugin', $callStart = true)
 	{
 		$plugin = ucfirst($plugin);
 		
+		/* use default directories */
+		if ($dirs === null) {
+			$dirs = self::get('atomik/dirs/plugins');
+		}
+		
 		/* checks if the plugin is already loaded */
-		if (in_array($plugin, self::$_plugins)) {
+		if (self::isPluginLoaded($plugin, $dirs)) {
 			return true;
 		}
 		
-		self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config, &$arguments));
+		self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config));
 		
 		/* checks if $plugin has been set to false from one of the event callbacks */
 		if ($plugin === false) {
 			return false;
 		}
 		
-		/* checks if the *Plugin class is defined */
-		$pluginClass = $plugin . 'Plugin';
+		/* checks if the class is defined */
+		$pluginClass = str_replace('%', $plugin, $classNameTemplate);
 		if (!class_exists($pluginClass, false)) {
 			
 			/* tries to load the plugin from a file */
-			if (($filename = self::path($plugin . '.php', self::get('atomik/dirs/plugins'))) === false) {
+			if (($filename = self::path($plugin . '.php', $dirs)) === false) {
 				/* no file, checks for a directory */
-				if (($dirname = self::path($plugin, self::get('atomik/dirs/plugins'))) === false) {
+				if (($dirname = self::path($plugin, $dirs)) === false) {
 					/* plugin not found */
 					throw new Exception('Missing plugin (no file or no directory matching plugin name): ' . $plugin);
 				} else {
 					/* directory found, plugin file should be inside */
-					$filename = $dirname . '/' . $plugin . '.php';
+					$filename = $dirname . '/Plugin.php';
+					$pluginDir = dirname($dirname);
 					if (!file_exists($filename)) {
 						throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
 					}
@@ -708,6 +896,8 @@ class Atomik
 						set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
 					}
 				}
+			} else {
+				$pluginDir = dirname($filename);
 			}
 			
 			/* loads the plugin */
@@ -720,29 +910,28 @@ class Atomik
 		    $registerEventsCallback = true;
 		    
 			/* call the start method on the plugin class if it's defined */
-		    if (method_exists($pluginClass, 'start')) {
-		        array_unshift($arguments, $config);
-    		    if (call_user_func_array(array($pluginClass, 'start'), $arguments) === false) {
+		    if ($callStart && method_exists($pluginClass, 'start')) {
+    		    if (call_user_func(array($pluginClass, 'start'), $config) === false) {
     		        $registerEventsCallback = false;
     		    }
 		    }
 		    
 		    /* automatically registers events callback for methods starting with "on" */
 		    if ($registerEventsCallback) {
-    		    $methods = get_class_methods($pluginClass);
-    		    foreach ($methods as $method) {
-    		        if (preg_match('/^on[A-Z].*$/', $method)) {
-    		            $event = preg_replace('/(?<=\\w)([A-Z])/', '::\1', substr($method, 2));
-    		            self::listenEvent($event, array($pluginClass, $method));
-    		        }
-    		    }
+		    	self::attachClassListeners($pluginClass);
 		    }
 		}
 		
 		self::fireEvent('Atomik::Plugin::After', array($plugin));
 		
 		/* stores the plugin name so we won't load it twice */
-		self::$_plugins[] = $plugin;
+		$pluginDir = isset($pluginDir) ? rtrim($pluginDir, '/') : true;
+		if (isset(self::$_plugins[$plugin])) {
+			self::$_plugins[$plugin][] = $pluginDir;
+		} else {
+			self::$_plugins[$plugin] = array($pluginDir);
+		}
+		
 		return true;
 	}
 	
@@ -752,9 +941,34 @@ class Atomik
 	 * @param string $plugin
 	 * @return bool
 	 */
-	public static function isPluginLoaded($plugin)
+	public static function isPluginLoaded($plugin, $dirs = null)
 	{
-		return in_array($plugin, self::$_plugins);
+		$plugin = ucfirst($plugin);
+		
+		/* use default directories */
+		if ($dirs === null) {
+			$dirs = self::get('atomik/dirs/plugins');
+		}
+		
+		if (!isset(self::$_plugins[$plugin])) {
+			/* plugin not loaded */
+			return false;
+		}
+		
+		if (self::$_plugins[$plugin] === true) {
+			/* plugin loaded and was not included (so not dir check needed) */
+			return true;
+		}
+		
+		/* plugin loaded using include, so it checks if $dirs match
+		 * the dir from where the plugin has been loaded */
+		foreach (self::path($dirs, true) as $dir) {
+			if (in_array(trim($dir, '/'), self::$_plugins[$plugin])) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	
@@ -787,18 +1001,45 @@ class Atomik
 	}
 	
 	/**
+	 * Automatically registers events callback for methods starting with "on"
+	 *
+	 * @param string $class
+	 */
+	public static function attachClassListeners($class)
+	{
+        $methods = get_class_methods($class);
+        foreach ($methods as $method) {
+            if (preg_match('/^on[A-Z].*$/', $method)) {
+                $event = preg_replace('/(?<=\\w)([A-Z])/', '::\1', substr($method, 2));
+                self::listenEvent($event, array($class, $method));
+            }
+        }
+	}
+	
+	/**
 	 * Fires an event
+	 * Returns an array containing results of each executed callbacks
 	 * 
 	 * @param string $event
 	 * @param array $args OPTIONAL Arguments for the callback
+	 * @return $array
 	 */
-	public static function fireEvent($event, $args = array())
+	public static function fireEvent($event, $args = array(), $resultAsString = false)
 	{
+		$results = array();
+		
 	    if (isset(self::$_events[$event])) {
 			foreach (self::$_events[$event] as $callback) {
-				call_user_func_array($callback, $args);
+				$key = is_array($callback) ? implode('::', $callback) : $callback;
+				$results[$key] = call_user_func_array($callback, $args);
 			}
 		}
+		
+		
+		if ($resultAsString) {
+			return implode('', $results);
+		}
+		return $results;
 	}
 	
 	
@@ -888,9 +1129,6 @@ class Atomik
 			$action = self::get('request');
 		}
 		
-		/* base url */
-		$url = rtrim(self::get('base_url', '.'), '/') . '/';
-		
 		/* removes the query string from the action */
 		$queryString = '';
 		if (strpos($action, '?') !== false) {
@@ -904,13 +1142,19 @@ class Atomik
 			$queryString .= $param . '=' . urlencode($value);
 		}
 		
-		/* checks if url rewriting is used */
-		if (!$useIndex || self::get('url_rewriting', false) === true) {
-			$url .= $action . (!empty($queryString) ? '?' . $queryString : '');
-		} else {
-			/* no url rewriting, using index.php */
-			$url .= 'index.php?' . self::get('atomik/trigger') 
-			      . '=' . $action . '&' . $queryString;
+		/* checks if $action is not a url (checking if there is a protocol) */
+		if (!preg_match('/^([a-z]+):\/\/.*/', $action)) {
+			/* base url */
+			$url = rtrim(self::get('base_url', '.'), '/') . '/';
+			
+			/* checks if url rewriting is used */
+			if (!$useIndex || self::get('url_rewriting', false) === true) {
+				$url .= $action . (!empty($queryString) ? '?' . $queryString : '');
+			} else {
+				/* no url rewriting, using index.php */
+				$url .= 'index.php?' . self::get('atomik/trigger') 
+				      . '=' . $action . '&' . $queryString;
+			}
 		}
 		
 		/* trigger an event */
@@ -919,26 +1163,6 @@ class Atomik
 		self::fireEvent('Atomik::Url', array($action, &$url, $args));
 		
 		return $url;
-	}
-	
-	/**
-	 * Triggers a 404 error
-	 */
-	public static function trigger404()
-	{
-		self::fireEvent('Atomik::404');
-		
-		/* HTTP header */
-		header('HTTP/1.0 404 Not Found');
-		
-		if (file_exists($filename = self::get('atomik/files/404'))) {
-			/* includes the 404 error file */
-			include($filename);
-		} else {
-			echo '<h1>404 - File not found</h1>';
-		}
-		
-		self::end();
 	}
 
 	/*
@@ -976,16 +1200,63 @@ class Atomik
 	 */
 	public static function redirect($url, $useUrl = true)
 	{
+		self::fireEvent('Atomik::Redirect', array(&$url));
+		
 		/* uses Atomik::url() */
 		if ($useUrl) {
 			$url = self::url($url);
 		}
 		
-		self::fireEvent('Atomik::Redirect', array(&$url));
-		
 		/* redirects */
 		header('Location: ' . $url);
 		self::end();
+	}
+	
+	/**
+	 * Triggers a 404 error
+	 */
+	public static function trigger404()
+	{
+		self::fireEvent('Atomik::404');
+		
+		/* HTTP header */
+		header('HTTP/1.0 404 Not Found');
+		
+		if (file_exists($filename = self::get('atomik/files/404'))) {
+			/* includes the 404 error file */
+			include($filename);
+		} else {
+			echo '<h1>404 - File not found</h1>';
+		}
+		
+		self::end();
+	}
+	
+	/**
+	 * Equivalent to var_dump()
+	 *
+	 * @see var_dump()
+	 * @param mixed $data
+	 * @param bool $force OPTIONAL Always display the dump even if debug from the config is set to false
+	 * @param bool $echo OPTIONAL Whether to echo
+	 * @return string|null
+	 */
+	public static function debug($data, $force = false, $echo = true)
+	{
+		if (!$force && !self::get('debug', false)) {
+			return;
+		}
+		
+		/* var_dump() does not support returns */
+		ob_start();
+		var_dump($data);
+		$dump = ob_get_clean();
+		
+		if (!$echo) {
+			return $dump;
+		}
+		
+		echo $dump;
 	}
 	
 	/**
@@ -1033,21 +1304,21 @@ class Atomik
 		}
 		
 		/* builds the html erro report */
-		$html = '<br />An error of type <strong>' . get_class($e) . '</strong> '
-		      . 'was caught at <strong>line ' . $e->getLine() . '</strong><br />'
-		      . 'in file <strong>' . $e->getFile() . '</strong>'
-		      . '<p>' . $e->getMessage() . '</p>'
+		$html = '<br />An error of type <strong>' . get_class($exception) . '</strong> '
+		      . 'was caught at <strong>line ' . $exception->getLine() . '</strong><br />'
+		      . 'in file <strong>' . $exception->getFile() . '</strong>'
+		      . '<p>' . $exception->getMessage() . '</p>'
 			  . '<table ' . $attributes['atomik-error-lines'] . '>';
 		
 	    /* builds the table which display the lines around the error */
-		$lines = file($e->getFile());
-		$start = $e->getLine() - 7;
+		$lines = file($exception->getFile());
+		$start = $exception->getLine() - 7;
 		$start = $start < 0 ? 0 : $start;
-		$end = $e->getLine() + 7;
+		$end = $exception->getLine() + 7;
 		$end = $end > count($lines) ? count($lines) : $end; 
 		for($i = $start; $i < $end; $i++) {
 		    /* color the line with the error. with standard Exception, lines are */
-			if($i == $e->getLine() - (get_class($e) != 'ErrorException' ? 1 : 0)) {
+			if($i == $exception->getLine() - (get_class($exception) != 'ErrorException' ? 1 : 0)) {
 				$html .= '<tr ' . $attributes['atomik-error-line-error'] . '><td>';
 			}
 			else {
@@ -1060,7 +1331,7 @@ class Atomik
 		
 		$html .= '</table>'
 		       . '<strong>Stack:</strong><p ' . $attributes['atomik-error-stack'] . '>' 
-		       . nl2br($e->getTraceAsString())
+		       . nl2br($exception->getTraceAsString())
 		       . '</p></div>';
 		
 		echo $html;

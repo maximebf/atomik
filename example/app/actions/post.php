@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($_GET['id'])) {
-	Atomik::redirect('post');
+	Atomik::redirect('posts');
 }
 
 $post = Atomik_Model::find('Post', array('id' => $_GET['id']));

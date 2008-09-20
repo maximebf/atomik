@@ -29,8 +29,8 @@ class UsersPlugin
     
     );
     
-    public static function authenticate($username, $password)
+    public static function onBackendStart()
     {
-        
+        Atomik_Backend::addTab('Users', 'users', 'list', 'right');
     }
 }

@@ -84,8 +84,8 @@ class LayoutPlugin
 		
 		/* checks if the layout is enabled */
 		if (self::$config['disable'] === false) {
-			$output = Atomik::_renderInScope(
-				Atomik::path($global, Atomik::get('atomik/dirs/templates')),
+			$output = Atomik::renderFile(
+				Atomik::path($global, Atomik::get('atomik/dirs/views')),
 				array('content_for_layout' => $output)
 			);
 		}
@@ -104,8 +104,8 @@ class LayoutPlugin
 		$templates = self::$config['templates'];
 		
 		if (self::$config['disable'] === false && isset($templates[$template])) {
-			$output = Atomik::_renderInScope(
-				Atomik::path($templates[$template], Atomik::get('atomik/dirs/templates')),
+			$output = Atomik::renderFile(
+				Atomik::path($templates[$template], Atomik::get('atomik/dirs/views')),
 				array('content_for_layout' => $output)
 			);
 		}
@@ -126,7 +126,7 @@ class LayoutPlugin
 	public static function onConsoleInit()
 	{
 		ConsolePlugin::println('Generating layouts', 1);
-		$templates = Atomik::get('atomik/dirs/templates');
+		$templates = Atomik::get('atomik/dirs/views');
 		
 		if (($global = self::$config['global']) !== false) {
 		

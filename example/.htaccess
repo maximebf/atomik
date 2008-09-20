@@ -1,8 +1,20 @@
 <IfModule mod_rewrite.c>
 	RewriteEngine on
 	
-	RewriteRule ^app/ - [L,F]
+	#############################################################################
+	# Only for the example application as plugins are not in the good directory
 	
+	RewriteRule ^app/plugins/(.*)$ ../plugins/$1
+	
+	#############################################################################
+	
+	# Allow access to assets folder from plugins folders
+	RewriteRule ^app/plugins/(.+)/assets - [L]
+	
+	# forbid access to files and folders under app
+	RewriteRule ^app/.*$ - [L,F]
+	
+	# rewrtie to index.php
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]

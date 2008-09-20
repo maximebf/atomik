@@ -127,9 +127,9 @@ class BackendPlugin
 	 */
 	public static function onControllerRouterEnd($request)
 	{
-	    $dirs = Atomik::path(Atomik::get('atomik/dirs/templates'), true);
+	    $dirs = Atomik::path(Atomik::get('atomik/dirs/views'), true);
 	    $dirs[] = './app/modules/' . $request['controller'] . '/templates/';
-	    Atomik::set('atomik/dirs/templates', $dirs);
+	    Atomik::set('atomik/dirs/views', $dirs);
 	}
     
 	/**

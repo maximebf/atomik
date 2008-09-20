@@ -52,37 +52,103 @@ class Atomik_Model
 	/**
 	 * Finds many models
 	 *
-	 * @param string|Atomik_Model_Builder $model
+	 * @param string|Atomik_Model_Builder $builder
 	 * @param array $where
 	 * @param string $orderBy
 	 * @param string $limit
 	 * @return array
 	 */
-	public static function findAll($model, $where = null, $orderBy = '', $limit = '')
+	public static function findAll($builder, $where = null, $orderBy = '', $limit = '')
 	{
-		if (! $model instanceof Atomik_Model_Builder) {
-			$model = new Atomik_Model_Builder($model);
+		if (! $builder instanceof Atomik_Model_Builder) {
+			$builder = new Atomik_Model_Builder($builder);
 		}
 		
-		return $model->getAdapter()->findAll($model, $where);
+		$adapters = $builder->getAdapters();
+		if (count($adapters) == 1) {
+			return $adapters[0]->findAll($builder, $where, $orderBy, $limit);
+		}
+		
+		$models = array();
+		foreach ($builder->getAdapters() as $adapter) {
+			if (count($adapter->findAll($builder, $where, $orderBy, $limit)) > 0) {
+				foreach ($tmp as $model) {
+					$models[] = array('adapter' => $adapter, 'model' => $model);
+				}
+			}
+		}
+		
+		return self::_mergeModels($builder, $models);
 	}
 	
 	/**
 	 * Finds one model
 	 *
-	 * @param string|Atomik_Model_Builder $model
+	 * @param string|Atomik_Model_Builder $builder
 	 * @param array $where
 	 * @param string $orderBy
 	 * @param string $limit
 	 * @return Atomik_Model
 	 */
-	public static function find($model, $where, $orderBy = '', $limit = '')
+	public static function find($builder, $where, $orderBy = '', $limit = '')
 	{
-		if (! $model instanceof Atomik_Model_Builder) {
-			$model = new Atomik_Model_Builder($model);
+		if (! $builder instanceof Atomik_Model_Builder) {
+			$builder = new Atomik_Model_Builder($builder);
 		}
 		
-		return $model->getAdapter()->find($model, $where, $orderBy = '', $limit = '');
+		$adapters = $builder->getAdapters();
+		if (count($adapters) == 1) {
+			return $adapters[0]->find($builder, $where, $orderBy, $limit);
+		}
+		
+		$models = array();
+		foreach ($builder->getAdapters() as $adapter) {
+			if (($model = $adapter->find($builder, $where, $orderBy, $limit)) !== null) {
+				$models[] = array('adapter' => $adapter, 'model' => $model);
+			}
+		}
+		
+		if (count($models) == 0) {
+			return null;
+		}
+		
+		$models = self::_mergeModels($builder, $models);
+		return $models[0];
+	}
+	
+	/**
+	 * Merged models with the same primary key as one
+	 * The models arrat must contain arrays with a key model
+	 * containing the model instance and a key adapter containing
+	 * the adapter
+	 *
+	 * @param Atomik_Model_Builder $builder
+	 * @param array $models
+	 * @return array
+	 */
+	public static function _mergeModels(Atomik_Model_Builder $builder, $models)
+	{
+		$primaryKey = $builder->getMetadata('primary-key', 'id');
+		
+		$modelsGroupedByKey = array();
+		foreach ($models as $model) {
+			if (!isset($modelsGroupedByKey[$model['model']->{$primaryKey}])) {
+				$modelsGroupedByKey[$model['model']->{$primaryKey}] = array();
+			}
+			$modelsGroupedByKey[$model['model']->{$primaryKey}][] = $model;
+		}
+		
+		$mergedModels = array();
+		foreach ($modelsGroupedByKey as $key => $keyModels) {
+			$modelData = array();
+			foreach ($keyModels as $model) {
+				$modelData = array_merge($modelData, $model['model']->toArray($model['adapter']));
+			}
+			
+			$mergedModels[] = $builder->createInstance($modelData, false);
+		}
+		
+		return $mergedModels;
 	}
 	
 	/**
@@ -341,7 +407,12 @@ class Atomik_Model
 	 */
 	public function save()
 	{
-		return $this->getBuilder()->getAdapter()->save($this);
+		foreach ($this->getBuilder()->getAdapters() as $adapter) {
+			if (!$adapter->save($this)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -351,11 +422,14 @@ class Atomik_Model
 	 */
 	public function delete()
 	{
-		if ($this->getBuilder()->getAdapter()->delete($this)) {
-			$this->_new = true;
-			return true;
+		foreach ($this->getBuilder()->getAdapters() as $adapter) {
+			if (!$adapter->delete($this)) {
+				return false;
+			}
 		}
-		return false;
+		
+		$this->_new = true;
+		return true;
 	}
 	
 	/**
@@ -363,11 +437,24 @@ class Atomik_Model
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray($adapter = null)
 	{
 		$data = array();
 		$fields = $this->getBuilder()->getMetadata('fields', array());
+		$adapters = $this->getBuilder()->getAdapters();
+		$defaultAdapter = $adapters[0];
+		
+		if ($adapter !== null) {
+			$adapterName = substr(get_class($adapter), 0, -12);
+		}
+		
 		foreach ($fields as $field) {
+			if ($adapter !== null) {
+				if (((!isset($field['adapter']) && $adapter != $defaultAdapter)) || 
+					(isset($field['adapter']) && $field['adapter'] != $adapterName)) {
+						continue;
+				}
+			}
 			$data[$field['name']] = $this->{$field['property']};
 		}
 		return $data;

@@ -9,7 +9,7 @@
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
     <link rel="up" href="index.html" title="Atomik Framework Manual" />
     <link rel="prev" href="ch04.html" title="Chapter 4. Accessors and configuration" />
-    <link rel="next" href="ch06.html" title="Chapter 6. Actions and templates" />
+    <link rel="next" href="ch06.html" title="Chapter 6. Actions and views" />
   </head>
   <body>
     <div class="navheader">
@@ -25,44 +25,52 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="urls"></a>Chapter 5. URLs</h2></div></div></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="urls"></a>Chapter 5. URLs</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch05.html#url-calling-action">Calling an action</a></span></dt><dt><span class="sect1"><a href="ch05.html#url-router">Routing urls</a></span></dt></dl></div>
 	
-	<p>
-		Atomik provides a simple url mechanism. Whatever the page is, the url
-		must always point to Atomik script, i.e. <code class="filename">index.php</code>
-	</p>
-	<p>
-		The url should contain a parameter which specify which action to trigger.
-		This parameters can be modified in the configuration but its default name
-		is “<span class="quote">action</span>”.
-	</p>
-	<p>
-		The value of the parameter must contain only the action name
-		without any extension. So for example if you have an <code class="filename">home.php</code>
-		file in the <code class="filename">actions</code> directory or/and an 
-		<code class="filename">home.php</code> file in the <code class="filename">templates</code>
-		directory, you can must use “<span class="quote">home</span>” as parameter to call this action.
-	</p>
-	<p>
-		For an action to be callable, an action file or a template file must at least exists.
-	</p>
-	<p>
-		If the action parameter is not found in the query string, Atomik will use the default
-		action defines in its configuration (the “<span class="quote">atomik/default_action</span>” key).
-		The default is “<span class="quote">index</span>”.
-	</p>
-	<p>
-		For cleaner and prettier url you can use url rewriting. Simply the code below into
-		a <code class="filename">.htaccess</code> file in the same directory as Atomik core file.
-		</p><pre class="programlisting">
-RewriteEngine on
-RewriteRule ^app/ - [L,F]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
-		</pre><p>
-		This code will also prevent access to the <code class="filename">app</code> folder from the web.
-	</p>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="url-calling-action"></a>Calling an action</h2></div></div></div>
+		
+		<p>
+			Atomik provides a simple url mechanism. Whatever the page is, the url
+			must always point to Atomik script, i.e. <code class="filename">index.php</code>
+		</p>
+		<p>
+			The url should contain a parameter which specify which action to trigger.
+			This parameters can be modified in the configuration but its default name
+			is “<span class="quote">action</span>”.
+		</p>
+		<p>
+			The value of the parameter must only contain the action name
+			without any extension. So for example if you have an <code class="filename">home.php</code>
+			file in the <code class="filename">actions</code> directory or/and an 
+			<code class="filename">home.php</code> file in the <code class="filename">views</code>
+			directory, you must use “<span class="quote">home</span>” as parameter to call this action.
+		</p>
+		<p>
+			For an action to be callable, an action file or a view file must at least exists.
+		</p>
+		<p>
+			If the action parameter is not found in the query string, Atomik will use the default
+			action defines in its configuration (the “<span class="quote">atomik/default_action</span>” key).
+			The default is “<span class="quote">index</span>”.
+		</p>
+		<p>
+			For cleaner and prettier url you can use url rewriting. Simply copy the code below into
+			a <code class="filename">.htaccess</code> file in the same directory as Atomik's core file.
+			</p><pre class="programlisting">
+	RewriteEngine on
+	RewriteRule ^app/plugins/(.+)/assets - [L]
+	RewriteRule ^app/ - [L,F]
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
+			</pre><p>
+			This code will also prevent access to the <code class="filename">app</code> folder from the web but
+			allow access to the <code class="filename">assets</code> directories of plugins.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="url-router"></a>Routing urls</h2></div></div></div>
+		
+	</div>
 </div>
     <div class="navfooter">
       <hr />
@@ -77,7 +85,7 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
           <td width="20%" align="center">
             <a accesskey="h" href="index.html">Home</a>
           </td>
-          <td width="40%" align="right" valign="top"> Chapter 6. Actions and templates</td>
+          <td width="40%" align="right" valign="top"> Chapter 6. Actions and views</td>
         </tr>
       </table>
     </div>

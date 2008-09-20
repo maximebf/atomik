@@ -248,6 +248,10 @@ class Atomik_Db_Instance
 	
 	/**
 	 * Builds an sql where clause
+	 * 
+	 * $where can ben an array where keys are field's name and values are field's value.
+	 * $where can also be an sql condition string
+	 * 
 	 * Possible situations:
 	 *
 	 *  - $tables is an array ($where = null):
@@ -259,14 +263,13 @@ class Atomik_Db_Instance
 	 *     SELECT * FROM table WHERE table.field1 = 'value1'
 	 *
 	 *  - $tables is a string ($where is needed):
-	 *    Select data from one table. The $where array defines
-	 *    conditions. The key is a field name and the value is
-	 *    a value. Example:
+	 *    Select data from one table. $where defines
+	 *    condition(s). Example:
 	 *     db_build_select_sql('table', array('field1' => 'value1'));
 	 *     SELECT * FROM table WHERE table.field1 = 'value1'
 	 *
 	 * @param string|array $tables
-	 * @param array $where OPTIONAL
+	 * @param array|string $where OPTIONAL
 	 * @param string $operator OPTIONAL (default ' AND ')
 	 * @return array
 	 */
@@ -287,15 +290,19 @@ class Atomik_Db_Instance
 		$conditions = array();
 		$values = array();
 		foreach ($tables as $table => $fields) {
-			foreach ($fields as $field => $value) {
-				/* escapes the value */	
-				if (!is_array($value)) {
-					$values[] = $value;
-					$value = '?';
-				} else {
-					$value = $value[0];
+			if (is_array($fields)) {
+				foreach ($fields as $field => $value) {
+					/* escapes the value */	
+					if (!is_array($value)) {
+						$values[] = $value;
+						$value = '?';
+					} else {
+						$value = $value[0];
+					}
+					$conditions[] = "${table}.${field}=$value";
 				}
-				$conditions[] = "${table}.${field}=$value";
+			} else {
+				$conditions[] = (string) $fields;
 			}
 		}
 		if (count($conditions)) {

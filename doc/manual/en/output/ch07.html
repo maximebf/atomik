@@ -8,7 +8,7 @@
     <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
     <link rel="up" href="index.html" title="Atomik Framework Manual" />
-    <link rel="prev" href="ch06.html" title="Chapter 6. Actions and templates" />
+    <link rel="prev" href="ch06.html" title="Chapter 6. Actions and views" />
     <link rel="next" href="ch08.html" title="Chapter 8. Includes" />
   </head>
   <body>
@@ -41,7 +41,7 @@
 	</p>
 	<p>
 		Atomik also defines the <code class="function">A()</code> function for quicker access. This
-		function is only a shortcut for <code class="methodname">Atomik::get()</code>.
+		function is only a shortcut to <code class="methodname">Atomik::get()</code>.
 	</p>
 	<p>
 		Namespaces are used to differentiate selectors. A namespace is only a word followed
@@ -52,7 +52,7 @@
 		availability to query through arrays. It has alreay been covered in the Accessors and 
 		configuration section.
 	</p>
-	<div class="example"><a id="id3367294"></a><p class="title"><b>Example 7.1. Using the built-in selector</b></p><div class="example-contents">
+	<div class="example"><a id="id3336942"></a><p class="title"><b>Example 7.1. Using the built-in selector</b></p><div class="example-contents">
 		
 		<pre class="programlisting">
 			
@@ -68,10 +68,10 @@ $value = A('key1/key2');
 		</pre>
 	</div></div><br class="example-break" />
 	<p>
-		Plugins can provide their own selector namespace. For example, the db plugin brings with
-		it the db namespace which allow you to do sql queries.
+		Plugins can provide their own selector namespace. For example, the Db plugin brings with
+		it the “<span class="quote">db</span>” namespace which allow you to do sql queries.
 	</p>
-	<div class="example"><a id="id3367314"></a><p class="title"><b>Example 7.2. Using selectors with the db plugin</b></p><div class="example-contents">
+	<div class="example"><a id="id3336966"></a><p class="title"><b>Example 7.2. Using selectors with the Db plugin</b></p><div class="example-contents">
 		
 		<pre class="programlisting">
 			
@@ -86,7 +86,7 @@ $firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));
 		</pre>
 	</div></div><br class="example-break" />
 	<p>
-		See the db plugin documentation for more information. 
+		See the Db plugin documentation for more information. 
 	</p>
 </div>
     <div class="navfooter">
@@ -98,7 +98,7 @@ $firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));
           <td width="40%" align="right"> <a accesskey="n" href="ch08.html">Next</a></td>
         </tr>
         <tr>
-          <td width="40%" align="left" valign="top">Chapter 6. Actions and templates </td>
+          <td width="40%" align="left" valign="top">Chapter 6. Actions and views </td>
           <td width="20%" align="center">
             <a accesskey="h" href="index.html">Home</a>
           </td>
