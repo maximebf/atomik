@@ -28,8 +28,8 @@ require_once 'Atomik/Model.php';
 /** Atomik_Model_Builder */
 require_once 'Atomik/Model/Builder.php';
 
-/** LocalModelAdapter */
-require_once dirname(__FILE__) . '/Local.php';
+/** Atomik_Model_Adapter_Local */
+require_once 'Atomik/Model/Adapter/Local.php';
 
 /**
  * Stores models in the session
@@ -37,27 +37,12 @@ require_once dirname(__FILE__) . '/Local.php';
  * @package Atomik
  * @subpackage Model
  */
-class SessionModelAdapter extends LocalModelAdapter
+class Atomik_Model_Adapter_Session extends Atomik_Model_Adapter_Local
 {
 	/**
-	 * Singleton instance
-	 *
-	 * @var SessionModelAdapter
+	 * @var array
 	 */
-	protected static $_instance;
-	
-	/**
-	 * Gets the singleton
-	 *
-	 * @return SessionModelAdapter
-	 */
-	public static function getInstance()
-	{
-		if (self::$_instance === null) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
-	}
+	protected static $_models = array();
 	
 	/**
 	 * Constructor
@@ -68,7 +53,15 @@ class SessionModelAdapter extends LocalModelAdapter
 		if (!isset($_SESSION['__MODELS'])) {
 			$_SESSION['__MODELS'] = array();
 		}
-		$this->_models = &$_SESSION['__MODELS'];
+		self::$_models = &$_SESSION['__MODELS'];
+	}
+	
+	/**
+	 * Not supported on this adapter
+	 */
+	public function query(Atomik_Model_Builder $builder, $query)
+	{
+		return array();
 	}
 	
 	/**
@@ -83,11 +76,11 @@ class SessionModelAdapter extends LocalModelAdapter
 	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
 	{
 		$models = array();
-		if (!isset($this->_models[$builder->getName()])) {
+		if (!isset(self::$_models[$builder->getName()])) {
 			return $models;
 		}
 		
-		foreach ($this->_models[$builder->getName()] as $model) {
+		foreach (self::$_models[$builder->getName()] as $model) {
 			$match = true;
 			if ($where !== null) {
 				foreach ($where as $key => $value) {
@@ -114,19 +107,19 @@ class SessionModelAdapter extends LocalModelAdapter
 	public function save(Atomik_Model $model)
 	{
 		$name = $model->getBuilder()->getName();
-		if (!isset($this->_models[$name])) {
-			$this->_models[$name] = array();
+		if (!isset(self::$_models[$name])) {
+			self::$_models[$name] = array();
 		}
 		
 		/* data saved as array to avoid any serialization error */
 		if ($model->isNew()) {
-			$model->id = count($this->_models[$name]);
-			$this->_models[$name][] = $model->toArray();
+			$model->setPrimaryKey(count(self::$_models[$name]));
+			self::$_models[$name][] = $model->toArray();
 		} else {
-			if (!isset($this->_models[$name][$model->id])) {
+			if (!isset(self::$_models[$name][$model->getPrimaryKey()])) {
 				return false;
 			}
-			$this->_models[$name][$model->id] = $model->toArray();
+			self::$_models[$name][$model->getPrimaryKey()] = $model->toArray();
 		}
 		
 		return true;

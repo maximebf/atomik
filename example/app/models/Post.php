@@ -2,13 +2,15 @@
 
 /**
  * @table posts
- * @has-many Comment as comments
+ * @has many Comment as comments
+ * @cascade-save
  */
 class Post extends Atomik_Model
 {
-	public $id;
-	
 	public $title;
 	
+	/**
+	 * @field-type Atomik_Model_Field_Text
+	 */
 	public $body;
 }

@@ -26,7 +26,7 @@ require_once 'Atomik/Model/Builder.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model
+class Atomik_Model implements ArrayAccess
 {
 	/**
 	 * The model builder attached to this model
@@ -50,6 +50,22 @@ class Atomik_Model
 	protected $_references = array();
 	
 	/**
+	 * Query the adapter
+	 *
+	 * @param string|Atomik_Model_Builder $builder
+	 * @param mixed $query
+	 * @return array
+	 */
+	public static function query($builder, $query)
+	{
+		if (! $builder instanceof Atomik_Model_Builder) {
+			$builder = Atomik_Model_Builder::createFromClass($builder);
+		}
+		
+		return $builder->getAdapter()->query($builder, $query);
+	}
+	
+	/**
 	 * Finds many models
 	 *
 	 * @param string|Atomik_Model_Builder $builder
@@ -61,24 +77,10 @@ class Atomik_Model
 	public static function findAll($builder, $where = null, $orderBy = '', $limit = '')
 	{
 		if (! $builder instanceof Atomik_Model_Builder) {
-			$builder = new Atomik_Model_Builder($builder);
+			$builder = Atomik_Model_Builder::createFromClass($builder);
 		}
 		
-		$adapters = $builder->getAdapters();
-		if (count($adapters) == 1) {
-			return $adapters[0]->findAll($builder, $where, $orderBy, $limit);
-		}
-		
-		$models = array();
-		foreach ($builder->getAdapters() as $adapter) {
-			if (count($adapter->findAll($builder, $where, $orderBy, $limit)) > 0) {
-				foreach ($tmp as $model) {
-					$models[] = array('adapter' => $adapter, 'model' => $model);
-				}
-			}
-		}
-		
-		return self::_mergeModels($builder, $models);
+		return $builder->getAdapter()->findAll($builder, $where, $orderBy, $limit);
 	}
 	
 	/**
@@ -93,62 +95,10 @@ class Atomik_Model
 	public static function find($builder, $where, $orderBy = '', $limit = '')
 	{
 		if (! $builder instanceof Atomik_Model_Builder) {
-			$builder = new Atomik_Model_Builder($builder);
+			$builder = Atomik_Model_Builder::createFromClass($builder);
 		}
 		
-		$adapters = $builder->getAdapters();
-		if (count($adapters) == 1) {
-			return $adapters[0]->find($builder, $where, $orderBy, $limit);
-		}
-		
-		$models = array();
-		foreach ($builder->getAdapters() as $adapter) {
-			if (($model = $adapter->find($builder, $where, $orderBy, $limit)) !== null) {
-				$models[] = array('adapter' => $adapter, 'model' => $model);
-			}
-		}
-		
-		if (count($models) == 0) {
-			return null;
-		}
-		
-		$models = self::_mergeModels($builder, $models);
-		return $models[0];
-	}
-	
-	/**
-	 * Merged models with the same primary key as one
-	 * The models arrat must contain arrays with a key model
-	 * containing the model instance and a key adapter containing
-	 * the adapter
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array $models
-	 * @return array
-	 */
-	public static function _mergeModels(Atomik_Model_Builder $builder, $models)
-	{
-		$primaryKey = $builder->getMetadata('primary-key', 'id');
-		
-		$modelsGroupedByKey = array();
-		foreach ($models as $model) {
-			if (!isset($modelsGroupedByKey[$model['model']->{$primaryKey}])) {
-				$modelsGroupedByKey[$model['model']->{$primaryKey}] = array();
-			}
-			$modelsGroupedByKey[$model['model']->{$primaryKey}][] = $model;
-		}
-		
-		$mergedModels = array();
-		foreach ($modelsGroupedByKey as $key => $keyModels) {
-			$modelData = array();
-			foreach ($keyModels as $model) {
-				$modelData = array_merge($modelData, $model['model']->toArray($model['adapter']));
-			}
-			
-			$mergedModels[] = $builder->createInstance($modelData, false);
-		}
-		
-		return $mergedModels;
+		return $builder->getAdapter()->find($builder, $where, $orderBy, $limit);
 	}
 	
 	/**
@@ -161,7 +111,6 @@ class Atomik_Model
 	{
 		$this->_new = $new;
 		$this->setData($data);
-		
 	}
 	
 	/**
@@ -172,7 +121,7 @@ class Atomik_Model
 	public function setBuilder(Atomik_Model_Builder $builder = null)
 	{
 		if ($builder === null) {
-			$this->_builder = new Atomik_Model_Builder($this);
+			$this->_builder = Atomik_Model_Builder::createFromClass($this);
 		} else {
 			$this->_builder = $builder;
 		}
@@ -208,12 +157,57 @@ class Atomik_Model
 	 */
 	public function setData($data)
 	{
-		$fields = $this->getBuilder()->getMetadata('fields', array());
+		$fields = $this->getBuilder()->getFields();
 		foreach ($fields as $field) {
-			if (isset($data[$field['name']])) {
-				$this->{$field['property']} = $data[$field['name']];
+			if (isset($data[$field->getName()])) {
+				$this->{$field->getName()} = $data[$field->getName()];
 			}
 		}
+	}
+	
+	/**
+	 * Sets the primary key value
+	 *
+	 * @param mixed $value
+	 */
+	public function setPrimaryKey($value)
+	{
+		$this->{$this->getBuilder()->getPrimaryKeyField()->getName()} = $value;
+	}
+	
+	/**
+	 * Returns the primary key value
+	 * 
+	 * @return mixed
+	 */
+	public function getPrimaryKey()
+	{
+		return $this->{$this->getBuilder()->getPrimaryKeyField()->getName()};
+	}
+	
+	/**
+	 * Inits a reference property
+	 *
+	 * @param string $name
+	 */
+	protected function _initReference($name)
+	{
+		/* checks if it's already initialized */
+		if (isset($this->_references[$name])) {
+			return;
+		}
+		
+		$reference = $this->getBuilder()->getReference($name);
+		$where = array($reference['using']['foreignField'] => $this->{$reference['using']['localField']});
+		
+		if ($reference['type'] == Atomik_Model_Builder::HAS_MANY) {
+			$models = self::findAll($reference['model'], $where);
+			$refArray = new Atomik_Model_ReferenceArray($this, $reference, $models);
+			$this->_references[$name] = $refArray;
+			return;
+		}
+		
+		$this->_references[$name] =  self::find($reference['model'], $where);
 	}
 	
 	/**
@@ -223,20 +217,13 @@ class Atomik_Model
 	 */
 	public function __get($name)
 	{
-		/* checks if it's in cache */
-		if (isset($this->_references[$name])) {
-			return $this->_references[$name];
+		/* checks if it's an unitialized field */
+		if (($field = $this->getBuilder()->getField($name)) !== false) {
+			$this->{$name} = $field->getDefaultValue();
+			return $this->{$name};
 		}
 		
-		list($ref, $orig, $dest) = $this->_getReferenceInfo($name);
-		$where = array($dest['field'] => $this->{$orig['field']});
-		
-		if ($ref['type'] == 'has-many') {
-			$this->_references[$name] = self::findAll($dest['model'], $where);
-		} else {
-			$this->_references[$name] =  self::find($dest['model'], $where);
-		}
-		
+		$this->_initReference($name);
 		return $this->_references[$name];
 	}
 	
@@ -248,148 +235,31 @@ class Atomik_Model
 	 */
 	public function __set($name, $value)
 	{
-		list($ref, $orig, $dest) = $this->_getReferenceInfo($name);
-		
-		if ($ref['type'] == 'has-many') {
-			/* has many relation */
-			$this->removeAll($name);
-			
-			/* value must be an array */
-			$values = !is_array($value) ? array($value) : $value;
-			foreach ($values as $value) {
-				/* sets the foreign key of the child model */
-				$value->{$dest['field']} = $this->{$orig['field']};
-			}
-			
-			$this->_references[$name] = $values;
-			
-		} else {
-			/* has one relation */
-			/* sets the foreign key of the child model */
-			$value->{$dest['field']} = $this->{$orig['field']};
-			$this->_references[$name] = $value;
-		}
-	}
-	
-	/**
-	 * Checks if the model is a child model from an has many reference
-	 *
-	 * @param Atomik_Model $model
-	 * @param string $property OPTIONAL
-	 * @return bool
-	 */
-	public function contains(Atomik_Model $model, $property = null)
-	{
-		list($ref, $orig, $dest) = $this->_getReferenceInfo($model, $property);
-		
-		if ($ref['type'] != 'has-many') {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Atomik_Model::add() can only'
-				. ' be used with has many relations');
+		/* checks if it's an unitialized field */
+		if (($field = $this->getBuilder()->getField($name)) !== false) {
+			$this->{$field->getName()} = $value;
+			return;
 		}
 		
-		/* inits the reference array */
-		if (!isset($this->_references[$property])) {
-			$this->__get($property);
+		$this->_initReference($name);
+		$reference = $this->getBuilder()->getReference($name);
+		
+		/* has-many */
+		if ($reference['type'] == Atomik_Model_Builder::HAS_MANY) {
+			$this->_references[$name]->clear($value);
+			return;
 		}
 		
-		foreach ($this->_references[$property] as $child) {
-			if ($child === $model) {
-				return true;
-			}
+		/* has-one */
+		
+		if (isset($this->_references[$name])) {
+			/* unsets the foreign key of the current foreign model */
+			$this->_references[$name]->{$reference['using']['foreignField']} = null;
 		}
 		
-		return false;
-	}
-	
-	/**
-	 * Adds a model to an has many reference
-	 *
-	 * @param Atomik_Model $model
-	 * @return Atomik_Model;
-	 */
-	public function add(Atomik_Model $model, $property = null)
-	{
-		list($ref, $orig, $dest) = $this->_getReferenceInfo($model, $property);
-		
-		if ($ref['type'] != 'has-many') {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Atomik_Model::add() can only'
-				. ' be used with has many relations');
-		}
-		
-		/* sets the foreign key on the child model */
-		$model->{$dest['field']} = $this->{$orig['field']};
-		
-		/* inits the reference array */
-		if (!isset($this->_references[$property])) {
-			$this->__get($property);
-		}
-		
-		$this->_references[$property][] = $model;
-		return $model;
-	}
-	
-	/**
-	 * Removes a model from an has many reference
-	 *
-	 * @param Atomik_Model $model
-	 * @param string $property OPTIONAL
-	 * @return Atomik_Model|bool The removed model or false if failed
-	 */
-	public function remove(Atomik_Model $model, $property = null)
-	{
-		list($ref, $orig, $dest) = $this->_getReferenceInfo($model, $property);
-	
-		if ($ref['type'] != 'has-many') {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Atomik_Model::remove() can only'
-				. ' be used with has many relations');
-		}
-	
-		/* inits the reference array */
-		if (!isset($this->_references[$property])) {
-			$this->__get($property);
-		}
-		
-		for ($i = 0, $c = count($this->_references[$property]); $i < $c; $i++) {
-			$child = $this->_references[$property][$i];
-			if ($child === $model) {
-				$child->{$dest['field']} = null;
-				unset($this->_references[$property][$i]);
-				return $child;
-			}
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * Removes all child from an has many reference
-	 * WARNING: All removed child are automatically saved
-	 *
-	 * @param string $property
-	 */
-	public function removeAll($property)
-	{
-		list($ref, $orig, $dest) = $this->_getReferenceInfo($property);
-	
-		if ($ref['type'] != 'has-many') {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Atomik_Model::removeAll() can only'
-				. ' be used with has many relations');
-		}
-	
-		/* inits the reference array */
-		if (!isset($this->_references[$property])) {
-			$this->__get($property);
-		}
-		
-		foreach ($this->_references[$property] as $child) {
-			$child->{$dest['field']} = null;
-			$child->save();
-		}
-		$this->_references[$property] = array();
+		/* sets the foreign key of the foreign model */
+		$value->{$reference['using']['foreignField']} = $this->{$reference['using']['localField']};
+		$this->_references[$name] = $value;
 	}
 	
 	/**
@@ -401,17 +271,56 @@ class Atomik_Model
 	}
 	
 	/**
+	 * Validates model field values
+	 *
+	 * @return bool
+	 */
+	public function isValid()
+	{
+		return $this->getBuilder()->isValid($this);
+	}
+	
+	/**
+	 * Returns the messages generated during the validation
+	 *
+	 * @return array
+	 */
+	public function getValidationMessages()
+	{
+		return $this->getBuilder()->getValidationMessages();
+	}
+	
+	/**
 	 * Saves
 	 *
 	 * @return bool Success
 	 */
 	public function save()
 	{
-		foreach ($this->getBuilder()->getAdapters() as $adapter) {
-			if (!$adapter->save($this)) {
-				return false;
+		if ($this->getBuilder()->getOption('validate-on-save', false)) {
+			if (!$this->isValid()) {
+				require_once 'Atomik/Model/Exception.php';
+				throw new Atomik_Model_Exception('Model failed to validate before saving:<br/>' . 
+					implode('<br/>', $this->getValidationMessages()));
 			}
 		}
+		
+		if (!$this->getBuilder()->getAdapter()->save($this)) {
+			return false;
+		}
+		
+		/* checks if cascade is enabled */
+		if ($this->getBuilder()->getOption('cascade-save', false)) {
+			foreach ($this->getBuilder()->getReferences() as $reference) {
+				$this->_initReference($reference['property']);
+				if ($reference['type'] == Atomik_Model_Builder::HAS_ONE) {
+					$this->_references[$reference['property']]->save();
+				} else {
+					$this->_references[$reference['property']]->saveAll();
+				}
+			}
+		}
+		
 		return true;
 	}
 	
@@ -422,10 +331,21 @@ class Atomik_Model
 	 */
 	public function delete()
 	{
-		foreach ($this->getBuilder()->getAdapters() as $adapter) {
-			if (!$adapter->delete($this)) {
-				return false;
+		if (!$this->getBuilder()->getAdapter()->delete($this)) {
+			return false;
+		}
+		
+		/* checks if cascade is enabled */
+		if ($this->getBuilder()->getOption('cascade-delete', false)) {
+			foreach ($this->getBuilder()->getReferences() as $reference) {
+				$this->_initReference($reference['property']);
+				if ($reference['type'] == Atomik_Model_Builder::HAS_ONE) {
+					$this->_references[$reference['property']]->delete();
+				} else {
+					$this->_references[$reference['property']]->deleteAll();
+				}
 			}
+			$this->invalidateReferenceCache();
 		}
 		
 		$this->_new = true;
@@ -437,67 +357,50 @@ class Atomik_Model
 	 *
 	 * @return array
 	 */
-	public function toArray($adapter = null)
+	public function toArray()
 	{
 		$data = array();
-		$fields = $this->getBuilder()->getMetadata('fields', array());
-		$adapters = $this->getBuilder()->getAdapters();
-		$defaultAdapter = $adapters[0];
-		
-		if ($adapter !== null) {
-			$adapterName = substr(get_class($adapter), 0, -12);
-		}
+		$fields = $this->getBuilder()->getFields();
 		
 		foreach ($fields as $field) {
-			if ($adapter !== null) {
-				if (((!isset($field['adapter']) && $adapter != $defaultAdapter)) || 
-					(isset($field['adapter']) && $field['adapter'] != $adapterName)) {
-						continue;
-				}
-			}
-			$data[$field['name']] = $this->{$field['property']};
+			$data[$field->getName()] = $this->{$field->getName()};
 		}
+		
 		return $data;
 	}
 	
 	/**
-	 * Gets information about the reference
+	 * Returns a form for this model
 	 *
-	 * @param string|Atomik_Model $name
-	 * @param string $property OPTIONAL
-	 * @return array
+	 * @return Atomik_Model_Form
 	 */
-	protected function _getReferenceInfo($name, &$property = null)
+	public function getForm()
 	{
-		$references = $this->getBuilder()->getMetadata('references', array());
-		
-		if ($name instanceof Atomik_Model) {
-			if ($property === null) {
-				foreach ($references as $prop => $ref) {
-					if ($ref['model'] == get_class($name)) {
-						$property = $prop;
-						break;
-					}
-				}
-			}
-			$name = $property;
-		}
-		
-		if (!isset($references[$name])) {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Property ' . get_class($this) . '::' . 
-				$name . ' does not exists');
-		}
-		$ref = $references[$name];
-		
-		if ($ref['using'][0]['model'] == get_class($this)) {
-			$dest = $ref['using'][1];
-			$orig = $ref['using'][0];
-		} else {
-			$dest = $ref['using'][0];
-			$orig = $ref['using'][1];
-		}
-		
-		return array($ref, $orig, $dest);
+		require_once 'Atomik/Model/Form.php';
+		return new Atomik_Model_Form($this);
+	}
+	
+	/* -------------------------------------------------------------------------------------------
+	 *  ArrayAccess
+	 * ------------------------------------------------------------------------------------------ */
+	
+	public function offsetExists($index)
+	{
+		return isset($this->{$index});
+	}
+	
+	public function offsetGet($index)
+	{
+		return $this->{$index};
+	}
+	
+	public function offsetSet($index, $value)
+	{
+		$this->{$index} = $value;
+	}
+	
+	public function offsetUnset($index)
+	{
+		unset($this->{$index});
 	}
 }

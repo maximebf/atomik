@@ -34,26 +34,14 @@ require_once 'Atomik/Model/Builder.php';
  * @package Atomik
  * @subpackage Model
  */
-class XmlModelAdapter implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Adapter_Xml implements Atomik_Model_Adapter_Interface
 {
 	/**
-	 * Singleton instance
-	 *
-	 * @var XmlModelAdapter
+	 * Query using an xpath expression
 	 */
-	protected static $_instance;
-	
-	/**
-	 * Gets the singleton
-	 *
-	 * @return XmlModelAdapter
-	 */
-	public static function getInstance()
+	public function query(Atomik_Model_Builder $builder, $query)
 	{
-		if (self::$_instance === null) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+		return array();
 	}
 	
 	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')

@@ -58,7 +58,7 @@ class ControllerPlugin
         self::$config = array_merge(self::$config, $config);
         require_once 'Atomik/Controller.php';
         
-        // the plugin is loaded after the request has been dispatched
+        /* the plugin is loaded after the request has been dispatched */
         if (!$doNotRouteIfAlreadyDispatched && Atomik::has('request')) {
         	$routes = Atomik::get('atomik/routes', array());
         	self::onAtomikRouterStart($uri, $routes);

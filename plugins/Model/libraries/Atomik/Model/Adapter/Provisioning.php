@@ -29,31 +29,17 @@ require_once 'Atomik/Model.php';
 require_once 'Atomik/Model/Builder.php';
 
 /**
- * 
- * 
  * @package Atomik
  * @subpackage Model
  */
-class ProvisioningModelAdapter implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Adapter_Provisioning implements Atomik_Model_Adapter_Interface
 {
 	/**
-	 * Singleton instance
-	 *
-	 * @var ProvisioningModelAdapter
+	 * Not supported on this adapter
 	 */
-	protected static $_instance;
-	
-	/**
-	 * Gets the singleton
-	 *
-	 * @return ProvisioningModelAdapter
-	 */
-	public static function getInstance()
+	public function query(Atomik_Model_Builder $builder, $query)
 	{
-		if (self::$_instance === null) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+		return array();
 	}
 	
 	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')

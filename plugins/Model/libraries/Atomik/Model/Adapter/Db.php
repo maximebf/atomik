@@ -34,39 +34,19 @@ require_once 'Atomik/Model/Builder.php';
  * @package Atomik
  * @subpackage Model
  */
-class DbModelAdapter implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 {
 	/**
 	 * @var Atomik_Db_Instance
 	 */
-	protected $_db;
-	
-	/**
-	 * Singleton instance
-	 *
-	 * @var DbModelAdapter
-	 */
-	protected static $_instance;
-	
-	/**
-	 * Gets the singleton
-	 *
-	 * @return DbModelAdapter
-	 */
-	public static function getInstance()
-	{
-		if (self::$_instance === null) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
-	}
+	protected static $_db;
 	
 	/**
 	 * Sets the database instance
 	 *
 	 * @param Atomik_Db_Instance $db
 	 */
-	public function setDb(Atomik_Db_Instance $db = null)
+	public static function setDb(Atomik_Db_Instance $db = null)
 	{
 		if ($db === null) {
 			if (($db = Atomik_Db::getInstance()) === null) {
@@ -74,7 +54,7 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 				throw new Atomik_Model_Exception('No database instance found');
 			}
 		}
-		$this->_db = $db;
+		self::$_db = $db;
 	}
 	
 	/**
@@ -82,12 +62,25 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 	 *
 	 * @return Atomik_Db_Instance
 	 */
-	public function getDb()
+	public static function getDb()
 	{
-		if ($this->_db === null) {
-			$this->setDb();
+		if (self::$_db === null) {
+			self::setDb();
 		}
-		return $this->_db;
+		return self::$_db;
+	}
+	
+	/**
+	 * Perform an sql query an returns rows as models
+	 *
+	 * @param Atomik_Model_Builder $builder
+	 * @param string $query
+	 * @return array
+	 */
+	public function query(Atomik_Model_Builder $builder, $query)
+	{
+		// TODO: implement Atomik_Model_Adapter_Db::query()
+		return array();
 	}
 	
 	/**
@@ -101,7 +94,7 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 	 */
 	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
 	{
-		$rows = $this->getDb()->findAll($this->getTableName($builder), $where, $orderBy, $limit);
+		$rows = self::getDb()->findAll($this->getTableName($builder), $where, $orderBy, $limit);
 		$models = array();
 		
 		foreach ($rows as $row) {
@@ -122,7 +115,7 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 	 */
 	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
 	{
-		if (($row = $this->getDb()->find($this->getTableName($builder), $where, $orderBy, $limit)) === null) {
+		if (($row = self::getDb()->find($this->getTableName($builder), $where, $orderBy, $limit)) === null) {
 			return null;
 		}
 		return $builder->createInstance($row, false);
@@ -136,23 +129,22 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 	 */
 	public function save(Atomik_Model $model)
 	{
-		$data = $model->toArray($this);
+		$data = $model->toArray();
 		$builder = $model->getBuilder();
 		$tableName = $this->getTableName($builder);
-		$primaryKey = $this->getPrimaryKey($builder);
 		
 		// insert
 		if ($model->isNew()) {
-			if (($id = $this->getDb()->insert($tableName, $data)) === false) {
+			if (($id = self::getDb()->insert($tableName, $data)) === false) {
 				return false;
 			}
-			$model->{$primaryKey} = $id;
+			$model->setPrimaryKey($id);
 			return true;
 		}
 		
 		// update
-		$where = array($primaryKey => $model->{$primaryKey});
-		return $this->getDb()->update($tableName, $data, $where);
+		$where = array($builder->getPrimaryKeyField() => $model->getPrimaryKey());
+		return self::getDb()->update($tableName, $data, $where);
 	}
 	
 	/**
@@ -169,10 +161,9 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 		
 		$builder = $model->getBuilder();
 		$tableName = $this->getTableName($builder);
-		$primaryKey = $this->getPrimaryKey($builder);
 		
-		$where = array($primaryKey => $model->{$primaryKey});
-		return $this->getDb()->delete($tableName, $where);
+		$where = array($builder->getPrimaryKeyField() => $model->getPrimaryKey());
+		return self::getDb()->delete($tableName, $where);
 	}
 	
 	/**
@@ -183,21 +174,10 @@ class DbModelAdapter implements Atomik_Model_Adapter_Interface
 	 */
 	protected function getTableName($builder)
 	{
-		$table = $builder->getMetadata('table');
+		$table = $builder->getOption('table');
 		if ($table === null) {
-			throw new Exception('Table not set on model ' . $builder->getClass());
+			throw new Exception('Table not set on model ' . $builder->getName());
 		}
 		return $table;
-	}
-	
-	/**
-	 * Gets the primary key of the associated table
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @return string
-	 */
-	protected function getPrimaryKey($builder)
-	{
-		return $builder->getMetadata('primary-key', 'id');
 	}
 }

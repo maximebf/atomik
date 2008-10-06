@@ -76,7 +76,7 @@ class AjaxPlugin
 	{
 		if (self::$config['disable_layout']) {
 			/* needs the layout plugin */
-			if (Atomik::isPluginLoaded('layout')) {
+			if (Atomik::isPluginLoaded('Layout')) {
 				LayoutPlugin::disable();
 			}
 		}

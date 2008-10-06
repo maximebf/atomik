@@ -34,26 +34,14 @@ require_once 'Atomik/Model/Builder.php';
  * @package Atomik
  * @subpackage Model
  */
-class FileModelAdapter implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 {
 	/**
-	 * Singleton instance
-	 *
-	 * @var FileModelAdapter
+	 * Not supported on this adapter
 	 */
-	protected static $_instance;
-	
-	/**
-	 * Gets the singleton
-	 *
-	 * @return FileModelAdapter
-	 */
-	public static function getInstance()
+	public function query(Atomik_Model_Builder $builder, $query)
 	{
-		if (self::$_instance === null) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+		return array();
 	}
 	
 	/**
@@ -68,10 +56,10 @@ class FileModelAdapter implements Atomik_Model_Adapter_Interface
 	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
 	{
 		$files = array();
-		$dir = $builder->getMetadata('dir');
+		$dir = $builder->getOption('dir');
 		$iterator = new DirectoryIterator($dir);
 		foreach ($iterator as $file) {
-			
+			// TODO: implements FileModelAdapter::findAll()
 		}
 		return $files;
 	}
@@ -87,7 +75,7 @@ class FileModelAdapter implements Atomik_Model_Adapter_Interface
 	 */
 	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
 	{
-		$dir = $builder->getMetadata('dir');
+		$dir = $builder->getOption('dir');
 		$file = $dir . $this->getFilename($builder, $where);
 		
 		if (!file_exists($file)) {
@@ -96,8 +84,7 @@ class FileModelAdapter implements Atomik_Model_Adapter_Interface
 		
 		$values = $where;
 		
-		if (($contentKey = $builder->getMetadata('content', null)) !== null) {
-			$contentKey = $builder->getMetadata('content');
+		if (($contentKey = $builder->getOption('content', null)) !== null) {
 			$values[$contentKey] = file_get_contents($file);
 		}
 		
@@ -126,9 +113,17 @@ class FileModelAdapter implements Atomik_Model_Adapter_Interface
 		return true;
 	}
 	
-	protected function getFilename($builder, $data)
+	/**
+	 * Transforms the filename template of a file to a real filename
+	 *
+	 * @param Atomik_Model_Builder $builder
+	 * @param array $data
+	 * @return string
+	 */
+	protected function getFilename(Atomik_Model_Builder $builder, $data)
 	{
-		if (($path = $builder->getMetadata('path', null)) === null) {
+		if (($path = $builder->getOption('path', null)) === null) {
+			require_once 'Atomik/Model/Exception.php';
 			throw new Atomik_Model_Exception('Missing path key in ' . $builder->getName() . ' model');
 		}
 		foreach ($data as $key => $value) {

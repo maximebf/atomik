@@ -122,6 +122,8 @@ class Atomik
 {
     /**
      * Global store
+     * 
+     * This property is used to stored all data accessed using get(), set()...
      *
      * @var array
      */
@@ -129,6 +131,9 @@ class Atomik
 	
 	/**
 	 * Loaded plugins
+	 * 
+	 * When a plugin is loaded, its name is saved in this array to 
+	 * avoid loading it twice.
 	 *
 	 * @var array
 	 */
@@ -136,6 +141,9 @@ class Atomik
 	
 	/**
 	 * Registered events
+	 * 
+	 * The array keys are event names and their value is an array with 
+	 * the event callbacks
 	 *
 	 * @var array
 	 */
@@ -143,6 +151,9 @@ class Atomik
 	
 	/**
 	 * Selectors namespaces
+	 * 
+	 * The array keys are the namespace name and the associated value is
+	 * the callback to call when the namespace is used
 	 *
 	 * @var array
 	 */
@@ -150,6 +161,11 @@ class Atomik
 	
 	/**
 	 * Dispatches the request
+	 * 
+	 * This is the main method to call. It takes an URI, applies routes if
+	 * needed, executes the action and renders the view.
+	 * If $uri is null, the value of the GET parameter specified as the trigger 
+	 * will be used.
 	 * 
 	 * @param string $uri OPTIONAL
 	 */
@@ -211,12 +227,9 @@ class Atomik
         		/* retreives the requested url */
         		$trigger = self::get('atomik/trigger');
         		if (!isset($_GET[$trigger]) || empty($_GET[$trigger])) {
-        		    
         			/* no trigger specified, using default page name */
         			$uri = self::get('atomik/default_action');
-        			
         		} else {
-        		    
         		    $uri = trim($_GET[$trigger], '/');
         		}
     	
@@ -240,6 +253,7 @@ class Atomik
             	}
     		}
     		
+    		/* routes the request */
     		if(($request = self::route($uri, $_GET)) === false) {
     			Atomik::trigger404();
     		}
@@ -310,6 +324,7 @@ class Atomik
 		
 		Atomik::fireEvent('Atomik::Router::Start', array(&$uri, &$routes));
 		
+		/* extracts uri information */
 		$components = parse_url($uri);
 		$uri = trim($components['path'], '/');
 		$uriSegments = explode('/', $uri);
@@ -381,12 +396,16 @@ class Atomik
 	
 	/**
 	 * Executes an action
+	 * 
+	 * Searches for a file called after the action (with the php extension) inside
+	 * directories set under atomik/dirs/actions. If no file is found, it will search
+	 * for a view and render it. If neither of them are found, it will return an error.
 	 *
 	 * @see Atomik::render()
-	 * @param string $action
-	 * @param bool $render OPTIONAL (default true)
-	 * @param bool $echo OPTIONAL (default false)
-	 * @param bool $triggerError OPTIONAL (default true)
+	 * @param string $action The action name
+	 * @param bool $render OPTIONAL (default true) Whether to render the associated view
+	 * @param bool $echo OPTIONAL (default false) Whether to output the associated view
+	 * @param bool $triggerError OPTIONAL (default true) Whether to throw an exception if the action is not found
 	 * @param bool $main OPTIONAL (default false) Whether it's the main action being executed
 	 * @return array|string|bool
 	 */
@@ -451,12 +470,16 @@ class Atomik
 	}
 	
 	/**
-	 * Renders a template
+	 * Renders a view
+	 * 
+	 * Searches for a file called after the view (with the php extension) inside
+	 * directories configured in atomik/dirs/views. If no file is found, an 
+	 * exception is throwed.
 	 *
-	 * @param string $template
-	 * @param array $vars OPTIONAL
-	 * @param bool $echo OPTIONAL (default false)
-	 * @param bool $triggerError OPTIONAL (default true)
+	 * @param string $template The template name
+	 * @param array $vars OPTIONAL An array containing key/value pairs that will be transformed to variables accessible inside the view
+	 * @param bool $echo OPTIONAL (default false) Whether to output the result
+	 * @param bool $triggerError OPTIONAL (default true) Whether to throw an exception if an error occurs
 	 * @return string|bool
 	 */
 	public static function render($template, $vars = array(), $echo = false, $triggerError = true)
@@ -494,11 +517,17 @@ class Atomik
 	}
 	
 	/**
-	 * Renders a file
+	 * Renders a file using a filename which will not be resolved.
+	 * 
+	 * Example:
+	 * <code>
+	 * Atomik::renderFile('my_file.php');
+	 * </code>
 	 *
-	 * @param string $__filename
-	 * @param array $__vars OPTIONAL
-	 * @param bool $__echo OPTIONAL
+	 * @param string $__filename Filename
+	 * @param array $__vars OPTIONAL An array containing key/value pairs that will be transformed to variables accessible inside the file
+	 * @param bool $__echo OPTIONAL Whether to output the result
+	 * @return The output of the rendered file
 	 */
 	public static function renderFile($__filename, $__vars = array(), $__echo = false)
 	{
@@ -522,7 +551,7 @@ class Atomik
 	/**
 	 * Fires the Atomik::End event and exits the application
 	 *
-	 * @param bool $success OPTIONAL
+	 * @param bool $success OPTIONAL Whether the application exit on success or because an error occured
 	 */
 	public static function end($success = false)
 	{
@@ -541,17 +570,15 @@ class Atomik
 	 * 
 	 * If the first argument is an array, values are merged recursively.
 	 * The array is first dimensionized
-	 * 
 	 * You can set values from sub arrays by using a path-like key.
 	 * For example, to set the value inside the array $array[key1][key2]
 	 * use the key 'key1/key2'
-	 * 
 	 * Can be used on any array by specifying the third argument
 	 *
 	 * @see Atomik::_dimensionizeArray()
 	 * @param array|string $key Can be an array to set many key/value
 	 * @param mixed $value OPTIONAL
-	 * @param array $array OPTIONAL
+	 * @param array $array OPTIONAL The array on which the operation is applied
 	 * @param array $add OPTIONAL Whether to add values or replace them
 	 */
 	public static function set($key, $value = null, &$array = null, $add = false)
@@ -586,11 +613,9 @@ class Atomik
 	 * 
 	 * If the first argument is an array, values are merged recursively.
 	 * The array is first dimensionized
-	 * 
 	 * You can add values to sub arrays by using a path-like key.
 	 * For example, to add a value to the array $array[key1][key2]
 	 * use the key 'key1/key2'
-	 * 
 	 * If the value pointed by the key is not an array, it will be
 	 * transformed to one.
 	 * Can be used on any array by specifying the third argument
@@ -598,7 +623,7 @@ class Atomik
 	 * @see Atomik::_dimensionizeArray()
 	 * @param array|string $key Can be an array to add many key/value
 	 * @param mixed $value OPTIONAL
-	 * @param array $array OPTIONAL
+	 * @param array $array OPTIONAL The array on which the operation is applied
 	 */
 	public static function add($key, $value = null, &$array = null)
 	{
@@ -679,12 +704,11 @@ class Atomik
 	 * key. Separate each key with a slash. For example if you want 
 	 * to fetch the value from an $store[key1][key2][key3] you can use
 	 * key1/key2/key3
-	 * 
 	 * Can be used on any array by specifying the third argument
 	 *
 	 * @param string|array $key OPTIONAL If null, fetches all values (default null)
 	 * @param mixed $default OPTIONAL Default value if the key is not found (default null)
-	 * @param array $array OPTIONAL
+	 * @param array $array OPTIONAL The array on which the operation is applied
 	 * @return mixed
 	 */
 	public static function get($key = null, $default = null, $array = null)
@@ -740,13 +764,13 @@ class Atomik
 	
 	/**
 	 * Checks if a key is defined in the store
-	 * Can check through sub array using a path-like key
-	 * @see Atomik::get()
 	 * 
+	 * Can check through sub array using a path-like key
 	 * Can be used on any array by specifying the second argument
 	 *
+	 * @see Atomik::get()
 	 * @param string $key
-	 * @param array $array OPTIONAL
+	 * @param array $array OPTIONAL The array on which the operation is applied
 	 * @return bool
 	 */
 	public static function has($key, $array = null)
@@ -784,13 +808,13 @@ class Atomik
 	
 	/**
 	 * Deletes a key from the store
-	 * Can delete through sub array using a path-like key
-	 * @see Atomik::get()
 	 * 
+	 * Can delete through sub array using a path-like key
 	 * Can be used on any array by specifying the second argument
 	 *
+	 * @see Atomik::get()
 	 * @param string $key
-	 * @param array $array OPTIONAL
+	 * @param array $array OPTIONAL The array on which the operation is applied
 	 */
 	public static function delete($key, &$array = null)
 	{
@@ -828,6 +852,9 @@ class Atomik
 	
 	/**
 	 * Registers a new selector namespace
+	 * 
+	 * A namespace preceed a key. When used, $callback will be 
+	 * called instead of the normal logic. Applies only on get() calls.
 	 *
 	 * @param string $namespace
 	 * @param callback $callback
@@ -846,7 +873,7 @@ class Atomik
 	/**
 	 * Loads a plugin
 	 *
-	 * @param string $plugin
+	 * @param string $plugin The plugin name
 	 * @param array $config OPTIONAL Configuration for this plugin
 	 * @param array $dirs OPTIONAL Directories from where to load the plugin
 	 * @param string $classNameTemplate OPTIONAL % will be replaced with the plugin name
@@ -980,10 +1007,10 @@ class Atomik
 	/**
 	 * Registers a callback to an event
 	 *
-	 * @param string $event
+	 * @param string $event The event name
 	 * @param callback $callback
 	 * @param int $priority OPTIONAL
-	 * @param bool $important OPTIONAL If a listener of the same priority already exists, register the new listener before the existing one. 
+	 * @param bool $important OPTIONAL If a listener of the same priority already exists, registers the new listener before the existing one. 
 	 */
 	public static function listenEvent($event, $callback, $priority = 50, $important = false)
 	{
@@ -992,6 +1019,9 @@ class Atomik
 			self::$_events[$event] = array();
 		}
 		
+		/* while there is an event with the same priority, checks
+		 * with an higher or lower priority
+		 */
 		while (isset(self::$_events[$event][$priority])) {
 			$priority += $important ? -1 : 1;
 		}
@@ -1003,7 +1033,7 @@ class Atomik
 	/**
 	 * Automatically registers events callback for methods starting with "on"
 	 *
-	 * @param string $class
+	 * @param string|object $class
 	 */
 	public static function attachClassListeners($class)
 	{
@@ -1018,16 +1048,17 @@ class Atomik
 	
 	/**
 	 * Fires an event
-	 * Returns an array containing results of each executed callbacks
 	 * 
-	 * @param string $event
+	 * @param string $event The event name
 	 * @param array $args OPTIONAL Arguments for the callback
-	 * @return $array
+	 * @param bool $resultAsString OPTIONAL Whether to return all callback results as a string
+	 * @return $array An array containing results of each executed callbacks
 	 */
 	public static function fireEvent($event, $args = array(), $resultAsString = false)
 	{
 		$results = array();
 		
+		// executes all callback
 	    if (isset(self::$_events[$event])) {
 			foreach (self::$_events[$event] as $callback) {
 				$key = is_array($callback) ? implode('::', $callback) : $callback;
@@ -1117,8 +1148,11 @@ class Atomik
 	/**
 	 * Returns an url for the action depending on whether url rewriting
 	 * is used or not
+	 * 
+	 * Can be used on links starting with a protocol but they will of course
+	 * not be resolved like action names.
 	 *
-	 * @param string $action
+	 * @param string $action The action name. Can contain GET parameters (after ?)
 	 * @param array $params OPTIONAL GET parameters
 	 * @param bool $useIndex OPTIONAL (default true) Whether to use index.php in the url
 	 * @return string
@@ -1200,7 +1234,7 @@ class Atomik
 	 */
 	public static function redirect($url, $useUrl = true)
 	{
-		self::fireEvent('Atomik::Redirect', array(&$url));
+		self::fireEvent('Atomik::Redirect', array(&$url, $useUrl));
 		
 		/* uses Atomik::url() */
 		if ($useUrl) {
@@ -1233,7 +1267,91 @@ class Atomik
 	}
 	
 	/**
-	 * Equivalent to var_dump()
+	 * Builds an html string from an array
+	 * 
+	 * Array's value can be a string or if the key is a string, which in this
+	 * case represent a tag name, an array.
+	 * Attributes start with @. Attributes can be defined as one array using
+	 * the "@" key (in this case, the attributes array keys do not need to start
+	 * with @).
+	 *
+	 * @param string|array $html
+	 * @param string $tag OPTIONAL
+	 * @param bool $dimensionize OPTIONAL
+	 * @return string
+	 */
+	public static function html($html, $tag = null, $dimensionize = false)
+	{
+		if ($tag !== null) {
+			/* building a proper $html array using the tag */
+			return self::html(array($tag => $html));
+		}
+		
+		self::fireEvent('Atomik::Html', array(&$html, &$tag, &$dimensionize));
+		
+		if (is_string($html)) {
+			/* no need to parse */
+			return $html;
+		}
+		
+		if ($dimensionize) {
+			/* dimensionizing the array */
+			$html = self::_dimensionizeArray($html);
+		}
+		
+		$output = '';
+		
+		foreach ($html as $tag => $value) {
+			/* do not parse attributes */
+			if (substr($tag, 0, 1) == '@') {
+				continue;
+			}
+			/* the key does not represent a tag */
+			if (!is_string($tag)) {
+				if (!is_array($value)) {
+					$output .= $value;
+					continue;
+				}
+			}
+			/* the key is a tag */
+			$attributes = array();
+			if (is_array($value)) {
+				/* has more than one children */
+				if (isset($value['@'])) {
+					/* using the @ key for setting attributes */
+					foreach ($value['@'] as $attrName => $attrValue) {
+						$attributes[] = sprintf('%s="%s"', $attrName, $attrValue);
+					}
+				} else {
+					/* no @ key found, checking through all sub keys for the ones
+					 * starting with @ */
+					foreach ($value as $attrName => $attrValue) {
+						if (substr($attrName, 0, 1) == '@') {
+							$attributes[] = sprintf('%s="%s"', substr($attrName, 1), $attrValue);
+						}
+					}
+				}
+				/* parsing the value */
+				$keys = array_keys($value);
+				if (!is_string($keys[0]) && is_array($value[0])) {
+					foreach ($value as $item) {
+						$output .= self::html($item, $tag);
+					}
+					break;
+				} else {
+					$value = self::html($value);
+				}
+			}
+			
+			/* builds the html string */
+			$output .= sprintf("<%s %s>%s</%s>\n", $tag, implode(' ', $attributes), $value, $tag);
+		}
+		
+		return $output;
+	}
+	
+	/**
+	 * Equivalent to var_dump() but can be disabled using the configuration
 	 *
 	 * @see var_dump()
 	 * @param mixed $data
@@ -1246,6 +1364,8 @@ class Atomik
 		if (!$force && !self::get('debug', false)) {
 			return;
 		}
+		
+		self::fireEvent('Atomik::Debug', array(&$data, &$force, &$echo));
 		
 		/* var_dump() does not support returns */
 		ob_start();
@@ -1260,8 +1380,9 @@ class Atomik
 	}
 	
 	/**
-	 * Catch errors and throw ErrorException
+	 * Catch errors and throw an ErrorException instead
 	 *
+	 * @internal
 	 * @param int $errno
 	 * @param string $errstr
 	 * @param string $errfile

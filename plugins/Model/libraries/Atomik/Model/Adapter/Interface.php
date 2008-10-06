@@ -33,7 +33,7 @@ require_once 'Atomik/Model/Builder.php';
  */
 interface Atomik_Model_Adapter_Interface
 {
-	static function getInstance();
+	function query(Atomik_Model_Builder $builder, $query);
 	
 	function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '');
 	

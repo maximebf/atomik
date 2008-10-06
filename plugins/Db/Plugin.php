@@ -48,6 +48,11 @@ class DbPlugin
     	
     );
     
+    /**
+     * Plugin starts
+     *
+     * @param array $config
+     */
     public static function start($config)
     {
     	self::$config = array_merge(self::$config, $config);

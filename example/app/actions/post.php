@@ -6,8 +6,10 @@ if (!isset($_GET['id'])) {
 
 $post = Atomik_Model::find('Post', array('id' => $_GET['id']));
 
-if (count($_POST)) {
-	$comment = new Comment($_POST['comment']);
-	$post->add($comment);
+$form = new Atomik_Model_Form('Comment');
+if ($form->hasData()) {
+	$comment = $form->getModel();
+	$post->comments[] = $comment;
 	$comment->save();
+	$form->unsetModel();
 }

@@ -34,33 +34,21 @@ require_once 'Atomik/Model/Builder.php';
  * @package Atomik
  * @subpackage Model
  */
-class LocalModelAdapter implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 {
 	/**
 	 * Models store
 	 *
 	 * @var array
 	 */
-	protected $_models = array();
+	protected static $_models = array();
 	
 	/**
-	 * Singleton instance
-	 *
-	 * @var LocalModelAdapter
+	 * Not supported on this adapter
 	 */
-	protected static $_instance;
-	
-	/**
-	 * Gets the singleton
-	 *
-	 * @return LocalModelAdapter
-	 */
-	public static function getInstance()
+	public function query(Atomik_Model_Builder $builder, $query)
 	{
-		if (self::$_instance === null) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+		return array();
 	}
 	
 	/**
@@ -75,11 +63,11 @@ class LocalModelAdapter implements Atomik_Model_Adapter_Interface
 	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
 	{
 		$models = array();
-		if (!isset($this->_models[$builder->getName()])) {
+		if (!isset(self::$_models[$builder->getName()])) {
 			return $models;
 		}
 		
-		foreach ($this->_models[$builder->getName()] as $model) {
+		foreach (self::$_models[$builder->getName()] as $model) {
 			$match = true;
 			if ($where !== null) {
 				foreach ($where as $key => $value) {
@@ -128,12 +116,12 @@ class LocalModelAdapter implements Atomik_Model_Adapter_Interface
 		}
 		
 		$name = $model->getBuilder()->getName();
-		if (!isset($this->_models[$name])) {
-			$this->_models[$name] = array();
+		if (!isset(self::$_models[$name])) {
+			self::$_models[$name] = array();
 		}
 		
-		$model->id = count($this->_models[$name]);
-		$this->_models[$name] = $model;
+		$model->setPrimaryKey(count(self::$_models[$name]));
+		self::$_models[$name] = $model;
 	}
 	
 	/**
@@ -145,8 +133,8 @@ class LocalModelAdapter implements Atomik_Model_Adapter_Interface
 	public function delete(Atomik_Model $model)
 	{
 		$name = $model->getBuilder()->getName();
-		if (isset($this->_models[$name][$model->id])) {
-			unset($this->_models[$name][$model->id]);
+		if (isset(self::$_models[$name][$model->getPrimaryKey()])) {
+			unset(self::$_models[$name][$model->getPrimaryKey()]);
 			return true;
 		}
 		return false;

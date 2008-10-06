@@ -1,8 +1,9 @@
 <?php
 
-if (count($_POST)) {
-	$post = new Post($_POST['post']);
-	$post->save();
+$form = new Atomik_Model_Form('Post');
+if ($form->hasData()) {
+	$form->getModel()->save();
+	$form->unsetModel();
 }
 
 $posts = Atomik_Model::findAll('Post');

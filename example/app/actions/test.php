@@ -1,64 +1,46 @@
 <?php
+
+
 /**
- * @adapter Local
- * @has-many Album as albums
+ * @adapter Atomik_Model_Adapter_Local
+ * @has many Album as albums
  */
 class User extends Atomik_Model
 {
-	public $id;
-	
 	public $name;
 }
 
 /**
- * @adapter Local
- * @has-one User as user
- * @has-many Image as images
+ * @adapter Atomik_Model_Adapter_Local
+ * @has one User as user
+ * @has many Image as images
+ * @validate-on-save
  */
 class Album extends Atomik_Model
 {
-	public $id;
-	
-	public $user_id;
-	
 	public $name;
 	
 	public $description;
 }
 
 /**
- * @adapter File
- * @adapter Local
- * @primary-key id
- * 
- * @has-one Album as album
- * @content content
- * @path :album_id/:id.txt
- * @dir app/uploads/
+ * @adapter Atomik_Model_Adapter_Local
+ * @has one Album as album
  */
 class Image extends Atomik_Model
 {
-	public $id;
-	
 	/**
-	 * @adapter File
-	 */
-	public $album_id;
-	
-	/**
-	 * @adapter File
-	 */
-	public $content;
-	
-	/**
-	 * @adapter Local
+	 * @validate /.+/
+	 * @required
 	 */
 	public $name;
 	
-	/**
-	 * @adapter Local
-	 */
 	public $description;
+	
+	/**
+	 * @field-type Atomik_Model_Field_File
+	 */
+	public $file;
 }
 
 $toto = new User();
@@ -66,13 +48,13 @@ $toto->name = 'toto';
 $toto->save();
 
 $album = new Album(array('name' => 'Holiday'));
-$toto->add($album);
+$toto->albums[] = $album;
 $album->save();
 
-$image = Atomik_Model::find('Image', array('id' => 1, 'album_id' => 1));
-$image->name = 'toto';
+$image = new Image();
+$image->name = 'The beach';
+$album->images[] = $image;
 $image->save();
-$album->add($image);
 
 //print_r(LocalModelAdapter::getInstance());
 
@@ -85,8 +67,23 @@ echo '<ul>';
 foreach ($toto->albums as $album) {
 	echo '<li>' . $album->name . '<ul>';
 	foreach ($album->images as $image) {
-		echo '<li>' . $image->name . ':' . $image->content . '</li>';
+		echo '<li>' . $image->name . '</li>';
 	}
 	echo '</ul></li>';
 }
 echo '</ul>';
+
+$form = new Atomik_Model_Form($image);
+
+if ($form->hasData()) {
+	if ($form->isValid()) {
+		$model = $form->getModel();
+		echo $model->name . '<br>' . $model->description . '<br>' . $model->file;
+	} else {
+		print_r($form->getValidationMessages());
+		exit;
+	}
+}
+
+echo '<hr>';
+echo $form;

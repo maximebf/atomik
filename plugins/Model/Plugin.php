@@ -45,7 +45,7 @@ class ModelPlugin
     	),
     
     	/* default model adapter */
-    	'default_adapter' => 'Db'
+    	'default_adapter' => 'Atomik_Model_Adapter_Db'
     	
     );
     
@@ -71,10 +71,10 @@ class ModelPlugin
 
 		require_once 'Atomik/Model.php';
 		
+		/* loads the default adapter */
 		if (!empty(self::$config['default_adapter'])) {
-			require_once 'Atomik/Model/Builder.php';
-			$adapter = self::getAdapter(self::$config['default_adapter']);
-			Atomik_Model_Builder::setDefaultAdapter($adapter);
+			$classname = self::$config['default_adapter'];
+			Atomik_Model_Builder::setDefaultAdapter(new $classname());
 		}
     }
     
@@ -85,27 +85,5 @@ class ModelPlugin
     public static function onBackendStart()
     {
     	Atomik_Backend::addTab('Models', 'Model', 'list', 'right');
-    }
-    
-    /**
-     * Gets an adapter instance
-     *
-     * @param string $adapter
-     * @return Atomik_Model_Adapter_Interface
-     */
-    public static function getAdapter($adapter)
-    {
-		self::loadAdapter($adapter);
-		return call_user_func(array($adapter . 'ModelAdapter', 'getInstance'));
-    }
-    
-    /**
-     * Loads an adapter
-     *
-     * @param string $adapter
-     */
-    public static function loadAdapter($adapter)
-    {
-    	Atomik::loadPlugin($adapter, array(), self::$config['adapters_dirs'], '%ModelAdapter', false);
     }
 }

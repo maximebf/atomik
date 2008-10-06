@@ -30,6 +30,7 @@
  * Added Atomik::_dimensionizeArray()
  ! Atomik::set() now use Atomik::_dimensionizeArray() when the first argument is an array
  * Added Atomik::add()
+ * Added Atomik::html()
  * Added Atomik::debug()
  
 [DbPlugin]
