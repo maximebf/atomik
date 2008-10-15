@@ -28,6 +28,9 @@ Atomik::set(array(
 
 	/* plugins */
 	'plugins'				    => array(),
+    
+    /* routes */
+    'routes' 					=> array(),
 
 	/* debug mode */
 	'debug' 					=> false,
@@ -40,6 +43,12 @@ Atomik::set(array(
 
 		/* register the class autoloader */
 		'class_autoload'		=> true,
+        
+		/* enable routing */
+        'enable_routing' 		=> true,
+
+		/* views file extension */
+		'views_file_extension' 	=> '.phtml',
     
     	/* dirs */
         'dirs' => array(
@@ -58,15 +67,12 @@ Atomik::set(array(
     
     	/* files */
         'files' => array(
-        	'config' 		    => './app/config.php',
+        	'bootstrap'		    => './app/bootstrap.php',
         	'pre_dispatch' 	    => './app/pre_dispatch.php',
         	'post_dispatch' 	=> './app/post_dispatch.php',
         	'404' 			    => './app/404.php',
         	'error' 			=> './app/error.php'
         ),
-        
-        /* routes */
-        'routes' => array(),
     	
     	/* error management */
     	'catch_errors'			=> false,
@@ -174,8 +180,8 @@ class Atomik
 	    /* wrap the whole app inside a try/catch block to catch all errors */
 	    try {
     		 
-    		/* loads external configuration */
-    		if (file_exists($filename = self::get('atomik/files/config'))) {
+    		/* loads bootstrap file */
+    		if (file_exists($filename = self::get('atomik/files/bootstrap'))) {
     			require($filename);
     		}
     		
@@ -254,8 +260,10 @@ class Atomik
     		}
     		
     		/* routes the request */
-    		if(($request = self::route($uri, $_GET)) === false) {
-    			Atomik::trigger404();
+    		if(self::get('enable_routing', true)) {
+    			$request = self::route($uri, $_GET);
+    		} else {
+    			$request = array('action' => $uri);
     		}
         		
         	/* checking if no dot are in the action name to avoid any hack attempt and if no 
@@ -319,7 +327,7 @@ class Atomik
 	public static function route($uri, $params = array(), $routes = null)
 	{
 		if ($routes === null) {
-			$routes = self::get('atomik/routes');
+			$routes = self::get('routes');
 		}
 		
 		Atomik::fireEvent('Atomik::Router::Start', array(&$uri, &$routes));
@@ -417,7 +425,7 @@ class Atomik
 		self::fireEvent('Atomik::Execute::Start', array(&$action, &$template, &$render, &$echo, &$triggerError, &$main));
 		
 		$actionFilename = self::path($action . '.php', self::get('atomik/dirs/actions'));
-		$templateFilename = self::path($template . '.php', self::get('atomik/dirs/views'));
+		$templateFilename = self::path($template . self::get('atomik/views_file_extension'), self::get('atomik/dirs/views'));
 		
 		/* checks if at least the action file or the template file is defined */
 		if ($actionFilename === false && $templateFilename === false) {
@@ -436,6 +444,17 @@ class Atomik
 		}
 	
 		self::fireEvent('Atomik::Execute::After', array($actionFilename, &$template, &$vars, &$render, &$echo, &$triggerError, &$main));
+		
+		/* checks if the template key has been defined */
+		if ($main && self::has('atomik/template')) {
+			$template = self::get('atomik/template');
+			$templateFilename = self::path($template . self::get('atomik/views_file_extension'), self::get('atomik/dirs/views'));
+		}
+		
+		/* checks if the no_render key has been set and returns if so */
+		if ($main && self::get('atomik/no_render', false) === true) {
+			$render = false;
+		}
 		
 		/* returns $vars if the template is not rendered */
 		if (!$render || ($main && !$templateFilename)) {
@@ -485,7 +504,7 @@ class Atomik
 	public static function render($template, $vars = array(), $echo = false, $triggerError = true)
 	{
 		/* template filename */
-		$filename = self::path($template . '.php', self::get('atomik/dirs/views'));
+		$filename = self::path($template . self::get('atomik/views_file_extension'), self::get('atomik/dirs/views'));
 		
 		self::fireEvent('Atomik::Render::Start', array(&$template, &$vars, &$echo, &$triggerError, &$filename));
 		
@@ -578,10 +597,11 @@ class Atomik
 	 * @see Atomik::_dimensionizeArray()
 	 * @param array|string $key Can be an array to set many key/value
 	 * @param mixed $value OPTIONAL
+	 * @param bool $dimensionize OPTIONAL Whether to use Atomik::_dimensionizeArray()
 	 * @param array $array OPTIONAL The array on which the operation is applied
 	 * @param array $add OPTIONAL Whether to add values or replace them
 	 */
-	public static function set($key, $value = null, &$array = null, $add = false)
+	public static function set($key, $value = null, $dimensionize = true, &$array = null, $add = false)
 	{
 		/* if $data is null, uses the global store */
 		if ($array === null) {
@@ -598,7 +618,9 @@ class Atomik
 	    	return;
 	    }
 	    
-    	$key = self::_dimensionizeArray($key);
+	    if ($dimensionize) {
+    		$key = self::_dimensionizeArray($key);
+	    }
     	
 	    /* merges the store and the array */
     	if ($add) {
@@ -623,11 +645,12 @@ class Atomik
 	 * @see Atomik::_dimensionizeArray()
 	 * @param array|string $key Can be an array to add many key/value
 	 * @param mixed $value OPTIONAL
+	 * @param bool $dimensionize OPTIONAL Whether to use Atomik::_dimensionizeArray()
 	 * @param array $array OPTIONAL The array on which the operation is applied
 	 */
-	public static function add($key, $value = null, &$array = null)
+	public static function add($key, $value = null, $dimensionize = true, &$array = null)
 	{
-		return self::set($key, $value, $array, true);
+		return self::set($key, $value, $dimensionize, $array, true);
 	}
 	
 	/**
@@ -1173,7 +1196,11 @@ class Atomik
 		
 		/* adds parameters to the query string */
 		foreach ($params as $param => $value) {
-			$queryString .= $param . '=' . urlencode($value);
+			if (preg_match('/:' . $param . '/', $action)) {
+				$action = str_replace(':' . $param, $value, $action);
+			} else {
+				$queryString .= $param . '=' . urlencode($value);
+			}
 		}
 		
 		/* checks if $action is not a url (checking if there is a protocol) */
@@ -1187,7 +1214,7 @@ class Atomik
 			} else {
 				/* no url rewriting, using index.php */
 				$url .= 'index.php?' . self::get('atomik/trigger') 
-				      . '=' . $action . '&' . $queryString;
+				      . '=' . $action . (!empty($queryString) ? '&' . $queryString : '');
 			}
 		}
 		
@@ -1197,6 +1224,18 @@ class Atomik
 		self::fireEvent('Atomik::Url', array($action, &$url, $args));
 		
 		return $url;
+	}
+	
+	/**
+	 * Returns the url of an asset file (ie. an url without index.php)
+	 *
+	 * @param string $filename
+	 * @param array $params OPTIONAL
+	 * @return string
+	 */
+	public static function asset($filename, $params = array())
+	{
+		return self::url($filename, $params, false);
 	}
 
 	/*

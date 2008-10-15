@@ -38,6 +38,8 @@ class Atomik_Model_Builder implements ArrayAccess
 {
 	const HAS_ONE = 'one';
 	
+	const HAS_PARENT = 'parent';
+	
 	const HAS_MANY = 'many';
 	
 	/**
@@ -106,6 +108,10 @@ class Atomik_Model_Builder implements ArrayAccess
 	 */
 	public static function getDefaultAdapter()
 	{
+		if (self::$_defaultAdapter === null) {
+			require_once 'Atomik/Model/Adapter/Local.php';
+			return new Atomik_Model_Adapter_Local();
+		}
 		return self::$_defaultAdapter;
 	}
 	
@@ -389,17 +395,16 @@ class Atomik_Model_Builder implements ArrayAccess
 				
 				/* builds the using array */
 				if ($matches[1] == $this->_name) {
-					$reference['using'] = array('localField' => $matches[2], 'foreignField' => $matches[5]);
+					$using = array('localField' => $matches[2], 'foreignField' => $matches[5]);
 				} else {
-					$reference['using'] = array('localField' => $matches[5], 'foreignField' => $matches[2]);
+					$using = array('localField' => $matches[5], 'foreignField' => $matches[2]);
 				}
-				$reference['using']['operator'] = $matches[3];
+				$using['operator'] = $matches[3];
 				
 			} else {
 				if (!isset($using['operator'])) {
 					$using['operator'] = '=';
 				}
-				$reference['using'] = $using;
 			}
 			
 		} else {
@@ -407,8 +412,8 @@ class Atomik_Model_Builder implements ArrayAccess
 			/* fetching the builder for the foreign model */
 			$refBuilder = self::createFromClass($reference['model']);
 			
-			if ($type == self::HAS_ONE) {
-				/* creating a using statement for has-one references
+			if ($type == self::HAS_PARENT) {
+				/* creating a using statement for parent references
 				 * foreignModel.foreignPrimaryKey = localModel.foreignModel_foreignPrimaryKey */
 				$foreignPrimaryKey = $refBuilder->getPrimaryKeyField()->getName();
 				$using = array(
@@ -417,11 +422,21 @@ class Atomik_Model_Builder implements ArrayAccess
 					'operator' => '='
 				);
 				
+			} else if ($type == self::HAS_ONE) {
+				/* creating a using statement for has-one references
+				 * foreignModel.localModel_localPrimaryKey = localModel.localPrimaryKey */
+				$localPrimaryKey = $this->getPrimaryKeyField()->getName();
+				$using = array(
+					'localField' => $localPrimaryKey,
+					'foreignField' => strtolower($this->_name) . '_' . $localPrimaryKey,
+					'operator' => '='
+				);
+				
 			} else {
 				/* searching through the foreign model references for one pointing back to this model */
 				$parentsRef = $refBuilder->getReferences();
 				foreach ($parentsRef as $parentRef) {
-					if ($parentRef['type'] == self::HAS_ONE && $parentRef['model'] == $this->_name) {
+					if ($parentRef['type'] == self::HAS_PARENT && $parentRef['model'] == $this->_name) {
 						$using = array(
 							'localField' => $parentRef['using']['foreignField'],
 							'foreignField' => $parentRef['using']['localField'],
@@ -431,9 +446,9 @@ class Atomik_Model_Builder implements ArrayAccess
 					}
 				}
 			}
-			
-			$reference['using'] = $using;
 		}
+			
+		$reference['using'] = $using;
 		
 		/* creating the localField if it does not exist */
 		if (!isset($this->_fields[$using['localField']])) {
@@ -451,7 +466,7 @@ class Atomik_Model_Builder implements ArrayAccess
 	 */
 	public function addReferenceFromString($string)
 	{
-		$regexp = '/(one|many)\s+(.+)((\sas\s(.+))|)((\susing\s(.+))|)$/U';
+		$regexp = '/(one|many|parent)\s+(.+)((\sas\s(.+))|)((\susing\s(.+))|)$/U';
 		if (!preg_match($regexp, $string, $matches)) {
 			require_once 'Atomik/Model/Exception.php';
 			throw new Atomik_Model_Exception('Reference string is malformed: ' . $string);

@@ -9,6 +9,7 @@
 [Atomik]
 
  ! Templates are renamed Views (however the template folder is still available)
+ ! The file extensions for view files is now .phtml
  * Events listener priorities
  * Plugins can have their own directory
  * Auto add to the include path of the libraries folder from plugin's directory (if exists)
@@ -32,6 +33,8 @@
  * Added Atomik::add()
  * Added Atomik::html()
  * Added Atomik::debug()
+ * Added Atomik::asset()
+ ! Config file (atomik/files/bootstrap) config.php renamed bootstrap.php (atomik/files/bootstrap)
  
 [DbPlugin]
  

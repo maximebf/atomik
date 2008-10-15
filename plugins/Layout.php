@@ -37,7 +37,7 @@ class LayoutPlugin
 	public static $config = array(
 
     	/* layout used troughout the site, false to disable */
-    	'global' 	=> '_layout.php',
+    	'global' 	=> '_layout.phtml',
     	
     	/* layout used on a per template basis */
     	'templates'	=> array(),

@@ -115,7 +115,7 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 	 */
 	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
 	{
-		if (($row = self::getDb()->find($this->getTableName($builder), $where, $orderBy, $limit)) === null) {
+		if (($row = self::getDb()->find($this->getTableName($builder), $where, $orderBy, $limit)) === false) {
 			return null;
 		}
 		return $builder->createInstance($row, false);

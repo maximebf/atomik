@@ -39,7 +39,7 @@ class BackendPlugin
 		'trigger' => 'admin',
 	
 		/* backend layout */
-		'layout' => '_layout.php'
+		'layout' => '_layout.phtml'
 	
 	);
 	

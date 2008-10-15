@@ -45,7 +45,7 @@ class ModelPlugin
     	),
     
     	/* default model adapter */
-    	'default_adapter' => 'Atomik_Model_Adapter_Db'
+    	'default_adapter' => 'Atomik_Model_Adapter_Local'
     	
     );
     
