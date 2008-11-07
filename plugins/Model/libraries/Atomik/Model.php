@@ -201,13 +201,13 @@ class Atomik_Model implements ArrayAccess
 		$where = array($reference['using']['foreignField'] => $this->{$reference['using']['localField']});
 		
 		if ($reference['type'] == Atomik_Model_Builder::HAS_MANY) {
-			$models = self::findAll($reference['model'], $where);
+			$models = self::findAll($reference['model'], $where, $reference['orderby'], $reference['limit']);
 			$refArray = new Atomik_Model_ReferenceArray($this, $reference, $models);
 			$this->_references[$name] = $refArray;
 			return;
 		}
 		
-		$this->_references[$name] =  self::find($reference['model'], $where);
+		$this->_references[$name] =  self::find($reference['model'], $where, $reference['orderby'], $reference['limit']);
 	}
 	
 	/**

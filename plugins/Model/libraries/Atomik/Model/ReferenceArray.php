@@ -107,7 +107,7 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	public function contains(Atomik_Model $model)
 	{
 		foreach ($this->_models as $modelComp) {
-			if ($modelComp === $model) {
+			if ($modelComp == $model) {
 				return true;
 			}
 		}

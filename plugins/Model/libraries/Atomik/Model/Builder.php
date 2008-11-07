@@ -364,11 +364,19 @@ class Atomik_Model_Builder implements ArrayAccess
 	 *
 	 * @param string $type The reference type (one or many)
 	 * @param string|array $model The model name. An array can be used to use an alias (ie. the property name) - the alias is the array key.
+	 * @param string $via OPTIONAL An intermediate model to use
 	 * @param string|array $using OPTIONAL A string or an array with a localField and a foreignField key.
+	 * @param string $orderBy OPTIONAL
+	 * @param string|int $limit OPTIONAL
+	 * @todo add "via" support
 	 */
-	public function addReference($type, $model, $using = null)
+	public function addReference($type, $model, $via = null, $using = null, $orderBy = '', $limit = '')
 	{
-		$reference = array('type' => $type);
+		$reference = array(
+			'type' => $type,
+			'orderby' => $orderBy,
+			'limit' => $limit
+		);
 		
 		/* gets the property used to access this reference */
 		if (is_array($model)) {
@@ -466,7 +474,7 @@ class Atomik_Model_Builder implements ArrayAccess
 	 */
 	public function addReferenceFromString($string)
 	{
-		$regexp = '/(one|many|parent)\s+(.+)((\sas\s(.+))|)((\susing\s(.+))|)$/U';
+		$regexp = '/(one|many|parent)\s+(.+)((\sas\s(.+))|)((\svia\s(.+))|)((\susing\s(.+))|)((\sorder by\s(.+))|)((\slimit\s(.+))|)$/U';
 		if (!preg_match($regexp, $string, $matches)) {
 			require_once 'Atomik/Model/Exception.php';
 			throw new Atomik_Model_Exception('Reference string is malformed: ' . $string);
@@ -474,19 +482,37 @@ class Atomik_Model_Builder implements ArrayAccess
 		
 		$type = $matches[1];
 		$model = trim($matches[2]);
+		$via = null;
 		$using = null;
+		$orderBy = '';
+		$limit = '';
 		
 		/* property name */
-		if (isset($matches[5])) {
+		if (isset($matches[5]) && !empty($matches[5])) {
 			$model = array(trim($matches[5]) => $model);
 		}
 		
-		/* using statement */
-		if (isset($matches[7])) {
-			$using = $matches[8];
+		/* via statement */
+		if (isset($matches[7]) && !empty($matches[7])) {
+			$via = $matches[8];
 		}
 		
-		$this->addReference($type, $model, $using);
+		/* using statement */
+		if (isset($matches[10]) && !empty($matches[10])) {
+			$using = $matches[11];
+		}
+		
+		/* order by */
+		if (isset($matches[13]) && !empty($matches[13])) {
+			$orderBy = $matches[14];
+		}
+		
+		/* limit */
+		if (isset($matches[16]) && !empty($matches[16])) {
+			$limit = $matches[17];
+		}
+		
+		$this->addReference($type, $model, $via, $using, $orderBy, $limit);
 	}
 	
 	/**

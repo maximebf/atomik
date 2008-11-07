@@ -143,7 +143,7 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 		}
 		
 		// update
-		$where = array($builder->getPrimaryKeyField() => $model->getPrimaryKey());
+		$where = array($builder->getPrimaryKeyField()->getName() => $model->getPrimaryKey());
 		return self::getDb()->update($tableName, $data, $where);
 	}
 	
@@ -162,7 +162,7 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 		$builder = $model->getBuilder();
 		$tableName = $this->getTableName($builder);
 		
-		$where = array($builder->getPrimaryKeyField() => $model->getPrimaryKey());
+		$where = array($builder->getPrimaryKeyField()->getName() => $model->getPrimaryKey());
 		return self::getDb()->delete($tableName, $where);
 	}
 	

@@ -36,6 +36,8 @@ require_once 'Atomik/Model/Builder.php';
  */
 class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 {
+	protected $_orderBy;
+	
 	/**
 	 * Not supported on this adapter
 	 */
@@ -80,7 +82,24 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 			}
 		}
 		
+		if (!empty($orderBy)) {
+			$this->_orderBy = $orderBy;
+			usort($files, array($this, '_sortFiles'));
+		}
+		
 		return $files;
+	}
+	
+	/**
+	 * Sort function for files
+	 *
+	 * @param string $file1
+	 * @param string $file2
+	 * @return bool
+	 */
+	protected function _sortFiles($file1, $file2)
+	{
+		return strnatcmp($file1->{$this->_orderBy}, $file2->{$this->_orderBy});
 	}
 	
 	/**
