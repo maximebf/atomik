@@ -75,16 +75,13 @@ class AjaxPlugin
 	public static function onAtomikStart()
 	{
 		if (self::$config['disable_layout']) {
-			/* needs the layout plugin */
-			if (Atomik::isPluginLoaded('Layout')) {
-				LayoutPlugin::disable();
-			}
+			Atomik::disableLayout();
 		}
 	}
 
 	/**
 	 * After an allowed action has been executed, transform its $vars to
-	 * a json string and echo it. Exists right after.
+	 * a json string and echo it. Exits right after.
 	 *
 	 * @see Atomik::execute()
 	 */

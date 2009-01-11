@@ -5,7 +5,8 @@ Atomik::set(array(
 
 	'atomik' => array(
 		'dirs/plugins' => '../plugins/',
-		'catch_errors' => true
+		'catch_errors' => true,
+		'views/layout' => '_layout'
 	),
 
 	'plugins' => array(
@@ -13,14 +14,13 @@ Atomik::set(array(
         'Console',
 
         'Db' => array(
-            'autoconnect' => true,
+            'autoconnect' => false,
             'dsn'         => 'mysql:host=localhost;dbname=atomik',
             'username'    => 'atomik',
             'password'    => 'atomik'
         ),
         
         'Ajax',
-		'Layout',
         'Session',
         'Lang',
         'Model',

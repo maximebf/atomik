@@ -47,17 +47,25 @@ Atomik::set(array(
 		/* enable routing */
         'enable_routing' 		=> true,
 
-		/* views file extension */
-		'views_file_extension' 	=> '.phtml',
+		/* views */
+		'views' => array(
+			'file_extension' 	=> '.phtml',
+			'layout'			=> false,
+			'engine' 			=> false
+		),
     
     	/* dirs */
         'dirs' => array(
 			'app'				=> './app',
         	'plugins'			=> './app/plugins/',
         	'actions' 			=> './app/actions/',
-        	'views'	 		=> array(
+        	'views'	 			=> array(
 				'./app/views/',
-        		'./app/templates/'
+        		'./app/templates/' // for backward compatibility
+			),
+			'layouts'			=> array(
+				'./app/layouts',
+				'./app/views'
 			),
         	'includes'			=> array(
         		'./app/includes/', 
@@ -166,6 +174,15 @@ class Atomik
 	protected static $_namespaces = array();
 	
 	/**
+	 * Execution contexts
+	 * 
+	 * Each call to Atomik::execute() creates a context.
+	 * 
+	 * @var array
+	 */
+	protected static $_execContexts = array();
+	
+	/**
 	 * Dispatches the request
 	 * 
 	 * This is the main method to call. It takes an URI, applies routes if
@@ -224,7 +241,7 @@ class Atomik
     	
     		/* checks if url rewriting is used */
     		if (!self::has('url_rewriting')) {
-    			self::set('url_rewriting', isset($_SERVER['REDIRECT_URL']));
+    			self::set('url_rewriting', isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']));
     		}
     	
     		/* checks if it's needed to auto discover the request */
@@ -241,12 +258,13 @@ class Atomik
     	
         		/* retreives the base url */
         		if (!self::has('base_url')) {
-        			if (self::get('url_rewriting') && isset($_SERVER['REDIRECT_URL'])) {
+        			if (self::get('url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
         			    /* finds the base url from the redirected url */
-        				self::set('base_url', substr($_SERVER['REDIRECT_URL'], 0, -strlen($_GET[$trigger])));
+        				$redirectUrl = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['REDIRECT_URI'];
+        				self::set('base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
         			} else {
         			    /* finds the base url from the script name */
-        				self::set('base_url', dirname($_SERVER['SCRIPT_NAME']) . '/');
+        				self::set('base_url', trim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
         			}
         		}
         		
@@ -255,7 +273,7 @@ class Atomik
             	/* retreives the base url */
             	if (!self::has('base_url')) {
     			    /* finds the base url from the script name */
-    				self::set('base_url', dirname($_SERVER['SCRIPT_NAME']) . '/');
+    				self::set('base_url', trim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
             	}
     		}
     		
@@ -288,9 +306,16 @@ class Atomik
     		}
     	
     		/* executes the action */
-    		if (self::execute(self::get('request/action'), true, true, false, true) === false) {
+    		if (($content = self::execute(self::get('request/action'), true, false, false)) === false) {
     			self::trigger404();
     		}
+    		
+    		/* renders the layout if enable */
+    		if (($layout = self::get('atomik/views/layout', false)) !== false) {
+				$content = self::renderLayout($layout, $content);
+    		}
+    		
+    		echo $content;
     	
     		/* dispatch done */
     		self::fireEvent('Atomik::Dispatch::After');
@@ -414,28 +439,34 @@ class Atomik
 	 * @param bool $render OPTIONAL (default true) Whether to render the associated view
 	 * @param bool $echo OPTIONAL (default false) Whether to output the associated view
 	 * @param bool $triggerError OPTIONAL (default true) Whether to throw an exception if the action is not found
-	 * @param bool $main OPTIONAL (default false) Whether it's the main action being executed
 	 * @return array|string|bool
 	 */
-	public static function execute($action, $render = true, $echo = false, $triggerError = true, $main = false)
+	public static function execute($action, $render = true, $echo = false, $triggerError = true)
 	{
-		$template = $action;
+		$view = $action;
 		$vars = array();
+		
+		/* creates the execution context */
+		$context = array('action' => &$action, 'view' => &$view, 'render' => &$render);
+		self::$_execContexts[] =& $context;
 	
-		self::fireEvent('Atomik::Execute::Start', array(&$action, &$template, &$render, &$echo, &$triggerError, &$main));
+		self::fireEvent('Atomik::Execute::Start', array(&$action, &$view, &$render, &$echo, &$triggerError));
+		if ($action === false) {
+			return false;
+		}
 		
 		$actionFilename = self::path($action . '.php', self::get('atomik/dirs/actions'));
-		$templateFilename = self::path($template . self::get('atomik/views_file_extension'), self::get('atomik/dirs/views'));
+		$viewFilename = self::path($view . self::get('atomik/views/file_extension'), self::get('atomik/dirs/views'));
 		
-		/* checks if at least the action file or the template file is defined */
-		if ($actionFilename === false && $templateFilename === false) {
+		/* checks if at least the action file or the view file is defined */
+		if ($actionFilename === false && $viewFilename === false) {
 			if ($triggerError) {
-				throw new Exception('Action ' . $action . ' does not exists');
+				throw new Exception('Action ' . $action . ' does not exist');
 			}
 			return false;
 		}
 	
-		self::fireEvent('Atomik::Execute::Before', array(&$actionFilename, &$template, &$render, &$echo, &$triggerError, &$main));
+		self::fireEvent('Atomik::Execute::Before', array(&$action, &$actionFilename, &$view, &$render, &$echo, &$triggerError));
 	
 		/* executes the action */
 		if ($actionFilename !== false) {
@@ -443,26 +474,18 @@ class Atomik
 			$vars = self::_executeInScope($actionFilename);
 		}
 	
-		self::fireEvent('Atomik::Execute::After', array($actionFilename, &$template, &$vars, &$render, &$echo, &$triggerError, &$main));
+		self::fireEvent('Atomik::Execute::After', array($action, &$view, &$vars, &$render, &$echo, &$triggerError));
 		
-		/* checks if the template key has been defined */
-		if ($main && self::has('atomik/template')) {
-			$template = self::get('atomik/template');
-			$templateFilename = self::path($template . self::get('atomik/views_file_extension'), self::get('atomik/dirs/views'));
-		}
+		/* removes the execution context */
+		array_pop(self::$_execContexts);
 		
-		/* checks if the no_render key has been set and returns if so */
-		if ($main && self::get('atomik/no_render', false) === true) {
-			$render = false;
-		}
-		
-		/* returns $vars if the template is not rendered */
-		if (!$render || ($main && !$templateFilename)) {
+		/* returns $vars if the view should not be rendered */
+		if (!$render) {
 			return $vars;
 		}
 		
-		/* renders the template associated to the action */
-		return self::render($template, $vars, $echo, $triggerError);
+		/* renders the view associated to the action */
+		return self::render($view, $vars, $echo, $triggerError);
 	}
 	
 	/**
@@ -489,50 +512,61 @@ class Atomik
 	}
 	
 	/**
+	 * Prevents the view of the action being executed to be rendered
+	 */
+	public static function noRender()
+	{
+		if (count(self::$_execContexts)) {
+			self::$_execContexts[count(self::$_execContexts) - 1]['render'] = false;
+		}
+	}
+	
+	/**
 	 * Renders a view
 	 * 
-	 * Searches for a file called after the view (with the php extension) inside
+	 * Searches for a file called after the view inside
 	 * directories configured in atomik/dirs/views. If no file is found, an 
 	 * exception is throwed.
 	 *
-	 * @param string $template The template name
+	 * @param string $view The view name
 	 * @param array $vars OPTIONAL An array containing key/value pairs that will be transformed to variables accessible inside the view
 	 * @param bool $echo OPTIONAL (default false) Whether to output the result
 	 * @param bool $triggerError OPTIONAL (default true) Whether to throw an exception if an error occurs
 	 * @return string|bool
 	 */
-	public static function render($template, $vars = array(), $echo = false, $triggerError = true)
+	public static function render($view, $vars = array(), $echo = false, $triggerError = true, $dirs = null)
 	{
-		/* template filename */
-		$filename = self::path($template . self::get('atomik/views_file_extension'), self::get('atomik/dirs/views'));
+		if ($dirs === null) {
+			$dirs = self::get('atomik/dirs/views');
+		}
 		
-		self::fireEvent('Atomik::Render::Start', array(&$template, &$vars, &$echo, &$triggerError, &$filename));
+		self::fireEvent('Atomik::Render::Start', array(&$view, &$vars, &$echo, &$triggerError));
+		
+		/* view filename */
+		$filename = self::path($view . self::get('atomik/views/file_extension'), $dirs);
 		
 		/* checks if the file exists */
 		if ($filename === false) {
 			if ($triggerError) {
-				throw new Exception('Template ' . $template . ' not found');
+				throw new Exception('View ' . $view . ' not found');
 			}
 			return false;
 		}
 		
-		self::fireEvent('Atomik::Render::Before', array(&$template, &$vars, &$echo, &$triggerError, &$filename));
+		self::fireEvent('Atomik::Render::Before', array(&$view, &$vars, &$echo, &$triggerError, &$filename));
 		
 		$output = self::renderFile($filename, $vars);
 		
-		self::fireEvent('Atomik::Render::After', array($template, &$output, &$vars, &$filename, &$echo, &$triggerError));
+		self::fireEvent('Atomik::Render::After', array($view, &$output, &$vars, &$filename, &$echo, &$triggerError));
 		
 		/* checks if it's needed to echo the output */
 		if (!$echo) {
 			return $output;
 		}
 		
-		self::fireEvent('Atomik::Output::Before', array($template, &$output));
-		
-		/* echo output */
+		self::fireEvent('Atomik::Output::Before', array(&$output));
 		echo $output;
-		
-		self::fireEvent('Atomik::Output::After', array($template, $output));
+		self::fireEvent('Atomik::Output::After', array($output));
 	}
 	
 	/**
@@ -552,19 +586,50 @@ class Atomik
 	{
 		self::fireEvent('Atomik::RenderFile::Before', array(&$__filename, &$__vars, &$__echo));
 		
-		/* render the template in its own scope */
-		extract($__vars);
-		ob_start();
-		include($__filename);
-		$output = ob_get_clean();
+		if (($callback = self::get('atomik/views/engine', false)) !== false) {
+			if (!is_callable($callback)) {
+				throw new Exception('The specified rendering engine callback cannot be called');
+			}
+			$output = $callback($__filename, $__vars);
+			
+		} else {
+			extract($__vars);
+			ob_start();
+			include($__filename);
+			$output = ob_get_clean();
+		}
 		
 		self::fireEvent('Atomik::RenderFile::After', array(&$__filename, &$output, $__vars, $__echo));
 		
-		if ($__echo) {
-			echo $output;
+		if (!$__echo) {
+			return $output;
 		}
 		
-		return $output;
+		self::fireEvent('Atomik::Output::Before', array(&$output));
+		echo $output;
+		self::fireEvent('Atomik::Output::After', array($output));
+	}
+	
+	/**
+	 * Renders a layout
+	 * 
+	 * @param $layout
+	 * @param $content
+	 * @param $echo
+	 * @param $triggerError
+	 * @return string
+	 */
+	public static function renderLayout($layout, $content, $echo = false, $triggerError = true)
+	{
+		return self::render($layout, array('contentForLayout' => $content), $echo, $triggerError, self::get('atomik/dirs/layouts'));
+	}
+	
+	/**
+	 * Disables the layout
+	 */
+	public static function disableLayout()
+	{
+		self::set('atomik/views/layout', false);
 	}
 
 	/**
@@ -933,7 +998,7 @@ class Atomik
 				/* no file, checks for a directory */
 				if (($dirname = self::path($plugin, $dirs)) === false) {
 					/* plugin not found */
-					throw new Exception('Missing plugin (no file or no directory matching plugin name): ' . $plugin);
+					throw new Exception('Missing plugin (no file or directory matching plugin name): ' . $plugin);
 				} else {
 					/* directory found, plugin file should be inside */
 					$filename = $dirname . '/Plugin.php';
@@ -975,7 +1040,7 @@ class Atomik
 		self::fireEvent('Atomik::Plugin::After', array($plugin));
 		
 		/* stores the plugin name so we won't load it twice */
-		$pluginDir = isset($pluginDir) ? rtrim($pluginDir, '/') : true;
+		$pluginDir = isset($pluginDir) ? rtrim($pluginDir, DIRECTORY_SEPARATOR) : true;
 		if (isset(self::$_plugins[$plugin])) {
 			self::$_plugins[$plugin][] = $pluginDir;
 		} else {
@@ -1006,14 +1071,14 @@ class Atomik
 		}
 		
 		if (self::$_plugins[$plugin] === true) {
-			/* plugin loaded and was not included (so not dir check needed) */
+			/* plugin loaded and was not included (so no dir check needed) */
 			return true;
 		}
 		
 		/* plugin loaded using include, so it checks if $dirs match
 		 * the dir from where the plugin has been loaded */
 		foreach (self::path($dirs, true) as $dir) {
-			if (in_array(trim($dir, '/'), self::$_plugins[$plugin])) {
+			if (in_array(trim($dir, DIRECTORY_SEPARATOR), self::$_plugins[$plugin])) {
 				return true;
 			}
 		}
@@ -1083,7 +1148,10 @@ class Atomik
 		
 		// executes all callback
 	    if (isset(self::$_events[$event])) {
-			foreach (self::$_events[$event] as $callback) {
+	    	$keys = array_keys(self::$_events[$event]); 
+	    	sort($keys);
+			foreach ($keys as $key) {
+				$callback = self::$_events[$event][$key];
 				$key = is_array($callback) ? implode('::', $callback) : $callback;
 				$results[$key] = call_user_func_array($callback, $args);
 			}
@@ -1147,7 +1215,7 @@ class Atomik
         
         /* case 2, $paths is a string */
         if (is_string($paths)) {
-            $filename = rtrim($paths, '/') . '/' . $file;
+            $filename = rtrim($paths, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
             if (!$check || file_exists($filename)) {
                 return $filename;
             }
@@ -1157,7 +1225,7 @@ class Atomik
         /* case 2, $paths is an array */
         if (is_array($paths)) {
             foreach ($paths as $path) {
-                $filename = rtrim($path, '/') . '/' . $file;
+                $filename = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
                 if (!$check || file_exists($filename)) {
                     return $filename;
                 }
@@ -1315,8 +1383,8 @@ class Atomik
 	 * with @).
 	 *
 	 * @param string|array $html
-	 * @param string $tag OPTIONAL
-	 * @param bool $dimensionize OPTIONAL
+	 * @param string $tag OPTIONAL Wrap the html into an element with this tag name
+	 * @param bool $dimensionize OPTIONAL Whether to use Atomik::_dimensionizeArray()
 	 * @return string
 	 */
 	public static function html($html, $tag = null, $dimensionize = false)

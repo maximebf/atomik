@@ -34,7 +34,14 @@
  * Added Atomik::html()
  * Added Atomik::debug()
  * Added Atomik::asset()
- ! Config file (atomik/files/bootstrap) config.php renamed bootstrap.php (atomik/files/bootstrap)
+ ! Config file (atomik/files/config) config.php renamed bootstrap.php (atomik/files/bootstrap)
+ * Added Atomik::noRender()
+ * Added custom rendering engine support
+ # REDIRECT_URL/URI with lighthttpd
+ # slash problem on Windows in base_url
+ * Layout are now natively supported
+ * Added Atomik::renderLayout()
+ * Added Atomik::disableLayout()
  
 [DbPlugin]
  
@@ -60,4 +67,8 @@
 [BackendPlugin]
 
  * New plugin
+ 
+[LayoutPlugin]
+
+ * merged into core
  

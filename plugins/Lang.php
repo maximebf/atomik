@@ -168,7 +168,7 @@ class LangPlugin
     	$filename = Atomik::path($language . '.php', self::$config['dir']);
     	
     	/* checks if the file exists */
-    	if (!file_exists($filename)) {
+    	if ($filename === false) {
     		throw new Exception('Language ' . $language . ' does not exists');
     	}
     	

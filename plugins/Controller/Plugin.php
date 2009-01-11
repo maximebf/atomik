@@ -80,7 +80,7 @@ class ControllerPlugin
 	/**
 	 * Changes the action name for atomik to find the file
 	 */
-	public static function onAtomikExecuteStart(&$action, &$template, &$render, &$echo, &$triggerError, &$main)
+	public static function onAtomikExecuteStart(&$action, &$template, &$render, &$echo, &$triggerError)
 	{
 	    self::$request = Atomik::get('request');
 	    
@@ -94,7 +94,7 @@ class ControllerPlugin
 	/**
 	 * Dispatch the request to the controller action
 	 */
-	public static function onAtomikExecuteAfter($action, &$template, &$vars, &$render, &$echo, &$triggerError, &$main)
+	public static function onAtomikExecuteAfter($action, &$template, &$vars, &$render, &$echo, &$triggerError)
 	{
 		$request = self::$request;
 		Atomik::fireEvent('Controller::Dispatch::Before', array(&$request, &$template, &$vars));
