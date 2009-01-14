@@ -46,7 +46,7 @@ $value = A('key1/key2');]]>
 		it the <quote>db</quote> namespace which allow you to do sql queries.
 	</para>
 	<example>
-		<title>Using selectors with the Db plugin</title>
+		<title>Using the selector provided by the Db plugin</title>
 		<programlisting>
 			<![CDATA[
 // selecting a value from the global store

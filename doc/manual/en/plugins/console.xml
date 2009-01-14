@@ -1,5 +1,183 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook">
+<chapter id="console" xmlns="http://docbook.org/ns/docbook">
 	<title>Console</title>
-	
+	<para>
+		This plugins allow Atomik to be used in a terminal. It allows other plugins to provide
+		custom commands and to create scripts to better administer your application.
+	</para>
+	<para>
+		To call your application from the command line, use the following command
+		<programlisting>
+			php index.php [command] [args]
+		</programlisting>
+		Where <filename>index.php</filename> is Atomik's core file.
+	</para>
+	<sect1 id="console-scripts">
+		<title>Creating custom scripts</title>
+		<para>
+			Scripts are simple php files. You can do anything you want with them. They are located
+			in the <filename>app/scripts</filename> folder. This can be changed using the <quote>scripts_dir</quote>
+			conguration key.
+		</para>
+		<para>
+			To call your script use the previous command line by replacing [command] with the filename of your
+			script without the extension.
+		</para>
+		<example>
+			<title>Calling custom scripts</title>
+			<para>
+				Let's create a script in <filename>app/scripts/cleanup-my-db.php</filename>
+			</para>
+			<programlisting>
+				<![CDATA[
+<?php
+// do some stuff to cleanup my database]]>
+			</programlisting>
+			<para>
+				To call this script use the following command:
+			</para>
+			<programlisting>
+				<![CDATA[
+php index.php cleanup-my-db]]>
+			</programlisting>
+		</example>
+		<para>
+			It is possible for the script to access the command line arguments. A variable named <quote>$arguments</quote>
+			is available in script files. It is an array containing all the arguments after the command name (like $_SERVER[argv]).
+		</para>
+		<example>
+			<title>Calling custom scripts with arguments</title>
+			<para>
+				Create a script in <filename>app/scripts/cleanup-my-db.php</filename>
+			</para>
+			<programlisting>
+				<![CDATA[
+<?php
+echo 'cleaning ' . $arguments[0];]]>
+			</programlisting>
+			<para>
+				Call the following script using
+			</para>
+			<programlisting>
+				<![CDATA[
+php index.php cleanup-my-db dbname]]>
+			</programlisting>
+			<para>
+				Will print <quote>cleaning dbname</quote>.
+			</para>
+		</example>
+	</sect1>
+	<sect1 id="console-commands">
+		<title>Using commands</title>
+		<para>
+			A command is like a script but in the form of a function. Commands needs to be registered.
+			Their useful because they provide a way for any plugins to add its own command for administration.
+		</para>
+		<para>
+			To register a command use the <methodname>ConsolePlugin::register()</methodname> method. It takes
+			as first argument the command name (the one that will be used in the command line) and a php
+			callback to the command's associated function or method.
+		</para>
+		<example>
+			<title>Creating a command</title>
+			<programlisting>
+				<![CDATA[
+function myCommand()
+{
+	// ...
+}
+ConsolePlugin::register('my-command', 'myCommand');]]>
+			</programlisting>
+			<para>
+				Can be called with:
+			</para>
+			<programlisting>
+				<![CDATA[
+php index.php my-command]]>
+			</programlisting>
+		</example>
+		<para>
+			Like scripts, commands can retreive the arguments from the command line. They will be passed as the first
+			parameter of the callback
+		</para>
+		<example>
+			<title>Creating a command with arguments</title>
+			<programlisting>
+				<![CDATA[
+function sayHelloTo($arguments)
+{
+	echo 'hello ' . $arguments[0];
+}
+ConsolePlugin::register('say-hello-to', 'sayHelloTo');]]>
+			</programlisting>
+			<para>
+				Can be called with:
+			</para>
+			<programlisting>
+				<![CDATA[
+php index.php say-hello-to peter]]>
+			</programlisting>
+			<para>
+				Will output <quote>hello peter</quote>.
+			</para>
+		</example>
+		<para>
+			Other plugins can listen for the Console::Start event and register their commands from the listener callback.
+		</para>
+	</sect1>
+	<sect1 id="console-utilities">
+		<title>Utility methods</title>
+		<para>
+			The Console plugin also provides some utility methods.
+		</para>
+		<para>
+			<methodname>ConsolePlugin::println()</methodname> can be used to print a message on a single line.
+			You can also control the indentation using the second argument (which is an int).
+		</para>
+		<para>
+			<methodname>ConsolePlugin::success()</methodname> and <methodname>ConsolePlugin::fail()</methodname> are
+			two methods to print a <quote>[SUCCESS]</quote> or <quote>[FAIL]</quote> string. A message can also be
+			printed. They can work in conjonction with <methodname>ConsolePlugin::println()</methodname>. A new line
+			is added after a success or fail call.
+		</para>
+		<example>
+			<title>Printing a message</title>
+			<programlisting>
+				<![CDATA[
+ConsolePlugin::println('trying to connect to the remote server...');
+if ($connectionSuccess) {
+	ConsolePlugin::success();
+} else {
+	ConsolePlugin::fail();
+}]]>
+			</programlisting>
+			<para>
+				This will print something like (if success):
+				<quote>trying to connect to the remote server... [SUCCESS]</quote>
+			</para>
+		</example>
+		<para>
+			You can create directories using <methodname>ConsolePlugin::mkdir()</methodname>.
+		</para>
+		<example>
+			<title>Creating directories</title>
+			<programlisting>
+				<![CDATA[
+ConsolePlugin::mkdir('/my/dir');
+ConsolePlugin::mkdir('/my/dir', $indent, "My message to announce i'm creating a directory");]]>
+			</programlisting>
+		</example>
+		<para>
+			Finally, you can create files using <methodname>ConsolePlugin::touch()</methodname>.
+		</para>
+		<example>
+			<title>Creating files</title>
+			<programlisting>
+				<![CDATA[
+ConsolePlugin::touch('/path/to/my/file.txt');
+ConsolePlugin::touch('/path/to/my/file.txt', $fileContent);
+ConsolePlugin::touch('/path/to/my/file.txt', '', $indent, "My message to announce i'm creating a file");]]>
+			</programlisting>
+		</example>
+	</sect1>
 </chapter>

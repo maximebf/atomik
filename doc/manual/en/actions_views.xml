@@ -28,7 +28,7 @@
 		</para>
 		<para>
 			Now let's imagine that rather than directly doing both part in the same file we split it.
-			We would have three file: one with the logic, one with the HTML and on that include both.
+			We would have three file: one with the logic, one with the HTML and one that include both.
 		</para>
 		<example>
 			<title>Splitting into multiple files</title>
@@ -71,7 +71,7 @@ include 'page_html.php';]]>
 		<title>Actions</title>
 		<para>
 			Actions are stored in the <filename>app/actions</filename> directory. Both the action and the 
-			view filename must have the same name.
+			view filename must have the same name. Action files must have the <quote>php</quote> extension.
 		</para>
 		<para>
 			The content of the action file is free. It can be anything you want. So you just do your
@@ -96,15 +96,21 @@ $_myPrivateVariable = 'secret';]]>
 			</programlisting>
 		</example>
 		<note>
-			You shouldn't use <function>echo</function> or write any HTML code inside an action.
-			As said before, the goal of an action is to separate the logic from the presentation. Thus
-			mix-in both in the action file would be a non-sense!
+			<para>
+				You shouldn't use <function>echo</function> or write any HTML code inside an action.
+				As said before, the goal of an action is to separate the logic from the presentation. Thus
+				mix-in both in the action file would be a non-sense!
+			</para>
+			<para>
+				You can use folders to organize your actions.
+			</para>
 		</note>
 	</sect1>
 	<sect1 id="views">
 		<title>Views</title>
 		<para>
-			Views are stored in the <filename>app/views</filename> directory.
+			Views are stored in the <filename>app/views</filename> directory. The file extension is
+			by default <quote>phtml</quote>.
 		</para>
 		<para>
 			The content of the view file is, as the action file, free. It should mostly be text or 
@@ -136,6 +142,101 @@ $_myPrivateVariable = 'secret';]]>
 				</imageobject>
 			</mediaobject>
 		</figure>
+	</sect1>
+	<sect1 id="layouts">
+		<title>Layout</title>
+		<para>
+			It is common in websites that all pages share the same layout. Atomik allows you to define
+			a layout that will be used with all views.
+		</para>
+		<para>
+			The layout will be rendered after the view has been rendered. The output of the view will be
+			pass to the layout as a variable named <quote>$contentForLayout</quote>. 
+			Layouts are rendered the same way as views.
+		</para>
+		<para>
+			Layouts can be placed in the <filename>app/views</filename> or <filename>app/layouts</filename> directories.
+			The file extension is the same as the one for views.
+		</para>
+		<para>
+			The layout name to use has to be defined in the <quote>atomik/layout</quote> configuration key. If the
+			value is false (which is the default), no layout will be used.
+		</para>
+		<para>
+			The layout can be disabled at runtime by calling <methodname>Atomik::disableLayout()</methodname>.
+		</para>
+		<example>
+			<title>Example layout</title>
+			<para>
+				A layout file named <filename>_layout.phtml</filename> in the <filename>app/views</filename> directory.
+			</para>
+			<programlisting>
+				<![CDATA[
+<html>
+	<head>
+		<title>My website</title>
+	</head>
+	<body>
+		<h1>My website</h1>
+		<div id="content">
+			<?php echo $contentForLayout; ?>
+		</div>
+	</body>
+</html>]]>
+			</programlisting>
+			<para>
+				In the bootstrap file
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::set('atomik/layout', '_layout');]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="controlling-views">
+		<title>Controlling views</title>
+		<sect2 id="view-extension">
+			<title>View's filename extension</title>
+			<para>
+				The default filename's extension for views is <quote>phtml</quote> as said before. This can be change using
+				the configuration key named <quote>atomik/views/file_extension</quote>.
+			</para>
+		</sect2>
+		<sect2 id="no-render-from-action">
+			<title>Do not render the view from the action</title>
+			<para>
+				While the action is executing, you may want to avoid rendering the associated view. This can easily be done
+				by calling <methodname>Atomik::noRender()</methodname> from your action.
+			</para>
+		</sect2>
+		<sect2 id="custom-rendering-engine">
+			<title>Using a custom rendering engine</title>
+			<para>
+				The default rendering process only uses php's include function. You may however want to use a template engine for
+				example. This is possible by specifying a callback in the <quote>atomik/views/engine</quote> configuration key.
+			</para>
+			<para>
+				The callback will receive two parameters: the first one will be the filename and the second an array containing the
+				view variables.
+			</para>
+			<example>
+				<title>Using a custom rendering engine</title>
+				<programlisting>
+					<![CDATA[
+function myCustomRenderingEngine($filename, $vars)
+{
+	// your custom engine
+	return $renderedContent;
+}
+
+Atomik::set('atomik/views/engine', 'myCustomRenderingEngine');]]>
+				</programlisting>
+			</example>
+			<para>
+				The custom rendering engine will be used whenever <methodname>Atomik::render()</methodname>,
+				<methodname>Atomik::renderFile()</methodname> or <methodname>Atomik::renderLayout()</methodname> is used.
+			</para>
+		</sect2>
 	</sect1>
 	<sect1 id="actions-views-programmatically">
 		<title>Calling actions or views programmatically</title>
@@ -170,9 +271,15 @@ $viewOutput = Atomik::execute('myAction');
 $variables = Atomik::execute('myAction', false);]]>
 				</programlisting>
 			</example>
+			<note>
+				<para>
+					Calling an action using <methodname>Atomik::execute()</methodname> does not mean an action file
+					must exist. However, in this case, a view file with the same name must exists.
+				</para>
+			</note>
 		</sect2>
 		<sect2 id="rendering-views">
-			<title>Rendering views</title>
+			<title>Rendering views and files</title>
 			<para>
 				To render a view use the <methodname>Atomik::render()</methodname> method.
 			</para>
@@ -191,9 +298,10 @@ $viewOutput = Atomik::render('myView');
 $viewOutput = Atomik::render('myView', array('var' => 'value'));]]>
 				</programlisting>
 			</example>
+			<para>
+				It is also possible to render any file using <methodname>Atomik::renderFile()</methodname>. It takes
+				as first parameter a filename. Variables can also be passed like with <methodname>Atomik::render()</methodname>.
+			</para>
 		</sect2>
-		<para>
-			For more information on both methods, see the API reference.
-		</para>
 	</sect1>
 </chapter>

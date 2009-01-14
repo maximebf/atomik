@@ -43,4 +43,37 @@
 			</orderedlist>
 		</para>
 	</sect1>
+	<sect1 id="directory-structure">
+		<title>More about the directory structure</title>
+		<para>
+			Atomik's core file, namely <filename>index.php</filename>, must be situated at the root of your website.
+			The default directory structure is simple because everything goes into this webroot.
+		</para>
+		<para>
+			Your application per se goes into the <filename>app</filename> directory. Actions and views have their own directory.
+		</para>
+		<para>
+			When using the provided Apache <filename>.htaccess</filename> file, the <filename>app</filename> directory is not 
+			accessible from the web.
+		</para>
+		<para>
+			You can put your assets (css, js, images) anywhere. I like to use an <filename>assets</filename> folder for this kind
+			of things.
+		</para>
+		<figure>
+			<title>The default directory structure</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/directory_structure.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<note>
+			<para>
+				In a production environment, it is always better to remove the application files from the webroot. This is not the default way
+				of doing things with Atomik as it can be a bit more difficult. However it is very easy to do. Atomik allows you to edit
+				the path for each directory. This will be covered in the configuration chapter.
+			</para>
+		</note>
+	</sect1>
 </chapter>

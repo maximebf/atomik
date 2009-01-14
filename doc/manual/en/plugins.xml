@@ -11,7 +11,7 @@
 			<title>Installing a plugin</title>
 			<para>
 				Plugins are stored in the <filename>app/plugins</filename> directory. 
-				Simply copy the plugin file into this directory.
+				Simply copy the plugin file or folder into this directory.
 			</para>
 		</sect2>
 		<sect2 id="activating-configuring-plugins">
@@ -26,7 +26,7 @@
 					<![CDATA[
 Atomik::set('plugins', array(
 	'Db',
-	'Layout'
+	'Cache'
 ));]]>
 				</programlisting>
 			</example>
@@ -44,7 +44,7 @@ Atomik::set('plugins', array(
            'username'    => 'atomik',
            'password'    => 'atomik'
 	),
-	'Layout'
+	'Cache'
 ));]]>
 				</programlisting>
 			</example>
@@ -62,6 +62,16 @@ Atomik::set('plugins', array(
 				Plugins are loaded at the beginning of a request, just after the configuration. 
 				The content of the file is free or it can be a class.
 			</para>
+			<note>
+				<para>
+					To build more complex plugins you can instead of a file create a folder named after your plugin.
+					This folder must contain a <filename>Plugin.php</filename> file.
+				</para>
+				<para>
+					When using folders, it is possible to add a sub folder named <filename>libraries</filename> which
+					will automatically be added to php's include_path.
+				</para>
+			</note>
 		</sect2>
 		<sect2 id="plugin-custom-configuration">
 			<title>Plugin's custom configuration</title>
@@ -95,7 +105,7 @@ echo 'hello ' . $config['name'];]]>
 		<sect2 id="plugin-class">
 			<title>Using a class</title>
 			<para>
-				For better application design it is advise to use a class to define your plugin.
+				For better application design it is advice to use a class to define your plugin.
 				When loading a plugin, it will look for a class named like the plugin suffixed with
 				<quote>Plugin</quote>.
 			</para>
@@ -142,5 +152,63 @@ class DbPlugin
 				method.
 			</para>
 		</sect2>
+	</sect1>
+	<sect1 id="loading-plugins">
+		<title>Loading plugins programmaticaly</title>
+		<para>
+			It is of course possible to load plugins at runtime. This is done using the <methodname>Atomik::loadPlugin()</methodname>
+			method.
+		</para>
+		<example>
+			<title>Loading a plugin at runtime</title>
+			<programlisting>
+				<![CDATA[
+Atomik::loadPlugin('Db');]]>
+			</programlisting>
+		</example>
+		<para>
+			To provide some configuration for the plugin, pass an array as the second argument.
+		</para>
+		<example>
+			<title>Loading a plugin at runtime with some configuration</title>
+			<programlisting>
+				<![CDATA[
+Atomik::loadPlugin('Db', array('dbname' => 'test'));]]>
+			</programlisting>
+		</example>
+		<note>
+			Be aware that some plugins may need to listen to some specific events. If you register your plugin too late,
+			the event may have already occured, making the plugin malfunction.
+		</note>
+		<para>
+			You can check if a plugin is already loaded using <methodname>Atomik::isPluginLoaded()</methodname>.
+		</para>
+		<example>
+			<title>Checking if a plugin is already loaded</title>
+			<programlisting>
+				<![CDATA[
+if (Atomik::isPluginLoaded('Db')) {
+	// ...
+}]]>
+			</programlisting>
+		</example>
+		<para>
+			<methodname>Atomik::loadPlugin()</methodname> provides more advanced features which allow you for example 
+			to create plugins for your plugin!
+		</para>
+		<example>
+			<title>More advance use of <methodname>Atomik::loadPlugin()</methodname></title>
+			<programlisting>
+				<![CDATA[
+// load plugins from a custom directory
+Atomik::loadPlugin('MyPlugin', array(), '/custom/plugins/directory');
+
+// using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
+Atomik::loadPlugin('MyPlugin', array(), null, '%CustomPlugin');
+
+// do not call the start() method when loading plugins
+Atomik::loadPlugin('MyPlugin', array(), null, '%Plugin', false);]]>
+			</programlisting>
+		</example>
 	</sect1>
 </chapter>

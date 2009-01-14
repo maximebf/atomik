@@ -2,11 +2,10 @@
 <chapter id="includes" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Includes</title>
 	<para>
-		Includes are php files containing common logic that you 
-		include in your actions.
+		Includes are php files containing common logic that you include in your actions.
 	</para>
 	<para>
-		Includes are stored in the <filename>app/includes</filename> and/or
+		Includes are stored in the <filename>app/includes</filename> and/or the 
 		<filename>app/libraries</filename> directories.
 	</para>
 	<para>
@@ -40,6 +39,9 @@ Atomik::needed('libs/db');]]>
 	</para>
 	<example>
 		<title>Including classes with their name</title>
+		<para>
+			Let's include the class Atomik_Db located in <filename>app/libraries/Atomik/Db.php</filename>
+		</para>
 		<programlisting>
 			<![CDATA[
 Atomik::needed('Atomik_Db');]]>
@@ -47,8 +49,8 @@ Atomik::needed('Atomik_Db');]]>
 	</example>
 	<note>
 		<para>
-			Since Atomik 2.1, <methodname>Atomik::needed()</methodname> is automatically registered as
-			an spl_autoload handler.
+			<methodname>Atomik::needed()</methodname> is automatically registered as an spl_autoload handler.
+			This can be modified by setting <quote>false</quote> to the configuration key named <quote>atomik/class_autoload</quote>.
 		</para>
 	</note>
 </chapter>

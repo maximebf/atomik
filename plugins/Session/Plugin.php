@@ -41,10 +41,24 @@ class SessionPlugin
         /* starts the session */
         Atomik_Session::start();
         
+        Atomik::registerSelector('session', array('SessionPlugin', 'selector'));
+        Atomik::set('session', &$_SESSION);
+        
         /* cleany close the session when atomik ends */
         Atomik::listenEvent('Atomik::End', array('Atomik_Session', 'end'));
         
         /* no needs to automatically register events */
         return false;
     }
+	
+	/**
+	 * Atomik selector
+	 *
+	 * @param string $selector
+	 * @param array $params
+	 */
+	public static function selector($selector, $params = array())
+	{
+	    return Atomik::get($selector, $params[1], $_SESSION);
+	}
 }

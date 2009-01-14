@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="accessors-configuration" xmlns="http://docbook.org/ns/docbook">
-	<title>Accessors and configuration</title>
+<chapter id="global-store" xmlns="http://docbook.org/ns/docbook">
+	<title>The global store</title>
 	<para>
-		In Atomik, the way configuration works is a bit different. Rather than
-		having a dedicated system, it offers a global store where anything can
-		be saved for the time of a request.
-	</para>
-	<para>
-		This global store act like an associative array with key/value pairs.
+		Atomik offers a global store where anything can be saved for the time of a request.
+		This global store acts like an associative array with key/value pairs.
+		It's mainly use to store the configuration.
 	</para>
 	<sect1 id="accessors">
-		<title>Accessors</title>
+		<title>Accessing the store</title>
 		<para>
 			Accessors are methods provided by the Atomik class that allow you to 
 			access the global store. They are five of them: <methodname>get</methodname>, 
@@ -123,6 +120,35 @@ Atomik::set('users/sofia', array(
 $sofiaAge = Atomik::get('users/sofia/age');]]>
 			</programlisting>
 		</example>
+		<para>
+			You can also use paths in sub arrays when setting some values.
+		</para>
+		<example>
+			<title>Using paths when setting values</title>
+			<programlisting>
+				<![CDATA[
+Atomik::set(array(
+	'users' => array(
+		'paul/age' => 22,
+		'paul/friends' => array(
+			'peter/age' => 20
+		)
+	)
+));
+
+echo Atomik::get('users/paul/age'); // 22
+
+var_export(Atomik::get('users/paul/friends'));
+array(
+	'peter' => array(
+		'age' => 20
+	)
+)]]>
+			</programlisting>
+		</example>
+		<para>
+			<methodname>Atomik::_dimensionizeArray()</methodname> can be used to <quote>dimensionize</quote> any array.
+		</para>
 	</sect1>
 	<sect1 id="accessors-with-any-arrays">
 		<title>Using accessors with any arrays</title>
@@ -142,62 +168,5 @@ Atomik::set('key', 'value', $array);
 echo Atomik::get('key', null, $array);]]>
 			</programlisting>
 		</example>
-	</sect1>
-	<sect1 id="configuration-file">
-		<title>The configuration file</title>
-		<para>
-			Atomik provides a default configuration for everything (to fullfill the convention
-			over configuration principle). However, you can override it and provide plugin's
-			configuration or even your own.
-		</para>
-		<para>
-			To do so, there is two possibilities: 
-			<itemizedlist>
-				<listitem>
-					modify Atomik's core file (<filename>index.php</filename>)
-				</listitem>
-				<listitem>
-					create a <filename>config.php</filename> file in the 
-					<filename>app</filename> directory.
-				</listitem>
-			</itemizedlist>
-		</para>
-		<para>
-			The first method is greatly discourage. It can however be useful if you want to
-			create your own Atomik distribution (this should be the only reason to use this
-			method).
-		</para>
-		<para>
-			The second method is of course the prefered one. It allows clearer configuration
-			in a unique place, perfect for maintenance. Just create a <filename>config.php</filename>
-			file in the <filename>app</filename> directory.
-			In this file, you can use accessors (the <methodname>set</methodname> method of course)
-			to define configuration keys.
-		</para>
-		<example>
-			<title>Exemple <filename>config.php</filename> file</title>
-			<programlisting>
-				<![CDATA[
-<?php
-
-/* configuration */
-Atomik::set(array(
-
-	'key1' => 'value1',
-	
-	'key2' => value2',
-	
-	'key3' => array(
-	
-		'key3.1' => 'value3.1'
-	
-	)
-
-));]]>
-			</programlisting>
-		</example>
-		<para>
-			The configuration filename can be overrided in Atomik's core configuration.
-		</para>
 	</sect1>
 </chapter>

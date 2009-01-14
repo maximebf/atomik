@@ -3,19 +3,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Chapter 8. Includes</title>
+    <title>Chapter 8. Selectors</title>
     <link rel="stylesheet" href="styles.css" type="text/css" />
     <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
     <link rel="up" href="index.html" title="Atomik Framework Manual" />
-    <link rel="prev" href="ch07.html" title="Chapter 7. Selectors" />
-    <link rel="next" href="ch09.html" title="Chapter 9. Events" />
+    <link rel="prev" href="ch07.html" title="Chapter 7. Actions and views" />
+    <link rel="next" href="ch09.html" title="Chapter 9. Includes" />
   </head>
   <body>
     <div class="navheader">
       <table width="100%" summary="Navigation header">
         <tr>
-          <th colspan="3" align="center">Chapter 8. Includes</th>
+          <th colspan="3" align="center">Chapter 8. Selectors</th>
         </tr>
         <tr>
           <td width="20%" align="left"><a accesskey="p" href="ch07.html">Prev</a> </td>
@@ -25,58 +25,69 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="includes"></a>Chapter 8. Includes</h2></div></div></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="selectors"></a>Chapter 8. Selectors</h2></div></div></div>
 	
 	<p>
-		Includes are php files containing common logic that you 
-		include in your actions.
+		Selectors are a unique feature of Atomik! They are inspired from
+		Javascript frameworks which uses CSS selectors to select object
+		in the DOM.
 	</p>
 	<p>
-		Includes are stored in the <code class="filename">app/includes</code> and/or
-		<code class="filename">app/libraries</code> directories.
+		Atomik Selectors allow you to select any kind of data or object.
 	</p>
 	<p>
-		To include a file from one of these directories use the
-		<code class="methodname">Atomik::needed()</code> method. It takes as first
-		argument the path to the filename you wish to include relative to the
-		previous directories and without the extension.
+		You've already encountered selectors when you discovered accessors.
+		Selectors are available through the <code class="methodname">Atomik::get()</code> method.
 	</p>
-	<div class="example"><a id="id3337023"></a><p class="title"><b>Example 8.1. Using includes</b></p><div class="example-contents">
-		
-		<p>
-			Let's say we've created the file <code class="filename">app/includes/common.php</code>
-		</p>
-		<pre class="programlisting">
-			
-Atomik::needed('common');
-		</pre>
-		<p>
-			You can use sub directories. To include a file stored at
-			<code class="filename">app/includes/libs/db.php</code>:
-		</p>
-		<pre class="programlisting">
-			
-Atomik::needed('libs/db');
-		</pre>
-	</div></div><br class="example-break" />
 	<p>
-		<code class="methodname">Atomik::needed()</code> also allows you to include classes using
-		their name. To do so, classes have to follow the PEAR naming convention
-		(<a class="ulink" href="http://pear.php.net/manual/en/standards.naming.php" target="_top">http://pear.php.net/manual/en/standards.naming.php</a>).
+		Atomik also defines the <code class="function">A()</code> function for quicker access. This
+		function is only a shortcut to <code class="methodname">Atomik::get()</code>.
 	</p>
-	<div class="example"><a id="id3337066"></a><p class="title"><b>Example 8.2. Including classes with their name</b></p><div class="example-contents">
+	<p>
+		Namespaces are used to differentiate selectors. A namespace is only a word followed
+		by “<span class="quote">:</span>” at the beggining of the selector.
+	</p>
+	<p>
+		The only built-in selector (and the only one which doesn't need any namespace) gives the 
+		availability to query through arrays. It has alreay been covered in the Accessors and 
+		configuration section.
+	</p>
+	<div class="example"><a id="id1207014"></a><p class="title"><b>Example 8.1. Using the built-in selector</b></p><div class="example-contents">
 		
 		<pre class="programlisting">
 			
-Atomik::needed('Atomik_Db');
+// setting value in the global store
+Atomik::set(array(
+	'key1' =&gt; array(
+		'key2' =&gt; 'value'
+	)
+));
+
+// selecting a value from the global store
+$value = A('key1/key2');
 		</pre>
 	</div></div><br class="example-break" />
-	<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
-		<p>
-			Since Atomik 2.1, <code class="methodname">Atomik::needed()</code> is automatically registered as
-			an spl_autoload handler.
-		</p>
-	</div>
+	<p>
+		Plugins can provide their own selector namespace. For example, the Db plugin brings with
+		it the “<span class="quote">db</span>” namespace which allow you to do sql queries.
+	</p>
+	<div class="example"><a id="id1207035"></a><p class="title"><b>Example 8.2. Using the selector provided by the Db plugin</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+// selecting a value from the global store
+$value = A('key1/key2/key3');
+
+// selecting all posts
+$allPosts = A('db:SELECT * FROM posts');
+
+// selecting the first post
+$firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));
+		</pre>
+	</div></div><br class="example-break" />
+	<p>
+		See the Db plugin documentation for more information. 
+	</p>
 </div>
     <div class="navfooter">
       <hr />
@@ -87,11 +98,11 @@ Atomik::needed('Atomik_Db');
           <td width="40%" align="right"> <a accesskey="n" href="ch09.html">Next</a></td>
         </tr>
         <tr>
-          <td width="40%" align="left" valign="top">Chapter 7. Selectors </td>
+          <td width="40%" align="left" valign="top">Chapter 7. Actions and views </td>
           <td width="20%" align="center">
             <a accesskey="h" href="index.html">Home</a>
           </td>
-          <td width="40%" align="right" valign="top"> Chapter 9. Events</td>
+          <td width="40%" align="right" valign="top"> Chapter 9. Includes</td>
         </tr>
       </table>
     </div>

@@ -3,19 +3,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Chapter 9. Events</title>
+    <title>Chapter 9. Includes</title>
     <link rel="stylesheet" href="styles.css" type="text/css" />
     <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
     <link rel="up" href="index.html" title="Atomik Framework Manual" />
-    <link rel="prev" href="ch08.html" title="Chapter 8. Includes" />
-    <link rel="next" href="ch10.html" title="Chapter 10. Plugins" />
+    <link rel="prev" href="ch08.html" title="Chapter 8. Selectors" />
+    <link rel="next" href="ch10.html" title="Chapter 10. Utilities" />
   </head>
   <body>
     <div class="navheader">
       <table width="100%" summary="Navigation header">
         <tr>
-          <th colspan="3" align="center">Chapter 9. Events</th>
+          <th colspan="3" align="center">Chapter 9. Includes</th>
         </tr>
         <tr>
           <td width="20%" align="left"><a accesskey="p" href="ch08.html">Prev</a> </td>
@@ -25,83 +25,59 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="events"></a>Chapter 9. Events</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch09.html#listening-events">Listening to events</a></span></dt><dt><span class="sect1"><a href="ch09.html#firing-events">Firing events</a></span></dt><dt><span class="sect1"><a href="ch09.html#events-naming-convention">Events naming convention</a></span></dt><dt><span class="sect1"><a href="ch09.html#events-schema">Overview of available Atomik events</a></span></dt></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="includes"></a>Chapter 9. Includes</h2></div></div></div>
 	
 	<p>
-		Events are one of the most important concept in Atomik.
-		Callback can be registered to listen on any events. When an event
-		is fired (or triggered), all listening callbacks are called. 
+		Includes are php files containing common logic that you include in your actions.
 	</p>
+	<p>
+		Includes are stored in the <code class="filename">app/includes</code> and/or the 
+		<code class="filename">app/libraries</code> directories.
+	</p>
+	<p>
+		To include a file from one of these directories use the
+		<code class="methodname">Atomik::needed()</code> method. It takes as first
+		argument the path to the filename you wish to include relative to the
+		previous directories and without the extension.
+	</p>
+	<div class="example"><a id="id1207086"></a><p class="title"><b>Example 9.1. Using includes</b></p><div class="example-contents">
+		
+		<p>
+			Let's say we've created the file <code class="filename">app/includes/common.php</code>
+		</p>
+		<pre class="programlisting">
+			
+Atomik::needed('common');
+		</pre>
+		<p>
+			You can use sub directories. To include a file stored at
+			<code class="filename">app/includes/libs/db.php</code>:
+		</p>
+		<pre class="programlisting">
+			
+Atomik::needed('libs/db');
+		</pre>
+	</div></div><br class="example-break" />
+	<p>
+		<code class="methodname">Atomik::needed()</code> also allows you to include classes using
+		their name. To do so, classes have to follow the PEAR naming convention
+		(<a class="ulink" href="http://pear.php.net/manual/en/standards.naming.php" target="_top">http://pear.php.net/manual/en/standards.naming.php</a>).
+	</p>
+	<div class="example"><a id="id1207133"></a><p class="title"><b>Example 9.2. Including classes with their name</b></p><div class="example-contents">
+		
+		<p>
+			Let's include the class Atomik_Db located in <code class="filename">app/libraries/Atomik/Db.php</code>
+		</p>
+		<pre class="programlisting">
+			
+Atomik::needed('Atomik_Db');
+		</pre>
+	</div></div><br class="example-break" />
 	<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
-		Events are implicitely declared when they're fired.
-	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="listening-events"></a>Listening to events</h2></div></div></div>
-		
 		<p>
-			Atomik provides the <code class="methodname">listenEvent</code> method.
-			It takes as first argument an event name and as second a callback.
-			See <a class="ulink" href="http://php.net/callback" target="_top">http://php.net/callback</a> 
-			for more information on callbacks.
+			<code class="methodname">Atomik::needed()</code> is automatically registered as an spl_autoload handler.
+			This can be modified by setting “<span class="quote">false</span>” to the configuration key named “<span class="quote">atomik/class_autoload</span>”.
 		</p>
-		<div class="example"><a id="id3337131"></a><p class="title"><b>Example 9.1. Listening to an event</b></p><div class="example-contents">
-			
-			<pre class="programlisting">
-				
-function myEventCallback()
-{
-	// ...
-}
-
-function myArgEventCallback($arg1, $arg2)
-{
-	// ...
-}
-
-Atomik::listenEvent('myEvent', 'myEventCallback');
-Atomik::listenEvent('myArgEvent', 'myArgEventCallback');
-			</pre>
-		</div></div><br class="example-break" />
-	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="firing-events"></a>Firing events</h2></div></div></div>
-		
-		<p>
-			Events are fired using the <code class="methodname">fireEvent</code> method
-			provided by Atomik. It takes as first argument the event name and
-			optionally as second an array of arguments for callbacks.
-		</p>
-		<div class="example"><a id="id3337172"></a><p class="title"><b>Example 9.2. Firing events</b></p><div class="example-contents">
-			
-			<pre class="programlisting">
-				
-Atomik::fireEvent('myEvent');
-Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));
-			</pre>
-		</div></div><br class="example-break" />
-	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="events-naming-convention"></a>Events naming convention</h2></div></div></div>
-		
-		<p>
-			While events name can be anything you want, Atomik uses a naming convention for its own events.
-		</p>
-		<p>
-			Events are composed using “<span class="quote">Atomik</span>” or a plugin name, followed by the method from which the
-			event was fired and optionnally the event name. Each part is separated using ":" twice and should
-			start with an upper case.
-		</p>
-		<div class="example"><a id="id3337220"></a><p class="title"><b>Example 9.3. Example of event naming</b></p><div class="example-contents">
-			
-			<p>
-				The method <code class="methodname">Atomik::dispatch()</code>
-				fires an event named “<span class="quote">Atomik::Dispatch::Start</span>”.
-			</p>
-		</div></div><br class="example-break" />
-	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="events-schema"></a>Overview of available Atomik events</h2></div></div></div>
-		
-		<div class="figure"><a id="id3337250"></a><p class="title"><b>Figure 9.1. Simple schema illustrating Atomik events flow</b></p><div class="figure-contents">
-			
-			<div class="mediaobject"><img src="images/events.png" alt="Simple schema illustrating Atomik events flow" /></div>
-		</div></div><br class="figure-break" />
 	</div>
 </div>
     <div class="navfooter">
@@ -113,11 +89,11 @@ Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));
           <td width="40%" align="right"> <a accesskey="n" href="ch10.html">Next</a></td>
         </tr>
         <tr>
-          <td width="40%" align="left" valign="top">Chapter 8. Includes </td>
+          <td width="40%" align="left" valign="top">Chapter 8. Selectors </td>
           <td width="20%" align="center">
             <a accesskey="h" href="index.html">Home</a>
           </td>
-          <td width="40%" align="right" valign="top"> Chapter 10. Plugins</td>
+          <td width="40%" align="right" valign="top"> Chapter 10. Utilities</td>
         </tr>
       </table>
     </div>

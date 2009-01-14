@@ -34,6 +34,18 @@
  */
 class ConsolePlugin
 {
+	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+    public static $config = array(
+
+    	/* directory where scripts are stored */
+    	'scripts_dir'	=> './app/scripts'
+    
+    );
+    
     /**
      * Registered commands
      *
@@ -44,10 +56,14 @@ class ConsolePlugin
     /**
      * Checks we're in console mode
      *
+     * @param array $config
      * @return bool
      */
-    public static function start()
+    public static function start($config)
     {
+        /* config */
+        self::$config = array_merge(self::$config, $config);
+        
     	/* checks if we are in the CLI */
     	if (isset($_SERVER['HTTP_HOST'])) {
     		return false;
@@ -78,14 +94,20 @@ class ConsolePlugin
 		/* console starts */
 		Atomik::fireEvent('Console::Start', array(&$command, &$arguments));
 		
-		/* checks if the command is registered */
-		if (!array_key_exists($command, self::$_commands)) {
-			echo "The command $command does not exists\n";
-			Atomik::end(true);
+		/* checks if a script file exists */
+		if (($scriptFilename = Atomik::path($command . '.php', self::$config['scripts_dir'])) === false) {
+			/* run the script */
+			require $scriptFilename;
+		} else {
+			/* checks if the command is registered */
+			if (!array_key_exists($command, self::$_commands)) {
+				echo "The command $command does not exists\n";
+				Atomik::end(true);
+			}
+			
+			/* executes the callback */
+			call_user_func(self::$_commands[$command], $arguments);
 		}
-		
-		/* executes the callback */
-		call_user_func(self::$_commands[$command], $arguments);
 		
 		/* console ends */
 		Atomik::fireEvent('Console::End', array($command, $arguments));

@@ -23,7 +23,7 @@
 			however become one with plugins...). Still  it follows the same idea.
 			The application logic, called action, and the presentation layer, called 
 			view, are divided into two different files. The action is executed
-			and then the view is rendered. Both of them is what make a web page.
+			and then the view is rendered. Both of them is what makes a web page.
 		</para>
 		<para>
 			How you code actions and views is your business! Atomik only provides the
@@ -32,17 +32,13 @@
 		</para>
 	</sect1>
 	<sect1 id="extensivity-and-plugins">
-		<title>Extensivity and Plugins</title>
+		<title>Extensibility and Plugins</title>
 		<para>
 			As said before, the whole point of Atomik is being highly extensible. Nearly
 			all actions (execute an action, render a view...) can be overrided. This
 			is made possible through an event system. Before and after each methods, 
 			and sometimes during, events are fired. Multiple callbacks can be registered for
 			each events which allow to modify the way Atomik acts.
-		</para>
-		<para>
-			Atomik also have a plugin loader. It can automatically bind events to the plugin
-			class methods.
 		</para>
 		<para>
 			Atomik respects the convention over configuration principle. However it hasn't forget

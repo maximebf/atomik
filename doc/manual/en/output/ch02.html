@@ -25,7 +25,7 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="principles"></a>Chapter 2. Core principles</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch02.html#simplicity-and-kiss">Simplicity and the KISS principle</a></span></dt><dt><span class="sect1"><a href="ch02.html#actions-and-views">Actions and Views</a></span></dt><dt><span class="sect1"><a href="ch02.html#extensivity-and-plugins">Extensivity and Plugins</a></span></dt><dt><span class="sect1"><a href="ch02.html#selectors">Selectors</a></span></dt></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="principles"></a>Chapter 2. Core principles</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch02.html#simplicity-and-kiss">Simplicity and the KISS principle</a></span></dt><dt><span class="sect1"><a href="ch02.html#actions-and-views">Actions and Views</a></span></dt><dt><span class="sect1"><a href="ch02.html#extensivity-and-plugins">Extensibility and Plugins</a></span></dt><dt><span class="sect1"><a href="ch02.html#selectors">Selectors</a></span></dt></dl></div>
 	
 	<p>
 		Atomik alone does not provide a lot of features. It basically provides a simple
@@ -49,7 +49,7 @@
 			however become one with plugins...). Still  it follows the same idea.
 			The application logic, called action, and the presentation layer, called 
 			view, are divided into two different files. The action is executed
-			and then the view is rendered. Both of them is what make a web page.
+			and then the view is rendered. Both of them is what makes a web page.
 		</p>
 		<p>
 			How you code actions and views is your business! Atomik only provides the
@@ -57,7 +57,7 @@
 			in the action to the view.
 		</p>
 	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extensivity-and-plugins"></a>Extensivity and Plugins</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extensivity-and-plugins"></a>Extensibility and Plugins</h2></div></div></div>
 		
 		<p>
 			As said before, the whole point of Atomik is being highly extensible. Nearly
@@ -65,10 +65,6 @@
 			is made possible through an event system. Before and after each methods, 
 			and sometimes during, events are fired. Multiple callbacks can be registered for
 			each events which allow to modify the way Atomik acts.
-		</p>
-		<p>
-			Atomik also have a plugin loader. It can automatically bind events to the plugin
-			class methods.
 		</p>
 		<p>
 			Atomik respects the convention over configuration principle. However it hasn't forget

@@ -1255,36 +1255,40 @@ class Atomik
 		}
 		
 		/* removes the query string from the action */
-		$queryString = '';
-		if (strpos($action, '?') !== false) {
-			$parts = explode('?', $action);
-			$action = $parts[0];
-			$queryString = $parts[1];
+		if (($separator = strpos($action, '?')) !== false) {
+			$action = substr($action, 0, $separator);
+			$queryString = parse_url($action, PHP_URL_QUERY);
+			parse_str($queryString, $actionParams);
+			$params = array_merge($actionParams, $params);
 		}
 		
-		/* adds parameters to the query string */
-		foreach ($params as $param => $value) {
-			if (preg_match('/:' . $param . '/', $action)) {
-				$action = str_replace(':' . $param, $value, $action);
-			} else {
-				$queryString .= $param . '=' . urlencode($value);
+		/* injects parameters into the url */
+		if (preg_match_all('/(:([a-zA-Z0-9_]+))/', $action, $matches)) {
+			for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
+				if (isset($params[$matches[2][$i]])) {
+					$action = str_replace($matches[1][$i], $params[$matches[2][$i]], $action);
+				}
 			}
 		}
 		
 		/* checks if $action is not a url (checking if there is a protocol) */
 		if (!preg_match('/^([a-z]+):\/\/.*/', $action)) {
-			/* base url */
+			$action = ltrim($action, '/');
 			$url = rtrim(self::get('base_url', '.'), '/') . '/';
 			
 			/* checks if url rewriting is used */
 			if (!$useIndex || self::get('url_rewriting', false) === true) {
-				$url .= $action . (!empty($queryString) ? '?' . $queryString : '');
+				$url .= $action;
 			} else {
 				/* no url rewriting, using index.php */
-				$url .= 'index.php?' . self::get('atomik/trigger') 
-				      . '=' . $action . (!empty($queryString) ? '&' . $queryString : '');
+				$url .= 'index.php';
+				$params[self::get('atomik/trigger')] = $action;
 			}
+		} else {
+			$url = $action;
 		}
+		
+		$url .= count($params) ? '?' . http_build_query($params) : '';
 		
 		/* trigger an event */
 		$args = func_get_args();
@@ -1371,90 +1375,6 @@ class Atomik
 		}
 		
 		self::end();
-	}
-	
-	/**
-	 * Builds an html string from an array
-	 * 
-	 * Array's value can be a string or if the key is a string, which in this
-	 * case represent a tag name, an array.
-	 * Attributes start with @. Attributes can be defined as one array using
-	 * the "@" key (in this case, the attributes array keys do not need to start
-	 * with @).
-	 *
-	 * @param string|array $html
-	 * @param string $tag OPTIONAL Wrap the html into an element with this tag name
-	 * @param bool $dimensionize OPTIONAL Whether to use Atomik::_dimensionizeArray()
-	 * @return string
-	 */
-	public static function html($html, $tag = null, $dimensionize = false)
-	{
-		if ($tag !== null) {
-			/* building a proper $html array using the tag */
-			return self::html(array($tag => $html));
-		}
-		
-		self::fireEvent('Atomik::Html', array(&$html, &$tag, &$dimensionize));
-		
-		if (is_string($html)) {
-			/* no need to parse */
-			return $html;
-		}
-		
-		if ($dimensionize) {
-			/* dimensionizing the array */
-			$html = self::_dimensionizeArray($html);
-		}
-		
-		$output = '';
-		
-		foreach ($html as $tag => $value) {
-			/* do not parse attributes */
-			if (substr($tag, 0, 1) == '@') {
-				continue;
-			}
-			/* the key does not represent a tag */
-			if (!is_string($tag)) {
-				if (!is_array($value)) {
-					$output .= $value;
-					continue;
-				}
-			}
-			/* the key is a tag */
-			$attributes = array();
-			if (is_array($value)) {
-				/* has more than one children */
-				if (isset($value['@'])) {
-					/* using the @ key for setting attributes */
-					foreach ($value['@'] as $attrName => $attrValue) {
-						$attributes[] = sprintf('%s="%s"', $attrName, $attrValue);
-					}
-				} else {
-					/* no @ key found, checking through all sub keys for the ones
-					 * starting with @ */
-					foreach ($value as $attrName => $attrValue) {
-						if (substr($attrName, 0, 1) == '@') {
-							$attributes[] = sprintf('%s="%s"', substr($attrName, 1), $attrValue);
-						}
-					}
-				}
-				/* parsing the value */
-				$keys = array_keys($value);
-				if (!is_string($keys[0]) && is_array($value[0])) {
-					foreach ($value as $item) {
-						$output .= self::html($item, $tag);
-					}
-					break;
-				} else {
-					$value = self::html($value);
-				}
-			}
-			
-			/* builds the html string */
-			$output .= sprintf("<%s %s>%s</%s>\n", $tag, implode(' ', $attributes), $value, $tag);
-		}
-		
-		return $output;
 	}
 	
 	/**

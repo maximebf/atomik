@@ -31,7 +31,6 @@
  * Added Atomik::_dimensionizeArray()
  ! Atomik::set() now use Atomik::_dimensionizeArray() when the first argument is an array
  * Added Atomik::add()
- * Added Atomik::html()
  * Added Atomik::debug()
  * Added Atomik::asset()
  ! Config file (atomik/files/config) config.php renamed bootstrap.php (atomik/files/bootstrap)

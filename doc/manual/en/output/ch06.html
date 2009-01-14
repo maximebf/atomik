@@ -3,19 +3,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Chapter 6. Actions and views</title>
+    <title>Chapter 6. URLs</title>
     <link rel="stylesheet" href="styles.css" type="text/css" />
     <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
     <link rel="up" href="index.html" title="Atomik Framework Manual" />
-    <link rel="prev" href="ch05.html" title="Chapter 5. URLs" />
-    <link rel="next" href="ch07.html" title="Chapter 7. Selectors" />
+    <link rel="prev" href="ch05.html" title="Chapter 5. Configuration" />
+    <link rel="next" href="ch07.html" title="Chapter 7. Actions and views" />
   </head>
   <body>
     <div class="navheader">
       <table width="100%" summary="Navigation header">
         <tr>
-          <th colspan="3" align="center">Chapter 6. Actions and views</th>
+          <th colspan="3" align="center">Chapter 6. URLs</th>
         </tr>
         <tr>
           <td width="20%" align="left"><a accesskey="p" href="ch05.html">Prev</a> </td>
@@ -25,197 +25,188 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="actions-views"></a>Chapter 6. Actions and views</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch06.html#actions-views-introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="ch06.html#actions">Actions</a></span></dt><dt><span class="sect1"><a href="ch06.html#views">Views</a></span></dt><dt><span class="sect1"><a href="ch06.html#actions-views-programmatically">Calling actions or views programmatically</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch06.html#executing-actions">Executing actions</a></span></dt><dt><span class="sect2"><a href="ch06.html#rendering-views">Rendering views</a></span></dt></dl></dd></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="urls"></a>Chapter 6. URLs</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch06.html#url-calling-action">Calling an action</a></span></dt><dt><span class="sect1"><a href="ch06.html#url-router">Routing urls</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch06.html#creating-routes">Creating routes</a></span></dt><dt><span class="sect2"><a href="ch06.html#routes-parameters">Retrieving route parameters</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch06.html#url-method">Building urls with <code class="methodname">Atomik::url()</code></a></span></dt></dl></div>
 	
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-views-introduction"></a>Introduction</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="url-calling-action"></a>Calling an action</h2></div></div></div>
 		
 		<p>
-			Without using Atomik, one way of doing things would have been to create a file
-			per page. The page logic (i.e. connecting to a database, handling form data...) would
-			have been at the top of the file followed by the HTML. 
-		</p>
-		<div class="example"><a id="id3336546"></a><p class="title"><b>Example 6.1. A php script, the old way</b></p><div class="example-contents">
-			
-			<pre class="programlisting">
-				
-&lt;?php
-	if (count($_POST)) {
-		echo 'Form data received!';
-	}
-?&gt;
-&lt;form&gt;
-	&lt;input type="text" name="data" /&gt;
-	&lt;input type="submit" value="send" /&gt;
-&lt;/form&gt;
-			</pre>
-		</div></div><br class="example-break" />
-		<p>
-			This is BAD!! The application logic and the presentation layer should always be separated.
+			Atomik provides a simple url mechanism. Whatever the page is, the url
+			must always point to Atomik script, i.e. <code class="filename">index.php</code>
 		</p>
 		<p>
-			Now let's imagine that rather than directly doing both part in the same file we split it.
-			We would have three file: one with the logic, one with the HTML and on that include both.
+			The url should contain a parameter which specify which action to trigger.
+			This parameter can be modified in the configuration (using the “<span class="quote">atomik/trigger</span>” key) 
+			but its default name is “<span class="quote">action</span>”.
 		</p>
-		<div class="example"><a id="id3336579"></a><p class="title"><b>Example 6.2. Splitting into multiple files</b></p><div class="example-contents">
-			
-			<p>
-				<code class="filename">page_logic.php</code>
-			</p>
-			<pre class="programlisting">
-				
-&lt;?php
-if (count($_POST)) {
-	echo 'Form data received!';
-}
-			</pre>
-			<p>
-				<code class="filename">page_html.php</code>
-			</p>
-			<pre class="programlisting">
-				
-&lt;form&gt;
-	&lt;input type="text" name="data" /&gt;
-	&lt;input type="submit" value="send" /&gt;
-&lt;/form&gt;
-			</pre>
-			<p>
-				<code class="filename">page.php</code>
-			</p>
-			<pre class="programlisting">
-				
-&lt;?php
-include 'page_logic.php';
-include 'page_html.php';
-			</pre>
-		</div></div><br class="example-break" />
 		<p>
-			Now replace the third file (the one with the includes) with Atomik and you'll have the concept
-			behind Atomik. The logic script is named an action and the html a view.
+			The value of the parameter must only contain the action name
+			without any extension. So for example if you have an <code class="filename">home.php</code>
+			file in the <code class="filename">app/actions</code> directory or/and an 
+			<code class="filename">home.php</code> file in the <code class="filename">app/views</code>
+			directory, you must use “<span class="quote">home</span>” as parameter to call this action.
+			Thus, the url should look like “<span class="quote">http://example.com/index.php?action=home</span>”.
+		</p>
+		<p>
+			For an action to be callable, an action file or a view file must at least exist.
+		</p>
+		<p>
+			If the action parameter is not found in the query string, Atomik will use the default
+			action defined in its configuration (the “<span class="quote">atomik/default_action</span>” key).
+			The default is “<span class="quote">index</span>”.
+		</p>
+		<p>
+			For cleaner and prettier url you can use url rewriting. When using Apache, simply copy the 
+			code below into a <code class="filename">.htaccess</code> file in the same directory as Atomik's core file.
+			</p><pre class="programlisting">
+RewriteEngine on
+RewriteRule ^app/plugins/(.+)/assets - [L]
+RewriteRule ^app/ - [L,F]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
+			</pre><p>
+			This code will also prevents access to the <code class="filename">app</code> folder from the web but
+			allow access to <code class="filename">assets</code> directories provided by plugins.
+		</p>
+		<p>
+			When using url rewriting, you can access pages by directly appending the name to the base url.
+			Eg: “<span class="quote">http://example.com/home</span>”
+		</p>
+		<p>
+			The action that has been called can be found in the configuration key named “<span class="quote">request_uri</span>”.
+			The base url of the website (ie. the path before the root of the site) can be found in the 
+			“<span class="quote">base_url</span>” key.
 		</p>
 	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions"></a>Actions</h2></div></div></div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="url-router"></a>Routing urls</h2></div></div></div>
 		
-		<p>
-			Actions are stored in the <code class="filename">app/actions</code> directory. Both the action and the 
-			view filename must have the same name.
-		</p>
-		<p>
-			The content of the action file is free. It can be anything you want. So you just do your
-			logic as you used to.
-		</p>
-		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
-			Be aware that actions run in their own scope and not in the global scope as you
-			might think.
-		</div>
-		<p>
-			Variables declared in the action are forwarded to the view. If you want to keep some
-			variables private (i.e. which will only be available in your action) prefixed them
-			with an underscore.
-		</p>
-		<div class="example"><a id="id3336668"></a><p class="title"><b>Example 6.3. Private variables in actions</b></p><div class="example-contents">
-			
-			<pre class="programlisting">
-				
-&lt;?php
-$myPublicVariable = 'value';
-$_myPrivateVariable = 'secret';
-			</pre>
-		</div></div><br class="example-break" />
-		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
-			You shouldn't use <code class="function">echo</code> or write any HTML code inside an action.
-			As said before, the goal of an action is to separate the logic from the presentation. Thus
-			mix-in both in the action file would be a non-sense!
-		</div>
-	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="views"></a>Views</h2></div></div></div>
-		
-		<p>
-			Views are stored in the <code class="filename">app/views</code> directory.
-		</p>
-		<p>
-			The content of the view file is, as the action file, free. It should mostly be text or 
-			HTML (or any presentation content, such as XML).
-		</p>
-		<p>
-			PHP can be used to print variables from the action or to provide presentation logic like
-			loops.
-		</p>
-		<div class="example"><a id="id3336721"></a><p class="title"><b>Example 6.4. Example view</b></p><div class="example-contents">
-			
-			<pre class="programlisting">
-				
-&lt;html&gt;
-	&lt;head&gt;
-		&lt;title&gt;Example&lt;/title&gt;
-	&lt;/head&gt;
-	&lt;body&gt;
-		&lt;?php echo $myPublicVariable; ?&gt;
-	&lt;/body&gt;
-&lt;/html&gt;
-			</pre>
-		</div></div><br class="example-break" />
-		<div class="figure"><a id="id3336733"></a><p class="title"><b>Figure 6.1. A little schema to sum up!</b></p><div class="figure-contents">
-			
-			<div class="mediaobject"><img src="images/actions_views.png" alt="A little schema to sum up!" /></div>
-		</div></div><br class="figure-break" />
-	</div>
-	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-views-programmatically"></a>Calling actions or views programmatically</h2></div></div></div>
-		
-		<p>
-			When executing a request, the action and/or the view associated to it are
-			automatically called. You can however call other actions or render other
-			views using Atomik's API.
-		</p>
-		<p>
-			The most useful use of this it to render partial views, small part of presentation
-			code that is reusable.
-		</p>
-		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="executing-actions"></a>Executing actions</h3></div></div></div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="creating-routes"></a>Creating routes</h3></div></div></div>
 			
 			<p>
-				To execute an action use the <code class="methodname">Atomik::execute()</code> method. It takes
-				as first argument the action name.
+				It is now a common practice to use pretty urls. This can easily be done using Atomik's router.
+				The router map urls to actions and allows you to extract parameters from these urls. An url and its
+				parameters is called a route.
 			</p>
 			<p>
-				By default, if a view with the same name is found, it is rendered and the return value
-				of the <code class="methodname">execute()</code> method is the view output.
+				Routes are defined in the “<span class="quote">routes</span>” configuration key.
+				The action must be specified as a parameter named “<span class="quote">action</span>”.
 			</p>
-			<p>
-				If no view is found or <code class="code">false</code> is used as second argument, the return value
-				is an array containing all “<span class="quote">public</span>” variables from the action.
-			</p>
-			<div class="example"><a id="id3336822"></a><p class="title"><b>Example 6.5. Calling an action programmatically</b></p><div class="example-contents">
+			<div class="example"><a id="id1206188"></a><p class="title"><b>Example 6.1. Simple route</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
-$viewOutput = Atomik::execute('myAction');
-$variables = Atomik::execute('myAction', false);
+Atomik::set('routes', array(
+   'user/add' =&gt; array(
+       'action' =&gt; 'user_add'
+   )
+));
 				</pre>
 			</div></div><br class="example-break" />
-		</div>
-		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="rendering-views"></a>Rendering views</h3></div></div></div>
-			
 			<p>
-				To render a view use the <code class="methodname">Atomik::render()</code> method.
+				As you see, the route is define as the array key and its parameters are defined in
+				the sub array. You can add an unlimited numbers of parameters to the route. There
+				must be at least action parameter for the route to be valid.
 			</p>
 			<p>
-				It takes as first argument the view name and optionally as second argument
-				an array of key/value pairs representing variables.
+				The real magic of the routes is the possibility to assign a parameter value with
+				a segment of the uri. This is done by specifying a parameter name prefixed with “<span class="quote">:</span>”
+				inside an uri segment (ie. between slashes).
 			</p>
 			<p>
-				The method returns the view output.
+				Parameters defined as uri segments can be optional if they are also defined in the
+				parameters list.
 			</p>
-			<div class="example"><a id="id3336864"></a><p class="title"><b>Example 6.6. Rendering a view programmatically</b></p><div class="example-contents">
+			<div class="example"><a id="id1206219"></a><p class="title"><b>Example 6.2. A route with some parameters</b></p><div class="example-contents">
 				
 				<pre class="programlisting">
 					
-$viewOutput = Atomik::render('myView');
-$viewOutput = Atomik::render('myView', array('var' =&gt; 'value'));
+Atomik::set('routes', array(
+   'archives/:year/:month' =&gt; array(
+       'action' =&gt; 'archives',
+       'month' =&gt; 'all'
+   )
+));
+				</pre>
+				<p>
+					In this route, the month parameter is optional but not the year. Thus, possibles urls are
+					“<span class="quote">http://example.com/archives/2008</span>” or “<span class="quote">http://example.com/archives/2008/02</span>”.
+					In these case the year parameter will have the “<span class="quote">2008</span>” value and the month parameter in the 
+					second example will have “<span class="quote">02</span>” as value.
+				</p>
+			</div></div><br class="example-break" />
+			<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+				<p>
+					Routes are match in reverse order.
+				</p>
+			</div>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="routes-parameters"></a>Retrieving route parameters</h3></div></div></div>
+			
+			<p>
+				Once the routing process is done, a configuration key named “<span class="quote">request</span>” is available. It contains
+				an associative array with parameters and their value.
+			</p>
+			<div class="example"><a id="id1206277"></a><p class="title"><b>Example 6.3. A route with some parameters</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+$params = Atomik::get('request');
+$year = Atomik::get('request/year');
 				</pre>
 			</div></div><br class="example-break" />
 		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="url-method"></a>Building urls with <code class="methodname">Atomik::url()</code></h2></div></div></div>
+		
 		<p>
-			For more information on both methods, see the API reference.
+			Directly writing url into your code can lead to problems. When using a layout for example, it is hard to know the
+			relative location of the current view to include stylesheets for example. Some urls also needs lots of concatanation
+			when using parameters and this can make the code less readable.
+		</p>
+		<p>
+			<code class="methodname">Atomik::url()</code> tries to resolve those problems by providing three things:
+			</p><div class="itemizedlist"><ul type="disc"><li>Prepends the base url</li><li>Do not use <code class="filename">index.php</code> in the url if url rewriting is enabled (or use it if not)</li><li>Handles url parameters</li></ul></div><p>
+		</p>
+		<p>
+			The method works best with relative or absolute urls. It can however also works with full urls. In this case, the two first 
+			points won't be applied.
+		</p>
+		<div class="example"><a id="id1206344"></a><p class="title"><b>Example 6.4. Building simple urls</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+$url = Atomik::url('home'); // /index.php?action=home if no url rewriting or /home otherwise
+$url = Atomik::url('/user/dashboard'); // /user/dashboard
+$url = Atomik::url('http://example.com'); // http://example.com
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			You can add GET parameters to the url using an array as the second argument.
+		</p>
+		<div class="example"><a id="id1206359"></a><p class="title"><b>Example 6.5. Building urls with parameters</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+$url = Atomik::url('archives', array('year' =&gt; 2008)); // /index.php?action=archives&amp;year=2008 if no url rewriting or /archives?year=2008 otherwise
+$url = Atomik::url('archives?year=2008', array('month' =&gt; 02)); // /archives?year=2008&amp;month=02
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			The method also allows you to use embedded parameters. These are parameters in the uri. The name of the parameter must be prepended
+			with “<span class="quote">:</span>”.
+		</p>
+		<div class="example"><a id="id1206381"></a><p class="title"><b>Example 6.6. Building urls with embedded parameters</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+$url = Atomik::url('archives/:year', array('year' =&gt; 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
+$url = Atomik::url('archives/:year', array('year' =&gt; 2008, 'month' =&gt; 02)); // /archives/2008?month=02
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			Finally, when creating urls that point to resources you'll never want them to have the <code class="filename">index.php</code> part in them.
+			To prevent that you can use the <code class="methodname">Atomik::asset()</code> method. It works exactly the same as 
+			<code class="methodname">Atomik::url()</code> but will never use <code class="filename">index.php</code> in the url.
 		</p>
 	</div>
 </div>
@@ -228,11 +219,11 @@ $viewOutput = Atomik::render('myView', array('var' =&gt; 'value'));
           <td width="40%" align="right"> <a accesskey="n" href="ch07.html">Next</a></td>
         </tr>
         <tr>
-          <td width="40%" align="left" valign="top">Chapter 5. URLs </td>
+          <td width="40%" align="left" valign="top">Chapter 5. Configuration </td>
           <td width="20%" align="center">
             <a accesskey="h" href="index.html">Home</a>
           </td>
-          <td width="40%" align="right" valign="top"> Chapter 7. Selectors</td>
+          <td width="40%" align="right" valign="top"> Chapter 7. Actions and views</td>
         </tr>
       </table>
     </div>

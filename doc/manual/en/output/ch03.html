@@ -9,7 +9,7 @@
     <link rel="start" href="index.html" title="Atomik Framework Manual" />
     <link rel="up" href="index.html" title="Atomik Framework Manual" />
     <link rel="prev" href="ch02.html" title="Chapter 2. Core principles" />
-    <link rel="next" href="ch04.html" title="Chapter 4. Accessors and configuration" />
+    <link rel="next" href="ch04.html" title="Chapter 4. The global store" />
   </head>
   <body>
     <div class="navheader">
@@ -25,7 +25,7 @@
       </table>
       <hr />
     </div>
-    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="installation"></a>Chapter 3. Installation</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch03.html#requirements">Requirements</a></span></dt><dt><span class="sect1"><a href="ch03.html#download">Download</a></span></dt><dt><span class="sect1"><a href="ch03.html#installation-installation">Installation</a></span></dt></dl></div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="installation"></a>Chapter 3. Installation</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch03.html#requirements">Requirements</a></span></dt><dt><span class="sect1"><a href="ch03.html#download">Download</a></span></dt><dt><span class="sect1"><a href="ch03.html#installation-installation">Installation</a></span></dt><dt><span class="sect1"><a href="ch03.html#directory-structure">More about the directory structure</a></span></dt></dl></div>
 	
 	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="requirements"></a>Requirements</h2></div></div></div>
 		
@@ -62,6 +62,35 @@
 				</li></ol></div><p>
 		</p>
 	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="directory-structure"></a>More about the directory structure</h2></div></div></div>
+		
+		<p>
+			Atomik's core file, namely <code class="filename">index.php</code>, must be situated at the root of your website.
+			The default directory structure is simple because everything goes into this webroot.
+		</p>
+		<p>
+			Your application per se goes into the <code class="filename">app</code> directory. Actions and views have their own directory.
+		</p>
+		<p>
+			When using the provided Apache <code class="filename">.htaccess</code> file, the <code class="filename">app</code> directory is not 
+			accessible from the web.
+		</p>
+		<p>
+			You can put your assets (css, js, images) anywhere. I like to use an <code class="filename">assets</code> folder for this kind
+			of things.
+		</p>
+		<div class="figure"><a id="id1205498"></a><p class="title"><b>Figure 3.1. The default directory structure</b></p><div class="figure-contents">
+			
+			<div class="mediaobject"><img src="images/directory_structure.png" alt="The default directory structure" /></div>
+		</div></div><br class="figure-break" />
+		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+			<p>
+				In a production environment, it is always better to remove the application files from the webroot. This is not the default way
+				of doing things with Atomik as it can be a bit more difficult. However it is very easy to do. Atomik allows you to edit
+				the path for each directory. This will be covered in the configuration chapter.
+			</p>
+		</div>
+	</div>
 </div>
     <div class="navfooter">
       <hr />
@@ -76,7 +105,7 @@
           <td width="20%" align="center">
             <a accesskey="h" href="index.html">Home</a>
           </td>
-          <td width="40%" align="right" valign="top"> Chapter 4. Accessors and configuration</td>
+          <td width="40%" align="right" valign="top"> Chapter 4. The global store</td>
         </tr>
       </table>
     </div>

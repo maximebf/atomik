@@ -35,6 +35,31 @@ Atomik::listenEvent('myEvent', 'myEventCallback');
 Atomik::listenEvent('myArgEvent', 'myArgEventCallback');]]>
 			</programlisting>
 		</example>
+		<para>
+			Listeners also have priorities. The priority is a number, smaller number have a higher priority.
+			The priority is specified when registering the listener.
+		</para>
+		<example>
+			<title>Listeners with priorities</title>
+			<programlisting>
+				<![CDATA[
+Atomik::listenEvent('myEvent', 'myEventCallback', 10);
+Atomik::listenEvent('myEvent', 'myEventCallback2', 5); // will be called first]]>
+			</programlisting>
+		</example>
+		<para>
+			Multiple listeners can have the same priority. If you dim your listener more important and want it 
+			to be called before other listeners of the same priority, you can. This is done by passing true as
+			the fourth parameter.
+		</para>
+		<example>
+			<title>Listeners with priorities and importance</title>
+			<programlisting>
+				<![CDATA[
+Atomik::listenEvent('myEvent', 'myEventCallback', 10);
+Atomik::listenEvent('myEvent', 'myEventCallback2', 10, true); // will be called first]]>
+			</programlisting>
+		</example>
 	</sect1>
 	<sect1 id="firing-events">
 		<title>Firing events</title>
@@ -49,6 +74,18 @@ Atomik::listenEvent('myArgEvent', 'myArgEventCallback');]]>
 				<![CDATA[
 Atomik::fireEvent('myEvent');
 Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));]]>
+			</programlisting>
+		</example>
+		<para>
+			This method returns an array with results from each callbacks. A string can also be returned
+			when passing true as the third parameter. The string will be the concatanation of all results.
+		</para>
+		<example>
+			<title>Callback results after firing events</title>
+			<programlisting>
+				<![CDATA[
+$results = Atomik::fireEvent('myEvent'); // array
+$string = Atomik::fireEvent('myStringEvent', array(), true); // string]]>
 			</programlisting>
 		</example>
 	</sect1>

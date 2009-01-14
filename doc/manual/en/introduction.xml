@@ -11,7 +11,7 @@
 	<para>
 		Here's a list of some Atomik features:
 		<itemizedlist>
-			<listitem>Very small footprint (less than 30kb)</listitem>
+			<listitem>Very small footprint</listitem>
 			<listitem>Flexible licensing (MIT)</listitem>
 			<listitem>Very simple to use</listitem>
 			<listitem>It simply works</listitem>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 13. Plugins</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Framework Manual" />
+    <link rel="up" href="index.html" title="Atomik Framework Manual" />
+    <link rel="prev" href="ch12.html" title="Chapter 12. Events" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 13. Plugins</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="ch12.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> </td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="plugins"></a>Chapter 13. Plugins</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch13.html#using-plugins">Using plugins</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch13.html#installing-plugins">Installing a plugin</a></span></dt><dt><span class="sect2"><a href="ch13.html#activating-configuring-plugins">Activating and configuring a plugin</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch13.html#developing-plugins">Developing plugins</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch13.html#plugin-file">The plugin file</a></span></dt><dt><span class="sect2"><a href="ch13.html#plugin-custom-configuration">Plugin's custom configuration</a></span></dt><dt><span class="sect2"><a href="ch13.html#plugin-class">Using a class</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch13.html#loading-plugins">Loading plugins programmaticaly</a></span></dt></dl></div>
+	
+	<p>
+		Plugins are a simple way to extend Atomik. As said before, the framework doesn't
+		come with a lot of features. However it provides a nice and powerful plugin system.
+	</p>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="using-plugins"></a>Using plugins</h2></div></div></div>
+		
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="installing-plugins"></a>Installing a plugin</h3></div></div></div>
+			
+			<p>
+				Plugins are stored in the <code class="filename">app/plugins</code> directory. 
+				Simply copy the plugin file or folder into this directory.
+			</p>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="activating-configuring-plugins"></a>Activating and configuring a plugin</h3></div></div></div>
+			
+			<p>
+				Plugins are not automatically activated. To do so, it's needed to add an
+				entry in the “<span class="quote">plugins</span>” configuration key.
+			</p>
+			<div class="example"><a id="id1207681"></a><p class="title"><b>Example 13.1. Activating a plugin</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+Atomik::set('plugins', array(
+	'Db',
+	'Cache'
+));
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				Some plugins need custom configuration which can be specified in the
+				plugins config key.
+			</p>
+			<div class="example"><a id="id1207697"></a><p class="title"><b>Example 13.2. Plugin with custom configuration</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+Atomik::set('plugins', array(
+	'Db' =&gt; array(
+           'dsn'         =&gt; 'mysql:host=localhost;dbname=atomik',
+           'username'    =&gt; 'atomik',
+           'password'    =&gt; 'atomik'
+	),
+	'Cache'
+));
+				</pre>
+			</div></div><br class="example-break" />
+		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="developing-plugins"></a>Developing plugins</h2></div></div></div>
+		
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="plugin-file"></a>The plugin file</h3></div></div></div>
+			
+			<p>
+				A plugin is made of one file named the same way. For example the Db plugin is in the file
+				<code class="filename">Db.php</code>. Plugin's file should always start with an uppercase letter.
+			</p>
+			<p>
+				Plugins are loaded at the beginning of a request, just after the configuration. 
+				The content of the file is free or it can be a class.
+			</p>
+			<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+				<p>
+					To build more complex plugins you can instead of a file create a folder named after your plugin.
+					This folder must contain a <code class="filename">Plugin.php</code> file.
+				</p>
+				<p>
+					When using folders, it is possible to add a sub folder named <code class="filename">libraries</code> which
+					will automatically be added to php's include_path.
+				</p>
+			</div>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="plugin-custom-configuration"></a>Plugin's custom configuration</h3></div></div></div>
+			
+			<p>
+				As said in the "Using plugins" section, plugins can have custom configuration.
+				To retrieve this configuration a $config variable is automatically available.
+				It contains the array used in the configuration.
+			</p>
+			<div class="example"><a id="id1207776"></a><p class="title"><b>Example 13.3. Retrieving plugin custom configuration</b></p><div class="example-contents">
+				
+				<p>
+					In the configuration file:
+				</p>
+				<pre class="programlisting">
+					
+Atomik::set('plugins', array(
+	'MyPlugin' =&gt; array(
+           'name' =&gt; 'Peter'
+	)
+));
+				</pre>
+				<p>
+					In the plugin file:
+				</p>
+				<pre class="programlisting">
+					
+echo 'hello ' . $config['name'];
+				</pre>
+			</div></div><br class="example-break" />
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="plugin-class"></a>Using a class</h3></div></div></div>
+			
+			<p>
+				For better application design it is advice to use a class to define your plugin.
+				When loading a plugin, it will look for a class named like the plugin suffixed with
+				“<span class="quote">Plugin</span>”.
+			</p>
+			<p>
+				If this class has a static <code class="methodname">start</code> method, it will be called
+				with the plugin's custom configuration as argument, when the plugin is loaded.
+			</p>
+			<div class="example"><a id="id1207829"></a><p class="title"><b>Example 13.4. Plugin class</b></p><div class="example-contents">
+				
+				<p>
+					The plugin class for a plugin named Db
+				</p>
+				<pre class="programlisting">
+					
+class DbPlugin
+{
+	public static function start($config)
+	{
+		// $config['name'] == 'Peter'
+	}
+}
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				The class can contain static methods that will be automatically registered as callback
+				on events. These methods have to start by "on" followed by the event name without
+				the double ":".
+			</p>
+			<div class="example"><a id="id1207850"></a><p class="title"><b>Example 13.5. Plugin class with event callback methods</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+class DbPlugin
+{
+	public static onAtomikDispatchStart()
+	{
+		// listener for Atomik::Dispatch::Start
+	}
+}
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				You can prevent automatic callback registration by returning false in the start
+				method.
+			</p>
+		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="loading-plugins"></a>Loading plugins programmaticaly</h2></div></div></div>
+		
+		<p>
+			It is of course possible to load plugins at runtime. This is done using the <code class="methodname">Atomik::loadPlugin()</code>
+			method.
+		</p>
+		<div class="example"><a id="id1207887"></a><p class="title"><b>Example 13.6. Loading a plugin at runtime</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+Atomik::loadPlugin('Db');
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			To provide some configuration for the plugin, pass an array as the second argument.
+		</p>
+		<div class="example"><a id="id1207903"></a><p class="title"><b>Example 13.7. Loading a plugin at runtime with some configuration</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+Atomik::loadPlugin('Db', array('dbname' =&gt; 'test'));
+			</pre>
+		</div></div><br class="example-break" />
+		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+			Be aware that some plugins may need to listen to some specific events. If you register your plugin too late,
+			the event may have already occured, making the plugin malfunction.
+		</div>
+		<p>
+			You can check if a plugin is already loaded using <code class="methodname">Atomik::isPluginLoaded()</code>.
+		</p>
+		<div class="example"><a id="id1207926"></a><p class="title"><b>Example 13.8. Checking if a plugin is already loaded</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+if (Atomik::isPluginLoaded('Db')) {
+	// ...
+}
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			<code class="methodname">Atomik::loadPlugin()</code> provides more advanced features which allow you for example 
+			to create plugins for your plugin!
+		</p>
+		<div class="example"><a id="id1207945"></a><p class="title"><b>Example 13.9. More advance use of <code class="methodname">Atomik::loadPlugin()</code></b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+// load plugins from a custom directory
+Atomik::loadPlugin('MyPlugin', array(), '/custom/plugins/directory');
+
+// using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
+Atomik::loadPlugin('MyPlugin', array(), null, '%CustomPlugin');
+
+// do not call the start() method when loading plugins
+Atomik::loadPlugin('MyPlugin', array(), null, '%Plugin', false);
+			</pre>
+		</div></div><br class="example-break" />
+	</div>
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="ch12.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> </td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 12. Events </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 4. Session</title>
+    <link rel="stylesheet" href="../styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="up" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="prev" href="ch03.html" title="Chapter 3. Console" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 4. Session</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="ch03.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> </td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="session"></a>Chapter 4. Session</h2></div></div></div>
+	
+	<p>
+		The session plugin provides two things: automatically starts and ends the session and a flash 
+		messages mechanism. Flash messages are messages which are available only once and to the next request.
+		This allows to pass error or success messages for example. 
+	</p>
+	<p>
+		To create a flash message call the <code class="methodname">Atomik_Session::flash()</code> method. It takes as
+		first parameter the message. Messages can also have labels. For example “<span class="quote">error</span>” or 
+		“<span class="quote">success</span>”. To specify a label, use the second argument. The default label is “<span class="quote">default</span>”.
+	</p>
+	<div class="example"><a id="id1399633"></a><p class="title"><b>Example 4.1. Creating flash messages</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+Atomik_Session::flash('The action has completed successfully');
+Atomik_Session::flash('The action has completed successfully', 'success'); // with a label
+		</pre>
+	</div></div><br class="example-break" />
+	<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+		It is possible to add a message to the current request instead of the next one by passing true as
+		the third argument.
+	</div>
+	<p>
+		Flash messages can then be retreived using <code class="methodname">Atomik_Session::getMessages()</code>. This will 
+		retrieve all messages whatever the label. The returned array contains as keys the label names and the associated
+		values are arrays of messages.
+	</p>
+	<p>
+		 You can also retreive one message only using <code class="methodname">Atomik_Session::getNextMessage()</code>. This method
+		 will return an array with the first item beign the label and the second the message.
+	</p>
+	<p>
+		Both methods can take as argument a label name to only retreive a message from a specific label. In this case,
+		an array of messages is returned for the first method and the message as a string for the second.
+	</p>
+	<div class="example"><a id="id1399669"></a><p class="title"><b>Example 4.2. Retreiving flash messages</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+foreach (Atomik::getMessages() as $label =&gt; $messages) {
+	foreach ($messages as $message) {
+		// ...
+	}
+}
+
+list($label, $message) = Atomik::getNextMessage();
+		</pre>
+	</div></div><br class="example-break" />
+	<p>
+		Finally, the Session plugin also adds a selector with the “<span class="quote">session</span>” namespace. It provides the same way
+		of accessing arrays as <code class="methodname">Atomik::get()</code>.
+	</p>
+	<div class="example"><a id="id1399691"></a><p class="title"><b>Example 4.3. The session selector</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+$_SESSION['user'] = array('name' =&gt; 'paul', 'age' =&gt; 20);
+A('session:user/name'); // paul
+		</pre>
+	</div></div><br class="example-break" />
+	<p>
+		The plugin also adds a reference to the $_SESSION variable under the session condifuration key.
+	</p>
+	<div class="example"><a id="id1399708"></a><p class="title"><b>Example 4.4. Accessing $_SESSION from the global store</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+Atomik::set('session/user', array('name' =&gt; 'paul', 'age' =&gt; 20);
+A('session/user/name'); // paul
+		</pre>
+	</div></div><br class="example-break" />
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="ch03.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> </td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 3. Console </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
