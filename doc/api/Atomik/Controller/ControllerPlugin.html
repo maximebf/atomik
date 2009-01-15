@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos  -->
+			<title>Docs For Class ControllerPlugin</title>
+			<link rel="stylesheet" href="../../media/stylesheet.css" />
+						<script src="../../media/lib/classTree.js"></script>
+												<script language="javascript" type="text/javascript">
+				var imgPlus = new Image();
+				var imgMinus = new Image();
+				imgPlus.src = "../../media/images/plus.png";
+				imgMinus.src = "../../media/images/minus.png";
+				
+				function showNode(Node){
+							switch(navigator.family){
+								case 'nn4':
+									// Nav 4.x code fork...
+							var oTable = document.layers["span" + Node];
+							var oImg = document.layers["img" + Node];
+									break;
+								case 'ie4':
+									// IE 4/5 code fork...
+							var oTable = document.all["span" + Node];
+							var oImg = document.all["img" + Node];
+									break;
+								case 'gecko':
+									// Standards Compliant code fork...
+							var oTable = document.getElementById("span" + Node);
+							var oImg = document.getElementById("img" + Node);
+									break;
+							}
+					oImg.src = imgMinus.src;
+					oTable.style.display = "block";
+				}
+				
+				function hideNode(Node){
+							switch(navigator.family){
+								case 'nn4':
+									// Nav 4.x code fork...
+							var oTable = document.layers["span" + Node];
+							var oImg = document.layers["img" + Node];
+									break;
+								case 'ie4':
+									// IE 4/5 code fork...
+							var oTable = document.all["span" + Node];
+							var oImg = document.all["img" + Node];
+									break;
+								case 'gecko':
+									// Standards Compliant code fork...
+							var oTable = document.getElementById("span" + Node);
+							var oImg = document.getElementById("img" + Node);
+									break;
+							}
+					oImg.src = imgPlus.src;
+					oTable.style.display = "none";
+				}
+				
+				function nodeIsVisible(Node){
+							switch(navigator.family){
+								case 'nn4':
+									// Nav 4.x code fork...
+							var oTable = document.layers["span" + Node];
+									break;
+								case 'ie4':
+									// IE 4/5 code fork...
+							var oTable = document.all["span" + Node];
+									break;
+								case 'gecko':
+									// Standards Compliant code fork...
+							var oTable = document.getElementById("span" + Node);
+									break;
+							}
+					return (oTable && oTable.style.display == "block");
+				}
+				
+				function toggleNodeVisibility(Node){
+					if (nodeIsVisible(Node)){
+						hideNode(Node);
+					}else{
+						showNode(Node);
+					}
+				}
+			</script>
+					</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name"><img src="../../media/images/Class_logo.png"
+														alt=" Class"
+														title=" Class"
+														style="vertical-align: middle"> ControllerPlugin</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+													<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+						|											<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Controller plugin</p>
+<p class="description"><p>When enable, actions files becomes controllers. Also implements  a router.</p><p>URI:</p><p>The default behaviour of Atomik is to execute the script which  have the same name as the uri. For example, calling /index will  execute the script index.php. With this plugin, this  is still true but to some extend only. Calling /index will load  index.php from the actions directory but it will execute the index method of  the class named IndexController. Calling /index/add will execute  the add method of the IndexController class. Methods are called actions.  The basic idea is /controller/action</p><p>CONTROLLER:</p><p>A controller is a class. The class name must be the controller name  with a capital letter suffixed with the word Controller. For example,  the index controller class would be named IndexController.  Methods of this class are called actions. The action specified in the  uri will be called.  Example:</p><p>class IndexController  {     public function index()     {     }  }</p><p>Action methods can have one argument which is an array containing the  route parameters (see below). If you don't want one of your method to be  accessible from the url, prefixed it with an underscore.</p><p>The template script is thus not the same as usual. Indeed, keeping  the same script would mean all actions share it. Template scripts,  called views, are stored in a directory named like the controller inside  the templates folder. For example, the view for the add action of  the index controller is stored in templates/index/add.php</p><p>Views variables are also not set the same way. It is obvious that  it's not possible to do $var = 'value' inside a controller action and then  access $var inside the view. To set a view variable, set it as an object  property: $this-&gt;var = 'value'. All controller's properties will be accessible  from the view like usual (i.e. $var). If you don't want one of your properties  to be exported prefixed it with and underscore.</p><p>Finally, you can define the _beforeAction() or _afterAction() methods in your  controller. They will be called respectively before and after all actions.</p><p>ROUTER</p><p>It is possible to modify the way url are handled using the router. A route is  basically an url. For example /index/add is a route. It is then needed to map  this route to the correct controller and action.  Routes are defined inside the controller_routes config key - which is an array.  For example to map the route /index/add to the index controller and the add action:</p><p>array(     'index/add' =&gt; array(         'controller' =&gt; 'index',         'action' =&gt; 'add'     )  )</p><p>As you see, the route is define as the array key and its parameters are defined in  the sub array. You can add an unlimited numbers of parameters to the route. There  must be at least the controller and action parameters for the route to be valid.</p><p>The real magic of the routes is the possibility to assign a parameter value with  a segment of the uri. This is done by specifying inside the route a parameter name  prefixed with &quot;:&quot;. For example, the default route is:</p><p>array(     ':controller/:action' =&gt; array(         'controller' =&gt; 'index',         'action' =&gt; 'index'     )  )</p><p>If the uri is /index/add, :controller will be replace with index and :action with  add. The controller and action parameters are still defined inside the parameters  array as default value. Thus the controller and the action are optional. So, for  example /blog will match the blog controller and the index action. If no default  value are specified, the uri segment must be specified for the route to be valid.  Example:</p><p>array(     'archives/:year/:month' =&gt; array(         'controller' =&gt; 'archives',         'action' =&gt; 'view',         'year' =&gt; 2008     )  )</p><p>Will match /archives/2008/12 but won't match /archives/2008 (the month parameter  is not optional and is not defined).</p><p>If the url contains more segments than the route specified, they will be transformed  as parameters. Example, using the default route:</p><p>/index/add/key1/value1/key2/value2</p><p>The route parameters will be:</p><p>array(      'controller' =&gt; 'index',       'action' =&gt; 'add',       'key1' =&gt; 'value1',       'key2' =&gt; 'value2'  )</p><p>Routes are match in reverse order.</p></p>
+		<p class="notes">
+			Located in <a class="field" href="_plugins---Controller.php.html">/plugins/Controller.php</a> (line <span class="field">142</span>)
+		</p>
+		
+				
+		<pre></pre>
+	
+			</div>
+</div>
+
+
+
+	<a name="sec-var-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variable Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+						<span class="disabled">Vars</span> (<a href="#sec-vars">details</a>)
+							| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+								</div>
+		<div class="info-box-body">
+			<div class="var-summary">
+												<div class="var-title">
+					<img src="../../media/images/StaticVariable.png" alt=" " />
+					static <span class="var-type">array</span>
+					<a href="#$config" title="details" class="var-name">$config</a>
+				</div>
+																							</div>
+		</div>
+	</div>
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+																		<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+				 
+				|
+						<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+											
+				<div class="method-definition">
+					<img src="../../media/images/StaticMethod.png" alt=" "/>
+					static 						<span class="method-result">void</span>
+										<a href="#onAtomikDispatchBefore" title="details" class="method-name">onAtomikDispatchBefore</a>
+										()
+									</div>
+															
+				<div class="method-definition">
+					<img src="../../media/images/StaticMethod.png" alt=" "/>
+					static 						<span class="method-result">void</span>
+										<a href="#onAtomikExecuteAfter" title="details" class="method-name">onAtomikExecuteAfter</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$action</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$template</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$vars</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$render</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$echo</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$triggerError</span>)
+									</div>
+															
+				<div class="method-definition">
+					<img src="../../media/images/StaticMethod.png" alt=" "/>
+					static 						<span class="method-result">void</span>
+										<a href="#onAtomikExecuteStart" title="details" class="method-name">onAtomikExecuteStart</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">&$action</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$template</span>)
+									</div>
+															
+				<div class="method-definition">
+					<img src="../../media/images/StaticMethod.png" alt=" "/>
+					static 						<span class="method-result">void</span>
+										<a href="#onConsoleGenerate" title="details" class="method-name">onConsoleGenerate</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$action</span>)
+									</div>
+															
+				<div class="method-definition">
+					<img src="../../media/images/StaticMethod.png" alt=" "/>
+					static 						<span class="method-result">void</span>
+										<a href="#start" title="details" class="method-name">start</a>
+											(<span class="var-type">array</span>&nbsp;<span class="var-name">$config</span>)
+									</div>
+																																																							</div>
+		</div>
+	</div>		
+
+	<a name="sec-vars"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variables</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+										<a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+						
+			
+										| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+					</div>
+		<div class="info-box-body">
+			<a name="var$config" id="$config"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<img src="../../media/images/StaticVariable.png" />
+		<span class="var-title">
+			static <span class="var-type">array</span>
+			<span class="var-name">$config</span>
+			 = <span class="var-default">array(<br />        <br />        /* routes */<br />        'routes' =&gt; array())</span>			(line <span class="line-number">149</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Default configuration</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	
+		
+		
+
+</div>
+
+						
+		</div>
+	</div>
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+															<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+																	<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+<a name="methodonAtomikDispatchBefore" id="onAtomikDispatchBefore"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<img src="../../media/images/StaticMethod.png" />
+		<span class="method-title">static onAtomikDispatchBefore</span> (line <span class="line-number">169</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Rewrites the url and build the request</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		static <span class="method-result">void</span>
+		<span class="method-name">
+			onAtomikDispatchBefore
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodonAtomikExecuteAfter" id="onAtomikExecuteAfter"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../../media/images/StaticMethod.png" />
+		<span class="method-title">static onAtomikExecuteAfter</span> (line <span class="line-number">259</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Dispatch the request to the controller action</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		static <span class="method-result">void</span>
+		<span class="method-name">
+			onAtomikExecuteAfter
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$action</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$template</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$vars</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$render</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$echo</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$triggerError</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$action</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$template</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$vars</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$render</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$echo</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$triggerError</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodonAtomikExecuteStart" id="onAtomikExecuteStart"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<img src="../../media/images/StaticMethod.png" />
+		<span class="method-title">static onAtomikExecuteStart</span> (line <span class="line-number">245</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Changes the action name for atomik to find the file</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		static <span class="method-result">void</span>
+		<span class="method-name">
+			onAtomikExecuteStart
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">&$action</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$template</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$action</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$template</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodonConsoleGenerate" id="onConsoleGenerate"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../../media/images/StaticMethod.png" />
+		<span class="method-title">static onConsoleGenerate</span> (line <span class="line-number">315</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Overrides default generator behaviour</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		static <span class="method-result">void</span>
+		<span class="method-name">
+			onConsoleGenerate
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$action</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$action</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodstart" id="start"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<img src="../../media/images/StaticMethod.png" />
+		<span class="method-title">static start</span> (line <span class="line-number">161</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Plugin starts</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		static <span class="method-result">void</span>
+		<span class="method-name">
+			start
+		</span>
+					(<span class="var-type">array</span>&nbsp;<span class="var-name">$config</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$config</span>			</li>
+				</ul>
+		
+			
+	</div>
+						
+		</div>
+	</div>
+
+	
+	<p class="notes" id="credit">
+		Documentation generated on Thu, 24 Jul 2008 16:01:14 +0200 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.1</a>
+	</p>
+	</div></body>
+</html>
