@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 5. Db</title>
+    <link rel="stylesheet" href="../styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="up" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="prev" href="ch04.html" title="Chapter 4. Controller" />
+    <link rel="next" href="ch06.html" title="Chapter 6. Lang" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 5. Db</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="ch04.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="ch06.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="db"></a>Chapter 5. Db</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch05.html#db-connection">Connecting to a database</a></span></dt><dt><span class="sect1"><a href="ch05.html#db-query">Querying the database</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch05.html#db-query-pdo">Using PDO-like methods</a></span></dt><dt><span class="sect2"><a href="ch05.html#db-query-find">Using “<span class="quote">find</span>” methods</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch05.html#db-dml">Manipulating data</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch05.html#insert">Insert</a></span></dt><dt><span class="sect2"><a href="ch05.html#update">Update</a></span></dt><dt><span class="sect2"><a href="ch05.html#delete">Delete</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch05.html#db-advanced">Advanced use of the plugin</a></span></dt></dl></div>
+	
+	<p>
+		The Db plugin provides database features over PDO. Thus, it is advice to know
+		how to use PDO before using this plugin. Check out <a class="ulink" href="http://php.net/pdo" target="_top">http://php.net/pdo</a> 
+		for more information.
+	</p>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="db-connection"></a>Connecting to a database</h2></div></div></div>
+		
+		<p>
+			You can connect to a database either automatically or manually. The first
+			method can be achieved by setting some configuration.
+		</p>
+		<p>
+			You need to specify a dsn, a username and a password as shown below. You also
+			need to define the “<span class="quote">autoconnect</span>” configuration key to true.
+		</p>
+		<div class="example"><a id="id1153465"></a><p class="title"><b>Example 5.1. Automatically connecting to a database</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+Atomik::set('plugins/Db', array(
+	'dsn' =&gt; 'mysql:host=localhost;dbname=mydb',
+	'username' =&gt; 'root',
+	'password' =&gt; '',
+	'autoconnect' =&gt; true
+));
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			To connect manually, use the <code class="methodname">Atomik_Db::connect()</code> method.
+		</p>
+		<div class="example"><a id="id1153487"></a><p class="title"><b>Example 5.2. Connecting to a database manually</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+Atomik_Db::connect('mysql:host=localhost;dbname=mydb', 'root', '');
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			The plugin then manages a PDO instance. The instance is stored in <code class="varname">Atomik_Db::$pdo</code>.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="db-query"></a>Querying the database</h2></div></div></div>
+		
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="db-query-pdo"></a>Using PDO-like methods</h3></div></div></div>
+			
+			<p>
+				The <code class="classname">Atomik_Db</code> class provides three alias methods to PDO methods:
+				<code class="methodname">query()</code>, <code class="methodname">exec()</code> and <code class="methodname">prepare()</code>.
+				The two last one behave exactly the same. However <code class="methodname">Atomik_Db::query()</code> is a little
+				different.
+			</p>
+			<p>
+				Under the hood it creates a PDO statement using prepare and executes it. Thus, the method also allows
+				an additional argument which can contains an array to pass to the execute call of the statement.
+			</p>
+			<div class="example"><a id="id1153553"></a><p class="title"><b>Example 5.3. Using <code class="methodname">Atomik_Db::query()</code></b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+$results = Atomik_Db::query('select * from posts');
+$results = Atomik_Db::query('select * from posts where id=?', array(1));
+				</pre>
+			</div></div><br class="example-break" />
+			<div class="example"><a id="id1153568"></a><p class="title"><b>Example 5.4. Using other PDO methods with <code class="classname">Atomik_Db</code></b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+$statement = Atomik_Db::prepare('select * from posts');
+$statement-&gt;execute();
+
+$results = Atomik_Db::exec("insert into posts (content) values ('my new post')");
+				</pre>
+			</div></div><br class="example-break" />
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="db-query-find"></a>Using “<span class="quote">find</span>” methods</h3></div></div></div>
+			
+			<p>
+				The <code class="classname">Atomik_Db</code> class also provides two powerful methods to query the database:
+				<code class="methodname">Atomik_Db::find()</code> and <code class="methodname">Atomik_Db::findAll()</code>. They are
+				exactly the same but the first one will return only one record whereas the second all of them.
+			</p>
+			<p>
+				Conditions are specified as an associative array. The keys are database's fields. You can specify conditions
+				in two different ways.
+			</p>
+			<p>
+				The first way only allows you to query one table at once. The first argument of the method should be
+				a table name and the second one the fields array. An sql string can also be used instead of the array.
+			</p>
+			<div class="example"><a id="id1153625"></a><p class="title"><b>Example 5.5. Finding records from one table</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+// all records from the posts table
+$results = Atomik_Db::findAll('posts');
+
+// only records from the author 3
+$results = Atomik_Db::findAll('posts', array('author' =&gt; 3));
+// or
+$results = Atomik_Db::findAll('posts', 'author = 3');
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				The second way allows you to query multiple tables (but without using joins). Instead of specifying the table
+				name as a string, you must provide an array as the first argument where keys are table names and values the
+				fields array.
+			</p>
+			<div class="example"><a id="id1153644"></a><p class="title"><b>Example 5.6. Finding records from multiple tables</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+// all records from the posts and users tables
+$results = Atomik_Db::findAll(array('posts', 'users'));
+
+// only records from the author 3
+$results = Atomik_Db::findAll(array('posts', 'users' =&gt; array('id' =&gt; 'posts.user_id')));
+// will generate select * from posts, users where users.id = posts.user_id
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				You can also specify an order by and a limit clause. Respectively as the third and fourth arguments.
+			</p>
+			<div class="example"><a id="id1153664"></a><p class="title"><b>Example 5.7. Finding records with order by and limit clauses</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+// all records from the posts table ordered by creation_date
+$results = Atomik_Db::findAll('posts', null, 'creation_date ASC');
+
+// the first 10 records from the posts table
+$results = Atomik_Db::findAll('posts', null, '', '10');
+
+// the first 10 records from the posts table ordered by creation_date
+$results = Atomik_Db::findAll('posts', null, 'creation_date' , '10');
+
+// records 10 to 20 from the posts table
+$results = Atomik_Db::findAll('posts', null, '', '10, 10');
+				</pre>
+			</div></div><br class="example-break" />
+			<div class="example"><a id="id1153679"></a><p class="title"><b>Example 5.8. Working with the result of find methods</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+$posts = Atomik_Db::findAll('posts');
+foreach ($posts as $post) {
+	echo $post['title'];
+	echo $post['content'];
+}
+				</pre>
+			</div></div><br class="example-break" />
+		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="db-dml"></a>Manipulating data</h2></div></div></div>
+		
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="insert"></a>Insert</h3></div></div></div>
+			
+			<p>
+				The <code class="methodname">Atomik_Db::insert()</code> method can be use to insert data into the database. It takes
+				as first argument the table name and as second an associative array where keys are fields name.
+			</p>
+			<div class="example"><a id="id1153719"></a><p class="title"><b>Example 5.9. Inserting data into the database</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+Atomik_Db::insert('posts', array('title' =&gt; 'my first posts', 'content' =&gt; 'hello world'));
+// will execute: insert into posts (title, content) values('my first post', 'hello world')
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				All values are automatically escaped.
+			</p>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="update"></a>Update</h3></div></div></div>
+			
+			<p>
+				<code class="methodname">Atomik_Db::update()</code> works pretty much the same. However it takes as the last argument
+				an array of conditions (the same way as in find methods) or an sql string.
+			</p>
+			<div class="example"><a id="id1153754"></a><p class="title"><b>Example 5.10. Updating data</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+Atomik_Db::update('posts', array('content' =&gt; 'updated hello world'), array('id' =&gt; 1));
+// will execute: update posts set content = 'updated hello world' where posts.id = 1
+				</pre>
+			</div></div><br class="example-break" />
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="delete"></a>Delete</h3></div></div></div>
+			
+			<p>
+				Finally, the <code class="methodname">Atomik_Db::delete()</code> works the same as find methods (without the order by and
+				limit arguments).
+			</p>
+			<div class="example"><a id="id1153784"></a><p class="title"><b>Example 5.11. Deleting data</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+Atomik_Db::delete('posts', array('id' =&gt; 1));
+// will execute: delete from posts where posts.id = 1
+
+Atomik_Db::delete(array('posts', array('id' =&gt; 1)));
+// will execute: delete from posts where posts.id = 1
+
+Atomik_Db::delete('posts', 'id = 1');
+// will execute: delete from posts where id = 1
+				</pre>
+			</div></div><br class="example-break" />
+		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="db-advanced"></a>Advanced use of the plugin</h2></div></div></div>
+		
+		<p>
+			The static class <code class="classname">Atomik_Db</code> manages an instance of <code class="classname">Atomik_Db_Instance</code>. It's
+			this last class which actually handles all the work. As most applications will only have one database connection, the first class
+			allows to quickly access the only instance of the later class.
+		</p>
+		<p>
+			You can access the instance of <code class="classname">Atomik_Db_Instance</code> used by <code class="classname">Atomik_Db</code> by calling
+			<code class="methodname">Atomik_Db::getInstance()</code>. You can also set the instance using <code class="methodname">Atomik_Db::setInstance()</code>.
+		</p>
+		<p>
+			You can creates multiple database connections by creating instances of <code class="classname">Atomik_Db_Instance</code>. This class works
+			exactly the same as described in this chapter, only all calls should not be static.
+		</p>
+		<div class="example"><a id="id1153850"></a><p class="title"><b>Example 5.12. Using <code class="classname">Atomik_Db_Instance</code></b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+$db = new Atomik_Db_Instance();
+$db-&gt;connect($dsn, $username, $password);
+$posts = $db-&gt;findAll('posts');
+			</pre>
+		</div></div><br class="example-break" />
+	</div>
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="ch04.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="ch06.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 4. Controller </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Chapter 6. Lang</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

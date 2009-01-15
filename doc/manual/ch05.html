@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 5. Configuration</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Framework Manual" />
+    <link rel="up" href="index.html" title="Atomik Framework Manual" />
+    <link rel="prev" href="ch04.html" title="Chapter 4. The global store" />
+    <link rel="next" href="ch06.html" title="Chapter 6. URLs" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 5. Configuration</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="ch04.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="ch06.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="accessors-configuration"></a>Chapter 5. Configuration</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch05.html#bootstrapping">Bootsrapping</a></span></dt><dt><span class="sect1"><a href="ch05.html#custom-directory-structure">Custom directory structure</a></span></dt><dt><span class="sect1"><a href="ch05.html#pre-post-dispatch-file">Pre and post dispatch files</a></span></dt><dt><span class="sect1"><a href="ch05.html#custom-error-page">Custom error pages</a></span></dt></dl></div>
+	
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="bootstrapping"></a>Bootsrapping</h2></div></div></div>
+		
+		<p>
+			Atomik provides a default configuration for everything (to fullfill the convention
+			over configuration principle). However, you can override it and provide plugin's
+			configuration or even your own.
+		</p>
+		<p>
+			To do so, there is two possibilities: 
+			</p><div class="itemizedlist"><ul type="disc"><li>
+					modify Atomik's core file (<code class="filename">index.php</code>)
+				</li><li>
+					create a <code class="filename">bootstrap.php</code> file in the 
+					<code class="filename">app</code> directory.
+				</li></ul></div><p>
+		</p>
+		<p>
+			The first method is greatly discourage. It can however be useful if you want to
+			create your own Atomik distribution (this should be the only reason to use this
+			method).
+		</p>
+		<p>
+			The second method is of course the prefered one. It allows clearer configuration
+			in a unique place, perfect for maintenance. Just create a <code class="filename">bootstrap.php</code>
+			file in the <code class="filename">app</code> directory.
+			In this file, you can use accessors (the <code class="methodname">set</code> method of course)
+			to define configuration keys.
+		</p>
+		<div class="example"><a id="id1126978"></a><p class="title"><b>Example 5.1. Exemple <code class="filename">bootstrap.php</code> file</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+&lt;?php
+
+/* configuration */
+Atomik::set(array(
+
+	'key1' =&gt; 'value1',
+	
+	'key2' =&gt; value2',
+	
+	'key3' =&gt; array(
+	
+		'key3.1' =&gt; 'value3.1'
+	
+	)
+
+));
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			The name of this file can be changed using the “<span class="quote">atomik/files/bootstrap</span>” configuration key.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="custom-directory-structure"></a>Custom directory structure</h2></div></div></div>
+		
+		<p>
+			As said in the installation chapter, the directory structure can be customized.
+			This can be done by modifying entries in the “<span class="quote">atomik/dirs</span>” configuration key.
+		</p>
+		<div class="figure"><a id="id1127020"></a><p class="title"><b>Figure 5.1. The default configuration for directories</b></p><div class="figure-contents">
+			
+			<div class="mediaobject"><img src="images/config_dirs.png" alt="The default configuration for directories" /></div>
+		</div></div><br class="figure-break" />
+		<p>
+			Each keys in the dirs array represent a type of directory. Their value can be a string for
+			a single path or an array for mutliple paths.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="pre-post-dispatch-file"></a>Pre and post dispatch files</h2></div></div></div>
+		
+		<p>
+			Atomik allows you to create to files: <code class="filename">pre_dispatch.php</code> and 
+			<code class="filename">post_dispatch.php</code> in the <code class="filename">app</code> directory. These files
+			will be called respectively before and after the dispatch process.
+		</p>
+		<p>
+			Their filename can be changed using the “<span class="quote">atomik/files/pre_dispatch</span>” and
+			“<span class="quote">atomik/files/post_dispatch</span>” configuration keys.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="custom-error-page"></a>Custom error pages</h2></div></div></div>
+		
+		<p>
+			Whem an error occures, Atomik will display an error report. You can instead display a custom error page.
+			Create a file named <code class="filename">error.php</code> in the <code class="filename">app</code> directory.
+		</p>
+		<p>
+			The content can be anything you want. Beware that the layout won't be applied on this page. You also have
+			access to a variable named “<span class="quote">$exception</span>” which contains the thrown exception.
+		</p>
+		<p>
+			It is also possible to customize 404 error pages. Just create a <code class="filename">404.php</code> file in the
+			<code class="filename">app</code> directory. Like the error page, the layout won't be applied.
+		</p>
+		<p>
+			The filename of these files can be changed using the “<span class="quote">atomik/files/error</span>” and
+			“<span class="quote">atomik/files/404</span>” configuration keys.
+		</p>
+	</div>
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="ch04.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="ch06.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 4. The global store </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Chapter 6. URLs</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
