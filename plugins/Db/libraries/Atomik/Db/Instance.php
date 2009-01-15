@@ -259,13 +259,13 @@ class Atomik_Db_Instance
 	 *    keys will be treated as tables name. values
 	 *    must be an array like $where (see below).
 	 *    Example:
-	 *     db_build_select_sql(array('table' => array('field1' => 'value1')));
+	 *     _buildWhere(array('table' => array('field1' => 'value1')));
 	 *     SELECT * FROM table WHERE table.field1 = 'value1'
 	 *
 	 *  - $tables is a string ($where is needed):
 	 *    Select data from one table. $where defines
 	 *    condition(s). Example:
-	 *     db_build_select_sql('table', array('field1' => 'value1'));
+	 *     _buildWhere('table', array('field1' => 'value1'));
 	 *     SELECT * FROM table WHERE table.field1 = 'value1'
 	 *
 	 * @param string|array $tables

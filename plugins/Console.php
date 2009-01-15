@@ -263,6 +263,7 @@ class ConsolePlugin
 			$trigger = Atomik::get('atomik/trigger');
 			$htaccess = "<IfModule mod_rewrite.c>\n\t"
 			          . "RewriteEngine on\n\t"
+			          . "RewriteRule ^app/plugins/(.+)/assets - [L]\n\t"
 			          . "RewriteRule ^app/ - [L,F]\n\t"
 			          . "RewriteCond %{REQUEST_FILENAME} !-f\n\t"
 					  .	"RewriteCond %{REQUEST_FILENAME} !-d\n\t"

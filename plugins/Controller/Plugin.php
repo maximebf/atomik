@@ -112,7 +112,7 @@ class ControllerPlugin
 		
 		Atomik::fireEvent('Controller::Action::Before', array(&$request, &$instance));
 		
-		if (! $instance instanceof Atomik_Controller) {
+		if (!($instance instanceof Atomik_Controller)) {
 			
 			/* call the method named like the action with the request as unique argument */
 			call_user_func(array($instance, $request['action']), $request);

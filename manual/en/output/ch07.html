@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 7. Actions and views</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Framework Manual" />
+    <link rel="up" href="index.html" title="Atomik Framework Manual" />
+    <link rel="prev" href="ch06.html" title="Chapter 6. URLs" />
+    <link rel="next" href="ch08.html" title="Chapter 8. Selectors" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 7. Actions and views</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="ch06.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="ch08.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="actions-views"></a>Chapter 7. Actions and views</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch07.html#actions-views-introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="ch07.html#actions">Actions</a></span></dt><dt><span class="sect1"><a href="ch07.html#views">Views</a></span></dt><dt><span class="sect1"><a href="ch07.html#layouts">Layout</a></span></dt><dt><span class="sect1"><a href="ch07.html#controlling-views">Controlling views</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch07.html#view-extension">View's filename extension</a></span></dt><dt><span class="sect2"><a href="ch07.html#no-render-from-action">Do not render the view from the action</a></span></dt><dt><span class="sect2"><a href="ch07.html#custom-rendering-engine">Using a custom rendering engine</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch07.html#actions-views-programmatically">Calling actions or views programmatically</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch07.html#executing-actions">Executing actions</a></span></dt><dt><span class="sect2"><a href="ch07.html#rendering-views">Rendering views and files</a></span></dt></dl></dd></dl></div>
+	
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-views-introduction"></a>Introduction</h2></div></div></div>
+		
+		<p>
+			Without using Atomik, one way of doing things would have been to create a file
+			per page. The page logic (i.e. connecting to a database, handling form data...) would
+			have been at the top of the file followed by the HTML. 
+		</p>
+		<div class="example"><a id="id1127560"></a><p class="title"><b>Example 7.1. A php script, the old way</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+&lt;?php
+	if (count($_POST)) {
+		echo 'Form data received!';
+	}
+?&gt;
+&lt;form&gt;
+	&lt;input type="text" name="data" /&gt;
+	&lt;input type="submit" value="send" /&gt;
+&lt;/form&gt;
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			This is BAD!! The application logic and the presentation layer should always be separated.
+		</p>
+		<p>
+			Now let's imagine that rather than directly doing both part in the same file we split it.
+			We would have three file: one with the logic, one with the HTML and one that include both.
+		</p>
+		<div class="example"><a id="id1127582"></a><p class="title"><b>Example 7.2. Splitting into multiple files</b></p><div class="example-contents">
+			
+			<p>
+				<code class="filename">page_logic.php</code>
+			</p>
+			<pre class="programlisting">
+				
+&lt;?php
+if (count($_POST)) {
+	echo 'Form data received!';
+}
+			</pre>
+			<p>
+				<code class="filename">page_html.php</code>
+			</p>
+			<pre class="programlisting">
+				
+&lt;form&gt;
+	&lt;input type="text" name="data" /&gt;
+	&lt;input type="submit" value="send" /&gt;
+&lt;/form&gt;
+			</pre>
+			<p>
+				<code class="filename">page.php</code>
+			</p>
+			<pre class="programlisting">
+				
+&lt;?php
+include 'page_logic.php';
+include 'page_html.php';
+			</pre>
+		</div></div><br class="example-break" />
+		<p>
+			Now replace the third file (the one with the includes) with Atomik and you'll have the concept
+			behind Atomik. The logic script is named an action and the html a view.
+		</p>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions"></a>Actions</h2></div></div></div>
+		
+		<p>
+			Actions are stored in the <code class="filename">app/actions</code> directory. Both the action and the 
+			view filename must have the same name. Action files must have the “<span class="quote">php</span>” extension.
+		</p>
+		<p>
+			The content of the action file is free. It can be anything you want. So you just do your
+			logic as you used to.
+		</p>
+		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+			Be aware that actions run in their own scope and not in the global scope as you
+			might think.
+		</div>
+		<p>
+			Variables declared in the action are forwarded to the view. If you want to keep some
+			variables private (i.e. which will only be available in your action) prefixed them
+			with an underscore.
+		</p>
+		<div class="example"><a id="id1127664"></a><p class="title"><b>Example 7.3. Private variables in actions</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+&lt;?php
+$myPublicVariable = 'value';
+$_myPrivateVariable = 'secret';
+			</pre>
+		</div></div><br class="example-break" />
+		<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+			<p>
+				You shouldn't use <code class="function">echo</code> or write any HTML code inside an action.
+				As said before, the goal of an action is to separate the logic from the presentation. Thus
+				mix-in both in the action file would be a non-sense!
+			</p>
+			<p>
+				You can use folders to organize your actions.
+			</p>
+		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="views"></a>Views</h2></div></div></div>
+		
+		<p>
+			Views are stored in the <code class="filename">app/views</code> directory. The file extension is
+			by default “<span class="quote">phtml</span>”.
+		</p>
+		<p>
+			The content of the view file is, as the action file, free. It should mostly be text or 
+			HTML (or any presentation content, such as XML).
+		</p>
+		<p>
+			PHP can be used to print variables from the action or to provide presentation logic like
+			loops.
+		</p>
+		<div class="example"><a id="id1127726"></a><p class="title"><b>Example 7.4. Example view</b></p><div class="example-contents">
+			
+			<pre class="programlisting">
+				
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;title&gt;Example&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;?php echo $myPublicVariable; ?&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+			</pre>
+		</div></div><br class="example-break" />
+		<div class="figure"><a id="id1127738"></a><p class="title"><b>Figure 7.1. A little schema to sum up!</b></p><div class="figure-contents">
+			
+			<div class="mediaobject"><img src="images/actions_views.png" alt="A little schema to sum up!" /></div>
+		</div></div><br class="figure-break" />
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="layouts"></a>Layout</h2></div></div></div>
+		
+		<p>
+			It is common in websites that all pages share the same layout. Atomik allows you to define
+			a layout that will be used with all views.
+		</p>
+		<p>
+			The layout will be rendered after the view has been rendered. The output of the view will be
+			pass to the layout as a variable named <code class="varname">$contentForLayout</code>. 
+			Layouts are rendered the same way as views.
+		</p>
+		<p>
+			Layouts can be placed in the <code class="filename">app/views</code> or <code class="filename">app/layouts</code> directories.
+			The file extension is the same as the one for views.
+		</p>
+		<p>
+			The layout name to use has to be defined in the “<span class="quote">atomik/layout</span>” configuration key. If the
+			value is false (which is the default), no layout will be used.
+		</p>
+		<p>
+			The layout can be disabled at runtime by calling <code class="methodname">Atomik::disableLayout()</code>.
+		</p>
+		<div class="example"><a id="id1127816"></a><p class="title"><b>Example 7.5. Example layout</b></p><div class="example-contents">
+			
+			<p>
+				A layout file named <code class="filename">_layout.phtml</code> in the <code class="filename">app/views</code> directory.
+			</p>
+			<pre class="programlisting">
+				
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;title&gt;My website&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;h1&gt;My website&lt;/h1&gt;
+		&lt;div id="content"&gt;
+			&lt;?php echo $contentForLayout; ?&gt;
+		&lt;/div&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+			</pre>
+			<p>
+				In the bootstrap file
+			</p>
+			<pre class="programlisting">
+				
+Atomik::set('atomik/layout', '_layout');
+			</pre>
+		</div></div><br class="example-break" />
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="controlling-views"></a>Controlling views</h2></div></div></div>
+		
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="view-extension"></a>View's filename extension</h3></div></div></div>
+			
+			<p>
+				The default filename's extension for views is “<span class="quote">phtml</span>” as said before. This can be change using
+				the configuration key named “<span class="quote">atomik/views/file_extension</span>”.
+			</p>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="no-render-from-action"></a>Do not render the view from the action</h3></div></div></div>
+			
+			<p>
+				While the action is executing, you may want to avoid rendering the associated view. This can easily be done
+				by calling <code class="methodname">Atomik::noRender()</code> from your action.
+			</p>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="custom-rendering-engine"></a>Using a custom rendering engine</h3></div></div></div>
+			
+			<p>
+				The default rendering process only uses php's include function. You may however want to use a template engine for
+				example. This is possible by specifying a callback in the “<span class="quote">atomik/views/engine</span>” configuration key.
+			</p>
+			<p>
+				The callback will receive two parameters: the first one will be the filename and the second an array containing the
+				view variables.
+			</p>
+			<div class="example"><a id="id1127920"></a><p class="title"><b>Example 7.6. Using a custom rendering engine</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+function myCustomRenderingEngine($filename, $vars)
+{
+	// your custom engine
+	return $renderedContent;
+}
+
+Atomik::set('atomik/views/engine', 'myCustomRenderingEngine');
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				The custom rendering engine will be used whenever <code class="methodname">Atomik::render()</code>,
+				<code class="methodname">Atomik::renderFile()</code> or <code class="methodname">Atomik::renderLayout()</code> is used.
+			</p>
+		</div>
+	</div>
+	<div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="actions-views-programmatically"></a>Calling actions or views programmatically</h2></div></div></div>
+		
+		<p>
+			When executing a request, the action and/or the view associated to it are
+			automatically called. You can however call other actions or render other
+			views using Atomik's API.
+		</p>
+		<p>
+			The most useful use of this it to render partial views, small part of presentation
+			code that is reusable.
+		</p>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="executing-actions"></a>Executing actions</h3></div></div></div>
+			
+			<p>
+				To execute an action use the <code class="methodname">Atomik::execute()</code> method. It takes
+				as first argument the action name.
+			</p>
+			<p>
+				By default, if a view with the same name is found, it is rendered and the return value
+				of the <code class="methodname">execute()</code> method is the view output.
+			</p>
+			<p>
+				If no view is found or <code class="code">false</code> is used as second argument, the return value
+				is an array containing all “<span class="quote">public</span>” variables from the action.
+			</p>
+			<div class="example"><a id="id1128002"></a><p class="title"><b>Example 7.7. Calling an action programmatically</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+$viewOutput = Atomik::execute('myAction');
+$variables = Atomik::execute('myAction', false);
+				</pre>
+			</div></div><br class="example-break" />
+			<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+				<p>
+					Calling an action using <code class="methodname">Atomik::execute()</code> does not mean an action file
+					must exist. However, in this case, a view file with the same name must exists.
+				</p>
+			</div>
+		</div>
+		<div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="rendering-views"></a>Rendering views and files</h3></div></div></div>
+			
+			<p>
+				To render a view use the <code class="methodname">Atomik::render()</code> method.
+			</p>
+			<p>
+				It takes as first argument the view name and optionally as second argument
+				an array of key/value pairs representing variables.
+			</p>
+			<p>
+				The method returns the view output.
+			</p>
+			<div class="example"><a id="id1128054"></a><p class="title"><b>Example 7.8. Rendering a view programmatically</b></p><div class="example-contents">
+				
+				<pre class="programlisting">
+					
+$viewOutput = Atomik::render('myView');
+$viewOutput = Atomik::render('myView', array('var' =&gt; 'value'));
+				</pre>
+			</div></div><br class="example-break" />
+			<p>
+				It is also possible to render any file using <code class="methodname">Atomik::renderFile()</code>. It takes
+				as first parameter a filename. Variables can also be passed like with <code class="methodname">Atomik::render()</code>.
+			</p>
+		</div>
+	</div>
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="ch06.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="ch08.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 6. URLs </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Chapter 8. Selectors</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

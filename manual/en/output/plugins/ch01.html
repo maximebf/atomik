@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Chapter 1. Ajax</title>
+    <link rel="stylesheet" href="../styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.73.2" />
+    <link rel="start" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="up" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="prev" href="index.html" title="Atomik Plugins Manual" />
+    <link rel="next" href="ch02.html" title="Chapter 2. Cache" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Chapter 1. Ajax</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="index.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="ch02.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="ajax"></a>Chapter 1. Ajax</h2></div></div></div>
+	
+	<p>
+		The Ajax plugin allows you to call your actions using a javascript's XmlHttpRequest and sending back
+		json or the view without the layout.
+	</p>
+	<p>
+		For the plugin to be activated, the request must have the “<span class="quote">X-Requested-With</span>” HTTP header.
+		Nearly all javascript frameworks add this header.
+	</p>
+	<p>
+		When this header is detected, the layout will be automatically disabled. This can be avoided by setting
+		the “<span class="quote">disable_layout</span>” configuration key to false.
+	</p>
+	<p>
+		The default behaviour when activated is to return the action variables as a json encoded array. So the view
+		won't be rendered. It is possible to disable this behaviour and render the view (the layout is still disable)
+		by adding action names in the “<span class="quote">restricted</span>” configuratio key.
+	</p>
+	<div class="example"><a id="id1152623"></a><p class="title"><b>Example 1.1. Render views instead of returning variables</b></p><div class="example-contents">
+		
+		<pre class="programlisting">
+			
+Atomik::set('plugins/Ajax', array(
+	'restricted' =&gt; array(
+		'my-partial'
+	);
+));
+		</pre>
+	</div></div><br class="example-break" />
+	<p>
+		The opposite behaviour can also be acheived when setting false to the “<span class="quote">allow_all</span>” configuration key.
+		In this case, all views will be rendered and the variables will never be returned. It is then possible to enable
+		variables output on some actions only using the “<span class="quote">allowed</span>” configuration key.
+	</p>
+</div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="index.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="ch02.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Atomik Plugins Manual </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Chapter 2. Cache</td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
