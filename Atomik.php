@@ -264,7 +264,7 @@ class Atomik
         				self::set('base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
         			} else {
         			    /* finds the base url from the script name */
-        				self::set('base_url', trim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
+        				self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
         			}
         		}
         		
@@ -273,7 +273,7 @@ class Atomik
             	/* retreives the base url */
             	if (!self::has('base_url')) {
     			    /* finds the base url from the script name */
-    				self::set('base_url', trim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
+    				self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
             	}
     		}
     		
