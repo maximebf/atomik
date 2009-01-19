@@ -38,9 +38,6 @@ Atomik::set('plugins/Db', array(
 Atomik_Db::connect('mysql:host=localhost;dbname=mydb', 'root', '');]]>
 			</programlisting>
 		</example>
-		<para>
-			The plugin then manages a PDO instance. The instance is stored in <varname>Atomik_Db::$pdo</varname>.
-		</para>
 	</sect1>
 	<sect1 id="db-query">
 		<title>Querying the database</title>

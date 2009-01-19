@@ -108,4 +108,24 @@ Atomik::set(array(
 			<quote>atomik/files/404</quote> configuration keys.
 		</para>
 	</sect1>
+	<sect1 id="session">
+		<title>The session</title>
+		<para>
+			By default, Atomik will automatically starts the session. This can be turned off in the 
+			<quote>atomik/start_session</quote> configuration key. 
+		</para>
+		<note>
+			<methodname>Atomik::flash()</methodname> will not work if the session is not started.
+		</note>
+		<para>
+			The session is also available as the <quote>session</quote> key in the global store.
+		</para>
+		<example>
+			<title>Accessing the session from the global store</title>
+			<programlisting>
+				<![CDATA[
+echo Atimik::get('session/username');]]>
+			</programlisting>
+		</example>
+	</sect1>
 </chapter>

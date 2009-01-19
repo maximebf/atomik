@@ -2,8 +2,8 @@
 <chapter id="principles" xmlns="http://docbook.org/ns/docbook">
 	<title>Core principles</title>
 	<para>
-		Atomik alone does not provide a lot of features. It basically provides a simple
-		directory structure and a dispatch mechanism. The whole point of Atomik is to
+		Atomik provides, on top of a simple directory structure and a dispatch mechanism,
+		all common tasks needed to create a website. But the main point of Atomik is to
 		extend it through plugins. You build the framework you want with the features
 		you need.
 	</para>
@@ -14,6 +14,14 @@
 			simplest possible. Atomik has been build from the beginning with this idea in 
 			mind. It simply works and is nearly bug free. Just unzip your downloaded package
 			and start working!
+		</para>
+	</sect1>
+	<sect1 id="ready-to-run">
+		<title>Ready to run</title>
+		<para>
+			Atomik comes with methods for all common tasks involved in creating a website. 
+			From escaping output to pretty urls (goind through filtering data, flash messages...),
+			everything is bundled into a coherent and comprehensive API.
 		</para>
 	</sect1>
 	<sect1 id="actions-and-views">
@@ -34,7 +42,7 @@
 	<sect1 id="extensivity-and-plugins">
 		<title>Extensibility and Plugins</title>
 		<para>
-			As said before, the whole point of Atomik is being highly extensible. Nearly
+			As said before, one of the main point of Atomik is being highly extensible. Nearly
 			all actions (execute an action, render a view...) can be overrided. This
 			is made possible through an event system. Before and after each methods, 
 			and sometimes during, events are fired. Multiple callbacks can be registered for

@@ -1,6 +1,259 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="utilities" xmlns="http://docbook.org/ns/docbook">
+<chapter id="utilities" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Utilities</title>
+	<sect1 id="utilities-redirect-404">
+		<title>Redirections and 404 errors</title>
+		<para>
+			To redirect the user to another page you can use the <methodname>Atomik::redirect()</methodname> method.
+			It takes as argument the url to redirect to. By default, this url will first be process using 
+			<methodname>Atomik::url()</methodname>. This behaviour can be disable by passing false as the second argument.
+		</para>
+		<example>
+			<title>Redirecting</title>
+			<programlisting>
+				<![CDATA[
+Atomik::redirect('home');]]>
+			</programlisting>
+		</example>
+		<para>
+			Triggering 404 errors is even simpler. Just call the <methodname>Atomik::trigger404()</methodname> method.
+			Customization of the 404 error page has been discussed in the configuration chapter.
+		</para>
+		<example>
+			<title>Trigerring a 404 error</title>
+			<programlisting>
+				<![CDATA[
+Atomik::trigger404();]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="utilities-escape">
+		<title>Escaping text</title>
+		<para>
+			It is a common (and very good) practice to escape data when outputting it on the page.
+			The <methodname>Atomik::escape()</methodname> method is dedicated to this purpose.
+		</para>
+		<example>
+			<title>Escaping text</title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::escape('my text');]]>
+			</programlisting>
+		</example>
+		<para>
+			This method relies on other functions to escape data. It simply executes them one after an other and returns the result.
+			You can for example, execute the <function>htmlspecialchars()</function> function followed by <function>nl2br()</function>.
+		</para>
+		<para>
+			The functions to execute are regroup under profiles. Thus, you can create multiple escaping profile depending on the data you 
+			need to escape. Profiles are defined in the <quote>escaping</quote> configuration key. To specify which functions to execute
+			in a profile, you can use a string or an array of strings. Functions will be executed in the order they appear in the array.
+			The default profile is called <quote>default</quote>.
+		</para>
+		<para>
+			The profile is specified as the last argument of the method.
+		</para>
+		<example>
+			<title>Escaping text using different profiles</title>
+			<programlisting>
+				<![CDATA[			
+// creating profiles
+Atomik::add('escaping', array(
+	'default' => array('htmlspecialchars', 'nl2br'),
+	'url' => 'urlencode'
+));
+
+// equivalent of nl2br(htmlspecialchars('my text'))
+echo Atomik::escape('my text');
+
+// equivalent of urlencode('my url param')
+echo Atomik::escape('my url param', 'url');]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="utilities-friendlify">
+		<title>Make friendly urls</title>
+		<para>
+			Having a router without a way to make friendly urls woudln't be a complete feature. <methodname>Atomik::friendlify()</methodname>
+			transforms string to a url friendly version.
+		</para>
+		<example>
+			<title>Make an url friendly string</title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::friendlify('My text in the url');
+// will echo my-text-in-the-url]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="utilities-flash">
+		<title>Flash messages</title>
+		<para>
+			Flash messages are messages which are stored in the session and are available only once.
+			This allows to pass error or success messages for example. 
+		</para>
+		<para>
+			To create a flash message call the <methodname>Atomik::flash()</methodname> method. It takes as
+			first parameter the message. Messages can also have labels. For example <quote>error</quote> or 
+			<quote>success</quote>. To specify a label, use the second argument. The default label is <quote>default</quote>.
+		</para>
+		<example>
+			<title>Creating flash messages</title>
+			<programlisting>
+				<![CDATA[
+Atomik::flash('The action has completed successfully');
+Atomik::flash('The action has failed', 'error'); // with a label]]>
+			</programlisting>
+		</example>
+		<para>
+			Flash messages can then be retreived using the flash selector. The value is a label name. Use <quote>all</quote> to
+			retreive all messages. It will return an array containing as key the label names and the associated
+			value is an array of messages. If you only retreives messages from one label, an array of messages will be returned.
+		</para>
+		<example>
+			<title>Retreiving flash messages</title>
+			<programlisting>
+				<![CDATA[
+foreach (Atomik::get('flash:all) as $label => $messages) {
+	foreach ($messages as $message) {
+		// ...
+	}
+}
+
+foreach (Atomik::get('flash:my_label) as $message) {
+	// ...
+}]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="utilities-filter">
+		<title>Filtering and validating data</title>
+		<para>
+			Filtering and validating user input is a very important task and Atomik had to provide a method for
+			this purpose. This method is <methodname>Atomik::filter()</methodname> and it heavily relies on 
+			PHP's filter extension.
+		</para>
+		<note>
+			PHP's filter extension is built-in since version 5.2. Prior to that, you must use PECL. More information
+			is available in the extension documentation at <link xlink:href="http://php.net/filter">http://php.net/filter</link>.
+		</note>
+		<para>
+			To understand and use <methodname>Atomik::filter()</methodname> you must know how to use PHP's filter
+			extension. However, Atomik's method adds some features.
+		</para>
+		<para>
+			<methodname>Atomik::filter()</methodname> has the same arguments as <function>filter_var()</function>.
+			However, you can also use a regular expression as filter in the second argument. The regexp must use
+			slashes as delimiters. You can also define custom filters in the <quote>filters/callbacks</quote>
+			configuration key and use the callback name as filter.
+		</para>
+		<example>
+			<title>Filtering data</title>
+			<programlisting>
+				<![CDATA[
+// using a php filter
+$result = Atomik::filter('me@example.com', PHP_VALIDATE_EMAIL);
+$result = Atomik::filter('me@example.com', 'validate_email'); // using the filter name instead of its id
+$result = Atomik::filter('example.com', FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED);
+
+// using a regexp
+$result = Atomik::filter('12478', '/\d+/');
+
+// using a callback
+Atomik::set('filters/callbacks/my_custom_filter', 'myFilterFunction');
+$result = Atomik::filter($data, 'my_custom_filter');]]>
+			</programlisting>
+		</example>
+		<para>
+			It will return false if an error occured, or the value otherwise.
+		</para>
+		<para>
+			The method can also be used to filter arrays in the same way as <function>filter_var_array()</function>. It works
+			exactly the same as this function but it also adds more features.
+		</para>
+		<para>
+			The method will return false if any of the item failed to validate. This can be turned off by passing
+			false as the fourth argument.
+		</para>
+		<para>
+			While the second argument is named a definition in the PHP's extension, Atomik called it a rule. Rules are arrays where
+			keys are field's name and their value a filter or an array (like with <function>filter_var_array()</function>).
+			You can pass a rule as the second argument. Rules can also be defined in the <quote>filters/rules</quote> configuration
+			key. You can then use their name instead of an array as the second argument.
+		</para>
+		<para>
+			The method also adds the notion of required fields. If you set the <quote>required</quote> key to true in the field's 
+			array, the validation will fail if the field is missing or empty. 
+		</para>
+		<para>
+			When a field is empty but not required, its value will be null. This can be changed by setting the <quote>default</quote>
+			key in the field's array.
+		</para>
+		<para>
+			The filter key in the field's array follows the same rule as the filter parameter described previously. Thus it can be
+			a filter's id or name, a regexp or a custom filter's name.
+		</para>
+		<para>
+			The method also support multi-dimension array as input.
+		</para>
+		<para>
+			Finally, support for validation messages has also been added. When filtering the array, if any values failed validating,
+			a message will be created. Messages can then be retreived in the <quote>filters/messages</quote> configuration key.
+			There is two default messages configured in <quote>filters/default_message</quote> and <quote>filters/required_message</quote>.
+			The former will be used when a field failed to validate while the later when the required condition has not been met.
+		</para>
+		<note>
+			When setting the two message keys, you can use <quote>%s</quote> which will be replaced with the field's name. As field's name
+			aren't usually pretty, you can use the <quote>label</quote> key in the field's array to define the text which will be used to 
+			replace <quote>%s</quote>.
+		</note>
+		<para>
+			You can override the failed to validate message for each field by setting the <quote>message</quote> key in the field's
+			array.
+		</para>
+		<example>
+			<title>Filtering arrays</title>
+			<programlisting>
+				<![CDATA[
+// using a custom message when a field is missing or empty
+Atomik::set('filters/required_message', 'You forgot to fill the %s field!');
+
+// the data to validate
+$data = array(
+	'username' => 'peter',
+	'email' => 'peter@example.com'
+);
+
+// our rule
+$rule = array(
+	'username' => array(
+		'filter' => FILTER_SANITIZE_STRING,
+		'required' => true
+	),
+	'email' => array(
+		'filter' => 'validate_email',
+		'required' => true,
+		'message' => 'You must provide a valid email address' // custom message when the field failed to validate
+	)
+);
+
+if (($data = Atomik::filter($data, $rule) === false) {
+	// failed validation, showing messages
+	foreach (A('filters/messages') as $message) {
+		Atomik::flash($message, 'error');
+	}
+	return;
+}
+
+// success
+// do something with $data]]>
+			</programlisting>
+		</example>
+		<note>
+			You can find a good documentation (better than the official one) about available filters on the w3schools
+			website at <link xlink:href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</link>
+		</note>
+	</sect1>
 	<sect1 id="utilities-path">
 		<title>Managing paths</title>
 		<para>
@@ -43,32 +296,6 @@ $paths = Atomik::path(array('/tmp/data', /tmp/data2'), true); // array('/tmp/dat
 $pathname = Atomik::path('my-file.txt', array('/path1', '/path2')); // /path1/my-file.txt if the file is located in /path1 (/path2 otherwise)
 $pathname = Atomik::path('my-file.txt', '/path1'); // /path1/my-file.txt
 ]]>
-			</programlisting>
-		</example>
-	</sect1>
-	<sect1 id="utilities-redirect-404">
-		<title>Redirections and 404 errors</title>
-		<para>
-			To redirect the user to another page you can use the <methodname>Atomik::redirect()</methodname> method.
-			It takes as argument the url to redirect to. By default, this url will first be process using 
-			<methodname>Atomik::url()</methodname>. This behaviour can be disable by passing false as the second argument.
-		</para>
-		<example>
-			<title>Redirecting</title>
-			<programlisting>
-				<![CDATA[
-Atomik::redirect('home');]]>
-			</programlisting>
-		</example>
-		<para>
-			Triggering 404 errors is even simpler. Just call the <methodname>Atomik::trigger404()</methodname> method.
-			Customization of the 404 error page has been discussed in the configuration chapter.
-		</para>
-		<example>
-			<title>Trigerring a 404 error</title>
-			<programlisting>
-				<![CDATA[
-Atomik::trigger404();]]>
 			</programlisting>
 		</example>
 	</sect1>

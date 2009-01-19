@@ -33,6 +33,8 @@
  * Added Atomik::add()
  * Added Atomik::debug()
  * Added Atomik::asset()
+ * Added Atomik::filter()
+ * Added Atomik::escape()
  ! Config file (atomik/files/config) config.php renamed bootstrap.php (atomik/files/bootstrap)
  * Added Atomik::noRender()
  * Added custom rendering engine support
@@ -41,6 +43,8 @@
  * Layout are now natively supported
  * Added Atomik::renderLayout()
  * Added Atomik::disableLayout()
+ * Session and flash messages are now natively supported
+ * Added Atomik::flash()
  
 [DbPlugin]
  
@@ -49,7 +53,7 @@
  
 [SessionPlugin]
 
- ! Changes to the Session plugin: class SessionPlugin replaced with Atomik_Session
+ ! Merged into core
 
 [ControllerPlugin]
 
@@ -69,5 +73,5 @@
  
 [LayoutPlugin]
 
- * merged into core
+ ! Merged into core
  
