@@ -49,6 +49,8 @@ class AjaxPlugin
     
     );
     
+    protected static $enabled = false;
+    
     /**
      * Returns false if it's not an AJAX request so
      * events are not automatically registered
@@ -66,6 +68,7 @@ class AjaxPlugin
         	return false;
         }
         
+        self::$enabled = true;
         return true;
     }
     
@@ -121,6 +124,16 @@ class AjaxPlugin
 		
 		/* ends successfuly */
 		Atomik::end(true);
+	}
+	
+	/**
+	 * Checks if the current request has been made with AJAX
+	 * 
+	 * @return bool
+	 */
+	public static function isEnabled()
+	{
+		return self::$enabled;
 	}
 	
 	/**

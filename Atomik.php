@@ -66,6 +66,9 @@ Atomik::set(array(
         
 		/* enable routing */
         'enable_routing' 		=> true,
+	
+		/* disable layouts */
+		'disable_layout'		=> false,
 
 		/* views */
 		'views' => array(
@@ -326,9 +329,12 @@ class Atomik
     			self::trigger404();
     		}
     		
-    		/* renders the layout if enable */
-    		if (($layout = self::get('atomik/views/layout', false)) !== false) {
-				$content = self::renderLayout($layout, $content);
+    		/* renders layouts if enable */
+    		if (self::get('atomik/disable_layout', false) == false && ($layouts = self::get('layout', false)) != false) {
+    			$layouts = array_reverse((array) $layouts);
+    			foreach ($layouts as $layout) {
+					$content = self::renderLayout($layout, $content);
+    			}
     		}
     		
     		echo $content;
@@ -416,7 +422,7 @@ class Atomik
 				}
 			}
 			
-			/* checks if route is valid and if controller and action params are set */
+			/* checks if route is valid and if the action param is set */
 			if ($valid && isset($request['action'])) {
 				$found = true;
 				/* if there's remaining segments in the uri, adding them as params */
@@ -642,10 +648,12 @@ class Atomik
 	
 	/**
 	 * Disables the layout
+	 * 
+	 * @param bool $disable Whether to disable the layout
 	 */
-	public static function disableLayout()
+	public static function disableLayout($disable = true)
 	{
-		self::set('atomik/views/layout', false);
+		self::set('atomik/disable_layout', $disable);
 	}
 
 	/**

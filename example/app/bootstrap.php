@@ -3,10 +3,11 @@
 /* app configuration */
 Atomik::set(array(
 
+	'layout' => '_layout',
+
 	'atomik' => array(
 		'dirs/plugins' => '../plugins/',
-		'catch_errors' => true,
-		'views/layout' => '_layout'
+		'catch_errors' => true
 	),
 
 	'plugins' => array(
@@ -21,7 +22,6 @@ Atomik::set(array(
         ),
         
         'Ajax',
-        'Session',
         'Lang',
         'Model',
         'Users',

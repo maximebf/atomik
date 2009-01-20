@@ -34,4 +34,7 @@ Atomik::set('plugins/Ajax', array(
 		In this case, all views will be rendered and the variables will never be returned. It is then possible to enable
 		variables output on some actions only using the <quote>allowed</quote> configuration key.
 	</para>
+	<para>
+		You can cehck if the current request is using AJAX by calling <methodname>AjaxPlugin::isEnabled()</methodname>.
+	</para>
 </chapter>

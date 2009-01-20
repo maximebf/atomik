@@ -159,11 +159,12 @@ $_myPrivateVariable = 'secret';]]>
 			The file extension is the same as the one for views.
 		</para>
 		<para>
-			The layout name to use has to be defined in the <quote>atomik/layout</quote> configuration key. If the
+			The layout name to use has to be defined in the <quote>layout</quote> configuration key. If the
 			value is false (which is the default), no layout will be used.
 		</para>
 		<para>
 			The layout can be disabled at runtime by calling <methodname>Atomik::disableLayout()</methodname>.
+			It can later be re-enabled by passing false as argument to the same method.
 		</para>
 		<example>
 			<title>Example layout</title>
@@ -189,9 +190,13 @@ $_myPrivateVariable = 'secret';]]>
 			</para>
 			<programlisting>
 				<![CDATA[
-Atomik::set('atomik/layout', '_layout');]]>
+Atomik::set('layout', '_layout');]]>
 			</programlisting>
 		</example>
+		<para>
+			Mutliple layouts can also be used. Just use an array instead of a string in the configuration key. Layouts will
+			be rendered in reverse order (the first one in the array wrap the second, the second the third, ...).
+		</para>
 	</sect1>
 	<sect1 id="controlling-views">
 		<title>Controlling views</title>
