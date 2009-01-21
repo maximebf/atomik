@@ -18,9 +18,6 @@
 						<a href="http://code.google.com/p/atomikframework">Code</a>
 					</li>
 					<li>
-						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/whats-next')" /></xsl:attribute>What's next?</a>
-					</li>
-					<li>
 						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/plugins')" /></xsl:attribute>Plugins</a>
 					</li>
 					<li>
