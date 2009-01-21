@@ -1,0 +1,27 @@
+
+body {
+	background: #fdfdfd;
+	font-family: Arial, sans-serif;
+}
+
+#atomik-wrapper {
+	margin: 50px auto auto;
+	text-align: right;
+	width: 50%;
+}
+
+	#atomik {
+		background: #f8ffea;
+		border: 3px solid #aad944;
+		margin-bottom: 10px;
+		padding: 10px;
+		text-align: left;
+	}
+	
+		#atomik h1 {
+			color: #5f5f5f;
+		}
+		
+	#atomik-wrapper img {
+		border: 0;
+	}

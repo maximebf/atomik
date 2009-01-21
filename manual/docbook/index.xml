@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<title>Atomik Framework Manual</title>
+	<para>
+		The manual is licensed under the Creative Commons Attribution license.
+	</para>
 	<xi:include href="introduction.xml" />
 	<xi:include href="principles.xml" />
 	<xi:include href="installation.xml" />

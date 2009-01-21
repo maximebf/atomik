@@ -1,0 +1,12 @@
+
+div.book,
+div.chapter,
+div.navfooter {
+	margin: auto;
+	width: 960px;
+}
+
+hr {
+	background: none;
+	border-top: 1px solid #e8e8e8;
+}

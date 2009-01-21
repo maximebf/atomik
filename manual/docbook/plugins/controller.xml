@@ -40,7 +40,7 @@ Atomik::set('routes', array(
 		'controller' => 'archives',
 		'action' => 'view'
 	)
-));]]>
+), false);]]>
 			</programlisting>
 		</example>
 		<para>
@@ -136,7 +136,7 @@ Atomik::set('routes', array(
 		'controller' => 'archives',
 		'action' => 'view'
 	)
-));]]>
+), false);]]>
 				</programlisting>
 				<para>
 					And our controller:

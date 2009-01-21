@@ -1,20 +1,26 @@
 #!/bin/bash
 
-MANUAL_LANG=$1
-XSLFILE="/usr/share/xml/docbook/stylesheet/nwalsh/xhtml/chunk.xsl"
+OUTPUT="output"
+PROFILE="standalone"
 
-rm $MANUAL_LANG/output/*.html
-rm $MANUAL_LANG/output/plugins/*.html
-cp styles.css $MANUAL_LANG/output/styles.css
+if [ -n "$1" ]; then PROFILE=$1; fi
+if [ -n "$2" ]; then OUTPUT=$2; fi
 
-xsltproc --xinclude -o $MANUAL_LANG/output/ \
-	--stringparam chunk.section.depth 0 \
-	--stringparam chunker.output.indent yes \
-	--stringparam html.stylesheet styles.css \
-	$XSLFILE $MANUAL_LANG/index.xml
+if [ ! -e $OUTPUT ]; then
+	mkdir $OUTPUT;
+else
+	rm $OUTPUT/*.html
+	rm $OUTPUT/plugins/*.html
+	rm -r $OUTPUT/images
+fi
 
-xsltproc --xinclude -o $MANUAL_LANG/output/plugins/ \
-	--stringparam chunk.section.depth 0 \
-	--stringparam chunker.output.indent yes \
-	--stringparam html.stylesheet ../styles.css \
-	$XSLFILE $MANUAL_LANG/plugins/index.xml
+cp stylesheets/style-$PROFILE.css $OUTPUT/manual.css
+cat stylesheets/style-common.css >> $OUTPUT/manual.css
+
+svn export images $OUTPUT/images
+
+xsltproc --xinclude -o $OUTPUT/ stylesheets/docbook-$PROFILE.xsl docbook/index.xml
+xsltproc --xinclude \
+	--stringparam atomik.base "../.." \
+	--stringparam atomik.stylesheet "../manual.css" \
+	-o $OUTPUT/plugins/ stylesheets/docbook-$PROFILE.xsl docbook/plugins/index.xml

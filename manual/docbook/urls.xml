@@ -65,6 +65,10 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 				Routes are defined in the <quote>routes</quote> configuration key.
 				The action must be specified as a parameter named <quote>action</quote>.
 			</para>
+			<note>
+				You must use false as the third parameter of <methodname>Atomik::set()</methodname> when setting routes.
+				If not, the array will be dimensionize and the router won't work.
+			</note>
 			<example>
 				<title>Simple route</title>
 				<programlisting>
@@ -73,7 +77,7 @@ Atomik::set('routes', array(
    'user/add' => array(
        'action' => 'user_add'
    )
-));]]>
+), false);]]>
 				</programlisting>
 			</example>
 			<para>
@@ -99,7 +103,7 @@ Atomik::set('routes', array(
        'action' => 'archives',
        'month' => 'all'
    )
-));]]>
+), false);]]>
 				</programlisting>
 				<para>
 					In this route, the month parameter is optional but not the year. Thus, possibles urls are
