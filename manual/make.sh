@@ -7,7 +7,7 @@ if [ -n "$1" ]; then PROFILE=$1; fi
 if [ -n "$2" ]; then OUTPUT=$2; fi
 
 if [ ! -e $OUTPUT ]; then
-	mkdir $OUTPUT;
+	mkdir -p $OUTPUT;
 else
 	rm $OUTPUT/*.html
 	rm $OUTPUT/plugins/*.html
