@@ -63,14 +63,6 @@
  * Map request parameters to method parameters
  * New argument for ControllerPlugin::start()
  
-[ModelPlugin]
-
- * New plugin
-
-[BackendPlugin]
-
- * New plugin
- 
 [LayoutPlugin]
 
  ! Merged into core
