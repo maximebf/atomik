@@ -232,7 +232,7 @@ class Atomik
     		/* starts the session */
     		if (self::get('atomik/start_session', true) == true) {
     			session_start();
-    			self::set('session', &$_SESSION);
+    			self::set('session', $_SESSION);
     		}
     		
     		/* registers the class autoload handler */
