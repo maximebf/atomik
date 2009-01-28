@@ -502,8 +502,13 @@ class Atomik
 		array_pop(self::$_execContexts);
 		
 		/* returns $vars if the view should not be rendered */
-		if (!$render || $viewFilename === false) {
+		if (!$render) {
 			return $vars;
+		}
+		
+		/* no views */
+		if ($viewFilename === false) {
+			return '';
 		}
 		
 		/* renders the view associated to the action */
