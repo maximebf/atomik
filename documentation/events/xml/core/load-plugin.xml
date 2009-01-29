@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::loadPlugin()">
+	<event name="Atomik::Plugin::Before">
+		<description>
+			Fired before a plugin is loaded
+		</description>
+		<refparam name="$plugin" type="string">Plugin's name</refparam>
+		<refparam name="$config" type="array">Plugin's configuration</refparam>
+		<refparam name="$dirs" type="array">Directories where to search for the plugin</refparam>
+		<refparam name="$classNameTemplate" type="string">Plugin's class name template</refparam>
+		<refparam name="$callStart" type="boolean">Whether to call the plugin's start method</refparam>
+	</event>
+	<event name="Atomik::Plugin::After">
+		<description>
+			Fired after a plugin has been loaded
+		</description>
+		<param name="$plugin" type="string">Plugin's name</param>
+	</event>
+</method>

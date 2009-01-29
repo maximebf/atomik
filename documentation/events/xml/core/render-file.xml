@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::renderFile()">
+	<event name="Atomik::RenderFile::Before">
+		<description>
+			Fired at the beginning of a call to <code>Atomik::renderFile()</code>.
+		</description>
+		<refparam name="$filename" type="string">Filename of the file that will be rendered</refparam>
+		<refparam name="$vars" type="array">Variables for the view file</refparam>
+		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
+	</event>
+	<event name="Atomik::RenderFile::After">
+		<description>
+			Fired after the inclusion of the file.
+		</description>
+		<param name="$filename" type="string">Filename of the file that will be rendered</param>
+		<refparam name="$output" type="string">The output of the rendered file</refparam>
+		<param name="$vars" type="array">Variables for the view file</param>
+		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
+	</event>
+	<event name="Atomik::Output::Before">
+		<description>
+			Fired before content is echoed.
+		</description>
+		<refparam name="$output" type="string">The content that will be echoed</refparam>
+	</event>
+	<event name="Atomik::Output::After">
+		<description>
+			Fired after content has been echoed.
+		</description>
+		<param name="$output" type="string">The content that has been echoed</param>
+	</event>
+</method>

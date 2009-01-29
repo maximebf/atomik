@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::renderLayout()">
+	<event name="Atomik::RenderLayout">
+		<description>
+			Fired at the beginning of a call to <code>Atomik::renderLayout()</code>.
+		</description>
+		<refparam name="$layout" type="string">The layout name</refparam>
+		<refparam name="$content" type="string">The content for the layout</refparam>
+		<refparam name="$echo" type="boolean">Whether to echo the layout output or return it</refparam>
+		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the layout file is missing</refparam>
+	</event>
+</method>

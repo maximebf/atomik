@@ -211,4 +211,35 @@ Atomik::loadPlugin('MyPlugin', array(), null, '%Plugin', false);]]>
 			</programlisting>
 		</example>
 	</sect1>
+	<sect1 id="plugin-assets">
+		<title>Plugin's assets</title>
+		<para>
+			When using the default <filename>.htaccess</filename> file, plugins can have an <filename>assets</filename> folder which
+			is accessible from the Web. Of course, to use this folder, the plugin must come as a folder (see the note in the plugin file
+			section).
+		</para>
+		<para>
+			Atomik also provides a method to obtain the url to asset files: <methodname>Atomik::pluginAsset()</methodname>. This method
+			works using a template defined in <quote>atomik/plugin_assets_tpl</quote>. The default is <quote>app/plugins/%s/assets</quote>.
+			The <quote>%s</quote> sign will be replaced with the plugin name.
+		</para>
+		<para>
+			The method takes as first argument the plugin name and as second the filename relative to the plugin's assets folder.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::pluginAsset()</methodname></title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
+// will output app/plugins/MyPlugin/assets/css/styles.css
+
+Atomik::set('atomik/plugin_assets_tpl', 'plugins/%s/assets');
+echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
+// will output plugins/MyPlugin/assets/css/styles.css]]>
+			</programlisting>
+		</example>
+		<note>
+			It is not adviced to change the plugin's assets folder name as some plugins may not work with your installation.
+		</note>
+	</sect1>
 </chapter>

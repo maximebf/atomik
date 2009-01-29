@@ -75,6 +75,8 @@ Atomik::set(array(
 			'file_extension' 	=> '.phtml',
 			'engine' 			=> false
 		),
+		
+		'plugin_assets_tpl'		=> 'app/plugins/%s/assets/',
     
     	/* dirs */
         'dirs' => array(
@@ -377,7 +379,7 @@ class Atomik
 			$routes = self::get('routes');
 		}
 		
-		Atomik::fireEvent('Atomik::Router::Start', array(&$uri, &$routes));
+		Atomik::fireEvent('Atomik::Router::Start', array(&$uri, &$routes, &$params));
 		
 		/* extracts uri information */
 		$components = parse_url($uri);
@@ -444,7 +446,7 @@ class Atomik
 		
 		$request = array_merge($params, $request);
 		
-		Atomik::fireEvent('Atomik::Router::End', array(&$uri, &$request));
+		Atomik::fireEvent('Atomik::Router::End', array($uri, &$request));
 		
 		return $request;
 	}
@@ -584,7 +586,7 @@ class Atomik
 		
 		$output = self::renderFile($filename, $vars);
 		
-		self::fireEvent('Atomik::Render::After', array($view, &$output, &$vars, &$filename, &$echo, &$triggerError));
+		self::fireEvent('Atomik::Render::After', array($view, &$output, &$vars, $filename, &$echo, &$triggerError));
 		
 		/* checks if it's needed to echo the output */
 		if (!$echo) {
@@ -626,7 +628,7 @@ class Atomik
 			$output = ob_get_clean();
 		}
 		
-		self::fireEvent('Atomik::RenderFile::After', array(&$__filename, &$output, $__vars, $__echo));
+		self::fireEvent('Atomik::RenderFile::After', array($__filename, &$output, $__vars, &$__echo));
 		
 		if (!$__echo) {
 			return $output;
@@ -648,6 +650,7 @@ class Atomik
 	 */
 	public static function renderLayout($layout, $content, $echo = false, $triggerError = true)
 	{
+		self::fireEvent('Atomik::RenderLayout', array(&$layout, &$content, &$echo, &$triggerError));
 		return self::render($layout, array('contentForLayout' => $content), $echo, $triggerError, self::get('atomik/dirs/layouts'));
 	}
 	
@@ -1011,11 +1014,11 @@ class Atomik
 		}
 		
 		/* checks if the plugin is already loaded */
-		if (self::isPluginLoaded($plugin, $dirs)) {
+		if (self::isPluginLoaded($plugin)) {
 			return true;
 		}
 		
-		self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config));
+		self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config, &$dirs, &$classNameTemplate, &$callStart));
 		
 		/* checks if $plugin has been set to false from one of the event callbacks */
 		if ($plugin === false) {
@@ -1072,13 +1075,9 @@ class Atomik
 		
 		self::fireEvent('Atomik::Plugin::After', array($plugin));
 		
-		/* stores the plugin name so we won't load it twice */
-		$pluginDir = isset($pluginDir) ? rtrim($pluginDir, DIRECTORY_SEPARATOR) : true;
-		if (isset(self::$_plugins[$plugin])) {
-			self::$_plugins[$plugin][] = $pluginDir;
-		} else {
-			self::$_plugins[$plugin] = array($pluginDir);
-		}
+		/* stores the plugin name so we won't load it twice 
+		 * also stores the directory from where it was loaded */
+		self::$_plugins[$plugin] = isset($pluginDir) ? rtrim($pluginDir, DIRECTORY_SEPARATOR) : true;
 		
 		return true;
 	}
@@ -1089,7 +1088,7 @@ class Atomik
 	 * @param 	string $plugin
 	 * @return 	bool
 	 */
-	public static function isPluginLoaded($plugin, $dirs = null)
+	public static function isPluginLoaded($plugin)
 	{
 		$plugin = ucfirst($plugin);
 		
@@ -1103,20 +1102,7 @@ class Atomik
 			return false;
 		}
 		
-		if (self::$_plugins[$plugin] === true) {
-			/* plugin loaded and was not included (so no dir check needed) */
-			return true;
-		}
-		
-		/* plugin loaded using include, so it checks if $dirs match
-		 * the dir from where the plugin has been loaded */
-		foreach (self::path($dirs, true) as $dir) {
-			if (in_array(trim($dir, DIRECTORY_SEPARATOR), self::$_plugins[$plugin])) {
-				return true;
-			}
-		}
-		
-		return false;
+		return true;
 	}
 	
 	
@@ -1284,7 +1270,7 @@ class Atomik
 	public static function url($action = null, $params = array(), $useIndex = true)
 	{
 		if ($action === null) {
-			$action = self::get('request');
+			$action = self::get('request_uri');
 		}
 		
 		/* removes the query string from the action */
@@ -1343,6 +1329,24 @@ class Atomik
 	public static function asset($filename, $params = array())
 	{
 		return self::url($filename, $params, false);
+	}
+	
+	/**
+	 * Returns the url of a plugin's asset file following the path template
+	 * defined in the configuration.
+	 * 
+	 * @see Atomik::url()
+	 * @param 	string 	$plugin		Plugin's name
+	 * @param 	string 	$filename
+	 * @param 	array 	$params
+	 * @return 	string
+	 */
+	public static function pluginAsset($plugin, $filename, $params = array())
+	{
+		$template = self::get('atomik/plugin_assets_tpl', 'app/plugins/%s/assets');
+		$dirname = rtrim(sprintf($template, ucfirst($plugin)), '/');
+		$filename = '/' . ltrim($filename, '/');
+		return self::asset($dirname . $filename, $params);
 	}
 
 	/*
@@ -1573,7 +1577,7 @@ class Atomik
 	 */
 	public static function redirect($url, $useUrl = true)
 	{
-		self::fireEvent('Atomik::Redirect', array(&$url, $useUrl));
+		self::fireEvent('Atomik::Redirect', array(&$url, &$useUrl));
 		
 		/* uses Atomik::url() */
 		if ($useUrl) {

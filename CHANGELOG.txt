@@ -33,6 +33,7 @@
  * Added Atomik::add()
  * Added Atomik::debug()
  * Added Atomik::asset()
+ * Added Atomik::pluginAsset()
  * Added Atomik::filter()
  * Added Atomik::escape()
  ! Config file (atomik/files/config) config.php renamed bootstrap.php (atomik/files/bootstrap)

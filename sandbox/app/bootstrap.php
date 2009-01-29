@@ -6,7 +6,7 @@ Atomik::set(array(
 	'layout' => '_layout',
 
 	'atomik' => array(
-		'dirs/plugins' => '../plugins/',
+		'dirs/plugins' => array('../plugins/', '../laboratory/plugins'),
 		'catch_errors' => true
 	),
 

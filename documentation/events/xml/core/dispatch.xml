@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::dispatch()">
+	<event name="Atomik::Start">
+		<description>
+			Fired once the bootstrap file has been loaded and all plugins are ready.
+		</description>
+		<refparam name="$cancel" type="boolean">Set to true to cancel the dispatch process. Will exit Atomik.</refparam>
+	</event>
+	<event name="Atomik::Dispatch::Before">
+		<description>
+			Fired once the request has been routed and before the call to <pre>pre_dispatch.php</pre>.
+		</description>
+		<refparam name="$cancel" type="boolean">Set to true to cancel the dispatch process. Will exit Atomik.</refparam>
+	</event>
+	<event name="Atomik::Dispatch::After">
+		<description>
+			Fired after the view (and the layout) has been rendered and before the call to <pre>pre_dispatch.php</pre>.
+		</description>
+	</event>
+	<event name="Atomik::Error">
+		<description>
+			Fired when an error occurs (<pre>catch_errors</pre> needs to ne true).
+		</description>
+		<param name="$exception" type="Exception">The thrown exception</param>
+	</event>
+</method>

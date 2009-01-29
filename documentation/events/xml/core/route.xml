@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::route()">
+	<event name="Atomik::Router::Start">
+		<description>
+			Fired when the router starts
+		</description>
+		<refparam name="$uri" type="string">The uri to route</refparam>
+		<refparam name="$routes" type="array">Routes</refparam>
+		<refparam name="$params" type="array">Params</refparam>
+	</event>
+	<event name="Atomik::Router::End">
+		<description>
+			Fired when the router starts
+		</description>
+		<param name="$uri" type="string">The uri to route</param>
+		<refparam name="$request" type="array">Request parameters</refparam>
+	</event>
+</method>

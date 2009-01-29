@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<events xmlns:xi="http://www.w3.org/2001/XInclude">
+	<category name="Core">
+		<xi:include href="core/dispatch.xml" />
+		<xi:include href="core/route.xml" />
+		<xi:include href="core/execute.xml" />
+		<xi:include href="core/render.xml" />
+		<xi:include href="core/render-file.xml" />
+		<xi:include href="core/render-layout.xml" />
+		<xi:include href="core/end.xml" />
+		<xi:include href="core/load-plugin.xml" />
+		<xi:include href="core/url.xml" />
+		<xi:include href="core/needed.xml" />
+		<xi:include href="core/redirect.xml" />
+		<xi:include href="core/trigger-404.xml" />
+		<xi:include href="core/debug.xml" />
+	</category>
+</events>

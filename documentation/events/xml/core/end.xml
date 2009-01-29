@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::end()">
+	<event name="Atomik::End">
+		<description>
+			Fired when Atomik exits
+		</description>
+		<param name="$success" type="boolean">Whether it exits on success</param>
+	</event>
+</method>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="Atomik::redirect()">
+	<event name="Atomik::Redirect">
+		<description>
+			Fired before a redirection
+		</description>
+		<refparam name="$url" type="string">The url to redirect to</refparam>
+		<refparam name="$className" type="boolean">Whether to apply <code>Atomik::url()</code> on the $url</refparam>
+	</event>
+</method>
