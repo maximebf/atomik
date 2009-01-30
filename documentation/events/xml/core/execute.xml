@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::execute()">
+<group name="execute" title="Atomik::execute()">
 	<event name="Atomik::Execute::Start">
 		<description>
 			Fired at the beginning of a call to the <code>Atomik::execute()</code> method.
@@ -32,4 +32,4 @@
 		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
 		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
 	</event>
-</method>
+</group>

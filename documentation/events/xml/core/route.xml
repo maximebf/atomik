@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::route()">
+<group name="route" title="Atomik::route()">
 	<event name="Atomik::Router::Start">
 		<description>
 			Fired when the router starts
@@ -15,4 +15,4 @@
 		<param name="$uri" type="string">The uri to route</param>
 		<refparam name="$request" type="array">Request parameters</refparam>
 	</event>
-</method>
+</group>

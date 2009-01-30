@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::renderFile()">
+<group name="render-file" title="Atomik::renderFile()">
 	<event name="Atomik::RenderFile::Before">
 		<description>
 			Fired at the beginning of a call to <code>Atomik::renderFile()</code>.
@@ -29,4 +29,4 @@
 		</description>
 		<param name="$output" type="string">The content that has been echoed</param>
 	</event>
-</method>
+</group>

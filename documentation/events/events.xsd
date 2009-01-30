@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/events/" targetNamespace="http://www.example.org/events/">
+    <element name="category" type="tns:categoryType"></element>
+    
+    <complexType name="categoryType">
+    	<sequence maxOccurs="unbounded" minOccurs="0">
+    		<element name="group" type="tns:groupType"></element>
+    	</sequence>
+    	<attribute name="name" type="string"></attribute>
+    	<attribute name="title" type="string"></attribute>
+    </complexType>
+
+    <complexType name="groupType">
+    	<sequence maxOccurs="unbounded" minOccurs="0">
+    		<element name="event" type="tns:eventType"></element>
+    	</sequence>
+    	<attribute name="name" type="string"></attribute>
+    	<attribute name="title" type="string"></attribute>
+    </complexType>
+
+    <complexType name="eventType">
+    	<sequence maxOccurs="1" minOccurs="1">
+    		<element name="description" type="string"></element>
+    		<element name="param" type="tns:paramType"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="refparam" type="tns:paramType" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    	<attribute name="name" type="string"></attribute>
+    </complexType>
+
+    <complexType name="paramType">
+    	<attribute name="name" type="string"></attribute>
+    	<attribute name="type" type="string"></attribute>
+    </complexType>
+</schema>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::needed()">
+<group name="needed" title="Atomik::needed()">
 	<event name="Atomik::Needed">
 		<description>
 			Fired after a url has been computed
@@ -8,4 +8,4 @@
 		<refparam name="$className" type="boolean">Whether the $include parameter can be a class name</refparam>
 		<refparam name="$dirs" type="array">Directories where to search for the file</refparam>
 	</event>
-</method>
+</group>

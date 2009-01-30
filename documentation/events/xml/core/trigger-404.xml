@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::trigger404()">
+<group name="trigger-404" title="Atomik::trigger404()">
 	<event name="Atomik::404">
 		<description>
 			Fired when a call to <code>Atomik::trigger404()</code> is made.
 		</description>
 	</event>
-</method>
+</group>

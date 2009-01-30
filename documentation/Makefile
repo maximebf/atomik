@@ -22,7 +22,8 @@ get-started:
 	
 events:
 	-mkdir -p $(OUTPUT)
-	xsltproc --xinclude -o $(OUTPUT)/ events/xsl/events.xsl events/xml/index.xml
+	cp events/events.css $(OUTPUT)/events.css
+	xsltproc --xinclude -o $(OUTPUT)/ events/events.xsl events/xml/index.xml
 		
 clean:
 	-rm -r $(OUTPUT)

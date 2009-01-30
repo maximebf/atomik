@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::dispatch()">
+<group name="dispatch" title="Atomik::dispatch()">
 	<event name="Atomik::Start">
 		<description>
 			Fired once the bootstrap file has been loaded and all plugins are ready.
@@ -23,4 +23,4 @@
 		</description>
 		<param name="$exception" type="Exception">The thrown exception</param>
 	</event>
-</method>
+</group>

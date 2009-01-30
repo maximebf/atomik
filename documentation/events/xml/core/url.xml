@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::url()">
+<group name="url" title="Atomik::url()">
 	<event name="Atomik::Url">
 		<description>
 			Fired after a url has been computed
@@ -8,4 +8,4 @@
 		<refparam name="$url" type="string">The computed url</refparam>
 		<param name="$args" type="array">All arguments passed to the function except the first one</param>
 	</event>
-</method>
+</group>

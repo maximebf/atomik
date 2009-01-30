@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::loadPlugin()">
+<group name="load-plugin" title="Atomik::loadPlugin()">
 	<event name="Atomik::Plugin::Before">
 		<description>
 			Fired before a plugin is loaded
@@ -16,4 +16,4 @@
 		</description>
 		<param name="$plugin" type="string">Plugin's name</param>
 	</event>
-</method>
+</group>

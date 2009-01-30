@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<method name="Atomik::render()">
+<group name="render" title="Atomik::render()">
 	<event name="Atomik::Render::Start">
 		<description>
 			Fired at the beginning of a call to <code>Atomik::render()</code>.
@@ -42,4 +42,4 @@
 		</description>
 		<param name="$output" type="string">The content that has been echoed</param>
 	</event>
-</method>
+</group>
