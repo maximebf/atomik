@@ -37,13 +37,6 @@ class ModelPlugin
     	/* directories where models are stored */
     	'dirs' => './app/models',
     
-    	/* directories where adapters are stored */
-    	'adapters_dirs' => array(
-    		
-    		'./app/adapters'
-    
-    	),
-    
     	/* default model adapter */
     	'default_adapter' => 'Atomik_Model_Adapter_Local'
     	
@@ -55,9 +48,6 @@ class ModelPlugin
      */
     public static function start($config)
     {
-    	/* adds the default adapters dirs */
-    	self::$config['adapters_dirs'][] = dirname(__FILE__) . '/adapters';
-    	
         /* config */
         self::$config = array_merge(self::$config, $config);
 		
@@ -84,6 +74,6 @@ class ModelPlugin
      */
     public static function onBackendStart()
     {
-    	Atomik_Backend::addTab('Models', 'Model', 'list', 'right');
+    	Atomik_Backend::addTab('Models', 'Model', 'index', 'right');
     }
 }

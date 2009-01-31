@@ -39,7 +39,13 @@ class BackendPlugin
 		'trigger' => 'admin',
 	
 		/* backend layout */
-		'layout' => '_layout.phtml'
+		'layout' => 'default',
+	
+		'title' => 'Atomik Backend',
+	
+		'scripts' => array(),
+	
+		'styles' => array()
 	
 	);
 	
@@ -69,8 +75,8 @@ class BackendPlugin
 		/* checks if the uri starts with the backend trigger */
 		$trigger = self::$config['trigger'];
 		$segments = explode('/', Atomik::get('request_uri'));
-		$key = array_shift($segments);
-		if ($key != $trigger) {
+		$firstSegment = array_shift($segments);
+		if ($firstSegment != $trigger) {
 			return;
 		}
 		
@@ -88,13 +94,16 @@ class BackendPlugin
 			$segments = array('dashboard');
 		}
 		
-		$pluginDir = rtrim(Atomik::path(Atomik::get('atomik/dirs/plugins')), '/') . '/';
-		$layoutDir = $pluginDir . 'Backend/share/views';
-		$pluginDir .= ucfirst($plugin) . '/backend/';
+		if (($pluginDir = Atomik::path(ucfirst($plugin), Atomik::get('atomik/dirs/plugins'))) === false) {
+			Atomik::flash('The ' . $plugin . ' plugin does not exist', 'error');
+			Atomik_Backend::redirect('backend/dashboard');
+		}
+		
+		$pluginDir = rtrim($pluginDir, '/') . '/backend';
 		
 		/* checks if the plugin supports the backend */
 		if (!is_dir($pluginDir)) {
-			Atomik_Session::flash('The plugin ' . $plugin . ' does have any backend features', 'error');
+			Atomik::flash('The ' . $plugin . ' plugin does have any backend features', 'error');
 			Atomik_Backend::redirect('backend/dashboard');
 		}
 		
@@ -103,33 +112,28 @@ class BackendPlugin
 		Atomik::set(array(
 			'request_uri' => $uri,
 			'request' => Atomik::route($uri, $_GET),
-			'backend' => array(
-				'plugin' => $plugin,
-				'title' => 'Atomik Backend'
-			),
+			'backend' => array_merge(self::$config, array(
+				'plugin' => $plugin
+			)),
 			'atomik' => array(
 				'dirs' => array(
-					'actions' =>  $pluginDir . 'actions',
-					'views' =>  array(
-						$layoutDir, 
-						$pluginDir . 'views'
-					)
+					'actions' =>  $pluginDir . '/actions',
+					'views' =>  array($pluginDir . '/views'),
+					'layouts' => dirname(__FILE__) . '/backend/layouts'
 				)
 			)
 		));
 		
 		/* backend layout */
-		Atomik::loadPlugin('Layout');
-		LayoutPlugin::$config['global'] = self::$config['layout'];
+		Atomik::set('layout', self::$config['layout']);
 		
 		/* default tabs */
-		Atomik_Backend::addTab('Dashboard', 'Backend', 'dashboard');
-		Atomik_Backend::addTab('Pages', 'Backend', 'pages');
+		Atomik_Backend::addTab('Dashboard', 'Backend', 'index');
 		
 		Atomik::fireEvent('Backend::Start');
 		
 		/* plugins can provide a bootstrap file */
-		$bootstrap = $pluginDir . 'bootstrap.php';
+		$bootstrap = $pluginDir . '/bootstrap.php';
 		if (file_exists($bootstrap)) {
 			include $bootstrap;
 		}

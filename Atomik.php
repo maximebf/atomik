@@ -1090,18 +1090,9 @@ class Atomik
 	 */
 	public static function isPluginLoaded($plugin)
 	{
-		$plugin = ucfirst($plugin);
-		
-		/* use default directories */
-		if ($dirs === null) {
-			$dirs = self::get('atomik/dirs/plugins');
-		}
-		
-		if (!isset(self::$_plugins[$plugin])) {
-			/* plugin not loaded */
+		if (!isset(self::$_plugins[ucfirst($plugin)])) {
 			return false;
 		}
-		
 		return true;
 	}
 	

@@ -24,8 +24,9 @@ Atomik::set(array(
         'Ajax',
         'Lang',
         'Model',
-        'Users',
-        'Backend'
+        'Auth',
+        'Backend',
+        'Pages'
 	)
     
 ));

@@ -7,11 +7,7 @@
 				echo $tab['text'] . ' | '. Atomik::get('backend/title'); 
 			?>
 		</title>
-		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::get('base_url') ?>app/plugins/Backend/assets/styles/main.css" />
-		<script type="text/javascript" src="<?php echo Atomik::get('base_url') ?>app/plugins/Backend/assets/scripts/jquery-1.2.6.min.js"></script>
-		<script type="text/javascript" src="<?php echo Atomik::get('base_url') ?>app/plugins/Backend/assets/scripts/jquery-ui-personalized-1.5.min.js"></script>
-		<script type="text/javascript" src="<?php echo Atomik::get('base_url') ?>app/plugins/Backend/assets/scripts/main.js"></script>
-		<?php echo Atomik::fireEvent('Backend::Layout::Head', array(), true); ?>
+		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::pluginAsset('Backend', 'styles/main.css') ?>" />
 	</head>
 	<body>
 		<div id="body">
@@ -37,21 +33,20 @@
 			
 			<div id="messages">
 				<?php echo Atomik::fireEvent('Backend::Layout::Messages::Before', array(), true); ?>
-    			<?php if (Atomik_Session::countMessages()): ?>
-					<?php foreach (Atomik_Session::getMessages() as $label => $messages): ?>
-						<?php foreach ($messages as $message): ?>
-							<div class="message <?php echo $label ?>">
-								<?php echo $message ?>
-							</div>
-						<?php endforeach; ?>
+				
+				<?php foreach (Atomik::get('flash:all') as $label => $messages): ?>
+					<?php foreach ($messages as $message): ?>
+						<div class="message <?php echo $label ?>">
+							<?php echo $message ?>
+						</div>
 					<?php endforeach; ?>
-    				<script type="text/javascript">setTimeout('Atomik.hideMessages()', 5000);</script>
-    			<?php endif; ?>
+				<?php endforeach; ?>
+				
 				<?php echo Atomik::fireEvent('Backend::Layout::Messages::After', array(), true); ?>
 			</div>
 			
 			<?php echo Atomik::fireEvent('Backend::Layout::Content::Before', array(), true); ?>
-			<?php echo $content_for_layout ?>
+			<?php echo $contentForLayout ?>
 			<?php echo Atomik::fireEvent('Backend::Layout::Content::After', array(), true); ?>
 			
 			<div id="footer">

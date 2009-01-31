@@ -20,17 +20,38 @@
  */
 
 /**
+ * Pages plugin
+ * 
  * @package Atomik
  * @subpackage Plugins
  */
-class UsersPlugin
+class PagesPlugin
 {
-    public static $config = array(
-    
-    );
-    
-    public static function onBackendStart()
-    {
-        Atomik_Backend::addTab('Users', 'users', 'list', 'right');
-    }
+	/**
+	 * Default configuration
+	 * 
+	 * @var array 
+	 */
+	public static $config = array(
+	
+	);
+	
+	/**
+	 * Plugin initialization
+	 *
+	 * @param array $config
+	 * @return bool
+	 */
+	public static function start($config)
+	{
+		
+	}
+	
+	/**
+	 * 
+	 */
+	public static function onBackendStart()
+	{
+		Atomik_Backend::addTab('Pages', 'Pages', 'index');
+	}
 }
