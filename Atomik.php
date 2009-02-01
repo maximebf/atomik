@@ -1460,7 +1460,7 @@ class Atomik
 			$validate = true;
 			
 			foreach ($rule as $field => $params) {
-				if (is_array($data[$field])) {
+				if (isset($data[$field]) && is_array($data[$field])) {
 					// data is an array
 					if (($results[$field] = self::filter($data[$field], $params)) === false) {
 						$messages[$field] = A('filters/messages', array());
@@ -1469,6 +1469,7 @@ class Atomik
 					continue;
 				}
 				
+				$filter = FILTER_SANITIZE_STRING;
 				$message = Atomik::get('filters/default_message', 'The %s field failed to validate');
 				$required = false;
 				$default = null;
@@ -1487,7 +1488,9 @@ class Atomik
 					if (isset($params['label'])) {
 						$label = self::delete('label', $params);
 					}
-					$filter = self::delete('filter', $params);
+					if (isset($params['filter'])) {
+						$filter = self::delete('filter', $params);
+					}
 					$options = count($params) == 0 ? null : $params;
 				} else {
 					$filter = $params;
