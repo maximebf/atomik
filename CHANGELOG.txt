@@ -30,6 +30,7 @@
  ! Atomik::_mergeRecursive() is now public
  * Added Atomik::_dimensionizeArray()
  ! Atomik::set() now use Atomik::_dimensionizeArray() when the first argument is an array
+ * Added Atomik::getRef()
  * Added Atomik::add()
  * Added Atomik::debug()
  * Added Atomik::asset()

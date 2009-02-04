@@ -16,9 +16,19 @@ manual:
 		
 get-started:
 	-mkdir -p $(OUTPUT)
+	mkdir $(OUTPUT)/images
+	cp manual/images/logo.png $(OUTPUT)/images
 	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual.css
 	cat docbook-xsl/common.css >> $(OUTPUT)/manual.css
 	xsltproc --xinclude -o $(OUTPUT)/ docbook-xsl/$(XSL).xsl get-started/index.xml
+	
+	svn export get-started/source $(OUTPUT)/atomik-get-started
+	svn export ../plugins/Db $(OUTPUT)/atomik-get-started/app/plugins/Db
+	cp ../Atomik.php $(OUTPUT)/atomik-get-started/index.php
+	cp ../CHANGELOG.txt $(OUTPUT)/atomik-get-started
+	cp ../LICENSE.txt $(OUTPUT)/atomik-get-started
+	cd $(OUTPUT) && zip -r atomik-get-started.zip atomik-get-started
+	rm -r $(OUTPUT)/atomik-get-started
 	
 events:
 	-mkdir -p $(OUTPUT)

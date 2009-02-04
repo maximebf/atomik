@@ -50,6 +50,12 @@ Atomik::set(array(
 		'default_message'		=> 'The %s field failed to validate',
 		'required_message'		=> 'The %s field must be filled'
 	),
+	
+	/* base url, set to null for auto detection */
+	'base_url'					=> null,
+	
+	/* whether url rewriting is activated on the server */
+	'url_rewriting'				=> false,
 
 	/* core configuration */
     'atomik' => array(
@@ -278,7 +284,7 @@ class Atomik
         		}
     	
         		/* retreives the base url */
-        		if (!self::has('base_url')) {
+        		if (self::get('base_url', null) === null) {
         			if (self::get('url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
         			    /* finds the base url from the redirected url */
         				$redirectUrl = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['REDIRECT_URI'];
@@ -292,14 +298,14 @@ class Atomik
     		} else {
     		    /* sets the user defined request */
             	/* retreives the base url */
-            	if (!self::has('base_url')) {
+            	if (self::get('base_url', null) === null) {
     			    /* finds the base url from the script name */
     				self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
             	}
     		}
     		
     		/* routes the request */
-    		if(self::get('enable_routing', true)) {
+    		if(self::get('atomik/enable_routing', true)) {
     			$request = self::route($uri, $_GET);
     		} else {
     			$request = array('action' => $uri);
@@ -711,15 +717,14 @@ class Atomik
 			$key = basename($key);
 			
 			$parentArray = &self::getRef($parentArrayKey, $array);
-			$keyDoesNotExist = $parentArray === null;
-			if ($keyDoesNotExist) {
+			if ($parentArray === null) {
 				$dimensionizedParentArray = self::_dimensionizeArray(array($parentArrayKey => null));
         		$array = self::_mergeRecursive($array, $dimensionizedParentArray);
         		$parentArray = &self::getRef($parentArrayKey, $array);
 			}
 			
 			if ($add) {
-				if ($keyDoesNotExist) {
+				if ($parentArray[$key] === null) {
 					$parentArray[$key] = array();
 				} else if (!is_array($parentArray[$key])) {
 					$parentArray[$key] = array($parentArray[$key]);
