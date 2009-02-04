@@ -1,0 +1,13 @@
+CREATE TABLE posts (
+	id 				INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	publish_date 	DATETIME NOT NULL,
+	title 			VARCHAR(200) NOT NULL,
+	content 		TEXT NOT NULL
+);
+
+CREATE TABLE comments (
+	id 				INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	post_id 		INTEGER NOT NULL,
+	publish_date 	DATETIME NOT NULL,
+	content 		TEXT NOT NULL
+);

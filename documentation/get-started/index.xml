@@ -1,7 +1,329 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<book xmlns="http://docbook.org/ns/docbook">
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Get started</title>
 	<para>
-		This tutorial is licensed under the Creative Commons Attribution license.
+		In this tutorial, you will learn how to create a simple blogging application using Atomik 2.1. 
+		It shouldn't take much time, approximatively 15 minutes.
 	</para>
+	<para>
+		Our blog will list posts and allow you to create new ones.
+		It will use a database to store posts. Thus, we'll use a plugin.
+	</para>
+	<para>
+		This tutorial is licensed under the Creative Commons Attribution 3.0 License.
+	</para>
+	<chapter>
+		<title>Download and installation</title>
+		<sect1>
+			<title>Download</title>
+			<para>
+				When using Atomik, creating your application starts online. Indeed, you can use Atomik distribution
+				builder to create a custom distribution with prepackaged plugins and custom configuration.
+			</para>
+			<para>
+				First navigate to Atomik's website at <link xlink:href="http://www.atomikframework.com">http://www.atomikframework.com</link>.
+				Go to the Plugins section. In the Official category (this is the default category) find the Db plugin. Click on the
+				<quote>Add to my distribution</quote> link.
+			</para>
+			<para>
+				Now, go to the Download section. The Db plugin should be listed in the list of included plugins. Leave all the options to
+				their default value and click on the Download button.
+			</para>
+		</sect1>
+		<sect1>
+			<title>Installation</title>
+			<para>
+				Extract the downloaded archive.
+			</para>
+			<para>
+				Copy the content of the extracted folder to your web server document root. See you web server documentation for more information
+				about that.
+			</para>
+			<para>
+				Navigate to the website url. Will assume it's <link xlink:href="http://localhost">http://localhost</link>.
+				You should see a message saying <quote>Congratulations, you're ready to roll!</quote>.
+			</para>
+			<para>
+				Atomik's distribution comes with a predefined directory structure, layout and index page. We'll leave these 
+				untouch unless specified.
+			</para>
+		</sect1>
+	</chapter>
+	<chapter>
+		<title>Creating and configuring the database</title>
+		<para>
+			As said before, our blog application will need a database. First let's create the database with the following SQL code:
+		</para>
+		<programlisting>
+			<![CDATA[
+CREATE TABLE posts (
+	id 				INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	publish_date 	DATETIME NOT NULL,
+	title 			VARCHAR(200) NOT NULL,
+	content 		TEXT NOT NULL
+);
+
+CREATE TABLE comments (
+	id 				INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	post_id 		INTEGER NOT NULL,
+	publish_date 	DATETIME NOT NULL,
+	content 		TEXT NOT NULL
+);]]>
+		</programlisting>
+		<para>
+			Will now need to configure the Db plugin so it can access the database.
+			We'll use the <methodname>Atomik::set()</methodname> method. It allows you to define keys in the global store.
+			In the <filename>app/bootstrap.php</filename> file, add the following lines:
+		</para>
+		<programlisting>
+			<![CDATA[
+Atomik::set('plugins/Db', array(
+	'dsn' 		=> 'mysql:host=localhost;dbname=blog',
+	'username' 	=> 'root',
+	'password' 	=> ''
+));]]>
+		</programlisting>
+		<para>
+			You can see that we define the <quote>plugins/Db</quote> key as an array containing connection information.
+			Modify the host, dbname, username and password parameters according to your setup.
+		</para>
+		<para>
+			This is all we need to connect to the database.
+		</para>
+	</chapter>
+	<chapter>
+		<title>Listing posts</title>
+		<para>
+			A page in Atomik is made of two files: the first one is dedicated to the business logic, it is called an action.
+			The second one is called a view and holds the presentation code, in most case HTML.
+		</para>
+		<para>
+			Actions are located in the <filename>app/actions</filename> folder and views in the <filename>app/views</filename>
+			folder. For example, for a page named home, we would need a <filename>home.php</filename> file in the actions
+			folder and a <filename>home.phtml</filename> file in the views folder.
+		</para>
+		<note>
+			Both files are not mandatory when creating a page. At least one of them has to exist.
+		</note>
+		<para>
+			The default page is named index. We will list posts on this one. We'll first need to retreive posts from the database.
+			In the action file (<filename>app/actions/index.php</filename>), add the following lines:
+		</para>
+		<programlisting>
+			<![CDATA[
+<?php
+$posts = Atomik_Db::findAll('posts');]]>
+		</programlisting>
+		<para>
+			That's all we need to retreive all posts from the database! The <methodname>Atomik_Db::findAll()</methodname> method
+			takes as first argument a table name and we specified <quote>posts</quote>. It returns a <classname>PDOStatement</classname>
+			object with all the returned rows.
+		</para>
+		<para>
+			Variables defined in the action are automatically available in the view. Thus, we can iterate through the 
+			<varname>$posts</varname> variable to list our posts.
+		</para>
+		<programlisting>
+			<![CDATA[
+<h1>Blog</h1>
+<ul>
+	<? foreach ($posts as $post): ?>
+		<li><?= $post['title'] ?></li>
+	<? endforeach; ?>
+</ul>
+<a href="<?= Atomik::url('add') ?>">Add a new post</a>]]>
+		</programlisting>
+		<note>
+			<para>
+				PHP short open tags will be used in code listing. Check your PHP configuration to see if it is supported on your server.
+			</para>
+			<para>
+				As you can see this listing also uses PHP's alternative syntax. This is advice when adding PHP code into views as it 
+				makes them clearer.
+			</para>
+			<para>
+				The add page will be described in the next chapter.
+			</para>
+		</note>
+		<para>
+			Now, navigate to <link xlink:href="http://localhost">http://localhost</link>. Don't worry if nothing show up, we havn't created
+			any post yet.
+		</para>
+	</chapter>
+	<chapter>
+		<title>Creating new posts</title>
+		<para>
+			We're going to create a new page called <quote>add</quote>. Let's start by creating the view
+			(<filename>app/views/add.phtml</filename>).
+		</para>
+		<programlisting>
+			<![CDATA[
+<h1>New post</h1>
+<form action="" method="post">
+	<dl>
+		<dt><label for="title">Title:</label></dt>
+		<dd><input type="text" name="title" /></dd>
+		<dt><label for="content">Content:</label></dt>
+		<dd><textarea name="content" rows="10" cols="100"></textarea></dd>
+		<dt></dt>
+		<dd><input type="submit" /></dd>
+	</dl>
+</form>]]>
+		</programlisting>
+		<para>
+			As you can see, this is a very simple HTML form. We now need to handle the form's data.
+			This will take place in the action file (<filename>app/actions/add.php</filename>).
+		</para>
+		<para>
+			Our action should only be executed when there's POST data. So will first check if there's any:
+		</para>
+		<programlisting>
+			<![CDATA[
+if (!count($_POST)) {
+	return;
+}]]>
+		</programlisting>
+		<para>
+			This will exit the action and continue to the view if there's no POST data.
+		</para>
+		<para>
+			We're now goind to filter the data. This is always an important step when dealing with
+			POST data for security reasons. We're going to use <methodname>Atomik::filter()</methodname>.
+		</para>
+		<para>
+			This method works in two ways: it can filter a scalar value or it can filter an entire array.
+			We're obviously going to use the later as we're going to filter the $_POST array.
+		</para>
+		<para>
+			To filter an array, the method needs a rule. The rule is an array listing the allowed
+			keys in the input data. For each keys, we can use a filter and define if it's required.
+			The default filter is to sanitize strings (FILTER_SANITIZE_STRING) and we'll use that one.
+			We're only going to set fields as required.
+		</para>
+		<programlisting>
+			<![CDATA[
+$rule = array(
+	'title' => array('required' => true),
+	'content' => array('required' => true)
+);]]>
+		</programlisting>
+		<para>
+			Now we can filter the data using this rule. If the validation fail, the method will return
+			false. It will in this case generate error messages stored in <quote>filters/messages</quote>.
+			With can then loop over these messages and use <methodname>Atomik::flash()</methodname> to store them.
+		</para>
+		<programlisting>
+			<![CDATA[
+if (($data = Atomik::filter($_POST, $rule)) === false) {
+	foreach (A('filters/messages') as $message) {
+		Atomik::flash($message, 'error');
+	}
+	return;
+}]]>
+		</programlisting>
+		<para>
+			You can note that we use the <function>A()</function> function which is an alias to
+			<methodname>Atomik::get()</methodname>.
+		</para>
+		<para>
+			Now that our data as been validated we're going to insert them in the database.
+			Wel'll use the <methodname>Atomik_Db::insert()</methodname> method.
+		</para>
+		<programlisting>
+			<![CDATA[
+$data['publish_date'] = date('Y-m-d h:i:s');
+Atomik_Db::insert('posts', $data);]]>
+		</programlisting>
+		<para>
+			Note that we define the publish_date before inserting the data.
+		</para>
+		<para>
+			Finally, we'll add a flash message announcing that the operation has been successful.
+			We'll also redirect the user to the index page.
+		</para>
+		<programlisting>
+			<![CDATA[
+Atomik::flash('Post successfully added!', 'success');
+Atomik::redirect('index');]]>
+		</programlisting>
+		<para>
+			Below is the complete action
+		</para>
+		<programlisting>
+			<![CDATA[
+<?php
+
+if (!count($_POST)) {
+	return;
+}
+
+$rule = array(
+	'title' => array('required' => true),
+	'content' => array('required' => true)
+);
+
+if (($data = Atomik::filter($_POST, $rule)) === false) {
+	foreach (A('filters/messages') as $message) {
+		Atomik::flash($message, 'error');
+	}
+	return;
+}
+
+$data['publish_date'] = date('Y-m-d h:i:s');
+Atomik_Db::insert('posts', $data);
+
+Atomik::flash('Post successfully added!', 'success');
+Atomik::redirect('index');]]>
+		</programlisting>
+	</chapter>
+	<chapter>
+		<title>Viewing a post</title>
+		<para>
+			We are now going to create a page named <quote>view</quote> to view a single post.
+		</para>
+		<para>
+			The page will need a GET parameter named <quote>id</quote> which must contain the id
+			of a post. Let's create the action file (<filename>app/actions/view.php</filename>)
+			with this simple line:
+		</para>
+		<programlisting>
+			<![CDATA[
+<?php
+$post = Atomik_Db::find('posts', array('id' => $_GET['id']));]]>
+		</programlisting>
+		<para>
+			The view (<filename>app/views/view.phtml</filename>) is also very simple:
+		</para>
+		<programlisting>
+			<![CDATA[
+<h1><?= $post['title'] ?></h1>
+<p>
+	Published the <?= $post['publish_date'] ?>
+</p>
+<p>
+	<?= $post['content'] ?>
+</p>]]>
+		</programlisting>
+		<para>
+			Finally, we're going to modify the index view to add a link on post titles. Replace
+			the line where the post title is echoed with:
+		</para>
+		<programlisting>
+			<![CDATA[
+<li>
+	<a href="<?= Atomik::url('view', array('id' => $post['id'])) ?>"><?= $post['title'] ?></a>
+</li>]]>
+		</programlisting>
+	</chapter>
+	<chapter>
+		<title>End</title>
+		<para>
+			Well done! This tutorial is now finished. You can learn much more in the 
+			<link xlink:href="http://www.atomikframework.com/manual">manual</link>.
+		</para>
+		<para>
+			You can download the source of this tutorial by 
+			<link xlink:href="atomik-get-started.zip">clicking here</link>.
+		</para>
+	</chapter>
 </book>

@@ -1,0 +1,9 @@
+<h1>Blog</h1>
+<ul>
+	<? foreach ($posts as $post): ?>
+		<li>
+			<a href="<?= Atomik::url('view', array('id' => $post['id'])) ?>"><?= $post['title'] ?></a>
+		</li>
+	<? endforeach; ?>
+</ul>
+<a href="<?= Atomik::url('add') ?>">Add a new post</a>
