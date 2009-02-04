@@ -9,12 +9,11 @@
 	<sect1 id="db-connection">
 		<title>Connecting to a database</title>
 		<para>
-			You can connect to a database either automatically or manually. The first
-			method can be achieved by setting some configuration.
+			You can connect to a database either automatically or manually.
 		</para>
 		<para>
-			You need to specify a dsn, a username and a password as shown below. You also
-			need to define the <quote>autoconnect</quote> configuration key to true.
+			The first method can be achieved by setting some configuration.
+			You need to specify a dsn, a username and a password as shown below.
 		</para>
 		<example>
 			<title>Automatically connecting to a database</title>
@@ -23,11 +22,14 @@
 Atomik::set('plugins/Db', array(
 	'dsn' => 'mysql:host=localhost;dbname=mydb',
 	'username' => 'root',
-	'password' => '',
-	'autoconnect' => true
+	'password' => ''
 ));]]>
 			</programlisting>
 		</example>
+		<para>
+			Only the <quote>dsn</quote> configuration key is mandatory.
+			If you do not set it, you'll need to connect manually.
+		</para>
 		<para>
 			To connect manually, use the <methodname>Atomik_Db::connect()</methodname> method.
 		</para>
@@ -105,6 +107,9 @@ $results = Atomik_Db::findAll('posts', 'author = 3');]]>
 				name as a string, you must provide an array as the first argument where keys are table names and values the
 				fields array.
 			</para>
+			<note>
+				The returned object is of type <classname>PDOStatement</classname>.
+			</note>
 			<example>
 				<title>Finding records from multiple tables</title>
 				<programlisting>
@@ -146,6 +151,20 @@ foreach ($posts as $post) {
 	echo $post['title'];
 	echo $post['content'];
 }]]>
+				</programlisting>
+			</example>
+		</sect2>
+		<sect2 id="db-count">
+			<title>Counting records</title>
+			<para>
+				You can perform SELECT COUNT(*) queries using <methodname>Atomik_Db::count()</methodname>.
+				This method takes the same parameters as <methodname>Atomik_Db::find()</methodname>.
+			</para>
+			<example>
+				<title>Counting records from one table</title>
+				<programlisting>
+					<![CDATA[
+$numberOfPosts = Atomik_Db::count('posts');]]>
 				</programlisting>
 			</example>
 		</sect2>

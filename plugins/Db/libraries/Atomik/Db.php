@@ -99,17 +99,25 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::find()
 	 */
-	public static function find($tables, $where = null, $orderBy = '', $limit = '')
+	public static function find($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
-		return self::getInstance()->find($tables, $where, $orderBy, $limit);
+		return self::getInstance()->find($tables, $where, $orderBy, $limit, $fields);
 	}
 	
 	/**
 	 * @see Atomik_Db_Instance::findAll()
 	 */
-	public static function findAll($tables, $where = null, $orderBy = '', $limit = '')
+	public static function findAll($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
-		return self::getInstance()->findAll($tables, $where, $orderBy, $limit);
+		return self::getInstance()->findAll($tables, $where, $orderBy, $limit, $fields);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::count()
+	 */
+	public function count($tables, $where = null, $orderBy = '', $limit = '')
+	{
+		return self::getInstance()->count($tables, $where, $orderBy, $limit);
 	}
 	
 	/**

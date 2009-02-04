@@ -234,7 +234,7 @@ class Atomik
     		/* starts the session */
     		if (self::get('atomik/start_session', true) == true) {
     			session_start();
-    			self::set('session', $_SESSION);
+    			self::$_store['session'] = &$_SESSION;
     		}
     		
     		/* registers the class autoload handler */
@@ -667,7 +667,7 @@ class Atomik
 	/**
 	 * Fires the Atomik::End event and exits the application
 	 *
-	 * @param bool $success OPTIONAL Whether the application exit on success or because an error occured
+	 * @param bool $success Whether the application exit on success or because an error occured
 	 */
 	public static function end($success = false)
 	{
@@ -694,7 +694,7 @@ class Atomik
 	 * @see Atomik::_dimensionizeArray()
 	 * @param array|string 	$key 			Can be an array to set many key/value
 	 * @param mixed 		$value
-	 * @param bool 			$dimensionize 	Whether to use Atomik::_dimensionizeArray()
+	 * @param bool 			$dimensionize 	Whether to use Atomik::_dimensionizeArray() on $key
 	 * @param array 		$array 			The array on which the operation is applied
 	 * @param array 		$add 			Whether to add values or replace them
 	 */
@@ -705,20 +705,41 @@ class Atomik
 		    $array = &self::$_store;
 		}
 		
-		/* transforms a string key into a key/value array to 
-		 * use with _dimensionizeArray() */
-		if (!is_array($key) && $value !== null) {
-			$key = array($key => $value);
+		/* setting a key directly */
+		if (is_string($key)) {
+			$parentArrayKey = strpos($key, '/') !== false ? dirname($key) : null;
+			$key = basename($key);
+			
+			$parentArray = &self::getRef($parentArrayKey, $array);
+			$keyDoesNotExist = $parentArray === null;
+			if ($keyDoesNotExist) {
+				$dimensionizedParentArray = self::_dimensionizeArray(array($parentArrayKey => null));
+        		$array = self::_mergeRecursive($array, $dimensionizedParentArray);
+        		$parentArray = &self::getRef($parentArrayKey, $array);
+			}
+			
+			if ($add) {
+				if ($keyDoesNotExist) {
+					$parentArray[$key] = array();
+				} else if (!is_array($parentArray[$key])) {
+					$parentArray[$key] = array($parentArray[$key]);
+				}
+				$parentArray[$key] = array_merge_recursive($parentArray[$key], is_array($value) ? $value : array($value));
+			} else {
+				$parentArray[$key] = $value;
+			}
+			
+			return;
 		}
-	    
-	    if (!is_array($key)) {
-	    	return;
-	    }
+		
+		if (!is_array($key)) {
+			throw new Exception('The first parameter of Atomik::set() must be a string or an array');
+		}
 	    
 	    if ($dimensionize) {
     		$key = self::_dimensionizeArray($key);
 	    }
-    	
+	
 	    /* merges the store and the array */
     	if ($add) {
     		$array = array_merge_recursive($array, $key);
@@ -833,11 +854,6 @@ class Atomik
 	 */
 	public static function get($key = null, $default = null, $array = null)
 	{
-	    /* returns the store */
-	    if ($key === null) {
-	        return self::$_store;
-	    }
-	    
 	    /* checks if a namespace is used */
 	    if (is_string($key) && preg_match('/^([a-z]+):(.*)/', $key, $match)) {
 	        /* checks if the namespace exists */
@@ -849,35 +865,10 @@ class Atomik
 	        }
 	    }
 	    
-		/* if $data is null, uses the global store */
-		if ($array === null) {
-		    $array = self::$_store;
-		}
-		
-		/* checks if the $key is an array */
-	    if (!is_array($key)) {
-	        /* checks if it has slashes */
-	        if (strpos($key, '/') === false) {
-		        /* return the value */
-	            return array_key_exists($key, $array) ? $array[$key] : $default;
-	        }
-	        
-            /* creates an array by spliting using slashes */
-            $key = explode('/', $key);
-		}
-		
-		/* checks if the key exists */
-		$firstKey = array_shift($key);
-		if (isset($array[$firstKey])) {
-		    if (count($key) > 0) {
-		        /* there's still keys so it goes deeper */
-		        return self::get($key, $default, $array[$firstKey]);
-		    } else {
-		        /* the key has been found */
-		        return $array[$firstKey];
-		    }
-		}
-		
+	    if (($value = self::getRef($key, $array)) !== null) {
+	    	return $value;
+	    }
+	    
 		/* key not found, returns default */
 		return $default;
 	}
@@ -895,35 +886,7 @@ class Atomik
 	 */
 	public static function has($key, $array = null)
 	{
-	    /* returns the store */
-	    if ($array === null) {
-	        $array = self::$_store;
-	    }
-	    
-		/* checks if the $key is an array */
-	    if (!is_array($key)) {
-	        /* checks if it has slashes */
-    	    if (!strpos($key, '/')) {
-    	        return array_key_exists($key, $array);
-    	    }
-            /* creates an array by spliting using slashes */
-            $key = explode('/', $key);
-	    }
-	    
-		/* checks if the key exists */
-	    $firstKey = array_shift($key);
-	    if (array_key_exists($firstKey, $array)) {
-	        if (count($key) == 0) {
-		        /* the key has been found */
-	            return true;
-	        } else if (is_array($array[$firstKey])) {
-		        /* there's still keys so it goes deeper */
-	            return self::has($key, $array[$firstKey]);
-	        }
-	    }
-	    
-		/* key not found */
-	    return false;
+	    return self::getRef($key, $array) !== null;
 	}
 	
 	/**
@@ -939,20 +902,55 @@ class Atomik
 	 */
 	public static function delete($key, &$array = null)
 	{
+		$parentArrayKey = strpos($key, '/') !== false ? dirname($key) : null;
+		$key = basename($key);
+		$parentArray = &self::getRef($parentArrayKey, $array);
+		
+	    if ($parentArray === null || !array_key_exists($key, $parentArray)) {
+			throw new Exception('Key "' . $key . '" does not exists');
+	    }
+	    
+	    $value = $parentArray[$key];
+	    unset($parentArray[$key]);
+	    return $value;
+	}
+	
+	/**
+	 * Gets a reference to a value from the store using its associatied key
+	 * 
+	 * You can fetch value from sub arrays by using a path-like
+	 * key. Separate each key with a slash. For example if you want 
+	 * to fetch the value from an $store[key1][key2][key3] you can use
+	 * key1/key2/key3
+	 * Can be used on any array by specifying the second argument
+	 *
+	 * @param 	string|array 	$key 		The configuration key which value should be returned. If null, fetches all values
+	 * @param 	array 			$array 		The array on which the operation is applied
+	 * @return 	mixed						Null if the key does not match
+	 */
+	public static function &getRef($key = null, &$array = null)
+	{
+		$null = null;
+		
 	    /* returns the store */
 	    if ($array === null) {
 	        $array = &self::$_store;
+	    }
+	    
+	    /* return the whole arrat */
+	    if ($key === null) {
+	    	return $array;
 	    }
 	    
 		/* checks if the $key is an array */
 	    if (!is_array($key)) {
 	        /* checks if it has slashes */
     	    if (!strpos($key, '/')) {
-    	        if (array_key_exists($key, $array)) {
-    	        	$value = $array[$key];
-    	            unset($array[$key]);
-		        	return $value;
-    	        }
+    	    	if (array_key_exists($key, $array)) {
+			    	$value =& $array[$key];
+			        return $value;
+    	    	}
+    	        return $null;
     	    }
             /* creates an array by spliting using slashes */
             $key = explode('/', $key);
@@ -961,17 +959,17 @@ class Atomik
 		/* checks if the key exists */
 	    $firstKey = array_shift($key);
 	    if (array_key_exists($firstKey, $array)) {
-	        if (count($key) == 0) {
-	        	$value = $array[$firstKey];
-		        unset($array[$firstKey]);
-		        return $value;
-	        } else if (is_array($array[$firstKey])) {
+		    if (count($key) > 0) {
 		        /* there's still keys so it goes deeper */
-				return self::delete($key, $array[$firstKey]);
-	        } else {
-	            throw new Exception('Key "' . $key . '" does not exists');
-	        }
+		        return self::getRef($key, $array[$firstKey]);
+		    } else {
+		        /* the key has been found */
+		    	$value =& $array[$firstKey];
+		        return $value;
+		    }
 	    }
+	    
+	    return $null;
 	}
 	
 	/**
@@ -1407,15 +1405,16 @@ class Atomik
 		if (!isset($_SESSION)) {
 			throw new Exception('The session must be started before using Atomik::flash()');
 		}
-		self::add('__FLASH', array($label => array($message)), false, $_SESSION);
+		
+		self::add('session/__FLASH', array($label => array($message)));
 	}
 	
 	/**
 	 * Returns the flash messages saved in the session
 	 * 
 	 * @internal 
-	 * @param	string 			$label 	Whether to only retreives messages from this label. When null or 'all', returns all messages
-	 * @return 	array					An array of messages if the label is specified or an array of array message
+	 * @param	string 	$label 	Whether to only retreives messages from this label. When null or 'all', returns all messages
+	 * @return 	array			An array of messages if the label is specified or an array of array message
 	 */
 	public static function getFlashMessages($label = 'all') {
 		if (!isset($_SESSION['__FLASH'])) {
@@ -1423,14 +1422,14 @@ class Atomik
 		}
 		
 		if (empty($label) || $label == 'all') {
-			return self::delete('__FLASH', $_SESSION);
+			return self::delete('session/__FLASH');
 		}
 		
 		if (!isset($_SESSION['__FLASH'][$label])) {
 			return array();
 		}
 		
-		return self::delete($label, $_SESSION['__FLASH']);
+		return self::delete('session/__FLASH/' . $label);
 	}
 	
 	/**

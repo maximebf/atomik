@@ -15,8 +15,7 @@ Atomik::set(array(
         'Console',
 
         'Db' => array(
-            'autoconnect' => false,
-            'dsn'         => 'mysql:host=localhost;dbname=atomik',
+            'dsn'         => false, //'mysql:host=localhost;dbname=atomik',
             'username'    => 'atomik',
             'password'    => 'atomik'
         ),

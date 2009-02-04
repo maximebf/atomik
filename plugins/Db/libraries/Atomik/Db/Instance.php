@@ -105,11 +105,12 @@ class Atomik_Db_Instance
 	 * @param array $where OPTIONAL
 	 * @param string $orderBy OPTIONAL
 	 * @param string $limit OPTIONAL
+	 * @param string|array $fields OPTIONAL
 	 * @return array
 	 */
-	public function find($tables, $where = null, $orderBy = '', $limit = '')
+	public function find($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
-		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit);
+		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit, $fields);
 		$row = $stmt->fetch();
 		$stmt->closeCursor();
 		return $row;
@@ -123,11 +124,30 @@ class Atomik_Db_Instance
 	 * @param array $where OPTIONAL
 	 * @param string $orderBy OPTIONAL
 	 * @param string $limit OPTIONAL
+	 * @param string|array $fields OPTIONAL
 	 * @return array
 	 */
-	public function findAll($tables, $where = null, $orderBy = '', $limit = '')
+	public function findAll($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
-		return $this->_executeSelect($tables, $where, $orderBy, $limit);
+		return $this->_executeSelect($tables, $where, $orderBy, $limit, $fields);
+	}
+	
+	/**
+	 * Perform a SELECT COUNT(*) query
+	 *
+	 * @see Db::buildWhere()
+	 * @param string|array $tables
+	 * @param array $where OPTIONAL
+	 * @param string $orderBy OPTIONAL
+	 * @param string $limit OPTIONAL
+	 * @return int
+	 */
+	public function count($tables, $where = null, $orderBy = '', $limit = '')
+	{
+		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit, 'COUNT(*)');
+		$count = $stmt->fetchColumn();
+		$stmt->closeCursor();
+		return $count;
 	}
 	
 	/**
@@ -218,9 +238,10 @@ class Atomik_Db_Instance
 	 * @param array $where OPTIONAL
 	 * @param string $orderBy OPTIONAL
 	 * @param string $limit OPTIONAL
+	 * @param string|array $fields OPTIONAL
 	 * @return PDOStatement
 	 */
-	protected function _executeSelect($tables, $where = null, $orderBy = '', $limit = '')
+	protected function _executeSelect($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
 		/* creates the sql where clause */
 		list($tables, $where, $values) = $this->_buildWhere($tables, $where);
@@ -234,9 +255,14 @@ class Atomik_Db_Instance
 		if (!empty($limit)) {
 			$limit = ' LIMIT ' . $limit;
 		}
+		
+		/* fields */
+		if (is_array($fields)) {
+			$fields = implode(', ', $fields);
+		}
 	
 		/* build the sql string */
-		$sql = 'SELECT * FROM ' . implode(', ', $tables) 
+		$sql = 'SELECT ' . $fields . ' FROM ' . implode(', ', $tables) 
 			 . $where . $orderBy . $limit;
 		
 		/* creates and executes the pdo statement */	 

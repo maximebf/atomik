@@ -35,16 +35,13 @@ class DbPlugin
     public static $config = array (
     	
     	/* connection string (see PDO) */
-    	'dsn' 			=> 'mysql:host=localhost;dbname=atomik',
+    	'dsn' 			=> false,
     	
     	/* username */
     	'username'		=> 'root',
     	
     	/* password */
-    	'password'		=> '',
-    
-        /* whether to auto connect */
-        'autoconnect'	=> false
+    	'password'		=> ''
     	
     );
     
@@ -61,7 +58,7 @@ class DbPlugin
     	require_once 'Atomik/Db.php';
 
 		/* automatic connection */
-		if (isset(self::$config['autoconnect']) && self::$config['autoconnect'] == true) {
+		if (self::$config['dsn'] !== false) {
 			$dsn = self::$config['dsn'];
 			$username = self::$config['username'];
 			$password = self::$config['password'];

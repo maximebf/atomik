@@ -219,7 +219,7 @@ $result = Atomik::filter($data, 'my_custom_filter');]]>
 Atomik::set('filters/required_message', 'You forgot to fill the %s field!');
 
 // the data to validate
-$data = array(
+$dataToFilter = array(
 	'username' => 'peter',
 	'email' => 'peter@example.com'
 );
@@ -237,7 +237,7 @@ $rule = array(
 	)
 );
 
-if (($data = Atomik::filter($data, $rule) === false) {
+if (($filteredData = Atomik::filter($dataToFilter, $rule)) === false) {
 	// failed validation, showing messages
 	foreach (A('filters/messages') as $message) {
 		Atomik::flash($message, 'error');
@@ -246,7 +246,7 @@ if (($data = Atomik::filter($data, $rule) === false) {
 }
 
 // success
-// do something with $data]]>
+// do something with $filteredData]]>
 			</programlisting>
 		</example>
 		<note>

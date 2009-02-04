@@ -104,6 +104,10 @@ $_myPrivateVariable = 'secret';]]>
 			<para>
 				You can use folders to organize your actions.
 			</para>
+			<para>
+				If you would like to exit the application, avoid using <function>exit()</function> and prefer
+				<methodname>Atomik::end()</methodname> so Atomik can smoothly exit your application.
+			</para>
 		</note>
 	</sect1>
 	<sect1 id="views">

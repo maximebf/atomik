@@ -91,7 +91,7 @@ class BackendPlugin
 			}
 		} else {
 			$plugin = 'backend';
-			$segments = array('dashboard');
+			$segments = array('index');
 		}
 		
 		if (($pluginDir = Atomik::path(ucfirst($plugin), Atomik::get('atomik/dirs/plugins'))) === false) {
@@ -118,7 +118,7 @@ class BackendPlugin
 			'atomik' => array(
 				'dirs' => array(
 					'actions' =>  $pluginDir . '/actions',
-					'views' =>  array($pluginDir . '/views'),
+					'views' =>  $pluginDir . '/views',
 					'layouts' => dirname(__FILE__) . '/backend/layouts'
 				)
 			)
