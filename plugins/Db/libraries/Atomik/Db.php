@@ -115,7 +115,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::count()
 	 */
-	public function count($tables, $where = null, $orderBy = '', $limit = '')
+	public static function count($tables, $where = null, $orderBy = '', $limit = '')
 	{
 		return self::getInstance()->count($tables, $where, $orderBy, $limit);
 	}
