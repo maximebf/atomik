@@ -35,13 +35,29 @@ class Atomik_Db_Instance
 	public $pdo;
 	
 	/**
+	 * Connection information for lazy loading
+	 * 
+	 * @var array
+	 */
+	public $connectionInfo;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param PDO $pdo OPTIONAL A PDO instance
 	 */
-	public function __construct($pdo = null)
+	public function __construct($dsnOrPdo = null, $username = null, $password = null)
 	{
-		$this->pdo = $pdo;
+		if ($dsnOrPdo instanceof PDO) {
+			$this->pdo = $pdo;
+			return;
+		}
+		
+		$this->connectionInfo = array(
+			'dsn' 		=> $dsnOrPdo,
+			'username' 	=> $username,
+			'password' 	=> $password
+		);
 	}
 	
 	/**
@@ -49,13 +65,37 @@ class Atomik_Db_Instance
 	 */
 	public function connect($dsn = null, $username = null, $password = null)
 	{
+		if ($this->pdo !== null) {
+			/* already connected */
+			return;
+		}
+		
+		if ($dsn === null && $this->connectionInfo !== null) {
+			$dsn = $this->connectionInfo['dsn'];
+			$username = $this->connectionInfo['username'];
+			$password = $this->connectionInfo['password'];
+		}
+		
 		/* creates the pdo instance */
 		try {
 		    $this->pdo = new PDO($dsn, $username, $password);
+			$this->connectionInfo = array(
+				'dsn' 		=> $dsn,
+				'username' 	=> $username,
+				'password' 	=> $password
+			);
 		} catch (Exception $e) {
 			require_once 'Atomik/Db/Exception.php';
 			throw new Atomik_Db_Exception('Database connection failed');
 		}
+	}
+	
+	/**
+	 * Closes the database connection
+	 */
+	public function disconnect()
+	{
+		$this->pdo = null;
 	}
 	
 	/**
@@ -67,6 +107,7 @@ class Atomik_Db_Instance
 	 */
 	public function query($query, $params = array())
 	{
+		$this->connect();
 		$stmt = $this->pdo->prepare($query);
 		$stmt->execute($params);
 		return $stmt;
@@ -81,6 +122,7 @@ class Atomik_Db_Instance
 	 */
 	public function exec($query)
 	{
+		$this->connect();
 		return $this->pdo->exec($query);
 	}
 	
@@ -94,6 +136,7 @@ class Atomik_Db_Instance
 	 */
 	public function prepare($query, $options = array())
 	{
+		$this->connect();
 		return $this->pdo->prepare($query, $options);
 	}
 	
@@ -110,6 +153,7 @@ class Atomik_Db_Instance
 	 */
 	public function find($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
+		$this->connect();
 		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit, $fields);
 		$row = $stmt->fetch();
 		$stmt->closeCursor();
@@ -129,6 +173,7 @@ class Atomik_Db_Instance
 	 */
 	public function findAll($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
 	{
+		$this->connect();
 		return $this->_executeSelect($tables, $where, $orderBy, $limit, $fields);
 	}
 	
@@ -144,6 +189,7 @@ class Atomik_Db_Instance
 	 */
 	public function count($tables, $where = null, $orderBy = '', $limit = '')
 	{
+		$this->connect();
 		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit, 'COUNT(*)');
 		$count = $stmt->fetchColumn();
 		$stmt->closeCursor();
@@ -162,6 +208,8 @@ class Atomik_Db_Instance
 	 */
 	public function insert($table, $data)
 	{
+		$this->connect();
+		
 		$fields = array_keys($data);
 		$values = array_values($data);
 
@@ -188,6 +236,8 @@ class Atomik_Db_Instance
 	 */
 	public function update($table, $data, $where)
 	{
+		$this->connect();
+		
 		/* creates the sql where clause */
 		list($tables, $where, $values) = $this->_buildWhere(array($table => $where));
 	
@@ -219,6 +269,8 @@ class Atomik_Db_Instance
 	 */
 	public function delete($tables, $where = array())
 	{
+		$this->connect();
+		
 		/* creates the sql where clause */
 		list($tables, $where, $values) = $this->_buildWhere($tables, $where);
 		

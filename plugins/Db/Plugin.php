@@ -62,7 +62,7 @@ class DbPlugin
 			$dsn = self::$config['dsn'];
 			$username = self::$config['username'];
 			$password = self::$config['password'];
-			Atomik_Db::connect($dsn, $username, $password);
+			Atomik_Db::createInstance('default', $dsn, $username, $password);
 		}
 		
 		/* registers the db selector namespace */

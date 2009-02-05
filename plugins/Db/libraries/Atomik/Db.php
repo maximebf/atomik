@@ -32,6 +32,13 @@ require_once 'Atomik/Db/Instance.php';
 class Atomik_Db
 {
 	/**
+	 * Available db instances
+	 *
+	 * @var array
+	 */
+	protected static $_availableInstances = array();
+	
+	/**
 	 * The db instance
 	 *
 	 * @var Atomik_Db_Instance
@@ -39,14 +46,73 @@ class Atomik_Db
 	protected static $_instance;
 	
 	/**
+	 * Resets all available instances
+	 * 
+	 * @param array $instances
+	 */
+	public static function setAvailableInstances($instances)
+	{
+		self::$_availableInstances = array();
+		foreach ($instances as $name => $instance) {
+			self::addAvailableInstance($name, $instance);
+		}
+	}
+	
+	/**
+	 * Adds a new available instance
+	 * 
+	 * @param string $name
+	 * @param Atomik_Db_Instance $instance
+	 */
+	public static function addAvailableInstance($name, Atomik_Db_Instance $instance)
+	{
+		self::$_availableInstances[$name] = $instance;
+	}
+	
+	/**
+	 * Returns all available instances
+	 * 
+	 * @return array
+	 */
+	public static function getAvailableInstances()
+	{
+		return self::$_availableInstances;
+	}
+	
+	/**
+	 * Creates a new Atomik_Db_Instance and sets it as the current one
+	 * 
+	 * @param string $name Instance name
+	 * @param string $dsn
+	 * @param string $username
+	 * @param string $password
+	 * @return Atomik_Db_Instance
+	 */
+	public static function createInstance($name, $dsn, $username, $password)
+	{
+		$instance = new Atomik_Db_Instance($dsn, $username, $password);
+		self::addAvailableInstance($name, $instance);
+		self::setInstance($instance);
+	}
+	
+	/**
 	 * Sets the instance
 	 *
-	 * @param Atomik_Db_Instance $instance OPTIONAL
+	 * @param Atomik_Db_Instance|string $instance An instance name or an Atomik_Db_Instance object
 	 */
 	public static function setInstance($instance = null)
 	{
-		if ($instance === null) {
+		if (is_string($instance)) {
+			if (isset(self::$_availableInstances[$instance])) {
+				$instance = self::$_availableInstances[$instance];
+			} else {
+				throw new Atomik_Db_Exception('The instance named ' . $instance . ' does not exist');
+			}
+		} else if ($instance === null) {
 			$instance = new Atomik_Db_Instance();
+			if (count(self::$_availableInstances) == 0) {
+				self::$_availableInstances['default'] = $instance;
+			}
 		}
 		self::$_instance = $instance;
 	}
@@ -70,6 +136,14 @@ class Atomik_Db
 	public static function connect($dsn = null, $username = null, $password = null)
 	{
 		return self::getInstance()->connect($dsn, $username, $password);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::disconnect()
+	 */
+	public static function disconnect()
+	{
+		return self::getInstance()->disconnect();
 	}
 	
 	/**
