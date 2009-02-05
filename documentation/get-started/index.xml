@@ -83,6 +83,9 @@ Atomik::set('plugins/Db', array(
 	'password' 	=> ''
 ));]]>
 		</programlisting>
+		<note>
+			Check that the Db plugin is not already listed in the plugins key. If it is, it won't work.
+		</note>
 		<para>
 			You can see that we define the <quote>plugins/Db</quote> key as an array containing connection information.
 			Modify the host, dbname, username and password parameters according to your setup.

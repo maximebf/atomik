@@ -724,7 +724,7 @@ class Atomik
 			}
 			
 			if ($add) {
-				if ($parentArray[$key] === null) {
+				if (isset($parentArray[$key]) || $parentArray[$key] === null) {
 					$parentArray[$key] = array();
 				} else if (!is_array($parentArray[$key])) {
 					$parentArray[$key] = array($parentArray[$key]);
