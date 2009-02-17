@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <events 
+	xmlns="http://www.atomikframework.com/events"
 	xmlns:xi="http://www.w3.org/2001/XInclude"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="../events.xsd">

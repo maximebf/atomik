@@ -1,5 +1,6 @@
 <?xml version='1.0'?>
 <xsl:stylesheet version="1.0" 
+	xmlns:e="http://www.atomikframework.com/events"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:exsl="http://exslt.org/common"
 	xmlns:str="http://exslt.org/strings"
@@ -7,7 +8,7 @@
 
 	<xsl:import href="../docbook-xsl/templates.xsl"/>
 	
-	<xsl:template match="/events">
+	<xsl:template match="/e:events">
 		<xsl:call-template name="file.write">
 			<xsl:with-param name="filename" select="'index.html'" />
 			<xsl:with-param name="content">
@@ -16,9 +17,9 @@
 				</p>
 			</xsl:with-param>
 		</xsl:call-template>
-		<xsl:for-each select="category">
+		<xsl:for-each select="e:category">
 			<xsl:variable name="cat" select="@name" />
-			<xsl:for-each select="group">
+			<xsl:for-each select="e:group">
 				<xsl:call-template name="file.write">
 					<xsl:with-param name="filename" select="concat($cat, '-', @name, '.html')" />
 					<xsl:with-param name="content"><xsl:apply-templates select="." /></xsl:with-param>
@@ -37,7 +38,7 @@
 				<head>
 					<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 					
-					<title>Atomik Framework Event Browser</title>
+					<title>Atomik Framework 2.1 Event Browser</title>
 					<link rel="stylesheet" type="text/css" href="{$atomik.base}/assets/css/main.css" />
 					<link rel="stylesheet" type="text/css" href="events.css" />
 				</head>
@@ -63,12 +64,12 @@
 	
 	<xsl:template name="sidebar">
 		<ul class="categories">
-			<xsl:for-each select="/events/category">
+			<xsl:for-each select="/e:events/e:category">
 				<li>
 					<xsl:variable name="cat" select="@name" />
 					<span class="category-title"><xsl:value-of select="@title" /></span>
 					<ul class="groups">
-						<xsl:for-each select="group">
+						<xsl:for-each select="e:group">
 							<li>
 								<a class="group-title">
 									<xsl:attribute name="href"><xsl:value-of select="concat($cat, '-', @name, '.html')" /></xsl:attribute>
@@ -82,7 +83,7 @@
 		</ul>
 	</xsl:template>
 	
-	<xsl:template match="group">
+	<xsl:template match="e:group">
 		<div class="group">
 			<h2 class="group-title"><xsl:value-of select="@title" /></h2>
 			<div class="events">
@@ -91,15 +92,15 @@
 		</div>
 	</xsl:template>
 	
-	<xsl:template match="event">
+	<xsl:template match="e:event">
 		<div class="event">
 			<h3 class="event-name"><xsl:value-of select="@name" /></h3>
 			<p class="event-description">
-				<xsl:value-of select="description" />
+				<xsl:value-of select="e:description" />
 			</p>
 			<div class="event-params">
 				<ol>
-					<xsl:for-each select="param | refparam">
+					<xsl:for-each select="e:param | e:refparam">
 						<li class="event-param">
 							<xsl:if test="name() = 'refparam'">
 								<xsl:attribute name="class">event-param event-refparam</xsl:attribute>
@@ -120,7 +121,7 @@
 				<code>
 					<xsl:variable name="func" select="concat('my', str:replace(@name, '::', ''), 'Handler')" />
 					<xsl:variable name="args">
-						<xsl:for-each select="param | refparam">
+						<xsl:for-each select="e:param | e:refparam">
 							<xsl:if test="name() = 'refparam'">&amp;</xsl:if>
 							<xsl:value-of select="@name" />
 							<xsl:if test="position() &lt; last()">,&#160;</xsl:if>

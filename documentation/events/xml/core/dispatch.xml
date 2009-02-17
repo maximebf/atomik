@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="dispatch" title="Atomik::dispatch()">
+<group name="dispatch" title="Atomik::dispatch()" xmlns="http://www.atomikframework.com/events">
 	<event name="Atomik::Start">
 		<description>
 			Fired once the bootstrap file has been loaded and all plugins are ready.
@@ -11,6 +11,18 @@
 			Fired once the request has been routed and before the call to <pre>pre_dispatch.php</pre>.
 		</description>
 		<refparam name="$cancel" type="boolean">Set to true to cancel the dispatch process. Will exit Atomik.</refparam>
+	</event>
+	<event name="Atomik::Output::Before">
+		<description>
+			Fired before content is echoed.
+		</description>
+		<refparam name="$output" type="string">The content that will be echoed</refparam>
+	</event>
+	<event name="Atomik::Output::After">
+		<description>
+			Fired after content has been echoed.
+		</description>
+		<param name="$output" type="string">The content that has been echoed</param>
 	</event>
 	<event name="Atomik::Dispatch::After">
 		<description>

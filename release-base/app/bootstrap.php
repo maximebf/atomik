@@ -4,6 +4,6 @@ Atomik::set(array(
 
 	'layout' => '_layout',
 
-	'styles' => array('main')
+	'styles' => array('assets/css/main.css')
     
 ));

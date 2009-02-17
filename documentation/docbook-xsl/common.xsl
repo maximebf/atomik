@@ -4,5 +4,7 @@
 	<xsl:import href="/usr/share/xml/docbook/stylesheet/nwalsh/xhtml/chunk.xsl"/>
 	<xsl:param name="chunk.section.depth" select="0"/>
 	<xsl:param name="chunker.output.indent" select="'yes'"/>
+	<xsl:param name="make.valid.html" select="1" />
+	<xsl:param name="use.id.as.filename" select="1" />
 
 </xsl:stylesheet>

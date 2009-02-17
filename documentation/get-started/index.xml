@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<book xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+<book id="get-started" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Get started</title>
 	<para>
 		In this tutorial, you will learn how to create a simple blogging application using Atomik 2.1. 
@@ -12,7 +12,7 @@
 	<para>
 		This tutorial is licensed under the Creative Commons Attribution 3.0 License.
 	</para>
-	<chapter>
+	<chapter id="download-installtion">
 		<title>Download and installation</title>
 		<sect1>
 			<title>Download</title>
@@ -49,7 +49,7 @@
 			</para>
 		</sect1>
 	</chapter>
-	<chapter>
+	<chapter id="database">
 		<title>Creating and configuring the database</title>
 		<para>
 			As said before, our blog application will need a database. First let's create the database with the following SQL code:
@@ -84,7 +84,21 @@ Atomik::set('plugins/Db', array(
 ));]]>
 		</programlisting>
 		<note>
-			Check that the Db plugin is not already listed in the plugins key. If it is, it won't work.
+			<para>
+				Check that the Db plugin is not already listed in the plugins key. If it is, it won't work. 
+			</para>
+			<para>
+				The thing is that the plugin can be listed in the plugins array as a value, thus having a numeric index. 
+				Then when setting the configuration using the previous code, the plugin is added as a key with the configuration 
+				as value, thus not overriding the previous entry. 
+			</para>
+			<para>
+				When iterating over the plugins array, Atomik will first find the plugin listed as value and won't
+				consider the second entry.
+			</para>
+			<para>
+				Always check if the plugin is not already listed.
+			</para>
 		</note>
 		<para>
 			You can see that we define the <quote>plugins/Db</quote> key as an array containing connection information.
@@ -94,7 +108,7 @@ Atomik::set('plugins/Db', array(
 			This is all we need to connect to the database.
 		</para>
 	</chapter>
-	<chapter>
+	<chapter id="listing-posts">
 		<title>Listing posts</title>
 		<para>
 			A page in Atomik is made of two files: the first one is dedicated to the business logic, it is called an action.
@@ -153,7 +167,7 @@ $posts = Atomik_Db::findAll('posts');]]>
 			any post yet.
 		</para>
 	</chapter>
-	<chapter>
+	<chapter id="creating-posts">
 		<title>Creating new posts</title>
 		<para>
 			We're going to create a new page called <quote>add</quote>. Let's start by creating the view
@@ -212,8 +226,8 @@ $rule = array(
 		</programlisting>
 		<para>
 			Now we can filter the data using this rule. If the validation fail, the method will return
-			false. It will in this case generate error messages stored in <quote>filters/messages</quote>.
-			With can then loop over these messages and use <methodname>Atomik::flash()</methodname> to store them.
+			false. It will in this case generate some error messages stored in <quote>filters/messages</quote>.
+			We can then loop over these messages and use <methodname>Atomik::flash()</methodname> to store them.
 		</para>
 		<programlisting>
 			<![CDATA[
@@ -237,6 +251,11 @@ if (($data = Atomik::filter($_POST, $rule)) === false) {
 $data['publish_date'] = date('Y-m-d h:i:s');
 Atomik_Db::insert('posts', $data);]]>
 		</programlisting>
+		<note>
+			Using <function>date()</function> could result in an error if the timezone is not set
+			in <filename>php.ini</filename>. This can be resolved at runtime by calling the
+			<function>date_default_timezone_set()</function>.
+		</note>
 		<para>
 			Note that we define the publish_date before inserting the data.
 		</para>
@@ -279,7 +298,7 @@ Atomik::flash('Post successfully added!', 'success');
 Atomik::redirect('index');]]>
 		</programlisting>
 	</chapter>
-	<chapter>
+	<chapter id="viewing-posts">
 		<title>Viewing a post</title>
 		<para>
 			We are now going to create a page named <quote>view</quote> to view a single post.
@@ -292,8 +311,18 @@ Atomik::redirect('index');]]>
 		<programlisting>
 			<![CDATA[
 <?php
+
+if (!isset($_GET['id'])) {
+	Atomik::flash('Missing id parameter', 'error');
+	Atomik::redirect('index');
+}
+
 $post = Atomik_Db::find('posts', array('id' => $_GET['id']));]]>
 		</programlisting>
+		<para>
+			First we check if the id parameter is set. If not we create a flash message and redirect
+			the user to the index page. Otherwise, we fetch the request post from the database.
+		</para>
 		<para>
 			The view (<filename>app/views/view.phtml</filename>) is also very simple:
 		</para>
@@ -318,7 +347,7 @@ $post = Atomik_Db::find('posts', array('id' => $_GET['id']));]]>
 </li>]]>
 		</programlisting>
 	</chapter>
-	<chapter>
+	<chapter id="end">
 		<title>End</title>
 		<para>
 			Well done! This tutorial is now finished. You can learn much more in the 

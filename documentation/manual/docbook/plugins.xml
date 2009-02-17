@@ -65,7 +65,7 @@ Atomik::set('plugins', array(
 			<note>
 				<para>
 					To build more complex plugins you can instead of a file create a folder named after your plugin.
-					This folder must contain a <filename>Plugin.php</filename> file.
+					Your php file goes into that folder and must be named <filename>Plugin.php</filename>.
 				</para>
 				<para>
 					When using folders, it is possible to add a sub folder named <filename>libraries</filename> which

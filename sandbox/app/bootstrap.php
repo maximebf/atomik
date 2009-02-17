@@ -5,6 +5,8 @@ Atomik::set(array(
 
 	'layout' => '_layout',
 
+	'url_rewriting' => true,
+
 	'atomik' => array(
 		'dirs/plugins' => array('../plugins/', '../laboratory/plugins'),
 		'catch_errors' => true
@@ -16,8 +18,8 @@ Atomik::set(array(
 
         'Db' => array(
             'dsn'         => false, //'mysql:host=localhost;dbname=atomik',
-            'username'    => 'atomik',
-            'password'    => 'atomik'
+            'username'    => '',
+            'password'    => ''
         ),
         
         'Ajax',

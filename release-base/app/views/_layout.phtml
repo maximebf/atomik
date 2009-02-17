@@ -5,11 +5,11 @@
 		<title><?php echo A('title', 'My website') ?></title>
 		
 		<?php foreach (A('styles', array()) as $style): ?>
-		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::asset('assets/css/' . $style . '.css') ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::asset($style) ?>" />
 		<?php endforeach; ?>
 		
 		<?php foreach (A('scripts', array()) as $script): ?>
-		<script type="text/javascript" src="<?php echo Atomik::asset('assets/js/' . $script . '.js') ?>"></script>
+		<script type="text/javascript" src="<?php echo Atomik::asset($script) ?>"></script>
 		<?php endforeach; ?>
 	</head>
 	<body>

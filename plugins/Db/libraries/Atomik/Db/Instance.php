@@ -183,14 +183,13 @@ class Atomik_Db_Instance
 	 * @see Db::buildWhere()
 	 * @param string|array $tables
 	 * @param array $where OPTIONAL
-	 * @param string $orderBy OPTIONAL
 	 * @param string $limit OPTIONAL
 	 * @return int
 	 */
-	public function count($tables, $where = null, $orderBy = '', $limit = '')
+	public function count($tables, $where = null, $limit = '')
 	{
 		$this->connect();
-		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit, 'COUNT(*)');
+		$stmt = $this->_executeSelect($tables, $where, '', $limit, 'COUNT(*)');
 		$count = $stmt->fetchColumn();
 		$stmt->closeCursor();
 		return $count;

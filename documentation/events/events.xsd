@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/events/" targetNamespace="http://www.example.org/events/">
-    <element name="category" type="tns:categoryType"></element>
+<schema targetNamespace="http://www.atomikframework.com/events" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.atomikframework.com/events">
     
     <complexType name="categoryType">
     	<sequence maxOccurs="unbounded" minOccurs="0">
-    		<element name="group" type="tns:groupType"></element>
+    		<element name="group" type="tns:groupType" maxOccurs="unbounded" minOccurs="0"></element>
     	</sequence>
     	<attribute name="name" type="string"></attribute>
     	<attribute name="title" type="string"></attribute>
@@ -20,7 +19,7 @@
 
     <complexType name="eventType">
     	<sequence maxOccurs="1" minOccurs="1">
-    		<element name="description" type="string"></element>
+    		<element name="description" type="string" maxOccurs="1" minOccurs="0"></element>
     		<element name="param" type="tns:paramType"
     			maxOccurs="unbounded" minOccurs="0">
     		</element>
@@ -33,4 +32,12 @@
     	<attribute name="name" type="string"></attribute>
     	<attribute name="type" type="string"></attribute>
     </complexType>
+
+    <element name="events">
+    	<complexType>
+    		<sequence>
+    			<element name="category" type="tns:categoryType" maxOccurs="unbounded" minOccurs="0"></element>
+    		</sequence>
+    	</complexType>
+    </element>
 </schema>

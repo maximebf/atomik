@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="debug" title="Atomik::debug()">
+<group name="debug" title="Atomik::debug()" xmlns="http://www.atomikframework.com/events">
 	<event name="Atomik::Debug">
 		<description>
 			Fired when a call to debug is made

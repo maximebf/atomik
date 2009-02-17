@@ -215,7 +215,7 @@ class Atomik_Db
 	 */
 	public static function delete($tables, $where = array())
 	{
-		return self::getInstance()->delete($table, $where);
+		return self::getInstance()->delete($tables, $where);
 	}
 }
 

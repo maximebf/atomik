@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="url" title="Atomik::url()">
+<group name="url" title="Atomik::url()" xmlns="http://www.atomikframework.com/events">
 	<event name="Atomik::Url">
 		<description>
 			Fired after a url has been computed

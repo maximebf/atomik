@@ -47,11 +47,14 @@
  * Added Atomik::disableLayout()
  * Session and flash messages are now natively supported
  * Added Atomik::flash()
+ ! Add $httpCode parameter to Atomik::redirect()
+ ! Added $writeSession parameter to Atomik::end()
  
 [DbPlugin]
  
  ! Changes to the Db plugin: class Db replaced with Atomik_Db
  ! $where argument can now be an sql condition string
+ * Added Atomik_Db::count()
  
 [SessionPlugin]
 

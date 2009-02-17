@@ -46,6 +46,11 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 			When using url rewriting, you can access pages by directly appending the name to the base url.
 			Eg: <link>http://example.com/home</link>
 		</para>
+		<note>
+			Sometimes Atomik cannot detect if url rewriting is activated and <methodname>Atomik::url()</methodname>
+			still uses <filename>index.php</filename>. To prevent this, set the <quote>url_rewriting</quote> 
+			configuration key to true.
+		</note>
 		<para>
 			The action that has been called can be found in the configuration key named <quote>request_uri</quote>.
 			The base url of the website (ie. the path before the root of the site) can be found in the 

@@ -1,39 +1,47 @@
 OUTPUT = output
 XSL = standalone
 
-all: manual
+all: manual getstarted events manifest
 
 manual:
-	-mkdir -p $(OUTPUT)
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/manual.css
-	svn export manual/images $(OUTPUT)/images
-	xsltproc --xinclude -o $(OUTPUT)/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
+	-mkdir -p $(OUTPUT)/manual
+	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual/manual.css
+	cat docbook-xsl/common.css >> $(OUTPUT)/manual/manual.css
+	svn export manual/images $(OUTPUT)/manual/images
+	xsltproc --xinclude -o $(OUTPUT)/manual/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
 	xsltproc --xinclude \
 		--stringparam atomik.base "../.." \
 		--stringparam atomik.stylesheet "../manual.css" \
-		-o $(OUTPUT)/plugins/ docbook-xsl/$(XSL).xsl manual/docbook/plugins/index.xml
+		-o $(OUTPUT)/manual/plugins/ docbook-xsl/$(XSL).xsl manual/docbook/plugins/index.xml
 		
-get-started:
-	-mkdir -p $(OUTPUT)
-	mkdir $(OUTPUT)/images
-	cp manual/images/logo.png $(OUTPUT)/images
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/manual.css
-	xsltproc --xinclude -o $(OUTPUT)/ docbook-xsl/$(XSL).xsl get-started/index.xml
+getstarted:
+	-mkdir -p $(OUTPUT)/get-started
+	mkdir $(OUTPUT)/get-started/images
+	cp manual/images/logo.png $(OUTPUT)/get-started/images
+	cp docbook-xsl/$(XSL).css $(OUTPUT)/get-started/manual.css
+	cat docbook-xsl/common.css >> $(OUTPUT)/get-started/manual.css
+	xsltproc --xinclude -o $(OUTPUT)/get-started/ docbook-xsl/$(XSL).xsl get-started/index.xml
 	
-	svn export get-started/source $(OUTPUT)/atomik-get-started
-	svn export ../plugins/Db $(OUTPUT)/atomik-get-started/app/plugins/Db
-	cp ../Atomik.php $(OUTPUT)/atomik-get-started/index.php
-	cp ../CHANGELOG.txt $(OUTPUT)/atomik-get-started
-	cp ../LICENSE.txt $(OUTPUT)/atomik-get-started
-	cd $(OUTPUT) && zip -r atomik-get-started.zip atomik-get-started
-	rm -r $(OUTPUT)/atomik-get-started
+	svn export get-started/source $(OUTPUT)/get-started/atomik-get-started
+	svn export ../plugins/Db $(OUTPUT)/get-started/atomik-get-started/app/plugins/Db
+	cp ../Atomik.php $(OUTPUT)/get-started/atomik-get-started/index.php
+	cp ../CHANGELOG.txt $(OUTPUT)/get-started/atomik-get-started
+	cp ../LICENSE.txt $(OUTPUT)/get-started/atomik-get-started
+	cd $(OUTPUT)/get-started && zip -r atomik-get-started.zip atomik-get-started
+	rm -r $(OUTPUT)/get-started/atomik-get-started
 	
-events:
-	-mkdir -p $(OUTPUT)
-	cp events/events.css $(OUTPUT)/events.css
-	xsltproc --xinclude -o $(OUTPUT)/ events/events.xsl events/xml/index.xml
+events: events-api
+	-mkdir -p $(OUTPUT)/events
+	cp events/events.css $(OUTPUT)/events/events.css
+	xsltproc --xinclude -o $(OUTPUT)/events/ events/events.xsl events/xml/index.xml
+	
+events-api:
+	-mkdir -p $(OUTPUT)/events
+	xsltproc --xinclude -o $(OUTPUT)/events/events-api.xml events/events-api.xsl events/xml/index.xml
+	
+manifest:
+	-mkdir -p $(OUTPUT)/manifest
+	cp manifest/manifest.xsd $(OUTPUT)/manifest
 		
 clean:
 	-rm -r $(OUTPUT)

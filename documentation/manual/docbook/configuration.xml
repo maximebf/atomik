@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="accessors-configuration" xmlns="http://docbook.org/ns/docbook">
+<chapter id="configuration" xmlns="http://docbook.org/ns/docbook">
 	<title>Configuration</title>
 	<sect1 id="bootstrapping">
 		<title>Bootsrapping</title>
@@ -124,7 +124,7 @@ Atomik::set(array(
 			<title>Accessing the session from the global store</title>
 			<programlisting>
 				<![CDATA[
-echo Atimik::get('session/username');]]>
+echo Atomik::get('session/username');]]>
 			</programlisting>
 		</example>
 	</sect1>

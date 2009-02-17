@@ -7,12 +7,14 @@
 			To redirect the user to another page you can use the <methodname>Atomik::redirect()</methodname> method.
 			It takes as argument the url to redirect to. By default, this url will first be process using 
 			<methodname>Atomik::url()</methodname>. This behaviour can be disable by passing false as the second argument.
+			The response HTTP code can also be specified as the third argument.
 		</para>
 		<example>
 			<title>Redirecting</title>
 			<programlisting>
 				<![CDATA[
-Atomik::redirect('home');]]>
+Atomik::redirect('home');
+Atomik::redirect('home', true, 303); // 303 http code]]>
 			</programlisting>
 		</example>
 		<para>
@@ -94,7 +96,7 @@ echo Atomik::friendlify('My text in the url');
 		</para>
 		<para>
 			To create a flash message call the <methodname>Atomik::flash()</methodname> method. It takes as
-			first parameter the message. Messages can also have labels. For example <quote>error</quote> or 
+			first parameter a message or an array of messages. Messages can also have labels. For example <quote>error</quote> or 
 			<quote>success</quote>. To specify a label, use the second argument. The default label is <quote>default</quote>.
 		</para>
 		<example>
@@ -102,7 +104,8 @@ echo Atomik::friendlify('My text in the url');
 			<programlisting>
 				<![CDATA[
 Atomik::flash('The action has completed successfully');
-Atomik::flash('The action has failed', 'error'); // with a label]]>
+Atomik::flash('The action has failed', 'error'); // with a label
+Atomik::flash(array('message1', 'message2'), 'error');]]>
 			</programlisting>
 		</example>
 		<para>
@@ -239,9 +242,7 @@ $rule = array(
 
 if (($filteredData = Atomik::filter($dataToFilter, $rule)) === false) {
 	// failed validation, showing messages
-	foreach (A('filters/messages') as $message) {
-		Atomik::flash($message, 'error');
-	}
+	Atomik::flash(A('filters/messages'), 'error');
 	return;
 }
 

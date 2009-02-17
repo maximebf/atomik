@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="end" title="Atomik::end()">
+<group name="end" title="Atomik::end()" xmlns="http://www.atomikframework.com/events">
 	<event name="Atomik::End">
 		<description>
 			Fired when Atomik exits
 		</description>
 		<param name="$success" type="boolean">Whether it exits on success</param>
+		<refparam name="$writeSession" type="boolean">Whether to call session_write_close() before exiting</refparam>
 	</event>
 </group>

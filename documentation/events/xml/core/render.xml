@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="render" title="Atomik::render()">
+<group name="render" title="Atomik::render()" xmlns="http://www.atomikframework.com/events">
 	<event name="Atomik::Render::Start">
 		<description>
 			Fired at the beginning of a call to <code>Atomik::render()</code>.
@@ -30,13 +30,13 @@
 		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
 		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the view file is missing</refparam>
 	</event>
-	<event name="Atomik::Output::Before">
+	<event name="Atomik::Render::Output::Before">
 		<description>
 			Fired before content is echoed.
 		</description>
 		<refparam name="$output" type="string">The content that will be echoed</refparam>
 	</event>
-	<event name="Atomik::Output::After">
+	<event name="Atomik::Render::Output::After">
 		<description>
 			Fired after content has been echoed.
 		</description>

@@ -211,7 +211,7 @@ class Atomik
 	 * If $uri is null, the value of the GET parameter specified as the trigger 
 	 * will be used.
 	 * 
-	 * @param string $uri OPTIONAL
+	 * @param string $uri
 	 */
 	public static function dispatch($uri = null)
 	{
@@ -345,7 +345,10 @@ class Atomik
     			}
     		}
     		
+    		/* echoes the content */
+    		self::fireEvent('Atomik::Output::Before', array(&$content));
     		echo $content;
+    		self::fireEvent('Atomik::Output::After', array($content));
     	
     		/* dispatch done */
     		self::fireEvent('Atomik::Dispatch::After');
@@ -599,9 +602,9 @@ class Atomik
 			return $output;
 		}
 		
-		self::fireEvent('Atomik::Output::Before', array(&$output));
+		self::fireEvent('Atomik::Render::Output::Before', array(&$output));
 		echo $output;
-		self::fireEvent('Atomik::Output::After', array($output));
+		self::fireEvent('Atomik::Render::Output::After', array($output));
 	}
 	
 	/**
@@ -640,9 +643,9 @@ class Atomik
 			return $output;
 		}
 		
-		self::fireEvent('Atomik::Output::Before', array(&$output));
+		self::fireEvent('Atomik::RenderFile::Output::Before', array(&$output));
 		echo $output;
-		self::fireEvent('Atomik::Output::After', array($output));
+		self::fireEvent('Atomik::RenderFile::Output::After', array($output));
 	}
 	
 	/**
@@ -673,11 +676,17 @@ class Atomik
 	/**
 	 * Fires the Atomik::End event and exits the application
 	 *
-	 * @param bool $success Whether the application exit on success or because an error occured
+	 * @param bool $success 		Whether the application exit on success or because an error occured
+	 * @param bool $writeSession	Whether to call session_write_close() before exiting
 	 */
-	public static function end($success = false)
+	public static function end($success = false, $writeSession = true)
 	{
-		self::fireEvent('Atomik::End', array($success));
+		self::fireEvent('Atomik::End', array($success, &$writeSession));
+		
+		if ($writeSession) {
+			session_write_close();
+		}
+		
 		exit;
 	}
 	
@@ -724,7 +733,7 @@ class Atomik
 			}
 			
 			if ($add) {
-				if (isset($parentArray[$key]) || $parentArray[$key] === null) {
+				if (!isset($parentArray[$key]) || $parentArray[$key] === null) {
 					$parentArray[$key] = array();
 				} else if (!is_array($parentArray[$key])) {
 					$parentArray[$key] = array($parentArray[$key]);
@@ -1402,8 +1411,8 @@ class Atomik
 	/**
 	 * Saves a message into the session
 	 * 
-	 * @param string $message
-	 * @param string $label
+	 * @param string|array	$message One message as a string or many messages as an array
+	 * @param string 		$label
 	 */
 	public static function flash($message, $label = 'default')
 	{
@@ -1411,7 +1420,7 @@ class Atomik
 			throw new Exception('The session must be started before using Atomik::flash()');
 		}
 		
-		self::add('session/__FLASH', array($label => array($message)));
+		self::add('session/__FLASH/' . $label, $message);
 	}
 	
 	/**
@@ -1506,12 +1515,12 @@ class Atomik
 					continue;
 				}
 				
-				if ((!isset($data[$field]) || empty($data[$field])) && $required) {
+				if ((!isset($data[$field]) || $data[$field] == '') && $required) {
 					/* the field is required and either not set or empty, this is an error */
 					$results[$field] = false;
 					$message = self::get('filters/required_message', 'The %s field must be filled');
 					
-				} else if (empty($data[$field]) && !$required) {
+				} else if ($data[$field] === '' && !$required) {
 					/* empty but not required, null value */
 					$results[$field] = $default;
 					
@@ -1570,21 +1579,31 @@ class Atomik
 	 * Redirects to another url
 	 *
 	 * @see Atomik::url()
-	 * @param string 	$url	The url to redirect to
-	 * @param bool 		$useUrl Use Atomik::url() on $url before redirecting
+	 * @param string 	$url		The url to redirect to
+	 * @param bool 		$useUrl 	Use Atomik::url() on $url before redirecting
+	 * @param int		$httpCode	The redirection HTTP code
 	 */
-	public static function redirect($url, $useUrl = true)
+	public static function redirect($url, $useUrl = true, $httpCode = 302)
 	{
-		self::fireEvent('Atomik::Redirect', array(&$url, &$useUrl));
+		self::fireEvent('Atomik::Redirect', array(&$url, &$useUrl, &$httpCode));
 		
 		/* uses Atomik::url() */
 		if ($useUrl) {
 			$url = self::url($url);
 		}
 		
+		if (isset($_SESSION)) {
+			$session = $_SESSION;
+			// seems to prevent a php bug with session before redirections
+			session_regenerate_id(true);
+			$_SESSION = $session;
+			// avoid loosing the session
+			session_write_close();
+		}
+		
 		/* redirects */
-		header('Location: ' . $url);
-		self::end();
+		header('Location: ' . $url, true, $httpCode);
+		self::end(true, false);
 	}
 	
 	/**
