@@ -333,9 +333,11 @@ class Atomik
     		}
     	
     		/* executes the action */
-    		if (($content = self::execute(self::get('request/action'), true, false, false)) === false) {
+    		ob_start();
+    		if ((self::execute(self::get('request/action'), true, true, false)) === false) {
     			self::trigger404();
     		}
+    		$content = ob_get_clean();
     		
     		/* renders layouts if enable */
     		if (self::get('atomik/disable_layout', false) == false && ($layouts = self::get('layout', false)) != false) {
@@ -518,7 +520,7 @@ class Atomik
 		}
 		
 		/* no views */
-		if ($viewFilename === false) {
+		if ($viewFilename === false || $view === false) {
 			return '';
 		}
 		
@@ -555,7 +557,19 @@ class Atomik
 	public static function noRender()
 	{
 		if (count(self::$_execContexts)) {
-			self::$_execContexts[count(self::$_execContexts) - 1]['render'] = false;
+			self::$_execContexts[count(self::$_execContexts) - 1]['view'] = false;
+		}
+	}
+	
+	/**
+	 * Modifies the view associted to the currently executing action
+	 * 
+	 * @param string $view The view name
+	 */
+	public static function setView($view)
+	{
+		if (count(self::$_execContexts)) {
+			self::$_execContexts[count(self::$_execContexts) - 1]['view'] = $view;
 		}
 	}
 	
