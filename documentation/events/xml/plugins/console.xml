@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="console" title="Console">
+<group name="console" title="Console" xmlns="http://www.atomikframework.com/events">
 	<event name="Console::Start">
 		<description>
 			Fired when the console starts

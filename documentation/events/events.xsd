@@ -1,43 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.atomikframework.com/events" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.atomikframework.com/events">
+<xs:schema 
+	targetNamespace="http://www.atomikframework.com/events" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:e="http://www.atomikframework.com/events"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	
+	<xs:complexType name="DescriptionType" mixed="true">
+		<xs:sequence>
+			<xs:any namespace="##any" minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:complexType name="ParamType">
+    	<xs:complexContent>
+    		<xs:extension base="e:DescriptionType">
+		    	<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+		    	<xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
+    		</xs:extension>
+    	</xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="EventType">
+    	<xs:sequence maxOccurs="unbounded">
+    		<xs:element name="description" type="e:DescriptionType" maxOccurs="1" minOccurs="0"></xs:element>
+    		<xs:element name="param" type="e:ParamType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    		<xs:element name="refparam" type="e:ParamType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    	<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+    </xs:complexType>
     
-    <complexType name="categoryType">
-    	<sequence maxOccurs="unbounded" minOccurs="0">
-    		<element name="group" type="tns:groupType" maxOccurs="unbounded" minOccurs="0"></element>
-    	</sequence>
-    	<attribute name="name" type="string"></attribute>
-    	<attribute name="title" type="string"></attribute>
-    </complexType>
+    <xs:complexType name="CategoryType">
+    	<xs:sequence>
+    		<xs:element name="group" type="e:GroupType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    	<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+    	<xs:attribute name="title" type="xs:string" use="required"></xs:attribute>
+    </xs:complexType>
 
-    <complexType name="groupType">
-    	<sequence maxOccurs="unbounded" minOccurs="0">
-    		<element name="event" type="tns:eventType"></element>
-    	</sequence>
-    	<attribute name="name" type="string"></attribute>
-    	<attribute name="title" type="string"></attribute>
-    </complexType>
+    <xs:complexType name="GroupType">
+    	<xs:sequence>
+    		<xs:element name="event" type="e:EventType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    	<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+    	<xs:attribute name="title" type="xs:string" use="required"></xs:attribute>
+		<xs:anyAttribute />
+    </xs:complexType>
 
-    <complexType name="eventType">
-    	<sequence maxOccurs="1" minOccurs="1">
-    		<element name="description" type="string" maxOccurs="1" minOccurs="0"></element>
-    		<element name="param" type="tns:paramType"
-    			maxOccurs="unbounded" minOccurs="0">
-    		</element>
-    		<element name="refparam" type="tns:paramType" maxOccurs="unbounded" minOccurs="0"></element>
-    	</sequence>
-    	<attribute name="name" type="string"></attribute>
-    </complexType>
-
-    <complexType name="paramType">
-    	<attribute name="name" type="string"></attribute>
-    	<attribute name="type" type="string"></attribute>
-    </complexType>
-
-    <element name="events">
-    	<complexType>
-    		<sequence>
-    			<element name="category" type="tns:categoryType" maxOccurs="unbounded" minOccurs="0"></element>
-    		</sequence>
-    	</complexType>
-    </element>
-</schema>
+    <xs:element name="events">
+    	<xs:complexType>
+    		<xs:sequence>
+    			<xs:element name="category" type="e:CategoryType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    		</xs:sequence>
+    	</xs:complexType>
+    </xs:element>
+</xs:schema>
