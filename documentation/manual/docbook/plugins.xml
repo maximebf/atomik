@@ -62,16 +62,14 @@ Atomik::set('plugins', array(
 				Plugins are loaded at the beginning of a request, just after the configuration. 
 				The content of the file is free or it can be a class.
 			</para>
-			<note>
-				<para>
-					To build more complex plugins you can instead of a file create a folder named after your plugin.
-					Your php file goes into that folder and must be named <filename>Plugin.php</filename>.
-				</para>
-				<para>
-					When using folders, it is possible to add a sub folder named <filename>libraries</filename> which
-					will automatically be added to php's include_path.
-				</para>
-			</note>
+			<para>
+				To build more complex plugins you can instead of a file create a folder named after your plugin.
+				Your php file goes into that folder and must be named <filename>Plugin.php</filename>.
+			</para>
+			<para>
+				When using folders, it is possible to add a sub folder named <filename>libraries</filename> which
+				will automatically be added to php's include_path.
+			</para>
 		</sect2>
 		<sect2 id="plugin-custom-configuration">
 			<title>Plugin's custom configuration</title>
@@ -247,7 +245,7 @@ echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
 		<para>
 			Once you created your plugin, you might want to share it. The Atomik's website feature a 
 			<link xlink:href="http://www.atomikframework.com/plugins">plugin repository</link> where anyone can
-			submit their creations. To easy plugins distribution, you can bundle with your plugin a Manifest.xml file. It contains
+			submit their creations. To ease plugins distribution, you can bundle with your plugin a Manifest.xml file. It contains
 			information about your plugin like name, description, author...
 		</para>
 		<para>
@@ -275,14 +273,14 @@ echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
 </manifest>]]>
 		</programlisting>
 		<para>
-			Most of them are pretty obvious. The categoryId is a bit tricky and we'll come back on it later. All other are string values.
+			Most of them are pretty obvious. The categoryId is a bit tricky and we'll come back to it later. All other are string values.
 		</para>
 		<note>
 			The <quote>name</quote> and <quote>description</quote> tags are mandatory.
 		</note>
 		<para>
 			The <quote>directory</quote> tag is special and used by the distribution builder. When you're creating a package for your 
-			plugin, you could put the source files into a specific folder. So, for the distribution builder to work, it needs to know
+			plugin, you could put the source files into a specific folder. So, for the distribution builder to work, it's needed to know
 			where the sources are. This is the purpose of the <quote>directory</quote> tag. It must be relative to the root of your
 			archive and specify which folder contains the files to be extracted to the plugins directory.
 			Leave it blank for the root, which is the default value.

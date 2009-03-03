@@ -4,6 +4,21 @@
 ! = Modification to existing feature
 # = Fixed bug
 
+----------- Atomik 2.2 --------------
+
+[Atomik]
+
+ # echo in action was outside of layout
+ * Added Atomik::setView()
+ * Actions specific to http methods
+ ! The http method for an action can be specified as a suffix in the first parameter of Atomik::execute()
+ * Added support for file extensions in URIs
+ * Added support for view contexts
+ ! The second parameter of Atomik::execute() can now be a string specifying the view context
+ ! The view context can be specified as a suffix in the first parameter of Atomik::render()
+ * Added Atomik::registerMethod()
+ * Added Atomik::call()
+
 ----------- Atomik 2.1 --------------
 
 [Atomik]
@@ -52,7 +67,7 @@
  
 [DbPlugin]
  
- ! Changes to the Db plugin: class Db replaced with Atomik_Db
+ ! Class Db replaced with Atomik_Db
  ! $where argument can now be an sql condition string
  * Added Atomik_Db::count()
  

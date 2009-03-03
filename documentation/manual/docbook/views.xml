@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="views-layouts" xmlns="http://docbook.org/ns/docbook">
+	<title>Views and layouts</title>
+	<sect1 id="views">
+		<title>Views</title>
+		<para>
+			Views are stored in the <filename>app/views</filename> directory. The file extension is
+			by default <quote>phtml</quote>.
+		</para>
+		<para>
+			The content of a view file is, as the action file, free. It should mostly be text or 
+			HTML (or any presentation content, such as XML).
+		</para>
+		<para>
+			PHP can be used to print variables from the action or to provide presentation logic like
+			loops.
+		</para>
+		<example>
+			<title>Example of a view</title>
+			<programlisting>
+				<![CDATA[
+<html>
+	<head>
+		<title>Example</title>
+	</head>
+	<body>
+		<?php echo $myPublicVariable; ?>
+	</body>
+</html>]]>
+			</programlisting>
+		</example>
+		<figure>
+			<title>A little schema to sum up!</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/actions_views.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</sect1>
+	<sect1 id="layouts">
+		<title>Layout</title>
+		<para>
+			It is common in websites that all pages share the same layout. Atomik allows you to define
+			a layout that will be used with all views.
+		</para>
+		<para>
+			The layout will be rendered after the view has been rendered. The output of the view will be
+			pass to the layout as a variable named <varname>$contentForLayout</varname>. 
+			Layouts are rendered the same way as views.
+		</para>
+		<para>
+			Layouts can be placed in the <filename>app/views</filename> or <filename>app/layouts</filename> directories.
+			The file extension is the same as the one for views.
+		</para>
+		<para>
+			The layout name to use has to be defined in the <quote>layout</quote> configuration key. If the
+			value is false (which is the default), no layout will be used.
+		</para>
+		<para>
+			The layout can be disabled at runtime by calling <methodname>Atomik::disableLayout()</methodname>.
+			It can later be re-enabled by passing false as argument to the same method.
+		</para>
+		<example>
+			<title>Example layout</title>
+			<para>
+				A layout file named <filename>_layout.phtml</filename> in the <filename>app/views</filename> directory.
+			</para>
+			<programlisting>
+				<![CDATA[
+<html>
+	<head>
+		<title>My website</title>
+	</head>
+	<body>
+		<h1>My website</h1>
+		<div id="content">
+			<?php echo $contentForLayout; ?>
+		</div>
+	</body>
+</html>]]>
+			</programlisting>
+			<para>
+				In the bootstrap file
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::set('layout', '_layout');]]>
+			</programlisting>
+		</example>
+		<para>
+			Mutliple layouts can also be used. Just use an array instead of a string in the configuration key. Layouts will
+			be rendered in reverse order (the first one in the array wrap the second, the second the third, ...).
+		</para>
+	</sect1>
+	<sect1 id="view-contexts">
+		<title>View contexts</title>
+		<para>
+			It is sometimes needed to return content in different formats. Rather than creating multiple actions doing the
+			same thing, Atomik allows you to create a view for each content type. This is called view contexts. The correct
+			view is rendered depending on the current context.
+		</para>
+		<para>
+			The context is defined using a route parameter. By default it is called <quote>format</quote>. This can be changed in
+			<quote>atomik/view_context_param</quote>. As specified in the urls chapter, the format parameter is by default the
+			file extension. Which means that using an url like <link>index.xml</link> will result in using the xml context.
+		</para>
+		<para>
+			The default view context is <quote>html</quote> but it can be changed in <quote>atomik/default_view_context</quote>.
+		</para>
+		<para>
+			To create a view for a context just prefix the view name with the context name like an extension. For example, let's
+			say we have an <quote>article</quote> view. The filename for the xml context would be <filename>article.xml.phtml</filename>.
+			The only exception is for the <quote>html</quote> context which doesn't need any prefix.
+		</para>
+		<para>
+			Depending on the view context, the layout can be disabled and the response content-type can be changed. The file
+			prefix can also be specified. All of this is done in <quote>view_contexts</quote>.
+		</para>
+		<example>
+			<title>Creating a custom view context</title>
+			<para>
+				Let's create the <quote>rdf</quote> context.
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::set('view_contexts/rdf', array(
+	'prefix' 		=> 'rdf',					// the view's file prefix
+	'layout' 		=> false,					// whether to enable the layout
+	'content-type' 	=> 'application/xml+rdf'	// the response content type
+));]]>
+			</programlisting>
+			<para>
+				Now you can call an url like <link>http://example.com/article.rdf</link>. In this case the view filename
+				would be <filename>article.rdf.phtml</filename>, the layout would be disabled and the response content type
+				would be <quote>application/xml+rdf</quote>.
+			</para>
+		</example>
+		<para>
+			If a view context is not defined under <quote>view_contexts</quote>, the file prefix will be the context name,
+			the layout won't be disabled and the response content type will be <quote>text/html</quote>.
+		</para>
+		<para>
+			By default, three contexts are defined: html, xml and json. The layout will be disabled for the last two.
+		</para>
+	</sect1>
+	<sect1 id="controlling-views">
+		<title>Controlling views</title>
+		<sect2 id="view-extension">
+			<title>View's filename extension</title>
+			<para>
+				The default filename's extension for views is <quote>phtml</quote> as said before. This can be change using
+				the configuration key named <quote>atomik/views/file_extension</quote>.
+			</para>
+		</sect2>
+		<sect2 id="no-render-from-action">
+			<title>Do not render the view from the action</title>
+			<para>
+				While the action is executing, you may want to avoid rendering the associated view. This can easily be done
+				by calling <methodname>Atomik::noRender()</methodname> from your action.
+			</para>
+		</sect2>
+		<sect2 id="modify-associated-view">
+			<title>Modify the associated view from the action</title>
+			<para>
+				While the action is executing, you may want to render a different view. In this case, you can use
+				<methodname>Atomik::setView()</methodname> from your action. It takes as unique argument a view name.
+			</para>
+		</sect2>
+		<sect2 id="custom-rendering-engine">
+			<title>Using a custom rendering engine</title>
+			<para>
+				The default rendering process only uses php's include function. You may however want to use a template engine for
+				example. This is possible by specifying a callback in the <quote>atomik/views/engine</quote> configuration key.
+			</para>
+			<para>
+				The callback will receive two parameters: the first one will be the filename and the second an array containing the
+				view variables.
+			</para>
+			<example>
+				<title>Using a custom rendering engine</title>
+				<programlisting>
+					<![CDATA[
+function myCustomRenderingEngine($filename, $vars)
+{
+	// your custom engine
+	return $renderedContent;
+}
+
+Atomik::set('atomik/views/engine', 'myCustomRenderingEngine');]]>
+				</programlisting>
+			</example>
+			<para>
+				The custom rendering engine will be used whenever <methodname>Atomik::render()</methodname>,
+				<methodname>Atomik::renderFile()</methodname> or <methodname>Atomik::renderLayout()</methodname> is used.
+			</para>
+		</sect2>
+	</sect1>
+	<sect1 id="views-programmatically">
+		<title>Rendering views programmatically</title>
+		<para>
+			When executing a request, the action and/or the view associated to it are
+			automatically called. You can however render other views using Atomik's API.
+		</para>
+		<para>
+			The most useful use of this it to render partial views, small part of presentation
+			code that is reusable.
+		</para>
+		<para>
+			To render a view use the <methodname>Atomik::render()</methodname> method.
+		</para>
+		<para>
+			It takes as first argument the view name and optionally as second argument
+			an array of key/value pairs representing variables. The view context can be prefixed in the
+			first argument.
+		</para>
+		<para>
+			The method returns the view output.
+		</para>
+		<example>
+			<title>Rendering a view programmatically</title>
+			<programlisting>
+				<![CDATA[
+$viewOutput = Atomik::render('myView');
+$viewOutput = Atomik::render('myView', array('var' => 'value'));
+$viewOutput = Atomik::render('myView.xml');]]>
+			</programlisting>
+		</example>
+		<para>
+			It is also possible to render any file using <methodname>Atomik::renderFile()</methodname>. It takes
+			as first parameter a filename. Variables can also be passed like with <methodname>Atomik::render()</methodname>.
+		</para>
+	</sect1>
+</chapter>

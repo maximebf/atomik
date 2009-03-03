@@ -63,7 +63,7 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 			<title>Creating routes</title>
 			<para>
 				It is now a common practice to use pretty urls. This can easily be done using Atomik's router.
-				The router map urls to actions and allows you to extract parameters from these urls. An url and its
+				The router maps urls to actions and allows you to extract parameters from these urls. An url and its
 				parameters is called a route.
 			</para>
 			<para>
@@ -86,9 +86,9 @@ Atomik::set('routes', array(
 				</programlisting>
 			</example>
 			<para>
-				As you see, the route is define as the array key and its parameters are defined in
+				As you see, the route is defined as the array key and its parameters are defined in
 				the sub array. You can add an unlimited numbers of parameters to the route. There
-				must be at least action parameter for the route to be valid.
+				must be at least the action parameter for the route to be valid.
 			</para>
 			<para>
 				The real magic of the routes is the possibility to assign a parameter value with
@@ -119,7 +119,7 @@ Atomik::set('routes', array(
 			</example>
 			<note>
 				<para>
-					Routes are match in reverse order.
+					Routes are matched in reverse order.
 				</para>
 			</note>
 		</sect2>
@@ -138,6 +138,52 @@ $year = Atomik::get('request/year');]]>
 				</programlisting>
 			</example>
 		</sect2>
+	</sect1>
+	<sect1 id="url-file-extensions">
+		<title>File extensions</title>
+		<para>
+			Since version 2.2, Atomik can handle file extensions in urls. The file extension is optional. 
+			You can force the file extension to be present by setting <quote>atomik/force_uri_extension</quote> to true.
+		</para>
+		<para>
+			By default the file extension is the view context. View contexts are discussed in a later chapter.
+			The default view context if no extension is defined is <quote>html</quote>. This can be changed
+			in <quote>atomik/default_view_context</quote>.
+		</para>
+		<example>
+			<title>URLs with extension example</title>
+			<programlisting>
+				<![CDATA[
+http://example.com/home			=>	action=home format=html (won't work if atomik/force_uri_extension is set to true)
+http://example.com/home.html	=>	action=home format=html
+http://example.com/home.xml		=>	action=home format=xml
+http://example.com/home.foo		=>	action=home format=foo]]>
+			</programlisting>
+		</example>
+		<para>
+			Routes also support file extensions. You can specify a specific extension in your route. The extension
+			can also be a parameter as any segment. In this case, if you specify a default value for it, the extension
+			won't be mandatory in the url.
+		</para>
+		<example>
+			<title>Routes with extension</title>
+			<programlisting>
+					<![CDATA[
+Atomik::set('routes', array(
+   ':category/:article.:format' => array(
+   		'action' => 'article'
+   ),
+   'home.html' => array(
+   		'action' => 'home',
+   		'format' => 'html'
+   )
+));]]>
+			</programlisting>
+		</example>
+		<note>
+			The <varname>format</varname> parameter is not automatically added in custom route. If not specified
+			it will default to the value of <quote>atomik/default_view_context</quote>.
+		</note>
 	</sect1>
 	<sect1 id="url-method">
 		<title>Building urls with <methodname>Atomik::url()</methodname></title>

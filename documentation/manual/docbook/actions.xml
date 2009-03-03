@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="actions" xmlns="http://docbook.org/ns/docbook">
+	<title>Actions</title>
+	<sect1 id="introduction-separation-logic-presentation">
+		<title>Introduction to separation of application logic and presentation</title>
+		<para>
+			Without using Atomik, one way of doing things would have been to create a file
+			per page. The page logic (i.e. connecting to a database, handling form data...) would
+			have been at the top of the file followed by the HTML. 
+		</para>
+		<example>
+			<title>A php script, the old way</title>
+			<programlisting>
+				<![CDATA[
+<?php
+	if (count($_POST)) {
+		echo 'Form data received!';
+	}
+?>
+<form>
+	<input type="text" name="data" />
+	<input type="submit" value="send" />
+</form>]]>
+			</programlisting>
+		</example>
+		<para>
+			This is BAD!! The application logic and the presentation layer should always be separated.
+		</para>
+		<para>
+			Now let's imagine that rather than directly doing both part in the same file we split it.
+			We would have three file: one with the logic, one with the HTML and one that include both.
+		</para>
+		<example>
+			<title>Splitting into multiple files</title>
+			<para>
+				<filename>page_logic.php</filename>
+			</para>
+			<programlisting>
+				<![CDATA[
+<?php
+if (count($_POST)) {
+	echo 'Form data received!';
+}]]>
+			</programlisting>
+			<para>
+				<filename>page_html.php</filename>
+			</para>
+			<programlisting>
+				<![CDATA[
+<form>
+	<input type="text" name="data" />
+	<input type="submit" value="send" />
+</form>]]>
+			</programlisting>
+			<para>
+				<filename>page.php</filename>
+			</para>
+			<programlisting>
+				<![CDATA[
+<?php
+include 'page_logic.php';
+include 'page_html.php';]]>
+			</programlisting>
+		</example>
+		<para>
+			Now replace the third file (the one with the includes) with Atomik and you'll have the concept
+			behind Atomik. The logic script is named an action and the html a view.
+		</para>
+	</sect1>
+	<sect1 id="action-files">
+		<title>Action files</title>
+		<para>
+			Actions are stored in the <filename>app/actions</filename> directory. Both the action and the 
+			view filename must have the same name. Action files must have the <quote>php</quote> extension.
+			If the action's filename starts with an underscore, the action won't be accessible using an url.
+		</para>
+		<para>
+			The content of an action file is free. It can be anything you want. So you just do your
+			logic as you used to.
+		</para>
+		<note>
+			Be aware that actions run in their own scope and not in the global scope as you
+			might think.
+		</note>
+		<para>
+			Variables declared in the action are forwarded to the view. If you want to keep some
+			variables private (i.e. which will only be available in your action) prefixed them
+			with an underscore.
+		</para>
+		<example>
+			<title>Private variables in actions</title>
+			<programlisting>
+				<![CDATA[
+<?php
+$myPublicVariable = 'value';
+$_myPrivateVariable = 'secret';]]>
+			</programlisting>
+		</example>
+		<note>
+			<para>
+				You shouldn't use <function>echo</function> or write any HTML code inside an action.
+				As said before, the goal of an action is to separate the logic from the presentation.
+			</para>
+			<para>
+				You can use folders to organize your actions. In this case, views must follow the same
+				directory structure.
+			</para>
+			<para>
+				If you would like to exit the application, avoid using <function>exit()</function> and prefer
+				<methodname>Atomik::end()</methodname> so Atomik can smoothly exit your application.
+			</para>
+		</note>
+	</sect1>
+	<sect1 id="actions-rest">
+		<title>Actions and HTTP methods</title>
+		<para>
+			Atomik allows you to create multiple files for one action, each of them targeting a specific HTTP
+			method. This enables RESTful websites to be build.
+		</para>
+		<sect2 id="actions-rest-targeting">
+			<title>Targeting HTTP methods</title>
+			<para>
+				Method specific action files must be prefixed with the method name. So for example, if you have
+				a <quote>user</quote> action and you would like to target the POST method, you would create a
+				file named <filename>user.post.php</filename>. With the PUT method it would have been
+				<filename>user.put.php</filename>. This files must be located in the actions folder.
+			</para>
+			<para>
+				You can still create a global action file (in the previous example <filename>user.php</filename>)
+				which will be executed before any method specific action. Variables from the global action are
+				available in the specific one.
+			</para>
+			<para>
+				The current http method is available in the <quote>http_method</quote> configuration key.
+			</para>
+		</sect2>
+		<sect2 id="actions-rest-allowed-override">
+			<title>Allowed methods and overriding the request's method</title>
+			<para>
+				Allowed HTTP methods are defined in <quote>atomik/allowed_http_methods</quote>. By default,
+				all methods available in the protocol are listed but you may want to reduce that list.
+			</para>
+			<para>
+				Some clients does not handle well HTTP methods (Flex for example...). Thus, it is possible
+				to override the request's method using a route parameter (which can be a GET parameter).
+				The default parameter name is <quote>_method</quote>. This can be changed in
+				<quote>atomik/http_method_param</quote>. It can also be disabled by setting false instead of
+				a string.
+			</para>
+		</sect2>
+	</sect1>
+	<sect1 id="actions-programmatically">
+		<title>Calling actions programmatically</title>
+		<para>
+			When executing a request, the action and/or the view associated to it are
+			automatically called. You can however call other actions using Atomik's API.
+		</para>
+		<para>
+			To execute an action use the <methodname>Atomik::execute()</methodname> method. It takes
+			as first argument the action name.
+		</para>
+		<para>
+			By default, if a view with the same name is found, it is rendered and the return value
+			of the <methodname>execute()</methodname> method is the view output.
+		</para>
+		<para>
+			If no view is found, an empty string is returned. If <code>false</code> is used as second argument, 
+			the return value is an array containing all <quote>public</quote> variables from the action.
+		</para>
+		<example>
+			<title>Calling an action programmatically</title>
+			<programlisting>
+				<![CDATA[
+$viewOutput = Atomik::execute('myAction');
+$variables = Atomik::execute('myAction', false);]]>
+			</programlisting>
+		</example>
+		<note>
+			<para>
+				Calling an action using <methodname>Atomik::execute()</methodname> does not mean an action file
+				must exist. However, in this case, a view file with the same name must exists.
+			</para>
+		</note>
+		<para>
+			Actions executed this way will also be influence by the HTTP method. You specify a specific method
+			by prefixing the action name. The global action will also be executed.
+		</para>
+		<example>
+			<title>Calling an action for a specific method programmatically</title>
+			<programlisting>
+				<![CDATA[
+$viewOutput = Atomik::execute('myAction.post');]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>
