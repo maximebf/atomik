@@ -45,7 +45,7 @@ class Atomik_Backend
 	 */
 	public static function addTab($text, $plugin, $action, $position = 'left', $selectOnPlugin = false)
 	{
-		$url = strtolower(BackendPlugin::$config['trigger'] . '/' . $plugin . '/' . $action);
+		$url = strtolower($plugin) . '/' . ltrim($action, '/');
 		
 		self::$tabs[] = array(
 			'text' => $text,
@@ -97,20 +97,9 @@ class Atomik_Backend
 			return false;
 		}
 		
-		$uri = BackendPlugin::$config['trigger'] . '/' . Atomik::get('backend/plugin') . '/' . Atomik::get('request_uri');
-		$match = $tab['url'];
+		$uri = strtolower(Atomik::get('request_uri'));
+		$match = strtolower($tab['action']);
 		
 		return strlen($uri) >= strlen($match) && substr($uri, 0, strlen($match)) == $match;
-	}
-	
-	/**
-	 * Redirects to a different location
-	 * Appends the trigger before the url
-	 *
-	 * @param string $url
-	 */
-	public static function redirect($url)
-	{
-		Atomik::redirect(BackendPlugin::$config['trigger'] . '/' . ltrim($url, '/'));
 	}
 }

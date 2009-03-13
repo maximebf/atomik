@@ -18,6 +18,17 @@
  ! The view context can be specified as a suffix in the first parameter of Atomik::render()
  * Added Atomik::registerMethod()
  * Added Atomik::call()
+ * Added Atomik::registerPluggableApplication()
+ * Added Atomik::dispatchPluggableApplication()
+ * Added Atomik::uriMatch()
+ ! Divided Atomik::dispatch() into Atomik::run() and Atomik::dispatch()
+ ! The starting point is now Atomik::run()
+ 
+[Atomik_Auth]
+ * New Plugin
+ 
+[Atomik_Backend]
+ * New Plugin
 
 ----------- Atomik 2.1 --------------
 

@@ -21,7 +21,7 @@
 					<?php echo Atomik::fireEvent('Backend::Layout::Tabs::Before', array(), true); ?>
 					<?php foreach (Atomik_Backend::getTabs() as $tab): ?>
 						<li class="<?php if (Atomik_Backend::isCurrentTab($tab)) echo 'selected '; echo $tab['position']; ?>">
-							<a href="<?php echo Atomik::url($tab['url']) ?>">
+							<a href="<?php echo Atomik::pluginUrl($tab['url']) ?>">
 								<?php echo __(ucfirst($tab['text'])); ?>
 							</a>
 						</li>

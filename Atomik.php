@@ -97,9 +97,6 @@ Atomik::set(array(
 		
 		// wheter to automatically start the session
 		'start_session' 		=> true,
-        
-		// enable routing
-        'enable_routing' 		=> true,
 	
 		// disable layouts
 		'disable_layout'		=> false,
@@ -125,7 +122,8 @@ Atomik::set(array(
         	'actions' 			=> './app/actions/',
         	'views'	 			=> './app/views/',
 			'layouts'			=> array('./app/layouts', './app/views'),
-        	'includes'			=> array('./app/includes/', './app/libraries/')
+        	'includes'			=> array('./app/includes/', './app/libraries/'),
+        	'overrides'			=> array('./app/overrides/')
         ),
     
     	// files
@@ -179,7 +177,7 @@ if (!function_exists('A')) {
 
 // starts Atomik unless ATOMIK_AUTORUN is set to false
 if (!defined('ATOMIK_AUTORUN') || ATOMIK_AUTORUN === true) {
-    Atomik::dispatch();
+    Atomik::run();
 }
 
 /**
@@ -238,6 +236,13 @@ class Atomik
 	protected static $_execContexts = array();
 	
 	/**
+	 * Pluggable applications
+	 * 
+	 * @var array
+	 */
+	protected static $_pluggableApplications = array();
+	
+	/**
 	 * Registered methods
 	 * 
 	 * @var array
@@ -245,16 +250,14 @@ class Atomik
 	protected static $_methods = array();
 	
 	/**
-	 * Dispatches the request
+	 * Starts Atomik
 	 * 
-	 * This is the main method to call. It takes an URI, applies routes if
-	 * needed, executes the action and renders the view.
-	 * If $uri is null, the value of the GET parameter specified as the trigger 
-	 * will be used.
+	 * If dispatch is false, you will have to manually dispatch the request and exit.
 	 * 
-	 * @param string $uri
+	 * @param	string	$uri
+	 * @param	bool	$dispatch	Whether to dispatch
 	 */
-	public static function dispatch($uri = null)
+	public static function run($uri = null, $dispatch = true)
 	{
 	    // wrap the whole app inside a try/catch block to catch all errors
 	    try {
@@ -311,120 +314,15 @@ class Atomik
     		if (!self::has('url_rewriting')) {
     			self::set('url_rewriting', isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']));
     		}
-    	
-    		// checks if it's needed to auto discover the request
-    		if ($uri === null) {
-    		    
-        		// retreives the requested url
-        		$trigger = self::get('atomik/trigger', 'action');
-        		if (isset($_GET[$trigger]) && !empty($_GET[$trigger])) {
-        		    $uri = trim($_GET[$trigger], '/');
-        		} else {
-        			$uri = self::get('atomik/default_action', 'index');
-        		}
-    	
-        		// retreives the base url
-        		if (self::get('base_url', null) === null) {
-        			if (self::get('url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
-        			    // finds the base url from the redirected url
-        				$redirectUrl = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['REDIRECT_URI'];
-        				self::set('base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
-        			} else {
-        			    // finds the base url from the script name
-        				self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
-        			}
-        		}
-        		
-    		} else {
-    		    // sets the user defined request
-            	// retreives the base url
-            	if (self::get('base_url', null) === null) {
-    			    // finds the base url from the script name
-    				self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
-            	}
-    		}
     		
-    		// routes the request
-    		if (($request = self::route($uri, $_GET)) === false) {
-    			self::trigger404();
-    		}
-        		
-        	// checking if no dot are in the action name to avoid any hack attempt and if no 
-        	// underscore is use as first character in a segment
-        	if (strpos($request['action'], '..') !== false || substr($request['action'], 0, 1) == '_' 
-        	    || strpos($request['action'], '/_') !== false) {
-        		    self::trigger404();
-        	}
-    		
-    		self::set('request_uri', $uri);
-    		self::set('request', $request);
-    		
-    		// fetches the http method
-    		$httpMethod = $_SERVER['REQUEST_METHOD'];
-    		if (($param = self::get('atomik/http_method_param', false)) !== false) {
-    			// checks if the route parameter to override the method is defined
-    			$httpMethod = self::get($param, $httpMethod, $request);
-    		}
-    		if (!in_array($httpMethod, self::get('atomik/allowed_http_methods'))) {
-    			// specified method not allowed, fallback to GET
-    			$httpMethod = 'GET';
-    		}
-    		self::set('http_method', strtoupper($httpMethod));
-    		
-    		// fetches the view context
-    		$viewContext = self::get(self::get('atomik/view_context_param', 'format'), 
-    							self::get('atomik/default_view_context', 'html'), $request);
-    		self::set('view_context', $viewContext);
-    		
-    		// retreives view context params and prepare the response
-    		if (($viewContextParams = self::get('view_contexts/' . $viewContext, false)) !== false) {
-    			if (!self::get('layout', true, $viewContextParams)) {
-    				self::disableLayout();
+    		// dispatches
+    		if ($dispatch) {
+    			if (!self::dispatch($uri)) {
+    				self::trigger404();
     			}
-    			header('Content-type: ' . self::get('content-type', 'text/html', $viewContextParams));
+	    		// end
+	    		self::end(true);
     		}
-    	
-    		// all configuration has been set, ready to dispatch
-    		self::fireEvent('Atomik::Dispatch::Before', array(&$cancel));
-    		if ($cancel) {
-				self::end(true);
-    		}
-    	
-    		// global pre dispatch action
-    		if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
-    			require($filename);
-    		}
-    	
-    		// executes the action
-    		ob_start();
-    		if ((self::execute(self::get('request/action'), $viewContext, true, false)) === false) {
-    			self::trigger404();
-    		}
-    		$content = ob_get_clean();
-    		
-    		// renders layouts if enable
-    		if (self::get('atomik/disable_layout', false) == false && ($layouts = self::get('layout', false)) != false) {
-    			$layouts = array_reverse((array) $layouts);
-    			foreach ($layouts as $layout) {
-					$content = self::renderLayout($layout, $content);
-    			}
-    		}
-    		
-    		// echoes the content
-    		self::fireEvent('Atomik::Output::Before', array(&$content));
-    		echo $content;
-    		self::fireEvent('Atomik::Output::After', array($content));
-    	
-    		// dispatch done
-    		self::fireEvent('Atomik::Dispatch::After');
-    	
-    		// global post dispatch action
-    		if (file_exists($filename = self::get('atomik/files/post_dispatch'))) {
-    			require($filename);
-    		}
-    	
-    		// end
-    		self::end(true);
     		
 	    } catch (Exception $e) {
 	        
@@ -437,6 +335,173 @@ class Atomik
 			self::renderException($e);
 			self::end(false);
 	    }
+	}
+	
+	/**
+	 * Dispatches the request
+	 * 
+	 * It takes an URI, applies routes, executes the action and renders the view.
+	 * If $uri is null, the value of the GET parameter specified as the trigger 
+	 * will be used.
+	 * 
+	 * @param 	string 	$uri
+	 * @param	bool	$allowPluggableApplication		Whether to allow plugin application to be loaded
+	 */
+	public static function dispatch($uri = null, $allowPluggableApplication = true)
+	{
+    	// checks if it's needed to auto discover the request
+    	if ($uri === null) {
+    	    
+        	// retreives the requested url
+        	$trigger = self::get('atomik/trigger', 'action');
+        	if (isset($_GET[$trigger]) && !empty($_GET[$trigger])) {
+        	    $uri = trim($_GET[$trigger], '/');
+        	} else {
+        		$uri = self::get('atomik/default_action', 'index');
+        	}
+    
+        	// retreives the base url
+        	if (self::get('base_url', null) === null) {
+        		if (self::get('url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
+        		    // finds the base url from the redirected url
+        			$redirectUrl = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['REDIRECT_URI'];
+        			self::set('base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
+        		} else {
+        		    // finds the base url from the script name
+        			self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
+        		}
+        	}
+        	
+    	} else {
+    	    // sets the user defined request
+            // retreives the base url
+            if (self::get('base_url', null) === null) {
+    		    // finds the base url from the script name
+    			self::set('base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
+            }
+    	}
+    	
+    	// routes the request
+    	if (($request = self::route($uri, $_GET)) === false) {
+    		return false;
+    	}
+        	
+        // checking if no dot are in the action name to avoid any hack attempt and if no 
+        // underscore is use as first character in a segment
+        if (strpos($request['action'], '..') !== false || substr($request['action'], 0, 1) == '_' 
+            || strpos($request['action'], '/_') !== false) {
+        	    return false;
+        }
+    	
+    	self::set('request_uri', $uri);
+    	self::set('request', $request);
+    	
+    	// checks if the uri triggers a pluggable application
+    	if ($allowPluggableApplication) {
+	    	foreach (self::$_pluggableApplications as $plugin => $pluggableAppConfig) {
+	    		if (!self::uriMatch($pluggableAppConfig['route'], $uri)) {
+	    			continue;
+	    		}
+	    		
+	    		// rewrite uri
+	    		$actionBase = trim($pluggableAppConfig['route'], '/*');
+	    		$uri = substr(trim($uri, '/'), strlen($actionBase));
+	    		self::set('atomik/action_base', $actionBase);
+	    		
+	    		// dispatches the pluggable application
+	    		return self::dispatchPluggableApplication($plugin, $uri, $pluggableAppConfig['rootDir']);
+	    	}
+    	}
+    	
+    	// fetches the http method
+    	$httpMethod = $_SERVER['REQUEST_METHOD'];
+    	if (($param = self::get('atomik/http_method_param', false)) !== false) {
+    		// checks if the route parameter to override the method is defined
+    		$httpMethod = self::get($param, $httpMethod, $request);
+    	}
+    	if (!in_array($httpMethod, self::get('atomik/allowed_http_methods'))) {
+    		// specified method not allowed, fallback to GET
+    		$httpMethod = 'GET';
+    	}
+    	self::set('http_method', strtoupper($httpMethod));
+    	
+    	// fetches the view context
+    	$viewContext = self::get(self::get('atomik/view_context_param', 'format'), 
+    						self::get('atomik/default_view_context', 'html'), $request);
+    	self::set('view_context', $viewContext);
+    	
+    	// retreives view context params and prepare the response
+    	if (($viewContextParams = self::get('view_contexts/' . $viewContext, false)) !== false) {
+    		if (!self::get('layout', true, $viewContextParams)) {
+    			self::disableLayout();
+    		}
+    		header('Content-type: ' . self::get('content-type', 'text/html', $viewContextParams));
+    	}
+    
+    	// all configuration has been set, ready to dispatch
+    	self::fireEvent('Atomik::Dispatch::Before', array(&$cancel));
+    	if ($cancel) {
+			return true;
+    	}
+    
+    	// global pre dispatch action
+    	if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
+    		require($filename);
+    	}
+    
+    	// executes the action
+    	ob_start();
+    	if ((self::execute(self::get('request/action'), $viewContext, true, false)) === false) {
+    		ob_clean();
+    		return false;
+    	}
+    	$content = ob_get_clean();
+    	
+    	// renders layouts if enable
+    	if (self::get('atomik/disable_layout', false) == false && ($layouts = self::get('layout', false)) != false) {
+    		$layouts = array_reverse((array) $layouts);
+    		foreach ($layouts as $layout) {
+				$content = self::renderLayout($layout, $content);
+    		}
+    	}
+    	
+    	// echoes the content
+    	self::fireEvent('Atomik::Output::Before', array(&$content));
+    	echo $content;
+    	self::fireEvent('Atomik::Output::After', array($content));
+    
+    	// dispatch done
+    	self::fireEvent('Atomik::Dispatch::After');
+    
+    	// global post dispatch action
+    	if (file_exists($filename = self::get('atomik/files/post_dispatch'))) {
+    		require($filename);
+    	}
+    	
+    	return true;
+	}
+	
+	/**
+	 * Checks if an uri matches the pattern. The pattern can contain the * wildcard.
+	 * 
+	 * @param	string	$pattern
+	 * @param	string	$uri		Default is the current request uri
+	 * @return 	bool
+	 */
+	public static function uriMatch($pattern, $uri = null)
+	{
+		if ($uri === null) {
+			$uri = self::get('request_uri');
+		}
+		$uri = trim($uri, '/');
+		$pattern = trim($pattern, '/');
+		
+		if (substr($pattern, -1) == '*') {
+			$pattern = rtrim($pattern, '/*');
+			return strlen($uri) >= strlen($pattern) && substr($uri, 0, strlen($pattern)) == $pattern;
+		} else {
+			return $uri == $pattern;
+		}
 	}
 	
 	/**
@@ -1174,66 +1239,69 @@ class Atomik
 	{
 		$plugin = ucfirst($plugin);
 		
-		/* use default directories */
+		// use default directories
 		if ($dirs === null) {
 			$dirs = self::get('atomik/dirs/plugins');
 		}
 		
-		/* checks if the plugin is already loaded */
+		// checks if the plugin is already loaded
 		if (self::isPluginLoaded($plugin)) {
 			return true;
 		}
 		
 		self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config, &$dirs, &$classNameTemplate, &$callStart));
 		
-		/* checks if $plugin has been set to false from one of the event callbacks */
+		// checks if $plugin has been set to false from one of the event callbacks
 		if ($plugin === false) {
 			return false;
 		}
-		
-		/* checks if the class is defined */
-		$pluginClass = str_replace('%', $plugin, $classNameTemplate);
-		if (!class_exists($pluginClass, false)) {
 			
-			/* tries to load the plugin from a file */
-			if (($filename = self::path($plugin . '.php', $dirs)) === false) {
-				/* no file, checks for a directory */
-				if (($dirname = self::path($plugin, $dirs)) === false) {
-					/* plugin not found */
-					throw new Exception('Missing plugin (no file or directory matching plugin name): ' . $plugin);
-				} else {
-					/* directory found, plugin file should be inside */
-					$filename = $dirname . '/Plugin.php';
-					$pluginDir = dirname($dirname);
-					if (!file_exists($filename)) {
-						throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
-					}
-					/* adds the libraries folder from the plugin directory to the include path */
-					if (@is_dir($dirname . '/libraries')) {
-						set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
-					}
-				}
-			} else {
-				$pluginDir = dirname($filename);
+		// tries to load the plugin from a file
+		if (($filename = self::path($plugin . '.php', $dirs)) === false) {
+			// no file, checks for a directory
+			if (($dirname = self::path($plugin, $dirs)) === false) {
+				// plugin not found
+				throw new Exception('Missing plugin (no file or directory matching plugin name): ' . $plugin);
 			}
 			
-			/* loads the plugin */
-			require($filename);
+			// directory found, plugin file should be inside
+			$filename = $dirname . '/Plugin.php';
+			$pluginDir = dirname($dirname);
+			if (!file_exists($filename)) {
+				throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
+			}
+			
+			// adds the libraries folder from the plugin directory to the include path
+			if (@is_dir($dirname . '/libraries')) {
+				set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
+			}
+			
+			// registers the plugin as an application if Application.php exists
+			if (file_exists($dirname . '/Application.php')) {
+				self::registerPluggableApplication($plugin);
+			}
+			
+		} else {
+			$pluginDir = dirname($filename);
 		}
 		
-		/* checks if the *Plugin class is defined. The use of this class
-		 * is not mandatory in plugin file */
+		// loads the plugin
+		include $filename;
+		
+		// checks if the *Plugin class is defined. The use of this class
+		// is not mandatory in plugin file
+		$pluginClass = str_replace('%', $plugin, $classNameTemplate);
 		if (class_exists($pluginClass, false)) {
 		    $registerEventsCallback = true;
 		    
-			/* call the start method on the plugin class if it's defined */
+			// call the start method on the plugin class if it's defined
 		    if ($callStart && method_exists($pluginClass, 'start')) {
     		    if (call_user_func(array($pluginClass, 'start'), $config) === false) {
     		        $registerEventsCallback = false;
     		    }
 		    }
 		    
-		    /* automatically registers events callback for methods starting with "on" */
+		    // automatically registers events callback for methods starting with "on"
 		    if ($registerEventsCallback) {
 		    	self::attachClassListeners($pluginClass);
 		    }
@@ -1241,8 +1309,8 @@ class Atomik
 		
 		self::fireEvent('Atomik::Plugin::After', array($plugin));
 		
-		/* stores the plugin name so we won't load it twice 
-		 * also stores the directory from where it was loaded */
+		// stores the plugin name so we won't load it twice 
+		// also stores the directory from where it was loaded
 		self::$_plugins[$plugin] = isset($pluginDir) ? rtrim($pluginDir, DIRECTORY_SEPARATOR) : true;
 		
 		return true;
@@ -1260,6 +1328,105 @@ class Atomik
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Registers a pluggable application
+	 * 
+	 * @param	string	$plugin		Plugin's name
+	 * @param	string	$route		The route that will trigger the application (default is the plugin name)
+	 */
+	public static function registerPluggableApplication($plugin, $route = null, $rootDir = '')
+	{
+		if ($route === null) {
+			$route = strtolower($plugin) . '/*';
+		} else {
+			$route = trim($route, '/');
+		}
+		
+		self::$_pluggableApplications[$plugin] = array(
+			'plugin' => ucfirst($plugin),
+			'route'	 => $route,
+			'rootDir'	 => $rootDir
+		);
+	}
+	
+	/**
+	 * Dispatches a pluggable application
+	 * 
+	 * @param string $plugin Plugin's name
+	 */
+	public static function dispatchPluggableApplication($plugin, $uri = null, $rootDir = '', $pluginDir = null, $overwriteDirs = true, $checkPluginIsLoaded = true)
+	{
+		$plugin = ucfirst($plugin);
+		if ($checkPluginIsLoaded && !self::isPluginLoaded($plugin)) {
+			return false;
+		}
+		
+		// params check
+		if (empty($uri)) {
+			$uri = 'index';
+		}
+		$rootDir = rtrim('/' . trim($rootDir, '/'), '/');
+		
+		// plugin dir
+		if ($pluginDir === null) {
+			$pluginDir = self::$_plugins[$plugin] . '/' . $plugin;
+		}
+		
+		// application dir
+		$appDir = $pluginDir . $rootDir;
+		if (!is_dir($appDir)) {
+			throw new Exception('To be used as an application, the plugin ' . $plugin . ' must use a directory');
+		}
+		
+		// overrides dir
+		$overrideDir = self::path($plugin, self::get('atomik/dirs/overrides'));
+		if ($overrideDir === false) {
+			$overrideDir = './app/overrides/' . $plugin . $rootDir;
+		} else {
+			$overrideDir = rtrim($overrideDir, '/');
+		}
+		
+		// rewrite dirs
+		$dirs = array();
+		$dirs['actions'] = array($appDir . '/actions', $overrideDir . '/actions');
+		$dirs['views'] = array($appDir . '/views', $overrideDir . '/views');
+		$dirs['layouts'] = array($appDir . '/layouts', $overrideDir . '/layouts');
+		
+		if ($overwriteDirs) {
+			$dirs = array_merge(self::get('atomik/dirs'), $dirs);
+		} else {
+			$dirs = array_merge_recursive($dirs, self::get('atomik/dirs'));
+		}
+		
+		self::set('atomik/dirs', $dirs);
+		
+		// rewrite files
+		$files = self::get('atomik/files');
+        $files['pre_dispatch'] = $appDir . '/pre_dispatch.php';
+        $files['post_dispatch'] = $appDir . '/post_dispatch.php';
+		self::set('atomik/files', $files);
+		
+		self::fireEvent('Atomik::DispatchPluginApplication', array($plugin, &$cancel));
+		if ($cancel) {
+			return true;
+		}
+		
+		// set the uri before including Application.php
+    	self::set('request_uri', $uri);
+		
+		// includes the Application.php file, equivalent to bootstrap.php for pluggable applications
+		$applicationFile = $appDir . '/Application.php';
+		if (file_exists($applicationFile)) {
+			$continue = include $applicationFile;
+			if ($continue === false) {
+				return true;
+			}
+		}
+		
+		// re-dispatches the application
+		return self::dispatch($uri, false);
 	}
 	
 	/**
@@ -1467,7 +1634,7 @@ class Atomik
 	 * @param 	bool 	$useIndex 	Whether to use index.php in the url
 	 * @return 	string
 	 */
-	public static function url($action = null, $params = array(), $useIndex = true)
+	public static function url($action = null, $params = array(), $useIndex = true, $useActionBase = false)
 	{
 		if ($action === null) {
 			$action = self::get('request_uri');
@@ -1496,6 +1663,10 @@ class Atomik
 			$action = ltrim($action, '/');
 			$url = rtrim(self::get('base_url', '.'), '/') . '/';
 			
+			if ($useActionBase) {
+				$action = trim(self::get('atomik/action_base', ''), '/') . '/' . $action;
+			}
+			
 			/* checks if url rewriting is used */
 			if (!$useIndex || self::get('url_rewriting', false) === true) {
 				$url .= $action;
@@ -1520,7 +1691,7 @@ class Atomik
 	
 	/**
 	 * Returns the url of an asset file (ie. an url without index.php)
-	 *
+	 * 
 	 * @see Atomik::url()
 	 * @param 	string 	$filename
 	 * @param 	array 	$params
@@ -1529,6 +1700,21 @@ class Atomik
 	public static function asset($filename, $params = array())
 	{
 		return self::url($filename, $params, false);
+	}
+	
+	/**
+	 * Returns an url exactly like Atomik::url() but the plugin route will
+	 * be prepended to it.
+	 *
+	 * @see Atomik::url()
+	 * @param 	string 	$action
+	 * @param 	array 	$params
+	 * @param 	bool 	$useIndex
+	 * @return 	string
+	 */
+	public static function pluginUrl($action, $params = array(), $useIndex = true)
+	{
+		return self::url($action, $params, $useIndex, true);
 	}
 	
 	/**
@@ -1801,6 +1987,23 @@ class Atomik
 		/* redirects */
 		header('Location: ' . $url, true, $httpCode);
 		self::end(true, false);
+	}
+	
+	/**
+	 * Same as Atomik::redirect() but for plugin applications
+	 * 
+	 * @see Atomik::redirect()
+	 * @param string 	$url		The url to redirect to
+	 * @param bool 		$useUrl 	Use Atomik::url() on $url before redirecting
+	 * @param int		$httpCode	The redirection HTTP code
+	 */
+	public static function pluginRedirect($url, $useUrl, $httpCode = 302)
+	{
+		/* uses Atomik::pluginUrl() */
+		if ($useUrl) {
+			$url = self::pluginUrl($url);
+		}
+		self::redirect($url, false, $httpCode);
 	}
 	
 	/**

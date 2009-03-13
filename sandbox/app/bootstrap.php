@@ -25,9 +25,25 @@ Atomik::set(array(
         'Ajax',
         'Lang',
         'Model',
-        'Auth',
+        'Auth' => array(),
         'Backend',
         'Pages'
 	)
     
+));
+
+Atomik::set('plugins/Auth', array(
+	'backend' => 'Array',
+	'backend_args' => array(
+		array(
+			'maxime:toto' => array('member')
+		)
+	),
+	
+	'resources' => array(
+		'/private/*' => 'member'
+	),
+	
+	'guest_roles' => array(),
+	'forbidden_action' => 'login'
 ));
