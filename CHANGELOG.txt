@@ -8,6 +8,9 @@
 
 [Atomik]
 
+ WARNING: MASSIVE COMPATIBILITY BREAK IN CONFIGURATION
+
+ ! Reorganization of configuration keys
  # echo in action was outside of layout
  * Added Atomik::setView()
  * Actions specific to http methods
@@ -16,19 +19,28 @@
  * Added support for view contexts
  ! The second parameter of Atomik::execute() can now be a string specifying the view context
  ! The view context can be specified as a suffix in the first parameter of Atomik::render()
+ * Added support for adding method to Atomik
  * Added Atomik::registerMethod()
  * Added Atomik::call()
+ * Added Atomik::__callStatic()
  * Added Atomik::registerPluggableApplication()
  * Added Atomik::dispatchPluggableApplication()
  * Added Atomik::uriMatch()
  ! Divided Atomik::dispatch() into Atomik::run() and Atomik::dispatch()
  ! The starting point is now Atomik::run()
+ * Added Atomik::reset()
+ * Added support for view helpers
+ * Added Atomik::_render()
+ * Added Atomik::__call()
  
 [Atomik_Auth]
  * New Plugin
  
 [Atomik_Backend]
  * New Plugin
+ 
+[Atomik_Db]
+ * Added support for models
 
 ----------- Atomik 2.1 --------------
 

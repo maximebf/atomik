@@ -123,10 +123,10 @@ $_myPrivateVariable = 'secret';]]>
 				Method specific action files must be prefixed with the method name. So for example, if you have
 				a <quote>user</quote> action and you would like to target the POST method, you would create a
 				file named <filename>user.post.php</filename>. With the PUT method it would have been
-				<filename>user.put.php</filename>. This files must be located in the actions folder.
+				<filename>user.put.php</filename>. These files must be located in the actions folder.
 			</para>
 			<para>
-				You can still create a global action file (in the previous example <filename>user.php</filename>)
+				You can still create a global action file (in the previous example: <filename>user.php</filename>)
 				which will be executed before any method specific action. Variables from the global action are
 				available in the specific one.
 			</para>

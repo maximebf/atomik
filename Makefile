@@ -11,7 +11,7 @@ atomik:
 	cd $(RELEASE_DIR) && zip -r atomik.zip atomik
 	rm -r $(RELEASE_DIR)/atomik
 	
-plugins: plugin-controller plugin-db plugin-ajax plugin-cache plugin-console plugin-lang
+plugins: plugin-controller plugin-db plugin-ajax plugin-cache plugin-console plugin-lang plugin-auth plugin-backend plugin-config
 
 plugin-controller:
 	mkdir -p $(RELEASE_DIR)/plugins
@@ -22,6 +22,10 @@ plugin-controller:
 plugin-db:
 	mkdir -p $(RELEASE_DIR)/plugins
 	svn export plugins/Db $(RELEASE_DIR)/plugins/Db
+	svn export library/Atomik/Db $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Db
+	svn export library/Atomik/Db.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Db.php
+	svn export library/Atomik/Model $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Model
+	svn export library/Atomik/Model.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Model.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-db.zip Db
 	rm -r $(RELEASE_DIR)/plugins/Db
 
@@ -48,6 +52,28 @@ plugin-lang:
 	svn export plugins/Lang.php $(RELEASE_DIR)/plugins/Lang.php
 	cd $(RELEASE_DIR)/plugins && zip atomik-plugin-lang.zip Lang.php
 	rm $(RELEASE_DIR)/plugins/Lang.php
+	
+plugin-auth:
+	mkdir -p $(RELEASE_DIR)/plugins
+	svn export plugins/Auth $(RELEASE_DIR)/plugins/Auth
+	svn export library/Atomik/Auth $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Auth
+	svn export library/Atomik/Auth.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Auth.php
+	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-auth.zip Auth
+	rm -r $(RELEASE_DIR)/plugins/Auth
+	
+plugin-backend:
+	mkdir -p $(RELEASE_DIR)/plugins
+	svn export plugins/Backend $(RELEASE_DIR)/plugins/Backend
+	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-backend.zip Backend
+	rm -r $(RELEASE_DIR)/plugins/Backend
+	
+plugin-config:
+	mkdir -p $(RELEASE_DIR)/plugins
+	svn export plugins/Config $(RELEASE_DIR)/plugins/Config
+	svn export library/Atomik/Config $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Config
+	svn export library/Atomik/Config.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Config.php
+	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-config.zip Config
+	rm -r $(RELEASE_DIR)/plugins/Config
 	
 doc:
 	cd documentation && make -B OUTPUT=../$(RELEASE_DIR)/atomik-manual manual

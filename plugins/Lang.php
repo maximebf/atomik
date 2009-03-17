@@ -176,7 +176,7 @@ class LangPlugin
     	include $filename;
     	
     	/* sets the current language */
-    	Atomik::set('language', $language);
+    	Atomik::set('app/language', $language);
     	self::$config['language'] = $language;
     	$_SESSION['__LANG'] = $language;
     }

@@ -35,7 +35,7 @@ class BackendPlugin
 	public static $config = array(
 		
 		// the route needed to start the backend
-		'route' => '/backend/*',
+		'route' => 'backend/*',
 	
 		'title' => 'Atomik Backend',
 	

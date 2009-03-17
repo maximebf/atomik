@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="dispatch" title="Atomik::dispatch()" xmlns="http://www.atomikframework.com/events">
-	<event name="Atomik::Start">
+	<event name="Atomik::Dispatch::Start">
 		<description>
-			Fired once the bootstrap file has been loaded and all plugins are ready.
+			Fired at the start of the method
 		</description>
+		<refparam name="$uri" type="string">The uri that is being dispatched.</refparam>
+		<refparam name="$allowPluggableApplication" type="boolean">Whether pluggable applications are allowed during this dispatch.</refparam>
+		<refparam name="$cancel" type="boolean">Set to true to cancel the dispatch process. Will exit Atomik.</refparam>
+	</event>
+	<event name="Atomik::Dispatch::Uri">
+		<description>
+			Fired once the uri has been computed. Do not use request_uri or request config keys but the event's params.
+		</description>
+		<refparam name="$uri" type="string">The uri that is being dispatched.</refparam>
+		<refparam name="$request" type="array">Request parameters.</refparam>
 		<refparam name="$cancel" type="boolean">Set to true to cancel the dispatch process. Will exit Atomik.</refparam>
 	</event>
 	<event name="Atomik::Dispatch::Before">
@@ -28,11 +38,5 @@
 		<description>
 			Fired after the view (and the layout) has been rendered and before the call to <pre>pre_dispatch.php</pre>.
 		</description>
-	</event>
-	<event name="Atomik::Error">
-		<description>
-			Fired when an error occurs (<pre>catch_errors</pre> needs to ne true).
-		</description>
-		<param name="$exception" type="Exception">The thrown exception</param>
 	</event>
 </group>

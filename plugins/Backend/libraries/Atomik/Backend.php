@@ -43,7 +43,7 @@ class Atomik_Backend
 	 * @param string $position OPTIONAL (default left)
 	 * @param bool $selectOnPlugin OPTIONAL The tabs is activated for any action of the plugin
 	 */
-	public static function addTab($text, $plugin, $action, $position = 'left', $selectOnPlugin = false)
+	public static function addTab($text, $plugin, $action, $position = 'left', $selectOnPlugin = true)
 	{
 		$url = strtolower($plugin) . '/' . ltrim($action, '/');
 		
@@ -55,6 +55,14 @@ class Atomik_Backend
 			'url' => $url,
 			'selectOnPlugin' => $selectOnPlugin
 		);
+	}
+	
+	/**
+	 * Removes all tabs
+	 */
+	public static function removeAllTabs()
+	{
+		self::$tabs = array();
 	}
 	
 	/**
@@ -101,5 +109,10 @@ class Atomik_Backend
 		$match = strtolower($tab['action']);
 		
 		return strlen($uri) >= strlen($match) && substr($uri, 0, strlen($match)) == $match;
+	}
+	
+	public static function addActivity($plugin, $label, $text, $user, $userAction = 'Added by')
+	{
+		
 	}
 }

@@ -39,13 +39,13 @@ class AjaxPlugin
     
     	/* default action: restrict all (and use the ajax_allowed array) 
     	 * or allow all (and use the ajax_restricted array) */
-    	'allow_all'	=> true,
+    	'allow_all'			=> false,
     	
     	/* actions where ajax won't be available */
-    	'restricted'	=> array(),
+    	'restricted'		=> array(),
     	
     	/* actions where ajax will be available */
-    	'allowed'		=> array()
+    	'allowed'			=> array()
     
     );
     

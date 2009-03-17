@@ -3,12 +3,16 @@
 /* app configuration */
 Atomik::set(array(
 
-	'layout' => '_layout',
-
-	'url_rewriting' => true,
+	'app' => array(
+		'layout' => '_layout'
+	),
 
 	'atomik' => array(
-		'dirs/plugins' => array('../plugins/', '../laboratory/plugins'),
+		'url_rewriting' => true,
+		'dirs' => array(
+			'plugins' => array('../plugins/', '../laboratory/plugins'),
+			'includes' => array('./app/includes/', './app/libraries/', '../library/')
+		),
 		'catch_errors' => true
 	),
 
@@ -24,7 +28,6 @@ Atomik::set(array(
         
         'Ajax',
         'Lang',
-        'Model',
         'Auth' => array(),
         'Backend',
         'Pages'
@@ -33,17 +36,12 @@ Atomik::set(array(
 ));
 
 Atomik::set('plugins/Auth', array(
-	'backend' => 'Array',
-	'backend_args' => array(
-		array(
-			'maxime:toto' => array('member')
-		)
+	'users' => array(
+		'admin:admin' => array('member', 'backend'),
+		'foo:bar' => array('member')
 	),
-	
 	'resources' => array(
-		'/private/*' => 'member'
-	),
-	
-	'guest_roles' => array(),
-	'forbidden_action' => 'login'
+		'/private/*' => 'member',
+		'/backend/*' => 'backend'
+	)
 ));

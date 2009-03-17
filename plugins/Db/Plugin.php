@@ -41,7 +41,13 @@ class DbPlugin
     	'username'		=> 'root',
     	
     	/* password */
-    	'password'		=> ''
+    	'password'		=> '',
+    
+    	/* directories where models are stored */
+    	'model_dirs' => './app/models',
+    
+    	/* default model adapter */
+    	'default_model_adapter' => 'Local'
     	
     );
     
@@ -65,8 +71,38 @@ class DbPlugin
 			Atomik_Db::createInstance('default', $dsn, $username, $password);
 		}
 		
+		/* adds model directories to php's include path */
+		$includes = array();
+		foreach (Atomik::path(self::$config['model_dirs'], true) as $dir) {
+			$includes[] = $dir;
+		}
+		$includes[] = get_include_path();
+		set_include_path(implode(PATH_SEPARATOR, $includes));
+
+    	/** Atomik_Model */
+		require_once 'Atomik/Model.php';
+		
+		/* loads the default model adapter */
+		if (false && !empty(self::$config['default_model_adapter'])) {
+			Atomik_Model_Builder::setDefaultAdapter(self::$config['default_model_adapter']);
+		}
+		
 		/* registers the db selector namespace */
 		Atomik::registerSelector('db', array('DbPlugin', 'selector'));
+		
+		if (Atomik::isPluginLoaded('Console')) {
+			ConsolePlugin::register('syncdb', array('DbPlugin', 'syncdbCommand'));
+		}
+    }
+    
+    /**
+     * Backend support
+     * Adds tabs
+     */
+    public static function onBackendStart()
+    {
+    	Atomik_Backend::addTab('Database', 'Db', 'index', 'right');
+    	Atomik_Backend::addTab('Models', 'Db', 'models', 'right');
     }
 	
 	/**
@@ -83,6 +119,16 @@ class DbPlugin
 	    }
 	    
 	    return Atomik_Db::query($selector, $params);
+	}
+	
+	/**
+	 * Synchronise the database and the models
+	 * 
+	 * @param array $args
+	 */
+	public static function syncdbCommand($args)
+	{
+		
 	}
 }
 

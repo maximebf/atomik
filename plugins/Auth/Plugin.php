@@ -26,34 +26,40 @@
 class AuthPlugin
 {
 	/**
-	 * 
+	 * @var array
 	 */
     public static $config = array(
+    	'route'				=> 'auth/*',
     	'roles' 			=> array(),
     	'resources' 		=> array(),
-    	'map' 				=> array(),
-    	'auto_map' 			=> true,
     	'guest_roles' 		=> array(),
-    	'forbidden_action' 	=> false,
+    	'forbidden_action' 	=> 'auth/login',
     	'backend' 			=> null,
     	'backend_args'		=> array()
     );
     
 	/**
-	 * 
+	 * @var array
 	 */
     protected static $_privateUris = array();
     
 	/**
+	 * Starts the plugin
 	 * 
+	 * @param array $config
 	 */
     public static function start($config = array())
     {
     	self::$config = array_merge(self::$config, $config);
     	
+    	if (self::$config['route'] !== false) {
+    		Atomik::registerPluggableApplication('Auth', self::$config['route'], '', null, false);
+    	}
+    	
     	// backend
     	if (self::$config['backend'] === null) {
-    		throw new Exception('A backend must be specified');
+    		self::$config['backend'] = 'Array';
+    		self::$config['backend_args'] = array(Atomik::get('users', array(), self::$config));
     	}
     	
     	$classname = 'Atomik_Auth_Backend_' . self::$config['backend'];
@@ -71,33 +77,29 @@ class AuthPlugin
     	Atomik_Auth::setRoles(self::$config['roles']);
     	Atomik_Auth::setResources(self::$config['resources']);
     	
-    	// binding uris to roles
-    	foreach (self::$config['map'] as $uri => $resources) {
-    		self::$_privateUris[$uri] = Atomik_Auth::getResourceRoles($resources);
-    	}
-    	
-    	if (self::$config['auto_map']) {
-    		// extracting uris from resources
-	    	foreach (Atomik_Auth::getAcl() as $resource => $roles) {
-	    		if ($resource{0} == '/') {
-	    			self::$_privateUris[$resource] = $roles;
-	    		}
-	    	}
+    	// extracting uris from resources
+    	foreach (Atomik_Auth::getAcl() as $resource => $roles) {
+    		if ($resource{0} == '/') {
+    			self::$_privateUris[$resource] = $roles;
+    		}
     	}
     }
     
 	/**
+	 * Checks if the request uri is accessible to the currently logged in user
 	 * 
+	 * @return bool
 	 */
     public static function isCurrentUriAccessible()
     {
+    	$requestUri = Atomik::get('full_request_uri');
     	$userRoles = self::$config['guest_roles'];
     	if (($user = Atomik_Auth::getCurrentUser()) !== null) {
     		$userRoles = $user->getRoles();
     	}
     	
     	foreach (self::$_privateUris as $uri => $roles) {
-    		if (Atomik::uriMatch($uri)) {
+    		if (Atomik::uriMatch($uri, $requestUri)) {
     			foreach ($roles as $role) {
     				if (!Atomik_Auth::checkRole($role, $userRoles)) {
     					return false;
@@ -112,11 +114,14 @@ class AuthPlugin
 	/**
 	 * 
 	 */
-    public static function onAtomikDispatchBefore(&$cancel)
+    public static function onAtomikDispatchUri(&$uri, &$request, &$cancel)
     {
     	if (!self::isCurrentUriAccessible()) {
     		if (self::$config['forbidden_action'] !== false) {
-    			Atomik::redirect(Atomik::url(self::$config['forbidden_action'], array('from' => A('request_uri'))), false);
+    			if (Atomik_Auth::isLoggedIn()) {
+    				Atomik::flash('Your roles do not allow you to access this section of the site', 'error');
+    			}
+    			Atomik::redirect(Atomik::url(self::$config['forbidden_action'], array('from' => Atomik::get('full_request_uri'))), false);
     		} else {
     			Atomik::trigger404();
     		}

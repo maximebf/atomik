@@ -7,5 +7,8 @@
 </div>
 <div id="sidebar-wrapper">
 	<div id="sidebar">
+		<?php echo $this->sidebarButton(__('Create a new user'), Atomik::pluginUrl('create/user'), Atomik::pluginAsset('images/user.png')) ?>
+		<?php echo $this->sidebarButton(__('Manage roles'), Atomik::pluginUrl('roles')) ?>
+		<?php echo $this->sidebarButton(__('Manage permissions'), Atomik::pluginUrl('permissions')) ?>
 	</div>
 </div>

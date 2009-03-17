@@ -38,6 +38,74 @@
 			</mediaobject>
 		</figure>
 	</sect1>
+	<sect1 id="helpers">
+		<title>Helpers</title>
+		<para>
+			When creating your views, you'll often need to execute the same piece of logic many time. Formating a date
+			for example. An helper is exactly that: a function that you can reuse in your views; <function>format_date()</function>
+			for example.
+		</para>
+		<sect2 id="creating-helpers">
+			<title>Creating helpers</title>
+			<para>
+				Helpers in Atomik are stored in <filename>app/helpers</filename>. Our <quote>format_date</quote> helper would 
+				be stored in <filename>app/helpers/format_date.php</filename>. The helpers directory can be changed using
+				<quote>atomik/dirs/helpers</quote>.
+			</para>
+			<para>
+				You can then define your helper in two ways: as a function or a class. If you're using a function, just create one
+				with the same name as the helper. For our <quote>format_date</quote> helper, the function would be <function>format_date()</function>.
+				But we can also use a class which can be pretty useful for more complex ones. The class name is a camel case version
+				(ie. without any underscore or spaces, all words starting with an upper case) of the helper name suffixed with 
+				<quote>Helper</quote>. In our example, it would be <classname>FormatDateHelper</classname>. This class also needs to have
+				a method named like the helper name but in camel case and starting with a lower case. Here, it would be 
+				<methodname>formatDate()</methodname>.
+			</para>
+			<example>
+				<title>Creating an helper</title>
+				<para>
+					As a function
+				</para>
+				<programlisting>
+					<![CDATA[
+function format_date($date)
+{
+	// do the formating
+	return $date;
+}]]>
+				</programlisting>
+				<para>
+					Or as a class
+				</para>
+				<programlisting>
+					<![CDATA[
+class FormatDateHelper
+{
+	public function formatDate($date)
+	{
+		// do the formating
+		return $date;
+	}
+}]]>
+				</programlisting>
+			</example>
+		</sect2>
+		<sect2 id="using-helpers">
+			<title>Using helpers</title>
+			<para>
+				Helpers are callable from any file that is being rendered. That is to say views, layouts or any
+				file rendered using <methodname>Atomik::renderFile</methodname>. They are accessible as methods of 
+				<varname>$this</varname>. Helpers are automatically loaded.
+			</para>
+			<example>
+				<title>Calling an helper</title>
+				<programlisting>
+					<![CDATA[
+<span class="date"><?= $this->format_date('01-01-2009') ?></span>]]>
+				</programlisting>
+			</example>
+		</sect2>
+	</sect1>
 	<sect1 id="layouts">
 		<title>Layout</title>
 		<para>

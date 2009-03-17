@@ -7,13 +7,15 @@
 				echo $tab['text'] . ' | '. Atomik::get('backend/title'); 
 			?>
 		</title>
-		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::pluginAsset('Backend', 'styles/main.css') ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::pluginAsset('styles/main.css', 'backend') ?>" />
 	</head>
 	<body>
 		<div id="body">
 			<div id="header">
 				<div id="header-info">
-					Logged in as Admin | Log out | View site
+					Logged in as <?php echo Atomik_Auth::getCurrentUser()->getUsername() ?> | 
+					<a href="<?php echo Atomik::url('auth/logout') ?>">Log out</a> | 
+					<a href="<?php echo Atomik::url('/') ?>">View site</a>
 				</div>
 				<h1><?php echo Atomik::get('backend/title'); ?></h1>
 				
@@ -21,7 +23,7 @@
 					<?php echo Atomik::fireEvent('Backend::Layout::Tabs::Before', array(), true); ?>
 					<?php foreach (Atomik_Backend::getTabs() as $tab): ?>
 						<li class="<?php if (Atomik_Backend::isCurrentTab($tab)) echo 'selected '; echo $tab['position']; ?>">
-							<a href="<?php echo Atomik::pluginUrl($tab['url']) ?>">
+							<a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $tab['url']) ?>">
 								<?php echo __(ucfirst($tab['text'])); ?>
 							</a>
 						</li>
