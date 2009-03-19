@@ -1,18 +1,12 @@
 <?php
 
-if (!count($_POST)) {
-	return;
-}
-
 $rule = array(
 	'title' => array('required' => true),
 	'content' => array('required' => true)
 );
 
 if (($data = Atomik::filter($_POST, $rule)) === false) {
-	foreach (A('filters/messages') as $message) {
-		Atomik::flash($message, 'error');
-	}
+	Atomik::flash(A('app/filters/messages'), 'error');
 	return;
 }
 

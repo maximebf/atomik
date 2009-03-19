@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="using-plugins" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>Using plugins</title>
+	<para>
+		Plugins are a simple way to extend Atomik. As said before, the framework doesn't
+		come with a lot of features. However it provides a nice and powerful plugin system.
+	</para>
+	<sect1 id="installing-plugins">
+		<title>Installing a plugin</title>
+		<para>
+			Plugins are stored in the <filename>app/plugins</filename> directory. 
+			Simply copy the plugin file or folder into this directory.
+		</para>
+	</sect1>
+	<sect1 id="activating-configuring-plugins">
+		<title>Activating and configuring a plugin</title>
+		<para>
+			Plugins are not automatically activated. To do so, it's needed to add an
+			entry in the <quote>plugins</quote> configuration key.
+		</para>
+		<example>
+			<title>Activating a plugin</title>
+			<programlisting>
+				<![CDATA[
+Atomik::set('plugins', array(
+	'Db',
+	'Cache'
+));]]>
+			</programlisting>
+		</example>
+		<para>
+			Some plugins need custom configuration which can be specified in the
+			plugins config key.
+		</para>
+		<example>
+			<title>Plugin with custom configuration</title>
+			<programlisting>
+				<![CDATA[
+Atomik::set('plugins', array(
+	'Db' => array(
+           'dsn'         => 'mysql:host=localhost;dbname=atomik',
+           'username'    => 'atomik',
+           'password'    => 'atomik'
+	),
+	'Cache'
+));]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="pluggable-applications">
+		<title>Pluggable applications</title>
+		<para>
+			Pluggable applications are a great new thing introduce in version 2.2. It allows any
+			plugin to act as a complete application. It can have its own actions, views, layouts,
+			configuration... Let's say you need a blog, just drop in the Blog plugin and you're done!
+		</para>
+		<para>
+			Pluggable applications are then connected to an uri. When this uri is accessed, the
+			application starts.
+		</para>
+		<sect2 id="activation-and-routing">
+			<title>Activating and accessing pluggable applications</title>
+			<para>
+				As these applications are plugin, activating them is as simple as dropping them in the
+				<filename>app/plugins</filename> folder and adding their name to the <quote>plugins</quote> key.
+			</para>
+			<para>
+				The application is then available at <link>/pluginName</link>. In the previous example it would
+				be <link>/blog</link>.
+			</para>
+			<para>
+				Most pluggable applications should provide a configuration key to modify the default uri. 
+				In the case of the Blog plugin, it's <quote>route</quote>.
+			</para>
+			<para>
+				While the key is named route, the way to specify an uri here is not the same as with routes: it's simply
+				an uri. We'll call it a pattern. If you want to trigger an application from <link>/app</link> the pattern
+				would be <quote>/app</quote>.
+				However, accessing <link>/app/index</link> would not trigger the application! To enable this you have to
+				use the * wildcard at the end of the pattern so that all children also triggers the app. The final pattern
+				would be <quote>/app/*</quote>.
+			</para>
+			<example>
+				<title>Setting the trigger for the Blog plugin</title>
+				<programlisting>
+					<![CDATA[
+	Atomik::set('plugins/Blog', array(
+		'route' => '/my-blog/*'
+	));]]>
+				</programlisting>
+			</example>
+			<para>
+				If a plugin does not have a configuration key to modify the route, this can be done by calling
+				<methodname>Atomik::registerPluggableApplication()</methodname> from the bootstrap file. This method takes as
+				first argument the plugin name and as second the pattern.
+			</para>
+			<example>
+				<title>Manually setting the trigger</title>
+				<programlisting>
+					<![CDATA[
+	Atomik::registerPluggableApplication('MyPluggableApp', '/my-app/*')]]>
+				</programlisting>
+			</example>
+			<note>
+				When available, use the plugin configuration as it could override any predefined pattern.
+			</note>
+			<note>
+				You can connect any application to the root of your application by using <quote>/*</quote>.
+			</note>
+		</sect2>
+		<sect2 id="overrides">
+			<title>Overrides</title>
+			<para>
+				Using pluggable applications is great! They do everything for you. However, you'll sometimes want
+				to customize these applications. Atomik provides an easy way to do that: overrides.
+			</para>
+			<para>
+				With overrides you will be able to replace any action, view, layout or helper from a pluggable
+				application.
+			</para>
+			<para>
+				Overrides are stored in <filename>app/overrides</filename>. In this directory, create a folder named
+				after the plugin. This folder can then contain the classic Atomik folders: <filename>actions</filename>, 
+				<filename>views</filename>, <filename>helpers</filename> and <filename>layouts</filename>.
+			</para>
+			<para>
+				To override a file, just create one in one of the previous folder with the same name.
+			</para>
+			<example>
+				<title>Overriding a view from the Blog plugin</title>
+				<para>
+					To override the <quote>index</quote> view from the Blog plugin, you would create the file 
+					<filename>app/overrides/Blog/views/index.phtml</filename>.
+				</para>
+			</example>
+			<note>
+				Some plugins may allow your actions and views from your <filename>app</filename> folder to be accessible
+				from the application. This is not considered overrides as plugins have priority in this case. But it
+				can be a nice way to add features to a pluggable application. You cannot enable this yourself, only
+				plugin can do it, see the plugin documentation.
+			</note>
+		</sect2>
+	</sect1>
+</chapter>

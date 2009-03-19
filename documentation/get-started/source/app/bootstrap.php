@@ -2,7 +2,7 @@
 
 Atomik::set(array(
 
-	'layout' => '_layout',
+	'app/layout' => '_layout',
 
 	'styles' => array('main')
     

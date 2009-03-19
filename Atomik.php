@@ -69,7 +69,7 @@ Atomik::reset(array(
 					'content-type' 	=> 'text/html'
 				),
 				'ajax' => array(
-					'prefix' 		=> 'ajax',
+					'prefix' 		=> '',
 					'layout' 		=> false,
 					'content-type' 	=> 'text/html'
 				),
@@ -448,26 +448,22 @@ class Atomik
     	
     	// checks if the uri triggers a pluggable application
     	if ($allowPluggableApplication) {
-	    	foreach (self::$_pluggableApplications as $plugin => $pluggableAppConfig) {
-	    		if (!self::uriMatch($pluggableAppConfig['route'], $uri)) {
+	    	foreach (self::$_pluggableApplications as $plugin => $pluggAppConfig) {
+	    		if (!self::uriMatch($pluggAppConfig['route'], $uri)) {
 	    			continue;
 	    		}
 	    		
 	    		// rewrite uri
-	    		$baseAction = trim($pluggableAppConfig['route'], '/*');
+	    		$baseAction = trim($pluggAppConfig['route'], '/*');
 	    		$uri = substr(trim($uri, '/'), strlen($baseAction));
+	    		if ($uri == self::get('app/default_action')) {
+	    			$uri = '';
+	    		}
 	    		self::set('atomik/base_action', $baseAction);
 	    		self::set('app/running_plugin', $plugin); 
 	    		
 	    		// dispatches the pluggable application
-	    		return self::dispatchPluggableApplication(
-		    		$plugin, 
-		    		$uri, 
-	    			$pluggableAppConfig['rootDir'],
-	    			$pluggableAppConfig['pluginDir'],
-	    			$pluggableAppConfig['overwriteDirs'],
-	    			$pluggableAppConfig['checkPluginIsLoaded']
-	    		);
+	    		return self::dispatchPluggableApplication($plugin, $uri, $pluggAppConfig['config']);
 	    	}
     	}
     	
@@ -490,7 +486,7 @@ class Atomik
     	
     	// retreives view context params and prepare the response
     	if (($viewContextParams = self::get('app/views/contexts/' . $viewContext, false)) !== false) {
-    		if (!self::get('app/layout', true, $viewContextParams)) {
+    		if (!self::get('layout', true, $viewContextParams)) {
     			self::disableLayout();
     		}
     		header('Content-type: ' . self::get('content-type', 'text/html', $viewContextParams));
@@ -540,7 +536,8 @@ class Atomik
 	}
 	
 	/**
-	 * Checks if an uri matches the pattern. The pattern can contain the * wildcard.
+	 * Checks if an uri matches the pattern. The pattern can contain the * wildcard at the
+	 * end to specify that it matches the target and all its child segments.
 	 * 
 	 * @param	string	$pattern
 	 * @param	string	$uri		Default is the current request uri
@@ -707,13 +704,21 @@ class Atomik
 	 */
 	public static function execute($action, $viewContext = true, $echo = false, $triggerError = true)
 	{
-		if ($viewContext === true) {
-			// using the request's context
-			$viewContext = self::get('app/view_context');
-		}
-		// appends the context to the view name unless it's html so the $viewFilename test don't fails
-		$view = $action . (is_string($viewContext) && $viewContext != 'html' ? '.' . $viewContext : '');
+		$view = $action;
 		$vars = array();
+		
+		// view contexts
+		if ($viewContext !== false) {
+			if ($viewContext === true) {
+				// using the request's context
+				$viewContext = self::get('app/view_context');
+			}
+			// appends the context's prefix to the view name
+			$prefix = self::get('app/views/contexts/' . $viewContext . '/prefix', $viewContext);
+			if (!empty($prefix)) {
+				$view .= '.' . $prefix;
+			}
+		}
 		
 		// creates the execution context
 		$context = array('action' => &$action, 'view' => &$view, 'render' => &$render);
@@ -850,13 +855,6 @@ class Atomik
 		
 		self::fireEvent('Atomik::Render::Start', array(&$view, &$vars, &$echo, &$triggerError));
 		
-		// checks if the context is specified in $view
-		if (($dot = strrpos($view, '.')) !== false) {
-			$context = substr($view, $dot + 1);
-			$prefix = self::get('app/views/contexts/' . $context . '/prefix', $context);
-			$view = substr($view, 0, $dot + 1) . $prefix;
-		}
-		
 		// view filename
 		$filename = self::path($view . self::get('app/views/file_extension'), $dirs);
 		
@@ -970,26 +968,41 @@ class Atomik
 	public function __call($helperName, $args)
 	{
 		if (!isset(self::$_loadedHelpers[$helperName])) {
+			// helper needs to be loaded
+			
 			if (($filename = self::path($helperName . '.php', self::$_helperDirs)) === false) {
 				throw new Exception('Helper ' . $helperName . ' not found');
 			}
 			
 			include $filename;
-			self::$_loadedHelpers[$helperName] = true;
+		
+			if (!function_exists($helperName)) {
+				// searching for an helper defined as a class
+				$camelizedHelperName = str_replace(' ', '', ucwords(str_replace('_', ' ', $helperName)));
+				$className = $camelizedHelperName . 'Helper';
+				
+				if (!class_exists($className, false)) {
+					// nor a function nor a class has been found
+					throw new Exception('Helper ' . $helperName . ' file found but no function or class matching the helper name');
+				}
+				// helper defined as a class
+				self::$_loadedHelpers[$helperName] = array($className, $camelizedHelperName);
+				
+			} else {
+				// helper defined as a function
+				self::$_loadedHelpers[$helperName] = $helperName;
+			}
 		}
 		
-		if (function_exists($helperName)) {
-			return call_user_func_array($helperName, $args);
+		$callback = self::$_loadedHelpers[$helperName];
+		if (is_array($callback)) {
+			// callback points to a class method
+			// creating an instance of the class
+			$className = $callback[0];
+			$callback[0] = new $className();
 		}
 		
-		$camelizedHelperName = str_replace(' ', '', ucwords(str_replace('_', ' ', $helperName)));
-		$className = $camelizedHelperName . 'Helper';
-		if (!class_exists($className, false)) {
-			throw new Exception('Helper ' . $helperName . ' file found but no function or class matching the helper name');
-		}
-		
-		$instance = new $className();
-		return call_user_func_array(array($instance, $camelizedHelperName), $args);
+		return call_user_func_array($callback, $args);
 	}
 	
 	/**
@@ -1403,19 +1416,21 @@ class Atomik
 			
 			// directory found, plugin file should be inside
 			$filename = $dirname . '/Plugin.php';
+			$appFilename = $dirname . '/Application.php';
 			$pluginDir = dirname($dirname);
-			if (!file_exists($filename)) {
+			
+			if (!($isPluggApp = file_exists($appFilename)) && !file_exists($filename)) {
 				throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
+			}
+			
+			// registers the plugin as an application if Application.php exists
+			if ($isPluggApp && !isset(self::$_pluggableApplications[$plugin])) {
+				self::registerPluggableApplication($plugin);
 			}
 			
 			// adds the libraries folder from the plugin directory to the include path
 			if (@is_dir($dirname . '/libraries')) {
 				set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
-			}
-			
-			// registers the plugin as an application if Application.php exists
-			if (file_exists($dirname . '/Application.php')) {
-				self::registerPluggableApplication($plugin);
 			}
 			
 		} else {
@@ -1461,45 +1476,69 @@ class Atomik
 	 */
 	public static function isPluginLoaded($plugin)
 	{
-		if (!isset(self::$_plugins[ucfirst($plugin)])) {
-			return false;
-		}
-		return true;
+		return isset(self::$_plugins[ucfirst($plugin)]);
 	}
 	
 	/**
 	 * Registers a pluggable application
 	 * 
+	 * Possible configuration keys are:
+	 *   - rootDir: 			directory inside the plugin directory where the application is stored (default empty string)
+	 *   - pluginDir: 			the plugin's directory (default to null, will find the directory automatically)
+	 *   - overwriteDirs: 		whether to keep access to the user actions, views, layouts and helpers folders
+	 *   - checkPluginIsLoaded: whether to check if the plugin is loaded
+	 * 
 	 * @param	string	$plugin		Plugin's name
 	 * @param	string	$route		The route that will trigger the application (default is the plugin name)
+	 * @param	array	$config		Configuration
 	 */
-	public static function registerPluggableApplication($plugin, $route = null, $rootDir = '', $pluginDir = null, $overwriteDirs = true, $checkPluginIsLoaded = true)
+	public static function registerPluggableApplication($plugin, $route = null, $config = array())
 	{
+		$plugin = ucfirst($plugin);
+		
+		self::fireEvent('Atomik::RegisterPluggableApplication', array(&$plugin, &$route, &$config));
+		if (empty($plugin)) {
+			return;
+		}
+		
+		// route
 		if ($route === null) {
+			// default route
 			$route = strtolower($plugin) . '/*';
 		} else {
 			$route = trim($route, '/');
 		}
 		
 		self::$_pluggableApplications[$plugin] = array(
-			'plugin' 				=> ucfirst($plugin),
-			'route'	 				=> $route,
-			'rootDir'	 			=> $rootDir,
-			'pluginDir'				=> $pluginDir,
-			'overwriteDirs'			=> $overwriteDirs,
-			'checkPluginIsLoaded' 	=> $checkPluginIsLoaded
+			'plugin' 	=> $plugin,
+			'route'	 	=> $route,
+			'config'	=> $config
 		);
 	}
 	
 	/**
 	 * Dispatches a pluggable application
 	 * 
-	 * @param string $plugin Plugin's name
+	 * @see Atomik::registerPluggableApplication()
+	 * @param 	string 	$plugin 	Plugin's name
+	 * @param	string	$uri		Uri
+	 * @param	array	$config		Configuration
+	 * @return 	bool				Dispatch success
 	 */
-	public static function dispatchPluggableApplication($plugin, $uri = null, $rootDir = '', $pluginDir = null, $overwriteDirs = true, $checkPluginIsLoaded = true)
+	public static function dispatchPluggableApplication($plugin, $uri = null, $config = array())
 	{
 		$plugin = ucfirst($plugin);
-		if ($checkPluginIsLoaded && !self::isPluginLoaded($plugin)) {
+		
+		// configuration
+		$defaultConfig = array(
+			'rootDir'				=> '', 
+			'pluginDir'				=> null, 
+			'overwriteDirs'			=> true, 
+			'checkPluginIsLoaded'	=> true
+		);
+		$config = array_merge($defaultConfig, $config);
+		
+		if ($config['checkPluginIsLoaded'] && !self::isPluginLoaded($plugin)) {
 			return false;
 		}
 		
@@ -1507,13 +1546,13 @@ class Atomik
 		if (empty($uri)) {
 			$uri = '';
 		}
-		$rootDir = rtrim('/' . trim($rootDir, '/'), '/');
+		$rootDir = rtrim('/' . trim($config['rootDir'], '/'), '/');
 		
 		// plugin dir
-		if ($pluginDir === null) {
+		if ($config['pluginDir'] === null) {
 			$pluginDir = self::$_plugins[$plugin] . '/' . $plugin;
 		} else {
-			$pluginDir = rtrim($pluginDir, '/');
+			$pluginDir = rtrim($config['pluginDir'], '/');
 		}
 		
 		// application dir
@@ -1537,12 +1576,12 @@ class Atomik
 		
 		// rewrite dirs
 		$dirs = array();
-		$dirs['actions'] = array($appDir . '/actions', $overrideDir . '/actions');
-		$dirs['views'] = array($appDir . '/views', $overrideDir . '/views');
-		$dirs['layouts'] = array($appDir . '/layouts', $overrideDir . '/layouts');
-		$dirs['helpers'] = array($appDir . '/helpers', $overrideDir . '/helpers');
+		$dirs['actions'] = array($overrideDir . '/actions', $appDir . '/actions');
+		$dirs['views'] = array($overrideDir . '/views', $appDir . '/views');
+		$dirs['layouts'] = array($overrideDir . '/layouts', $appDir . '/layouts');
+		$dirs['helpers'] = array($overrideDir . '/helpers', $appDir . '/helpers');
 		
-		if ($overwriteDirs) {
+		if ($config['overwriteDirs']) {
 			$dirs = array_merge(self::get('atomik/dirs'), $dirs);
 		} else {
 			$dirs = array_merge_recursive($dirs, self::get('atomik/dirs'));
@@ -1556,7 +1595,8 @@ class Atomik
         $files['post_dispatch'] = $appDir . '/post_dispatch.php';
 		self::set('atomik/files', $files);
 		
-		self::fireEvent('Atomik::DispatchPluginApplication', array($plugin, &$cancel));
+		$cancel = false;
+		self::fireEvent('Atomik::DispatchPluginApplication::Ready', array($plugin, &$uri, $config, &$cancel));
 		if ($cancel) {
 			return true;
 		}
@@ -1571,6 +1611,12 @@ class Atomik
 			if ($continue === false) {
 				return true;
 			}
+		}
+		
+		$cancel = false;
+		self::fireEvent('Atomik::DispatchPluginApplication::Start', array($plugin, &$uri, $config, &$cancel));
+		if ($cancel) {
+			return true;
 		}
 		
 		// re-dispatches the application

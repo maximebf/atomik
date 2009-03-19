@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="developing-plugins" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>Developing plugins</title>
+	<sect1 id="plugin-file">
+		<title>The plugin file</title>
+		<para>
+			A plugin is made of one file named the same way. For example the Db plugin is in the file
+			<filename>Db.php</filename>. Plugin's file must always start with an uppercase letter.
+		</para>
+		<para>
+			Plugins are loaded at the beginning of a request, just after the bootstrap. 
+			The content of the file is free or it can be a class.
+		</para>
+		<para>
+			To build more complex plugins you can instead of a file create a folder named after your plugin.
+			Your php file goes into that folder and must be named <filename>Plugin.php</filename>.
+		</para>
+		<para>
+			When using folders, it is possible to add a sub folder named <filename>libraries</filename> which
+			will automatically be added to php's include_path.
+		</para>
+		<para>
+			A folder must be used when creating pluggable applications.
+		</para>
+	</sect1>
+	<sect1 id="plugin-custom-configuration">
+		<title>Plugin's custom configuration</title>
+		<para>
+			As said in the "Using plugins" section, plugins can have custom configuration.
+			To retrieve this configuration a $config variable is automatically available.
+			It contains the array used in the configuration.
+		</para>
+		<example>
+			<title>Retrieving plugin custom configuration</title>
+			<para>
+				In the configuration file:
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::set('plugins', array(
+	'MyPlugin' => array(
+           'name' => 'Peter'
+	)
+));]]>
+			</programlisting>
+			<para>
+				In the plugin file:
+			</para>
+			<programlisting>
+				<![CDATA[
+echo 'hello ' . $config['name'];]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="plugin-class">
+		<title>Using a class</title>
+		<para>
+			For better application design it is advice to use a class to define your plugin.
+			When loading a plugin, it will look for a class named like the plugin suffixed with
+			<quote>Plugin</quote>.
+		</para>
+		<para>
+			If this class has a static <methodname>start</methodname> method, it will be called
+			with the plugin's custom configuration as argument, when the plugin is loaded.
+		</para>
+		<example>
+			<title>Plugin class</title>
+			<para>
+				The plugin class for a plugin named Db
+			</para>
+			<programlisting>
+				<![CDATA[
+class DbPlugin
+{
+	public static function start($config)
+	{
+		// $config['name'] == 'Peter'
+	}
+}]]>
+			</programlisting>
+		</example>
+		<para>
+			The class can contain static methods that will be automatically registered as callback
+			on events. These methods have to start by "on" followed by the event name without
+			the double ":".
+		</para>
+		<example>
+			<title>Plugin class with event callback methods</title>
+			<programlisting>
+				<![CDATA[
+class DbPlugin
+{
+	public static onAtomikDispatchStart()
+	{
+		// listener for Atomik::Dispatch::Start
+	}
+}]]>
+			</programlisting>
+		</example>
+		<para>
+			You can prevent automatic callback registration by returning false in the start method.
+		</para>
+	</sect1>
+	<sect1 id="pluggable-applications">
+		<title>Pluggable applications</title>
+		<para>
+			Pluggable applications are really simple to create. Create a normal plugin using a folder. Create your 
+			<filename>Plugin.php</filename> file. Call <methodname>Atomik::registerPluggableApplication()</methodname> when
+			the plugin starts using the plugin name as first parameter (and eventually the pattern to trigger the application
+			as the second). Create standards Atomik folders inside your plugin folder: <filename>actions</filename>, 
+			<filename>views</filename>, <filename>helpers</filename> and <filename>layouts</filename> and code your application normally.
+		</para>
+		<figure>
+			<title>A pluggable application directory structure</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/pluggapp_dirs.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<example>
+			<title>Example of a <filename>Plugin.php</filename> file registering a pluggable application</title>
+			<programlisting>
+				<![CDATA[
+class PluggAppPlugin
+{
+	public static $config = array(
+		'route' => '/pluggapp/*'
+	);
+	
+	public static start($config)
+	{
+		self::$config = array_merge(self::$config, $config);
+		Atomik::registerPluggableApplication('PluggAp', $config['route']);
+	}
+}]]>
+			</programlisting>
+		</example>
+		<para>
+			A pluggable application can also have a file named <filename>Application.php</filename> at the root of the plugin
+			folder. This file act the same way as the <filename>bootstrap.php</filename> file. It will be called before
+			the pluggable application is dispatched.
+		</para>
+		<para>
+			If Atomik detects the <filename>Application.php</filename> file, a <filename>Plugin.php</filename> file is not
+			necessary and the pluggable application will automatically be registered.
+		</para>
+		<para>
+			A pluggable application behaves as a normal Atomik application and all features are available. The configuration
+			will be reseted before the dispatch occurs. These applications can provide their own config in their 
+			<filename>Application.php</filename> file like their own routes, default action... The <filename>pre_dispatch.php</filename>
+			and <filename>post_dispatch.php</filename> files can also be used.
+		</para>
+		<para>
+			Note that every url will be relative to the pluggable application root. That is to say you do not have to care
+			of the route used to trigger your application. For this to work properly, read carefully the next section.
+		</para>
+		<para>
+			<methodname>Atomik::registerPluggableApplication()</methodname> as more options which are described in the
+			API reference.
+		</para>
+	</sect1>
+	<sect1 id="plugin-assets">
+		<title>Plugin's assets and urls</title>
+		<para>
+			When using the default <filename>.htaccess</filename> file, plugins can have an <filename>assets</filename> folder which
+			is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.
+		</para>
+		<para>
+			Atomik also provides a method to obtain the url to asset files: <methodname>Atomik::pluginAsset()</methodname>. This method
+			works using a template defined in <quote>atomik/plugin_assets_tpl</quote>. The default is <quote>app/plugins/%s/assets</quote>.
+			The <quote>%s</quote> sign will be replaced with the plugin name.
+		</para>
+		<para>
+			The method takes as first argument the filename relative to the plugin's assets folder and as second the plugin name.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::pluginAsset()</methodname></title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
+// will output app/plugins/MyPlugin/assets/css/styles.css
+
+Atomik::set('atomik/plugin_assets_tpl', 'plugins/%s/assets');
+echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
+// will output plugins/MyPlugin/assets/css/styles.css]]>
+			</programlisting>
+		</example>
+		<para>
+			When using this method from a pluggable application, the plugin name can be avoided. In this case, the name of
+			the running plugin will be used.
+		</para>
+		<note>
+			It is not adviced to change the plugin's assets folder name as some plugins may not work with your installation.
+		</note>
+		<para>
+			When creating a pluggable application you can use <methodname>Atomik::pluginUrl()</methodname>. It has the exact same
+			arguments as <methodname>Atomik::url()</methodname> but will prepend actions with the pluggable application route.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::pluginUrl()</methodname></title>
+			<para>
+				From a pluggable application named Blog and available at /blog.
+				In the index action
+			</para>
+			<programlisting>
+				<![CDATA[
+echo Atomik::pluginUrl('my-action'); // will echo /blog/my-action]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="plugin-manifest">
+		<title>Manifest.xml</title>
+		<para>
+			Once you created your plugin, you might want to share it. The Atomik's website feature a 
+			<link xlink:href="http://www.atomikframework.com/plugins">plugin repository</link> where anyone can
+			submit their creations. To ease plugins distribution, you can bundle with your plugin a Manifest.xml file. It contains
+			information about your plugin like name, description, author...
+		</para>
+		<para>
+			The file is very simple. You can get the XMLSchema at 
+			<link xlink:href="http://www.atomikframework.com/manifest/manifest.xsd">http://www.atomikframework.com/manifest/manifest.xsd</link>.
+			The file's xml namespace is <link>http://www.atomikframework.com/manifest</link>. Below are all available tags:
+		</para>
+		<programlisting>
+<![CDATA[
+<manifest xmlns="http://www.atomikframework.com/manifest">
+	<author>
+		<name></name>
+		<email></email>
+		<website></website>
+	</author>
+	<name></name>
+	<displayName></displayName>
+	<version></version>
+	<categoryId></categoryId>
+	<description></description>
+	<longDescription></longDescription>
+	<link></link>
+	<directory></directory>
+	<license></license>
+</manifest>]]>
+		</programlisting>
+		<para>
+			Most of them are pretty obvious. The categoryId is a bit tricky and we'll come back to it later. All other are string values.
+		</para>
+		<note>
+			The <quote>name</quote> and <quote>description</quote> tags are mandatory.
+		</note>
+		<para>
+			The <quote>directory</quote> tag is special and used by the distribution builder. When you're creating a package for your 
+			plugin, you could put the source files into a specific folder. So, for the distribution builder to work, it's needed to know
+			where the sources are. This is the purpose of the <quote>directory</quote> tag. It must be relative to the root of your
+			archive and specify which folder contains the files to be extracted to the plugins directory.
+			Leave it blank for the root, which is the default value.
+		</para>
+		<para>
+			You can create a plugin file and the associated manifest online at 
+			<link xlink:href="http://www.atomikframework.com/plugins/create">http://www.atomikframework.com/plugins/create</link>. 
+			You can get a category id using this tool. To submit your plugin, browse to
+			<link xlink:href="http://www.atomikframework.com/plugins/submit">http://www.atomikframework.com/plugins/submit</link>
+		</para>
+	</sect1>
+	<sect1 id="loading-plugins">
+		<title>Loading plugins programmaticaly</title>
+		<para>
+			It is of course possible to load plugins at runtime. This is done using the <methodname>Atomik::loadPlugin()</methodname>
+			method.
+		</para>
+		<example>
+			<title>Loading a plugin at runtime</title>
+			<programlisting>
+				<![CDATA[
+Atomik::loadPlugin('Db');]]>
+			</programlisting>
+		</example>
+		<para>
+			To provide some configuration for the plugin, pass an array as the second argument.
+		</para>
+		<example>
+			<title>Loading a plugin at runtime with some configuration</title>
+			<programlisting>
+				<![CDATA[
+Atomik::loadPlugin('Db', array('dbname' => 'test'));]]>
+			</programlisting>
+		</example>
+		<note>
+			Be aware that some plugins may need to listen to some specific events. If you register your plugin too late,
+			the event may have already occured, making the plugin malfunction.
+		</note>
+		<para>
+			You can check if a plugin is already loaded using <methodname>Atomik::isPluginLoaded()</methodname>.
+		</para>
+		<example>
+			<title>Checking if a plugin is already loaded</title>
+			<programlisting>
+				<![CDATA[
+if (Atomik::isPluginLoaded('Db')) {
+	// ...
+}]]>
+			</programlisting>
+		</example>
+		<para>
+			<methodname>Atomik::loadPlugin()</methodname> provides more advanced features which allow you for example 
+			to create plugins for your plugin!
+		</para>
+		<example>
+			<title>More advance use of <methodname>Atomik::loadPlugin()</methodname></title>
+			<programlisting>
+				<![CDATA[
+// load plugins from a custom directory
+Atomik::loadPlugin('MyPlugin', array(), '/custom/plugins/directory');
+
+// using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
+Atomik::loadPlugin('MyPlugin', array(), null, '%CustomPlugin');
+
+// do not call the start() method when loading plugins
+Atomik::loadPlugin('MyPlugin', array(), null, '%Plugin', false);]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>

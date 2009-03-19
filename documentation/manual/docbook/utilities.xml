@@ -48,7 +48,7 @@ echo Atomik::escape('my text');]]>
 		</para>
 		<para>
 			The functions to execute are regroup under profiles. Thus, you can create multiple escaping profile depending on the data you 
-			need to escape. Profiles are defined in the <quote>escaping</quote> configuration key. To specify which functions to execute
+			need to escape. Profiles are defined in the <quote>app/escaping</quote> configuration key. To specify which functions to execute
 			in a profile, you can use a string or an array of strings. Functions will be executed in the order they appear in the array.
 			The default profile is called <quote>default</quote>.
 		</para>
@@ -60,7 +60,7 @@ echo Atomik::escape('my text');]]>
 			<programlisting>
 				<![CDATA[			
 // creating profiles
-Atomik::add('escaping', array(
+Atomik::add('app/escaping', array(
 	'default' => array('htmlspecialchars', 'nl2br'),
 	'url' => 'urlencode'
 ));
@@ -106,7 +106,7 @@ echo Atomik::friendlify('My text in the url');
 		<para>
 			<methodname>Atomik::filter()</methodname> has the same arguments as <function>filter_var()</function>.
 			However, you can also use a regular expression as filter in the second argument. The regexp must use
-			slashes as delimiters. You can also define custom filters in the <quote>filters/callbacks</quote>
+			slashes as delimiters. You can also define custom filters in the <quote>app/filters/callbacks</quote>
 			configuration key and use the callback name as filter.
 		</para>
 		<example>
@@ -122,7 +122,7 @@ $result = Atomik::filter('example.com', FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_
 $result = Atomik::filter('12478', '/\d+/');
 
 // using a callback
-Atomik::set('filters/callbacks/my_custom_filter', 'myFilterFunction');
+Atomik::set('app/filters/callbacks/my_custom_filter', 'myFilterFunction');
 $result = Atomik::filter($data, 'my_custom_filter');]]>
 			</programlisting>
 		</example>
@@ -140,7 +140,7 @@ $result = Atomik::filter($data, 'my_custom_filter');]]>
 		<para>
 			While the second argument is named a definition in the PHP's extension, Atomik called it a rule. Rules are arrays where
 			keys are field's name and their value a filter or an array (like with <function>filter_var_array()</function>).
-			You can pass a rule as the second argument. Rules can also be defined in the <quote>filters/rules</quote> configuration
+			You can pass a rule as the second argument. Rules can also be defined in the <quote>app/filters/rules</quote> configuration
 			key. You can then use their name instead of an array as the second argument.
 		</para>
 		<para>
@@ -160,8 +160,8 @@ $result = Atomik::filter($data, 'my_custom_filter');]]>
 		</para>
 		<para>
 			Finally, support for validation messages has also been added. When filtering the array, if any values failed validating,
-			a message will be created. Messages can then be retreived in the <quote>filters/messages</quote> configuration key.
-			There is two default messages configured in <quote>filters/default_message</quote> and <quote>filters/required_message</quote>.
+			a message will be created. Messages can then be retreived in the <quote>app/filters/messages</quote> configuration key.
+			There is two default messages configured in <quote>app/filters/default_message</quote> and <quote>app/filters/required_message</quote>.
 			The former will be used when a field failed to validate while the later when the required condition has not been met.
 		</para>
 		<note>
@@ -178,7 +178,7 @@ $result = Atomik::filter($data, 'my_custom_filter');]]>
 			<programlisting>
 				<![CDATA[
 // using a custom message when a field is missing or empty
-Atomik::set('filters/required_message', 'You forgot to fill the %s field!');
+Atomik::set('app/filters/required_message', 'You forgot to fill the %s field!');
 
 // the data to validate
 $dataToFilter = array(

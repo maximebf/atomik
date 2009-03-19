@@ -3,7 +3,7 @@
 	<title>Events</title>
 	<para>
 		Events are one of the most important concept in Atomik.
-		Callback can be registered to listen on any events. When an event
+		Callback can be registered to listen to any events. When an event
 		is fired (or triggered), all listening callbacks are called. 
 	</para>
 	<note>
@@ -35,6 +35,19 @@ Atomik::listenEvent('myEvent', 'myEventCallback');
 Atomik::listenEvent('myArgEvent', 'myArgEventCallback');]]>
 			</programlisting>
 		</example>
+		<note>
+			If you're using PHP 5.3 you can use anonymous functions
+			<programlisting>
+				<![CDATA[
+Atomik::listenEvent('myEvent', function() {
+	// ...
+});
+
+Atomik::listenEvent('myArgEvent', function($arg1, $arg2) {
+	// ...
+});]]>
+			</programlisting>
+		</note>
 		<para>
 			Listeners also have priorities. The priority is a number, smaller number have a higher priority.
 			The priority is specified when registering the listener.
@@ -109,6 +122,10 @@ $string = Atomik::fireEvent('myStringEvent', array(), true); // string]]>
 	</sect1>
 	<sect1 id="events-schema">
 		<title>Overview of available Atomik events</title>
+		<note>
+			You can find a complete documentation of all events in the 
+			<link xlink:href="http://www.atomikframework.com/doc/events">Event Browser on the website</link>.
+		</note>
 		<figure>
 			<title>Simple schema illustrating Atomik events flow</title>
 			<mediaobject>

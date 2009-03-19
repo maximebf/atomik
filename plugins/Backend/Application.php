@@ -1,6 +1,6 @@
 <?php
-	
-	/* backend layout */
+
+	// backend layout
 	Atomik::set('app/layout', 'main');
 	
 	$uri = Atomik::get('request_uri');
@@ -8,6 +8,7 @@
 		$uri = 'backend/index';
 	}
 	
+	// extracting the plugin name from the uri
 	$segments = explode('/', trim($uri, '/'));
 	$plugin = strtolower(array_shift($segments));
 	$uri = implode('/', $segments);
@@ -17,26 +18,31 @@
 		$uri = 'index';
 	}
 	
+	// reconfiguring
 	Atomik::set('backend/plugin', $plugin);
 	Atomik::set('backend/base_action', $baseAction);
 	Atomik::set('atomik/base_action', $baseAction . '/' . $plugin);
 	Atomik::set('app/running_plugin', $plugin);
 	
-	/* default tabs */
 	Atomik_Backend::addTab('Dashboard', 'Backend', 'index');
-	
 	Atomik::fireEvent('Backend::Start');
 	
-	$pluginDir = null;
-	$rootDir = 'backend';
-	$checkPluginIsLoaded = true;
+	// configuration for the re-dispatch
+	$pluggAppConfig = array(
+		'pluginDir' 			=> null,
+		'rootDir'				=> 'backend',
+		'overwriteDirs'			=> false,
+		'checkPluginIsLoaded' 	=> true
+	);
 	
 	if ($plugin == 'app') {
-		if (($pluginDir = Atomik::path('backend', Atomik::get('atomik/dirs/app'))) === false) {
+		// this is the backend application for the user application, needs some reconfiguration
+		// the backend dir is searched inside the app/ directory
+		if (($pluggAppConfig['pluginDir'] = Atomik::path('backend', Atomik::get('atomik/dirs/app'))) === false) {
 			throw new Exception('No backend application defined in your application');
 		}
-		$rootDir = '';
-		$checkPluginIsLoaded = false;
+		$pluggAppConfig['rootDir'] = '';
+		$pluggAppConfig['checkPluginIsLoaded'] = false;
 	}
 	
 	// creates the __() function if it is not defined
@@ -50,8 +56,9 @@
 	}
     
     // dispatches the plugin application
-    if (!Atomik::dispatchPluggableApplication($plugin, $uri, $rootDir, $pluginDir, false, $checkPluginIsLoaded)) {
+    if (!Atomik::dispatchPluggableApplication($plugin, $uri, $pluggAppConfig)) {
     	Atomik::trigger404();
     }
 
+    // to avoid dispatching the current application
 	return false;

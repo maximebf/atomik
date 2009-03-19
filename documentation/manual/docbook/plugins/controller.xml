@@ -143,7 +143,7 @@ Atomik::set('routes', array(
 				</para>
 				<programlisting>
 					<![CDATA[
-class ArchivesController
+class ArchivesController extends Atomik_Controller
 {
 	public function view($year, $month)
 	{
@@ -152,6 +152,7 @@ class ArchivesController
 				</programlisting>
 				<para>
 					The <varname>$year</varname> and <varname>$month</varname> argument will be taken from the route parameters.
+					The order is not important.
 				</para>
 			</example>
 			<para>
@@ -168,7 +169,7 @@ class ArchivesController
 				<title>Defining route parameters inside controllers</title>
 				<programlisting>
 					<![CDATA[
-class ArchivesController
+class ArchivesController extends Atomik_Controller
 {
 	/**
 	 * @route :year/:month

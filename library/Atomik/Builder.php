@@ -209,9 +209,9 @@ class Atomik_Builder
 	 */
 	protected function _buildConfig($buildPath)
 	{
-		$viewExtension = isset($this->config['atomik']['views']['file_extension']) ? $this->config['atomik']['views']['file_extension'] : '.phtml';
-		$layout	= isset($this->config['layout']) ? $this->config['layout'] : '_default';
-		$defaultAction = isset($this->config['atomik']['default_action']) ? $this->config['atomik']['default_action'] : 'index';
+		$viewExtension = isset($this->config['app']['views']['file_extension']) ? $this->config['app']['views']['file_extension'] : '.phtml';
+		$layout	= isset($this->config['app']['layout']) ? $this->config['app']['layout'] : '_default';
+		$defaultAction = isset($this->config['app']['default_action']) ? $this->config['app']['default_action'] : 'index';
 		
 		// default action
 		$defaultActionPath = $buildPath . '/app/views/index.phtml';

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <book id="get-started" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
-	<title>Get started</title>
+	<title>Get started with Atomik 2.2</title>
 	<para>
-		In this tutorial, you will learn how to create a simple blogging application using Atomik 2.1. 
+		In this tutorial, you will learn how to create a simple blogging application using Atomik 2.2. 
 		It shouldn't take much time, approximatively 15 minutes.
 	</para>
 	<para>
@@ -189,22 +189,15 @@ $posts = Atomik_Db::findAll('posts');]]>
 		</programlisting>
 		<para>
 			As you can see, this is a very simple HTML form. We now need to handle the form's data.
-			This will take place in the action file (<filename>app/actions/add.php</filename>).
+			This will take place in the action file. ().
 		</para>
 		<para>
-			Our action should only be executed when there's POST data. So will first check if there's any:
-		</para>
-		<programlisting>
-			<![CDATA[
-if (!count($_POST)) {
-	return;
-}]]>
-		</programlisting>
-		<para>
-			This will exit the action and continue to the view if there's no POST data.
+			Our action should only be executed when there's POST data. Atomik allows you to create
+			action files for specific HTTP methods. To do so, suffix the action name with a dot followed 
+			by the HTTP method in lower case. Our action file will thus be named <filename>app/actions/add.post.php</filename>.
 		</para>
 		<para>
-			We're now goind to filter the data. This is always an important step when dealing with
+			The first thing we need to do is filter the data. This is always an important step when dealing with
 			POST data for security reasons. We're going to use <methodname>Atomik::filter()</methodname>.
 		</para>
 		<para>
@@ -226,15 +219,13 @@ $rule = array(
 		</programlisting>
 		<para>
 			Now we can filter the data using this rule. If the validation fail, the method will return
-			false. It will in this case generate some error messages stored in <quote>filters/messages</quote>.
-			We can then loop over these messages and use <methodname>Atomik::flash()</methodname> to store them.
+			false. It will in this case generate some error messages stored in <quote>app/filters/messages</quote>.
+			We can then use <methodname>Atomik::flash()</methodname> to store them.
 		</para>
 		<programlisting>
 			<![CDATA[
 if (($data = Atomik::filter($_POST, $rule)) === false) {
-	foreach (A('filters/messages') as $message) {
-		Atomik::flash($message, 'error');
-	}
+	Atomik::flash(A('app/filters/messages'), 'error');
 	return;
 }]]>
 		</programlisting>
@@ -254,7 +245,7 @@ Atomik_Db::insert('posts', $data);]]>
 		<note>
 			Using <function>date()</function> could result in an error if the timezone is not set
 			in <filename>php.ini</filename>. This can be resolved at runtime by calling the
-			<function>date_default_timezone_set()</function>.
+			<function>date_default_timezone_set()</function> function.
 		</note>
 		<para>
 			Note that we define the publish_date before inserting the data.
@@ -275,19 +266,13 @@ Atomik::redirect('index');]]>
 			<![CDATA[
 <?php
 
-if (!count($_POST)) {
-	return;
-}
-
 $rule = array(
 	'title' => array('required' => true),
 	'content' => array('required' => true)
 );
 
 if (($data = Atomik::filter($_POST, $rule)) === false) {
-	foreach (A('filters/messages') as $message) {
-		Atomik::flash($message, 'error');
-	}
+	Atomik::flash(A('app/filters/messages'), 'error');
 	return;
 }
 
@@ -312,16 +297,16 @@ Atomik::redirect('index');]]>
 			<![CDATA[
 <?php
 
-if (!isset($_GET['id'])) {
+if (!Atomik::has('request/id')) {
 	Atomik::flash('Missing id parameter', 'error');
 	Atomik::redirect('index');
 }
 
-$post = Atomik_Db::find('posts', array('id' => $_GET['id']));]]>
+$post = Atomik_Db::find('posts', array('id' => A('request/id')));]]>
 		</programlisting>
 		<para>
 			First we check if the id parameter is set. If not we create a flash message and redirect
-			the user to the index page. Otherwise, we fetch the request post from the database.
+			the user to the index page. Otherwise, we fetch the requested post from the database.
 		</para>
 		<para>
 			The view (<filename>app/views/view.phtml</filename>) is also very simple:
@@ -356,6 +341,10 @@ $post = Atomik_Db::find('posts', array('id' => $_GET['id']));]]>
 		<para>
 			You can download the source of this tutorial by 
 			<link xlink:href="atomik-get-started.zip">clicking here</link>.
+		</para>
+		<para>
+			Atomik also provide a full blog application as a plugin. Check out the plugin section or
+			the documentation for more information.
 		</para>
 	</chapter>
 </book>

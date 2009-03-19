@@ -14,27 +14,26 @@
 		the <quote>disable_layout</quote> configuration key to false.
 	</para>
 	<para>
-		The default behaviour when activated is to return the action variables as a json encoded array. So the view
-		won't be rendered. It is possible to disable this behaviour and render the view (the layout is still disable)
-		by adding action names in the <quote>restricted</quote> configuratio key.
+		It is also possible to return action variables as JSON instead of the view content. For that, you need
+		to add action names in the allowed key.
 	</para>
 	<example>
 		<title>Render views instead of returning variables</title>
 		<programlisting>
 			<![CDATA[
 Atomik::set('plugins/Ajax', array(
-	'restricted' => array(
-		'my-partial'
+	'allowed' => array(
+		'my-action'
 	);
 ));]]>
 		</programlisting>
 	</example>
 	<para>
-		The opposite behaviour can also be acheived when setting false to the <quote>allow_all</quote> configuration key.
-		In this case, all views will be rendered and the variables will never be returned. It is then possible to enable
-		variables output on some actions only using the <quote>allowed</quote> configuration key.
+		This behaviour can be set as the default one by setting true to <quote>allow_all</quote>.
+		In this case, variables will always be returned. It is then possible to disable this behaviour on a per
+		action basis using the <quote>restricted</quote> configuration key.
 	</para>
 	<para>
-		You can cehck if the current request is using AJAX by calling <methodname>AjaxPlugin::isEnabled()</methodname>.
+		You can check if the current request is using AJAX by calling <methodname>AjaxPlugin::isEnabled()</methodname>.
 	</para>
 </chapter>

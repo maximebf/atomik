@@ -57,13 +57,13 @@ LangPlugin::set('fr');]]>
 			</programlisting>
 		</example>
 		<para>
-			The current language is available from the global store under the <quote>language</quote> key.
+			The current language is available from the global store under the <quote>app/language</quote> key.
 		</para>
 		<example>
 			<title>Retreiving the current language</title>
 			<programlisting>
 				<![CDATA[
-$currentLanguage = A('language');]]>
+$currentLanguage = A('app/language');]]>
 			</programlisting>
 		</example>
 	</sect1>

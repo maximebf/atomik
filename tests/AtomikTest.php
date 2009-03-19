@@ -137,9 +137,27 @@ class AtomikTest extends PHPUnit_Framework_TestCase
 		$this->assertContains('foo', $array['key']);
 	}
 	
-	public function testGet()
+	public function testGetWithKey()
 	{
+		$array = array('key' => 'value');
+		$this->assertEquals('value', Atomik::get('key', null, $array));
+	}
+	
+	public function testGetWithDefaultValue()
+	{
+		$array = array();
+		$this->assertEquals('default', Atomik::get('key', 'default', $array));
+	}
+	
+	public function testGetWithPath()
+	{
+		$array = array(
+			'sub' => array(
+				'key' => 'value'
+			)
+		);
 		
+		$this->assertEquals('value', Atomik::get('sub/key', null, $array));
 	}
 	
 	public function testHas()

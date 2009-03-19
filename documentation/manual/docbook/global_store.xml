@@ -20,12 +20,17 @@
 			specified it will be use as a default value in the case where the key is
 			not found.
 		</para>
+		<para>
+			Atomik also defines the <function>A()</function> function for quicker access. This
+			function is only a shortcut to <methodname>Atomik::get()</methodname>.
+		</para>
 		<example>
 			<title>Using the <methodname>get</methodname> method</title>
 			<programlisting>
 				<![CDATA[
 echo Atomik::get('key');
-echo Atomik::get('keyThatDoesntExist', 'defaultValue');]]>
+echo Atomik::get('keyThatDoesntExist', 'defaultValue');
+echo A('key');]]>
 			</programlisting>
 		</example>
 		<note>

@@ -53,7 +53,7 @@ class AuthPlugin
     	self::$config = array_merge(self::$config, $config);
     	
     	if (self::$config['route'] !== false) {
-    		Atomik::registerPluggableApplication('Auth', self::$config['route'], '', null, false);
+    		Atomik::registerPluggableApplication('Auth', self::$config['route'], array('overwriteDirs' => false));
     	}
     	
     	// backend

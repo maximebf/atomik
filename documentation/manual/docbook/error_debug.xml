@@ -28,14 +28,14 @@
 		<para>
 			Atomik's only provides a simple method named <methodname>Atomik::debug()</methodname> which 
 			is an alias for <function>var_dump()</function>. However the method output can be hidden
-			by modifying the <quote>debug</quote> configuration key.
+			by modifying the <quote>app/debug</quote> configuration key.
 		</para>
 		<example>
 			<title>Using <methodname>Atomik::debug()</methodname></title>
 			<programlisting>
 				<![CDATA[
 Atomik::debug($myVar);
-Atomik::set('debug', false);
+Atomik::set('app/debug', false);
 Atomik::debug($myVar2); // no output
 Atomik::debug($myVar2, true); // use true to force the output even if debug set to false]]>
 			</programlisting>

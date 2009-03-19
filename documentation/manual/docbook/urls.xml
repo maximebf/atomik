@@ -25,7 +25,7 @@
 		</para>
 		<para>
 			If the action parameter is not found in the query string, Atomik will use the default
-			action defined in its configuration (the <quote>atomik/default_action</quote> key).
+			action defined in its configuration (the <quote>app/default_action</quote> key).
 			The default is <quote>index</quote>.
 		</para>
 		<para>
@@ -48,13 +48,13 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 		</para>
 		<note>
 			Sometimes Atomik cannot detect if url rewriting is activated and <methodname>Atomik::url()</methodname>
-			still uses <filename>index.php</filename>. To prevent this, set the <quote>url_rewriting</quote> 
+			still uses <filename>index.php</filename>. To prevent this, set the <quote>atomik/url_rewriting</quote> 
 			configuration key to true.
 		</note>
 		<para>
 			The action that has been called can be found in the configuration key named <quote>request_uri</quote>.
 			The base url of the website (ie. the path before the root of the site) can be found in the 
-			<quote>base_url</quote> key.
+			<quote>atomik/base_url</quote> key.
 		</para>
 	</sect1>
 	<sect1 id="url-router">
@@ -67,7 +67,7 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 				parameters is called a route.
 			</para>
 			<para>
-				Routes are defined in the <quote>routes</quote> configuration key.
+				Routes are defined in the <quote>app/routes</quote> configuration key.
 				The action must be specified as a parameter named <quote>action</quote>.
 			</para>
 			<note>
@@ -143,18 +143,18 @@ $year = Atomik::get('request/year');]]>
 		<title>File extensions</title>
 		<para>
 			Since version 2.2, Atomik can handle file extensions in urls. The file extension is optional. 
-			You can force the file extension to be present by setting <quote>atomik/force_uri_extension</quote> to true.
+			You can force the file extension to be present by setting <quote>app/force_uri_extension</quote> to true.
 		</para>
 		<para>
 			By default the file extension is the view context. View contexts are discussed in a later chapter.
 			The default view context if no extension is defined is <quote>html</quote>. This can be changed
-			in <quote>atomik/default_view_context</quote>.
+			in <quote>app/views/default_context</quote>.
 		</para>
 		<example>
 			<title>URLs with extension example</title>
 			<programlisting>
 				<![CDATA[
-http://example.com/home			=>	action=home format=html (won't work if atomik/force_uri_extension is set to true)
+http://example.com/home			=>	action=home format=html (won't work if app/force_uri_extension is set to true)
 http://example.com/home.html	=>	action=home format=html
 http://example.com/home.xml		=>	action=home format=xml
 http://example.com/home.foo		=>	action=home format=foo]]>
@@ -182,7 +182,7 @@ Atomik::set('routes', array(
 		</example>
 		<note>
 			The <varname>format</varname> parameter is not automatically added in custom route. If not specified
-			it will default to the value of <quote>atomik/default_view_context</quote>.
+			it will default to the value of <quote>app/views/default_context</quote>.
 		</note>
 	</sect1>
 	<sect1 id="url-method">

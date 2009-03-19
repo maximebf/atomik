@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="configuration" xmlns="http://docbook.org/ns/docbook">
 	<title>Configuration</title>
+	<note>
+		There is a serious compatibility break in the configuration between Atomik 2.1 and 2.2.
+		Many keys have changed, check the release message for more information.
+	</note>
 	<sect1 id="bootstrapping">
 		<title>Bootsrapping</title>
 		<para>

@@ -17,6 +17,10 @@ manual:
 		--stringparam atomik.base "../.." \
 		--stringparam atomik.stylesheet "../manual.css" \
 		-o $(OUTPUT)/manual/library/ docbook-xsl/$(XSL).xsl manual/docbook/library/index.xml
+	xsltproc --xinclude \
+		--stringparam atomik.base "../.." \
+		--stringparam atomik.stylesheet "../manual.css" \
+		-o $(OUTPUT)/manual/backend/ docbook-xsl/$(XSL).xsl manual/docbook/backend/index.xml
 		
 getstarted:
 	-mkdir -p $(OUTPUT)/get-started

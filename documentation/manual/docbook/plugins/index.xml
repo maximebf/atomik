@@ -5,7 +5,10 @@
 		The manual is licensed under the Creative Commons Attribution 3.0 License.
 	</para>
 	<xi:include href="ajax.xml" />
+	<xi:include href="auth.xml" />
+	<xi:include href="backend.xml" />
 	<xi:include href="cache.xml" />
+	<xi:include href="config.xml" />
 	<xi:include href="console.xml" />
 	<xi:include href="controller.xml" />
 	<xi:include href="db.xml" />

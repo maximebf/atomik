@@ -5,13 +5,12 @@
 		Includes are php files containing common logic that you include in your actions.
 	</para>
 	<para>
-		Includes are stored in the <filename>app/includes</filename> and/or the 
-		<filename>app/libraries</filename> directories.
+		Includes are stored in the <filename>app/includes</filename> and/or the <filename>app/libraries</filename> 
+		directories. This can be changed in <quote>atomik/dirs/includes</quote>.
 	</para>
 	<para>
-		To include a file from one of these directories use the
-		<methodname>Atomik::needed()</methodname> method. It takes as first
-		argument the path to the filename you wish to include relative to the
+		To include a file from one of these directories use the <methodname>Atomik::needed()</methodname> 
+		method. It takes as first argument the path to the filename you wish to include relative to the
 		previous directories and without the extension.
 	</para>
 	<example>

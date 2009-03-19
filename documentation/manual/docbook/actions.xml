@@ -131,20 +131,20 @@ $_myPrivateVariable = 'secret';]]>
 				available in the specific one.
 			</para>
 			<para>
-				The current http method is available in the <quote>http_method</quote> configuration key.
+				The current http method is available in the <quote>app/http_method</quote> configuration key.
 			</para>
 		</sect2>
 		<sect2 id="actions-rest-allowed-override">
 			<title>Allowed methods and overriding the request's method</title>
 			<para>
-				Allowed HTTP methods are defined in <quote>atomik/allowed_http_methods</quote>. By default,
+				Allowed HTTP methods are defined in <quote>app/allowed_http_methods</quote>. By default,
 				all methods available in the protocol are listed but you may want to reduce that list.
 			</para>
 			<para>
 				Some clients does not handle well HTTP methods (Flex for example...). Thus, it is possible
 				to override the request's method using a route parameter (which can be a GET parameter).
 				The default parameter name is <quote>_method</quote>. This can be changed in
-				<quote>atomik/http_method_param</quote>. It can also be disabled by setting false instead of
+				<quote>app/http_method_param</quote>. It can also be disabled by setting false instead of
 				a string.
 			</para>
 		</sect2>

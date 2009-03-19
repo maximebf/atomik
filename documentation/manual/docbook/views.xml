@@ -122,7 +122,7 @@ class FormatDateHelper
 			The file extension is the same as the one for views.
 		</para>
 		<para>
-			The layout name to use has to be defined in the <quote>layout</quote> configuration key. If the
+			The layout name to use has to be defined in the <quote>app/layout</quote> configuration key. If the
 			value is false (which is the default), no layout will be used.
 		</para>
 		<para>
@@ -153,7 +153,7 @@ class FormatDateHelper
 			</para>
 			<programlisting>
 				<![CDATA[
-Atomik::set('layout', '_layout');]]>
+Atomik::set('app/layout', '_layout');]]>
 			</programlisting>
 		</example>
 		<para>
@@ -170,20 +170,20 @@ Atomik::set('layout', '_layout');]]>
 		</para>
 		<para>
 			The context is defined using a route parameter. By default it is called <quote>format</quote>. This can be changed in
-			<quote>atomik/view_context_param</quote>. As specified in the urls chapter, the format parameter is by default the
+			<quote>app/views/context_param</quote>. As specified in the urls chapter, the format parameter is by default the
 			file extension. Which means that using an url like <link>index.xml</link> will result in using the xml context.
 		</para>
 		<para>
-			The default view context is <quote>html</quote> but it can be changed in <quote>atomik/default_view_context</quote>.
+			The default view context is <quote>html</quote> but it can be changed in <quote>atomik/views/default_context</quote>.
 		</para>
 		<para>
 			To create a view for a context just prefix the view name with the context name like an extension. For example, let's
 			say we have an <quote>article</quote> view. The filename for the xml context would be <filename>article.xml.phtml</filename>.
-			The only exception is for the <quote>html</quote> context which doesn't need any prefix.
+			Some context may not need any prefix like the <quote>html</quote> one.
 		</para>
 		<para>
 			Depending on the view context, the layout can be disabled and the response content-type can be changed. The file
-			prefix can also be specified. All of this is done in <quote>view_contexts</quote>.
+			prefix can also be specified. All of this is done in <quote>app/views/contexts</quote>.
 		</para>
 		<example>
 			<title>Creating a custom view context</title>
@@ -192,8 +192,8 @@ Atomik::set('layout', '_layout');]]>
 			</para>
 			<programlisting>
 				<![CDATA[
-Atomik::set('view_contexts/rdf', array(
-	'prefix' 		=> 'rdf',					// the view's file prefix
+Atomik::set('app/views/contexts/rdf', array(
+	'prefix' 		=> 'rdf',					// the view's file prefix (set to false for no prefix)
 	'layout' 		=> false,					// whether to enable the layout
 	'content-type' 	=> 'application/xml+rdf'	// the response content type
 ));]]>
@@ -205,11 +205,12 @@ Atomik::set('view_contexts/rdf', array(
 			</para>
 		</example>
 		<para>
-			If a view context is not defined under <quote>view_contexts</quote>, the file prefix will be the context name,
+			If a view context is not defined under <quote>app/views/contexts</quote>, the file prefix will be the context name,
 			the layout won't be disabled and the response content type will be <quote>text/html</quote>.
 		</para>
 		<para>
-			By default, three contexts are defined: html, xml and json. The layout will be disabled for the last two.
+			By default, four contexts are defined: html, ajax, xml and json. The ajax context is the same as html but with 
+			the layout disabled. The last two disable the layout and set the appropriate content type.
 		</para>
 	</sect1>
 	<sect1 id="controlling-views">
@@ -218,7 +219,7 @@ Atomik::set('view_contexts/rdf', array(
 			<title>View's filename extension</title>
 			<para>
 				The default filename's extension for views is <quote>phtml</quote> as said before. This can be change using
-				the configuration key named <quote>atomik/views/file_extension</quote>.
+				the configuration key named <quote>app/views/file_extension</quote>.
 			</para>
 		</sect2>
 		<sect2 id="no-render-from-action">
@@ -239,7 +240,7 @@ Atomik::set('view_contexts/rdf', array(
 			<title>Using a custom rendering engine</title>
 			<para>
 				The default rendering process only uses php's include function. You may however want to use a template engine for
-				example. This is possible by specifying a callback in the <quote>atomik/views/engine</quote> configuration key.
+				example. This is possible by specifying a callback in the <quote>app/views/engine</quote> configuration key.
 			</para>
 			<para>
 				The callback will receive two parameters: the first one will be the filename and the second an array containing the
@@ -255,7 +256,7 @@ function myCustomRenderingEngine($filename, $vars)
 	return $renderedContent;
 }
 
-Atomik::set('atomik/views/engine', 'myCustomRenderingEngine');]]>
+Atomik::set('app/views/engine', 'myCustomRenderingEngine');]]>
 				</programlisting>
 			</example>
 			<para>
@@ -279,8 +280,7 @@ Atomik::set('atomik/views/engine', 'myCustomRenderingEngine');]]>
 		</para>
 		<para>
 			It takes as first argument the view name and optionally as second argument
-			an array of key/value pairs representing variables. The view context can be prefixed in the
-			first argument.
+			an array of key/value pairs representing variables. 
 		</para>
 		<para>
 			The method returns the view output.
@@ -290,13 +290,15 @@ Atomik::set('atomik/views/engine', 'myCustomRenderingEngine');]]>
 			<programlisting>
 				<![CDATA[
 $viewOutput = Atomik::render('myView');
-$viewOutput = Atomik::render('myView', array('var' => 'value'));
-$viewOutput = Atomik::render('myView.xml');]]>
+$viewOutput = Atomik::render('myView', array('var' => 'value'));]]>
 			</programlisting>
 		</example>
 		<para>
 			It is also possible to render any file using <methodname>Atomik::renderFile()</methodname>. It takes
 			as first parameter a filename. Variables can also be passed like with <methodname>Atomik::render()</methodname>.
 		</para>
+		<note>
+			You can also render contextual views by prefixing the file prefix to the view name.
+		</note>
 	</sect1>
 </chapter>
