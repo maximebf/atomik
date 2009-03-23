@@ -1,7 +1,7 @@
 <?php
 /**
  * Atomik Framework
- * Copyright (c) 2008 Maxime Bouroumeau-Fuseau
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -14,7 +14,7 @@
  * @package Atomik
  * @subpackage Model
  * @author Maxime Bouroumeau-Fuseau
- * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
@@ -468,7 +468,7 @@ class Atomik_Model_Builder implements ArrayAccess
 	
 	/**
 	 * Adds a new reference using a string:
-	 * (one|many) foreignModel [as property] [using localModel.localField = foreignModel.foreignField]
+	 * (one|many) foreignModel [as property] [using localModel.localField = foreignModel.foreignField] [order by field] [limit offset, length]
 	 *
 	 * @param string $string
 	 */

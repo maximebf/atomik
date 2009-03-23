@@ -1,7 +1,7 @@
 <?php
 /**
  * Atomik Framework
- * Copyright (c) 2008 Maxime Bouroumeau-Fuseau
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -14,7 +14,7 @@
  * @package Atomik
  * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
- * @copyright 2008 (c) Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
@@ -44,7 +44,7 @@ class Atomik_Db_Instance
 	/**
 	 * Constructor
 	 *
-	 * @param PDO $pdo OPTIONAL A PDO instance
+	 * @param 	PDO 	$pdo
 	 */
 	public function __construct($dsnOrPdo = null, $username = null, $password = null)
 	{
@@ -66,7 +66,7 @@ class Atomik_Db_Instance
 	public function connect($dsn = null, $username = null, $password = null)
 	{
 		if ($this->pdo !== null) {
-			/* already connected */
+			// already connected
 			return;
 		}
 		
@@ -76,7 +76,7 @@ class Atomik_Db_Instance
 			$password = $this->connectionInfo['password'];
 		}
 		
-		/* creates the pdo instance */
+		// creates the pdo instance
 		try {
 		    $this->pdo = new PDO($dsn, $username, $password);
 			$this->connectionInfo = array(
@@ -101,15 +101,20 @@ class Atomik_Db_Instance
 	/**
 	 * Prepares and executes a statement
 	 *
-	 * @param string $query
-	 * @param array $params OPTIONAL
-	 * @return PDOStatement
+	 * @param 	string|Atomik_Db_Query	$query
+	 * @param 	array 					$params
+	 * @return 	PDOStatement
 	 */
 	public function query($query, $params = array())
 	{
+		if ($query instanceof Atomik_Db_Query) {
+			$params = $query->getParams();
+		}
+		
 		$this->connect();
-		$stmt = $this->pdo->prepare($query);
+		$stmt = $this->pdo->prepare((string) $query);
 		$stmt->execute($params);
+		
 		return $stmt;
 	}
 	
@@ -117,44 +122,43 @@ class Atomik_Db_Instance
 	 * Executes a query without results
 	 *
 	 * @see PDO::exec()
-	 * @param string $query
-	 * @return int|bool
+	 * @param 	string 		$query
+	 * @return 	int|bool
 	 */
 	public function exec($query)
 	{
 		$this->connect();
-		return $this->pdo->exec($query);
+		return $this->pdo->exec((string) $query);
 	}
 	
 	/**
 	 * Prepares a statement
 	 *
 	 * @see PDO::prepare()
-	 * @param string $query
-	 * @param array $options OPTIONAL
-	 * @return PDOStatement
+	 * @param 	string 			$query
+	 * @param 	array 			$options
+	 * @return 	PDOStatement
 	 */
 	public function prepare($query, $options = array())
 	{
 		$this->connect();
-		return $this->pdo->prepare($query, $options);
+		return $this->pdo->prepare((string) $query, $options);
 	}
 	
 	/**
 	 * Finds the first row matching the arguments
 	 *
 	 * @see Db::buildWhere()
-	 * @param string|array $tables
-	 * @param array $where OPTIONAL
-	 * @param string $orderBy OPTIONAL
-	 * @param string $limit OPTIONAL
-	 * @param string|array $fields OPTIONAL
-	 * @return array
+	 * @param 	string 			$table
+	 * @param 	array 			$where
+	 * @param 	string 			$orderBy
+	 * @param 	string 			$limit
+	 * @param 	string|array 	$fields
+	 * @return 	array
 	 */
-	public function find($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
+	public function find($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		$this->connect();
-		$stmt = $this->_executeSelect($tables, $where, $orderBy, $limit, $fields);
+		$stmt = self::findAll($table, $where, $orderBy, $limit, $fields);
 		$row = $stmt->fetch();
 		$stmt->closeCursor();
 		return $row;
@@ -163,35 +167,38 @@ class Atomik_Db_Instance
 	/**
 	 * Finds all rows matching the arguments
 	 *
-	 * @see Db::buildWhere()
-	 * @param string|array $tables
-	 * @param array $where OPTIONAL
-	 * @param string $orderBy OPTIONAL
-	 * @param string $limit OPTIONAL
-	 * @param string|array $fields OPTIONAL
-	 * @return array
+	 * @param 	string|array 	$table
+	 * @param 	array 			$where
+	 * @param 	string 			$orderBy
+	 * @param 	string 			$limit
+	 * @param 	string|array 	$fields
+	 * @return 	array
 	 */
-	public function findAll($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
+	public function findAll($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
 		$this->connect();
-		return $this->_executeSelect($tables, $where, $orderBy, $limit, $fields);
+		$query = $this->_buildQuery($table, $where, $orderBy, $limit, $fields);
+		return $query->execute($this->pdo);
 	}
 	
 	/**
 	 * Perform a SELECT COUNT(*) query
 	 *
 	 * @see Db::buildWhere()
-	 * @param string|array $tables
-	 * @param array $where OPTIONAL
-	 * @param string $limit OPTIONAL
-	 * @return int
+	 * @param 	string|array 	$table
+	 * @param 	array 			$where
+	 * @param 	string 			$limit
+	 * @return 	int
 	 */
-	public function count($tables, $where = null, $limit = '')
+	public function count($table, $where = null, $limit = '')
 	{
 		$this->connect();
-		$stmt = $this->_executeSelect($tables, $where, '', $limit, 'COUNT(*)');
+		
+		$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
+		$stmt = $query->execute($this->pdo);
 		$count = $stmt->fetchColumn();
 		$stmt->closeCursor();
+		
 		return $count;
 	}
 	
@@ -201,192 +208,85 @@ class Atomik_Db_Instance
 	 * and their associated value the value to insert in the
 	 * database
 	 *
-	 * @param string $table
-	 * @param array $data
-	 * @return bool|int Last insert id or false
+	 * @param 	string 		$table
+	 * @param 	array 		$data
+	 * @return 	bool|int 			Last insert id or false
 	 */
 	public function insert($table, $data)
 	{
 		$this->connect();
 		
-		$fields = array_keys($data);
-		$values = array_values($data);
-
-		/* builds the sql string */
-		$sql = 'INSERT INTO ' . $table . '(' . implode(', ', $fields)
-			   . ') VALUES(' . implode(', ', array_fill(0, count($values), '?')) . ')';
+		$query = new Atomik_Db_Query();
+		$stmt = $query->insertInto($table)->values($data)->execute($this->pdo);
 	
-		/* creates and executes the statement */
-		$stmt = $this->pdo->prepare($sql);
-		if ($stmt->execute($values)) {
-		    return $this->pdo->lastInsertId();
+		if ($stmt === false) {
+			return false;
 		}
-		return false;
+		return $this->pdo->lastInsertId();
 	}
 	
 	/**
 	 * Updates a row 
 	 *
 	 * @see Db::buildWhere()
-	 * @param string $table
-	 * @param array $data
-	 * @param array $where
-	 * @return bool
+	 * @param 	string 	$table
+	 * @param 	array 	$data
+	 * @param 	array 	$where
+	 * @return 	bool
 	 */
 	public function update($table, $data, $where)
 	{
 		$this->connect();
 		
-		/* creates the sql where clause */
-		list($tables, $where, $values) = $this->_buildWhere(array($table => $where));
-	
-		/* extract fields and values and quotes values */
-		$fields = array();
-		foreach ($data as $field => $value) {
-			$fields[] = $field . '=?';
-		}
-		$fields = implode(', ', $fields);
-		
-		/* statement params */
-		$params = array_merge(array_values($data), $values);
-
-		/* builds the sql string */
-		$sql = 'UPDATE ' . implode(', ', $tables) . ' SET ' . $fields . $where;
-	
-		/* creates and executes the statement */
-		$stmt = $this->pdo->prepare($sql);
-		return $stmt->execute($params);
+		$query = new Atomik_Db_Query();
+		return $query->update($table)->set($data)->where($where)->execute($this->pdo);
 	}
 	
 	/**
 	 * Deletes rows
 	 *
 	 * @see Db::buildWhere()
-	 * @param array|string $tables
-	 * @param array $where OPTIONAL
-	 * @return bool
+	 * @param 	array|string 	$table
+	 * @param 	array 			$where
+	 * @return 	bool
 	 */
-	public function delete($tables, $where = array())
+	public function delete($table, $where = array())
 	{
 		$this->connect();
-		
-		/* creates the sql where clause */
-		list($tables, $where, $values) = $this->_buildWhere($tables, $where);
-		
-		/* sql string */
-		$sql = 'DELETE FROM ' . implode(', ', $tables) . $where;
-		
-		/* creates and executes the statement */
-		$stmt = $this->pdo->prepare($sql);
-		return $stmt->execute($values);
+		$query = new Atomik_Db_Query();
+		return $query->delete()->from($table)->where($where)->execute($this->pdo);
 	}
 	
 	/**
-	 * Buids and executes a SELECT query
-	 *
-	 * @see Db::buildWhere()
-	 * @param string|array $tables
-	 * @param array $where OPTIONAL
-	 * @param string $orderBy OPTIONAL
-	 * @param string $limit OPTIONAL
-	 * @param string|array $fields OPTIONAL
-	 * @return PDOStatement
-	 */
-	protected function _executeSelect($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
-	{
-		/* creates the sql where clause */
-		list($tables, $where, $values) = $this->_buildWhere($tables, $where);
-	
-		/* ORDER BY */
-		if (!empty($orderBy)) {
-			$orderBy = ' ORDER BY ' . $orderBy;
-		}
-	
-		/* LIMIT */
-		if (!empty($limit)) {
-			$limit = ' LIMIT ' . $limit;
-		}
-		
-		/* fields */
-		if (is_array($fields)) {
-			$fields = implode(', ', $fields);
-		}
-	
-		/* build the sql string */
-		$sql = 'SELECT ' . $fields . ' FROM ' . implode(', ', $tables) 
-			 . $where . $orderBy . $limit;
-		
-		/* creates and executes the pdo statement */	 
-		$stmt = $this->pdo->prepare($sql);
-		$stmt->execute($values);
-		
-		return $stmt;
-	}
-	
-	/**
-	 * Builds an sql where clause
+	 * Builds a Atomik_Db_Query object
 	 * 
-	 * $where can ben an array where keys are field's name and values are field's value.
-	 * $where can also be an sql condition string
-	 * 
-	 * Possible situations:
-	 *
-	 *  - $tables is an array ($where = null):
-	 *    Allow to select data from multiple tables
-	 *    keys will be treated as tables name. values
-	 *    must be an array like $where (see below).
-	 *    Example:
-	 *     _buildWhere(array('table' => array('field1' => 'value1')));
-	 *     SELECT * FROM table WHERE table.field1 = 'value1'
-	 *
-	 *  - $tables is a string ($where is needed):
-	 *    Select data from one table. $where defines
-	 *    condition(s). Example:
-	 *     _buildWhere('table', array('field1' => 'value1'));
-	 *     SELECT * FROM table WHERE table.field1 = 'value1'
-	 *
-	 * @param string|array $tables
-	 * @param array|string $where OPTIONAL
-	 * @param string $operator OPTIONAL (default ' AND ')
-	 * @return array
+	 * @see Atomik_Db_Query
+	 * @param 	string|array 	$table
+	 * @param 	array 			$where
+	 * @param 	string 			$orderBy
+	 * @param 	string 			$limit
+	 * @param 	string|array 	$fields
+	 * @return Atomik_Db_Query
 	 */
-	protected function _buildWhere($tables, $where = null, $operator = ' AND ')
+	protected function _buildQuery($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		$sql = '';
-		
-		/* if table is a string, transform it to an array */
-		if (!is_array($tables)) {
-			/* $where has not been set */
-			if ($where === null) {
-				$where = array();
-			}
-			$tables = array($tables => $where);
+		$query = new Atomik_Db_Query();
+		$query->from($table);
+	
+		if ($where !== null) {
+			$query->where($where);
+		}
+		if ($orderBy !== null) {
+			$query->orderBy($orderBy);
+		}
+		if ($limit !== null) {
+			$query->limit($limit);
+		}
+		if ($fields !== null) {
+			$query->select($fields);
 		}
 		
-		/* creates the sql condition for each key/value pair */
-		$conditions = array();
-		$values = array();
-		foreach ($tables as $table => $fields) {
-			if (is_array($fields)) {
-				foreach ($fields as $field => $value) {
-					/* escapes the value */	
-					if (!is_array($value)) {
-						$values[] = $value;
-						$value = '?';
-					} else {
-						$value = $value[0];
-					}
-					$conditions[] = "${table}.${field}=$value";
-				}
-			} else {
-				$conditions[] = (string) $fields;
-			}
-		}
-		if (count($conditions)) {
-			$sql = ' WHERE ' . implode($operator, $conditions);
-		}
-		
-		return array(array_keys($tables), $sql, $values);
+		return $query;
 	}
 }
 

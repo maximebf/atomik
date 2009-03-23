@@ -20,12 +20,12 @@
  */
 
 /**
- * Backend plugin
+ * Pages plugin
  * 
  * @package Atomik
  * @subpackage Plugins
  */
-class BackendPlugin
+class PagesPlugin
 {
 	/**
 	 * Default configuration
@@ -33,15 +33,6 @@ class BackendPlugin
 	 * @var array 
 	 */
 	public static $config = array(
-		
-		// the route needed to start the backend
-		'route' => 'backend/*',
-	
-		'title' => 'Atomik Backend',
-	
-		'scripts' => array(),
-	
-		'styles' => array()
 	
 	);
 	
@@ -53,8 +44,14 @@ class BackendPlugin
 	 */
 	public static function start($config)
 	{
-        self::$config = array_merge(self::$config, $config);
-        Atomik::set('backend', self::$config);
-        Atomik::registerPluggableApplication('Backend', self::$config['route']);
+		
+	}
+	
+	/**
+	 * 
+	 */
+	public static function onBackendStart()
+	{
+		Atomik_Backend::addTab('Pages', 'Pages', 'index');
 	}
 }

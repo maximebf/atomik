@@ -1,7 +1,7 @@
 <?php
 /**
  * Atomik Framework
- * Copyright (c) 2008 Maxime Bouroumeau-Fuseau
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -13,7 +13,7 @@
  *
  * @package 	Atomik
  * @author 		Maxime Bouroumeau-Fuseau
- * @copyright 	2008 (c) Maxime Bouroumeau-Fuseau
+ * @copyright 	2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license 	http://www.opensource.org/licenses/mit-license.php
  * @link 		http://www.atomikframework.com
  */
@@ -1716,7 +1716,6 @@ class Atomik
 	    	sort($keys);
 			foreach ($keys as $key) {
 				$callback = self::$_events[$event][$key];
-				$key = is_array($callback) ? implode('::', $callback) : $callback;
 				$results[$key] = call_user_func_array($callback, $args);
 			}
 		}

@@ -12,7 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Plugins
+ * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -20,41 +20,35 @@
  */
 
 /**
- * Backend plugin
+ * Represent a non-escapable value
  * 
  * @package Atomik
- * @subpackage Plugins
+ * @subpackage Db
  */
-class BackendPlugin
+class Atomik_Db_Query_Expr
 {
 	/**
-	 * Default configuration
-	 * 
-	 * @var array 
+	 * @var string
 	 */
-	public static $config = array(
-		
-		// the route needed to start the backend
-		'route' => 'backend/*',
-	
-		'title' => 'Atomik Backend',
-	
-		'scripts' => array(),
-	
-		'styles' => array()
-	
-	);
+	public $value = '';
 	
 	/**
-	 * Plugin initialization
-	 *
-	 * @param array $config
-	 * @return bool
+	 * Constructor
+	 * 
+	 * @param string $value
 	 */
-	public static function start($config)
+	public function __construct($value = '')
 	{
-        self::$config = array_merge(self::$config, $config);
-        Atomik::set('backend', self::$config);
-        Atomik::registerPluggableApplication('Backend', self::$config['route']);
+		$this->value = $value;
+	}
+	
+	/**
+	 * PHP Magic method. Returns the value
+	 * 
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->value;
 	}
 }
