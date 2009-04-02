@@ -84,7 +84,9 @@ class DbPlugin
 		
 		/* loads the default model adapter */
 		if (false && !empty(self::$config['default_model_adapter'])) {
-			Atomik_Model_Builder::setDefaultAdapter(self::$config['default_model_adapter']);
+			require_once 'Atomik/Model/Adapter/Factory.php';
+			$adapter = Atomik_Model_Adapter_Factory::factory(self::$config['default_model_adapter']);
+			Atomik_Model_Builder::setDefaultAdapter($adapter);
 		}
 		
 		/* registers the db selector namespace */

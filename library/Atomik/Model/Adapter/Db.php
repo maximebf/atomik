@@ -22,11 +22,8 @@
 /** Atomik_Model_Adapter_Interface */
 require_once 'Atomik/Model/Adapter/Interface.php';
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
-
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
+/** Atomik_Db */
+require_once 'Atomik/Db.php';
 
 /**
  * Stores models as database tables
@@ -51,7 +48,7 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 		if ($db === null) {
 			if (($db = Atomik_Db::getInstance()) === null) {
 				require_once 'Atomik/Model/Exception.php';
-				throw new Atomik_Model_Exception('No database instance found');
+				throw new Atomik_Model_Exception('No database instances found');
 			}
 		}
 		self::$_db = $db;
@@ -71,67 +68,64 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 	}
 	
 	/**
-	 * Perform an sql query an returns rows as models
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param string $query
-	 * @return array
+	 * Converts a model query to a db query
+	 * 
+	 * @param	Atomik_Model_Query	$query
+	 * @return 	Atomik_Db_Query
 	 */
-	public function query(Atomik_Model_Builder $builder, $query)
+	public static function convertModelQueryToDbQuery(Atomik_Model_Query $query)
 	{
-		// TODO: implement Atomik_Model_Adapter_Db::query()
-		return array();
+		$dbQuery = new Atomik_Db_Query();
+		$dbQuery->from(self::getTableNameFromBuilder($query->from));
+		
+		if (!empty($query->where)) {
+			$dbQuery->where($query->where);
+		}
+		if (!empty($query->orderByField)) {
+			$dbQuery->orderBy($query->orderByField, $query->orderByDirection);
+		}
+		if (!empty($query->length)) {
+			$dbQuery->limit($query->limitOffset, $query->limitLength);
+		}
+		
+		return $dbQuery;
 	}
 	
 	/**
-	 * Finds many models
+	 * Returns the table name associated to a model
 	 *
 	 * @param Atomik_Model_Builder $builder
-	 * @param array|string $where
-	 * @param string $orderBy
-	 * @param string $limit
-	 * @return array
+	 * @return string
 	 */
-	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
+	public static function getTableNameFromBuilder(Atomik_Model_Builder $builder)
 	{
-		$rows = self::getDb()->findAll($this->getTableName($builder), $where, $orderBy, $limit);
-		$models = array();
-		
-		foreach ($rows as $row) {
-			$models[] = $builder->createInstance($row, false);
-		}
-		
-		return $models;
+		return $builder->getOption('table', $builder->name);
 	}
 	
 	/**
-	 * Finds one model
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array|string $where
-	 * @param string $orderBy
-	 * @param string $limit
-	 * @return Atomik_Model
+	 * Query the adapter
+	 * 
+	 * @param	Atomik_Model_Query	$query
+	 * @return 	Atomik_Model_Modelset
 	 */
-	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
+	public function query(Atomik_Model_Query $query)
 	{
-		if (($row = self::getDb()->find($this->getTableName($builder), $where, $orderBy, $limit)) === false) {
-			return null;
-		}
-		return $builder->createInstance($row, false);
+		$dbQuery = self::convertModelQueryToDbQuery($query);
+		$rows = self::getDb()->query($dbQuery);
+		return new Atomik_Model_Modelset($query->builder, $rows);
 	}
 	
 	/**
 	 * Saves a model
 	 *
-	 * @param Atomik_Model $model
-	 * @return bool
+	 * @param 	Atomik_Model $model
+	 * @return 	bool
 	 */
 	public function save(Atomik_Model $model)
 	{
 		$data = $model->toArray();
 		$builder = $model->getBuilder();
-		$tableName = $this->getTableName($builder);
+		$tableName = self::getTableNameFromBuilder($builder);
 		
 		// insert
 		if ($model->isNew()) {
@@ -143,41 +137,26 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 		}
 		
 		// update
-		$where = array($builder->getPrimaryKeyField()->getName() => $model->getPrimaryKey());
+		$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
 		return self::getDb()->update($tableName, $data, $where);
 	}
 	
 	/**
 	 * Deletes a model
 	 *
-	 * @param Atomik_Model $model
-	 * @return bool
+	 * @param 	Atomik_Model $model
+	 * @return 	bool
 	 */
 	public function delete(Atomik_Model $model)
 	{
 		if ($model->isNew()) {
-			return;
+			return false;
 		}
 		
 		$builder = $model->getBuilder();
-		$tableName = $this->getTableName($builder);
+		$tableName = self::getTableNameFromBuilder($builder);
 		
-		$where = array($builder->getPrimaryKeyField()->getName() => $model->getPrimaryKey());
+		$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
 		return self::getDb()->delete($tableName, $where);
-	}
-	
-	/**
-	 * Gets the table name associated to a model
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @return string
-	 */
-	protected function getTableName($builder)
-	{
-		$table = $builder->getOption('table');
-		if ($table === null) {
-			throw new Exception('Table not set on model ' . $builder->getName());
-		}
-		return $table;
 	}
 }

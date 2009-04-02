@@ -22,8 +22,8 @@
 /** Atomik_Model */
 require_once 'Atomik/Model.php';
 
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
+/** Atomik_Model_Query */
+require_once 'Atomik/Model/Query.php';
 
 /**
  * Interface for model's adapter
@@ -33,11 +33,7 @@ require_once 'Atomik/Model/Builder.php';
  */
 interface Atomik_Model_Adapter_Interface
 {
-	function query(Atomik_Model_Builder $builder, $query);
-	
-	function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '');
-	
-	function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '');
+	function query(Atomik_Model_Query $query);
 	
 	function save(Atomik_Model $model);
 	

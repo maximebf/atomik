@@ -2,7 +2,7 @@
 
 
 /**
- * @adapter Atomik_Model_Adapter_Local
+ * @adapter Local
  * @has many Album as albums
  */
 class User extends Atomik_Model
@@ -11,8 +11,8 @@ class User extends Atomik_Model
 }
 
 /**
- * @adapter Atomik_Model_Adapter_Local
- * @has one User as user
+ * @adapter Local
+ * @has parent User as user
  * @has many Image as images
  * @validate-on-save
  */
@@ -20,26 +20,22 @@ class Album extends Atomik_Model
 {
 	public $name;
 	
+	/**
+	 * @form-field Textarea
+	 */
 	public $description;
 }
 
 /**
- * @adapter Atomik_Model_Adapter_Local
- * @has one Album as album
+ * @adapter Local
+ * @has parent Album as album
  */
 class Image extends Atomik_Model
 {
-	/**
-	 * @validate /.+/
-	 * @required
-	 */
 	public $name;
 	
 	public $description;
 	
-	/**
-	 * @field-type Atomik_Model_Field_File
-	 */
 	public $file;
 }
 
@@ -56,22 +52,32 @@ $image->name = 'The beach';
 $album->images[] = $image;
 $image->save();
 
+unset($toto);
+unset($album);
+unset($image);
+
+
 //print_r(LocalModelAdapter::getInstance());
 
 //print_r(Atomik_Model::findAll('Image'));
 
 //$toto = Atomik_Model::find('User', array('name' => 'toto'));
 
-echo $toto->name;
 echo '<ul>';
-foreach ($toto->albums as $album) {
-	echo '<li>' . $album->name . '<ul>';
-	foreach ($album->images as $image) {
-		echo '<li>' . $image->name . '</li>';
+foreach (Atomik_Model::findAll('User') as $user) {
+	echo '<li>' . $user->name . '<ul>';
+	foreach ($user->albums as $album) {
+		echo '<li>' . $album->name . '<ul>';
+		foreach ($album->images as $image) {
+			echo '<li>' . $image->name . '</li>';
+		}
+		echo '</ul></li>';
 	}
 	echo '</ul></li>';
 }
 echo '</ul>';
+
+exit;
 
 $form = new Atomik_Model_Form($image);
 

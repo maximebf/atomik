@@ -19,33 +19,32 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Adapter_Local */
-require_once 'Atomik/Model/Adapter/Local.php';
+/** Atomik_Model_Form_Field_Interface */
+require_once 'Atomik/Model/Form/Field/Interface.php';
 
 /**
- * Stores models in the session
- * 
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_Session extends Atomik_Model_Adapter_Local
+class Atomik_Model_Form_Field_Factory
 {
 	/**
-	 * @var array
+	 * Creates an instance of an adapter
+	 * 
+	 * @param 	string|objet 	$name	The last part of the field name if it starts with Atomik_Model_Form_Field_ or a class name
+	 * @return 	Atomik_Model_Form_Field_Interface
 	 */
-	protected static $_data = array();
-	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
+	public static function factory($name)
 	{
-		@session_start();
-		
-		/* bind the _models property to the session array */
-		if (!isset($_SESSION['__MODELS'])) {
-			$_SESSION['__MODELS'] = array();
+		$className = 'Atomik_Model_Form_Field_' . ucfirst($name);
+		if (!class_exists($className)) {
+			$className = $name;
+			if (!class_exists($className)) {
+				require_once 'Atomik/Model/Form/Exception.php';
+				throw new Atomik_Model_Form_Exception('No form field named ' . $name . ' were found');
+			}
 		}
-		self::$_data = &$_SESSION['__MODELS'];
+		
+		return new $className();
 	}
 }

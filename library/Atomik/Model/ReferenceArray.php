@@ -34,7 +34,7 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	public $parent;
 	
 	/**
-	 * @var array
+	 * @var Atomik_Model_Builder_Reference
 	 */
 	public $reference;
 	
@@ -50,33 +50,11 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	 * @param array $reference
 	 * @param array $models
 	 */
-	public function __construct(Atomik_Model $parent, $reference, $models = array())
+	public function __construct(Atomik_Model $parent, Atomik_Model_Builder_Reference $reference, $models = array())
 	{
 		$this->parent = $parent;
 		$this->reference = $reference;
-		
 		$this->clear($models);
-	}
-	
-	/**
-	 * Saves all models contained is this reference
-	 */
-	public function saveAll()
-	{
-		foreach ($this->_models as $model) {
-			$model->save();
-		}
-	}
-	
-	/**
-	 * Deletes all models contained is this relation
-	 */
-	public function deleteAll()
-	{
-		foreach ($this->_models as $model) {
-			$model->delete();
-		}
-		$this->_models = array();
 	}
 	
 	/**
@@ -86,9 +64,9 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	 */
 	public function clear($models = array())
 	{
-		/* unsets old references */
+		// unsets old references
 		foreach ($this->_models as $model) {
-			$model->{$this->reference['using']['foreignField']} = null;
+			$model->{$this->reference->targetField} = null;
 			$model->save();
 		}
 		
@@ -96,6 +74,27 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 		for ($i = 0, $c = count($models); $i < $c; $i++) {
 			$this->offsetSet($i, $models[$i]);
 		}
+	}
+	
+	/**
+	 * Saves all models contained is this reference
+	 */
+	public function save()
+	{
+		foreach ($this->_models as $model) {
+			$model->save();
+		}
+	}
+	
+	/**
+	 * Deletes all models contained is this relation
+	 */
+	public function delete()
+	{
+		foreach ($this->_models as $model) {
+			$model->delete();
+		}
+		$this->_models = array();
 	}
 	
 	/**
@@ -139,15 +138,15 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	
 	public function offsetSet($index, $model)
 	{
-		/* sets the foreign key on the foreign model */
-		$model->{$this->reference['using']['foreignField']} = $this->parent->{$this->reference['using']['localField']};
+		// sets the foreign key on the foreign model
+		$model->{$this->reference->targetField} = $this->parent->{$this->reference->sourceField};
 		$this->_models[$index] = $model;
 	}
 	
 	public function offsetUnset($index)
 	{
-		/* unsets the foreign key on the foreign model */
-		$this->_models[$index]->{$this->reference['using']['foreignField']} = null;
+		// unsets the foreign key on the foreign model
+		$this->_models[$index]->{$this->reference->targetField} = null;
 		unset($this->_models[$index]);
 	}
 	

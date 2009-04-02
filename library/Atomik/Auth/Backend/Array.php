@@ -38,7 +38,7 @@ class Atomik_Auth_Backend_Array implements Atomik_Auth_Backend_Interface
 	public function authentify($username, $password)
 	{
 		if (isset($this->_users[$username]) && $this->_users[$username]->getPassword() == $password) {
-			return $this->getUser($username);
+			return true;
 		}
 		
 		return false;

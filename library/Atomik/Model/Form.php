@@ -42,9 +42,34 @@ class Atomik_Model_Form
 	const FORM_DATA = 'multipart/form-data';
 	
 	/**
+	 * @var string
+	 */
+	public $action = '';
+	
+	/**
+	 * @var string
+	 */
+	public $enctype = 'application/x-www-form-urlencoded';
+	
+	/**
+	 * @var string
+	 */
+	public $method = 'post';
+	
+	/**
 	 * @var Atomik_Model_Builder
 	 */
 	protected $_builder;
+	
+	/**
+	 * @var array
+	 */
+	protected $_attributes = array();
+	
+	/**
+	 * @var array
+	 */
+	protected $_fields = array();
 	
 	/**
 	 * @var Atomik_Model
@@ -55,26 +80,6 @@ class Atomik_Model_Form
 	 * @var string
 	 */
 	protected $_template;
-	
-	/**
-	 * @var string
-	 */
-	protected $_action = '';
-	
-	/**
-	 * @var string
-	 */
-	protected $_enctype = 'application/x-www-form-urlencoded';
-	
-	/**
-	 * @var string
-	 */
-	protected $_method = 'post';
-	
-	/**
-	 * @var array
-	 */
-	protected $_attributes = array();
 	
 	/**
 	 * @var array
@@ -114,47 +119,61 @@ class Atomik_Model_Form
 	/**
 	 * Constructor
 	 *
-	 * @param string|array|Atomik_Model_Builder|Atomik_Model $object
+	 * @param string|Atomik_Model_Builder|Atomik_Model $object
 	 */
 	public function __construct($object)
 	{
-		if (is_string($object)) {
-			$this->setBuilder(Atomik_Model_Builder::createFromClass($object));
-			
-		} else if (is_array($object)) {
-			$this->setBuilder(Atomik_Model_Builder::createFromMetadata($object));
-			
-		} else if ($object instanceof Atomik_Model_Builder) {
-			$this->setBuilder($object);
-			
-		} else if ($object instanceof Atomik_Model) {
-			$this->setBuilder($object->getBuilder());
+		$this->setBuilder(Atomik_Model_Builder_Factory::get($object));
+		if ($object instanceof Atomik_Model) {
 			$this->setModel($object);
-			
-		} else {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Missing an Atomik_Model_Builder');
 		}
 	}
 	
-	/**
-	 * Sets the builder for this form
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 */
 	public function setBuilder(Atomik_Model_Builder $builder)
 	{
 		$this->_builder = $builder;
+		$this->_fields = array();
+		
+		foreach ($builder->getField() as $builderField) {
+			$this->_fields[] = Atomik_Model_Form_Field_Factory::factory(
+				$builderField->getOption('form-field', 'Default'), 
+				$builderField->name,
+				$builderField->getOptions()
+			);
+		}
 	}
 	
-	/**
-	 * Returns the builder associated to this form
-	 *
-	 * @return unknown
-	 */
 	public function getBuilder()
 	{
 		return $this->_builder;
+	}
+	
+	public function setFields($fields)
+	{
+		$this->_fields = array();
+		foreach ($fields as $field) {
+			$this->addField($field);
+		}
+	}
+	
+	public function addField(Atomik_Model_Form_Field_Interface $field)
+	{
+		$this->_fields[] = $field;
+	}
+	
+	public function removeField(Atomik_Model_Form_Field_Interface $field)
+	{
+		for ($i = 0, $c = count($this->_fields); $i < $c; $i++) {
+			if ($this->_fields[$i] == $field) {
+				unset($this->_fields[$i]);
+				break;
+			}
+		}
+	}
+	
+	public function getFields()
+	{
+		return $this->_fields;
 	}
 	
 	/**
@@ -184,66 +203,6 @@ class Atomik_Model_Form
 	}
 	
 	/**
-	 * Sets the form action
-	 *
-	 * @param string $action
-	 */
-	public function setAction($action)
-	{
-		$this->_action = $action;
-	}
-	
-	/**
-	 * Returns the form action
-	 * 
-	 * @return string
-	 */
-	public function getAction()
-	{
-		return $this->_action;
-	}
-	
-	/**
-	 * Sets the form encoding
-	 *
-	 * @param string $enctype
-	 */
-	public function setEnctype($enctype)
-	{
-		$this->_enctype = $enctype;
-	}
-	
-	/**
-	 * Returns the form encoding
-	 *
-	 * @return string
-	 */
-	public function getEnctype()
-	{
-		return $this->_enctype;
-	}
-	
-	/**
-	 * Sets the form method
-	 *
-	 * @param string $method
-	 */
-	public function setMethod($method)
-	{
-		$this->_method = $method;
-	}
-	
-	/**
-	 * Returns the form method
-	 *
-	 * @return string
-	 */
-	public function getMethod()
-	{
-		return $this->_method;
-	}
-	
-	/**
 	 * Resets the form attributes
 	 *
 	 * @param array $attributes
@@ -266,13 +225,13 @@ class Atomik_Model_Form
 	{
 		switch($name) {
 			case 'enctype':
-				$this->setEnctype($value);
+				$this->enctype = $value;
 				return;
 			case 'action':
-				$this->setAction($value);
+				$this->action = $value;
 				return;
 			case 'method':
-				$this->setMethod($value);
+				$this->method = $value;
 				return;
 		}
 		$this->_attributes[$name] = $value;
@@ -289,14 +248,11 @@ class Atomik_Model_Form
 		if (!isset($this->_attributes[$name])) {
 			switch($name) {
 				case 'enctype':
-					return $this->getEnctype();
-					break;
+					return $this->enctype;
 				case 'action':
-					return $this->getAction();
-					break;
+					return $this->action;
 				case 'method':
-					return $this->getMethod();
-					break;
+					return $this->method;
 				default:
 					return null;
 			}
@@ -311,7 +267,11 @@ class Atomik_Model_Form
 	 */
 	public function getAttributes()
 	{
-		return $this->_attributes;
+		return array_merge($this->_attributes, array(
+			'action' => $this->action,
+			'method' => $this->method,
+			'enctype' => $this->enctype
+		));
 	}
 	
 	/**
@@ -322,7 +282,7 @@ class Atomik_Model_Form
 	public function getAttributesAsString()
 	{
 		$string = '';
-		foreach ($this->_attributes as $name => $value) {
+		foreach ($this->getAttributes() as $name => $value) {
 			$string .= ' ' . $name . '="' . $value . '"';
 		}
 		return trim($string);
@@ -335,10 +295,9 @@ class Atomik_Model_Form
 	 */
 	public function setModel(Atomik_Model $model)
 	{
-		if ($model->getBuilder() !== $this->_builder) {
+		if ($model->getBuilder() !== $this->getBuilder()) {
 			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Only model using builder ' . 
-				$this->_builder->getName() . ' can be used with this form');
+			throw new Atomik_Model_Exception('Only models using builder ' . $this->getBuilder()->name . ' can be used with the form');
 		}
 		
 		$this->_model = $model;
@@ -367,7 +326,7 @@ class Atomik_Model_Form
 		}
 		
 		if (!$this->_modelUpdated && $this->hasData()) {
-			$this->_model->setData($this->getData());
+			$this->_model->populate($this->getData());
 			$this->_modelUpdated = true;
 		}
 		

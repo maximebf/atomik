@@ -22,12 +22,6 @@
 /** Atomik_Model_Adapter_Interface */
 require_once 'Atomik/Model/Adapter/Interface.php';
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
-
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
-
 /**
  * Stores models in an array
  * 
@@ -37,70 +31,39 @@ require_once 'Atomik/Model/Builder.php';
 class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 {
 	/**
-	 * Models store
-	 *
 	 * @var array
 	 */
-	protected static $_models = array();
+	protected static $_data = array();
 	
 	/**
-	 * Not supported on this adapter
+	 * Query the adapter
+	 * 
+	 * @param	Atomik_Model_Query	$query
+	 * @return 	Atomik_Model_Modelset
 	 */
-	public function query(Atomik_Model_Builder $builder, $query)
+	public function query(Atomik_Model_Query $query)
 	{
-		return array();
-	}
-	
-	/**
-	 * Finds many models
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array $where
-	 * @param string $orderBy
-	 * @param string $limit
-	 * @return array
-	 */
-	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
-	{
-		$models = array();
-		if (!isset(self::$_models[$builder->getName()])) {
-			return $models;
+		$builder = $query->from;
+		
+		if (!isset(self::$_data[$builder->name])) {
+			return new Atomik_Model_Modelset($builder, array());
 		}
 		
-		foreach (self::$_models[$builder->getName()] as $model) {
+		$data = array();
+		foreach (self::$_data[$builder->name] as $modelData) {
 			$match = true;
-			if ($where !== null) {
-				foreach ($where as $key => $value) {
-					if (!isset($model->{$key}) || $model->{$key} != $value) {
-						$match = false;
-						break;
-					}
+			foreach ($query->where as $key => $value) {
+				if (!isset($modelData[$key]) || $modelData[$key] != $value) {
+					$match = false;
+					break;
 				}
 			}
 			if ($match) {
-				$models[] = $model;
+				$data[] = $modelData;
 			}
 		}
 		
-		return $models;
-	}
-	
-	/**
-	 * Finds one model
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array $where
-	 * @param string $orderBy
-	 * @param string $limit
-	 * @return Atomik_Model
-	 */
-	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
-	{
-		$models = $this->findAll($builder, $where, $orderBy, $limit);
-		if (count($models)) {
-			return $models[0];
-		}
-		return null;
+		return new Atomik_Model_Modelset($builder, $data);
 	}
 	
 	/**
@@ -111,17 +74,21 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	 */
 	public function save(Atomik_Model $model)
 	{
-		if (!$model->isNew()) {
-			return true;
+		$name = $model->getBuilder()->name;
+		if (!isset(self::$_data[$name])) {
+			self::$_data[$name] = array();
 		}
 		
-		$name = $model->getBuilder()->getName();
-		if (!isset(self::$_models[$name])) {
-			self::$_models[$name] = array();
+		if ($model->isNew()) {
+			$model->setPrimaryKey(count(self::$_data[$name]));
+			self::$_data[$name][] = $model->toArray();
+			
+		} else {
+			if (!isset(self::$_data[$name][$model->getPrimaryKey()])) {
+				return false;
+			}
+			self::$_data[$name][$model->getPrimaryKey()] = $model->toArray();
 		}
-		
-		$model->setPrimaryKey(count(self::$_models[$name]));
-		self::$_models[$name] = $model;
 	}
 	
 	/**
@@ -132,7 +99,7 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	 */
 	public function delete(Atomik_Model $model)
 	{
-		$name = $model->getBuilder()->getName();
+		$name = $model->getBuilder()->name;
 		if (isset(self::$_models[$name][$model->getPrimaryKey()])) {
 			unset(self::$_models[$name][$model->getPrimaryKey()]);
 			return true;

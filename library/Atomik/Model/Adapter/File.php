@@ -22,12 +22,6 @@
 /** Atomik_Model_Adapter_Interface */
 require_once 'Atomik/Model/Adapter/Interface.php';
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
-
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
-
 /**
  * Stores models as files
  * 
@@ -39,7 +33,10 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	protected $_orderBy;
 	
 	/**
-	 * Not supported on this adapter
+	 * Query the adapter
+	 * 
+	 * @param	Atomik_Model_Query	$query
+	 * @return 	Atomik_Model_Modelset
 	 */
 	public function query(Atomik_Model_Builder $builder, $query)
 	{

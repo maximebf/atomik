@@ -19,33 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Adapter_Local */
-require_once 'Atomik/Model/Adapter/Local.php';
+/** Atomik_Model_Exception */
+require_once 'Atomik/Model/Exception.php';
 
 /**
- * Stores models in the session
- * 
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_Session extends Atomik_Model_Adapter_Local
+class Atomik_Model_Adapter_Exception extends Atomik_Model_Exception
 {
-	/**
-	 * @var array
-	 */
-	protected static $_data = array();
 	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		@session_start();
-		
-		/* bind the _models property to the session array */
-		if (!isset($_SESSION['__MODELS'])) {
-			$_SESSION['__MODELS'] = array();
-		}
-		self::$_data = &$_SESSION['__MODELS'];
-	}
 }

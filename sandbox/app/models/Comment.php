@@ -7,7 +7,7 @@
 class Comment extends Atomik_Model
 {
 	/**
-	 * @field-type Atomik_Model_Field_Text
+	 * @form-field Text
 	 */
 	public $message;
 }

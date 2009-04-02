@@ -10,7 +10,7 @@ class Post extends Atomik_Model
 	public $title;
 	
 	/**
-	 * @field-type Atomik_Model_Field_Text
+	 * @form-field Text
 	 */
 	public $body;
 }

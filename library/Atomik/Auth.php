@@ -56,7 +56,7 @@ class Atomik_Auth
 	public static function login($username, $password, $remember = false)
 	{
 		$backend = self::getBackend();
-		if (($user = $backend->authentify($username, $password)) === false) {
+		if (!$backend->authentify($username, $password)) {
 			return false;
 		}
 		
@@ -103,7 +103,7 @@ class Atomik_Auth
 	public static function getCurrentUser()
 	{
 		if (self::$_currentUser === null && isset($_SESSION['__USER'])) {
-			self::$_currentUser = self::getBackend()->getUser($_SESSION['__USER']);
+			self::$_currentUser = $_SESSION['__USER'];
 		}
 		return self::$_currentUser;
 	}

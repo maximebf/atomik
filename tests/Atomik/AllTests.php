@@ -16,6 +16,7 @@ require_once 'Atomik/ConfigTest.php';
 require_once 'Atomik/DbTest.php';
 require_once 'Atomik/ManifestTest.php';
 require_once 'Atomik/ModelTest.php';
+require_once 'Atomik/Model/AllTests.php';
 
 class Atomik_AllTests
 {
@@ -29,12 +30,13 @@ class Atomik_AllTests
         $suite = new PHPUnit_Framework_TestSuite('Atomik Framework - Atomik');
 
         $suite->addTestSuite('Atomik_AuthTest');
-        $suite->addTest(Atomik_Builder_AllTests::suite());
         $suite->addTestSuite('Atomik_BuilderTest');
+        $suite->addTest(Atomik_Builder_AllTests::suite());
         $suite->addTestSuite('Atomik_ConfigTest');
         $suite->addTestSuite('Atomik_DbTest');
         $suite->addTestSuite('Atomik_ManifestTest');
         $suite->addTestSuite('Atomik_ModelTest');
+        $suite->addTest(Atomik_Model_AllTests::suite());
 
         return $suite;
     }
