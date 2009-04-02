@@ -173,25 +173,25 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::find()
 	 */
-	public static function find($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
+	public static function find($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		return self::getInstance()->find($tables, $where, $orderBy, $limit, $fields);
+		return self::getInstance()->find($table, $where, $orderBy, $limit, $fields);
 	}
 	
 	/**
 	 * @see Atomik_Db_Instance::findAll()
 	 */
-	public static function findAll($tables, $where = null, $orderBy = '', $limit = '', $fields = '*')
+	public static function findAll($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		return self::getInstance()->findAll($tables, $where, $orderBy, $limit, $fields);
+		return self::getInstance()->findAll($table, $where, $orderBy, $limit, $fields);
 	}
 	
 	/**
 	 * @see Atomik_Db_Instance::count()
 	 */
-	public static function count($tables, $where = null, $orderBy = '', $limit = '')
+	public static function count($table, $where = null, $limit = null)
 	{
-		return self::getInstance()->count($tables, $where, $orderBy, $limit);
+		return self::getInstance()->count($table, $where, $limit);
 	}
 	
 	/**
@@ -213,9 +213,9 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::delete()
 	 */
-	public static function delete($tables, $where = array())
+	public static function delete($table, $where = array())
 	{
-		return self::getInstance()->delete($tables, $where);
+		return self::getInstance()->delete($table, $where);
 	}
 }
 

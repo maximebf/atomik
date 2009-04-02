@@ -78,7 +78,7 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 				<title>Simple route</title>
 				<programlisting>
 					<![CDATA[
-Atomik::set('routes', array(
+Atomik::set('app/routes', array(
    'user/add' => array(
        'action' => 'user_add'
    )
@@ -103,7 +103,7 @@ Atomik::set('routes', array(
 				<title>A route with some parameters</title>
 				<programlisting>
 					<![CDATA[
-Atomik::set('routes', array(
+Atomik::set('app/routes', array(
    'archives/:year/:month' => array(
        'action' => 'archives',
        'month' => 'all'
@@ -155,7 +155,7 @@ $year = Atomik::get('request/year');]]>
 			<programlisting>
 				<![CDATA[
 http://example.com/home			=>	action=home format=html (won't work if app/force_uri_extension is set to true)
-http://example.com/home.html	=>	action=home format=html
+http://example.com/home.html		=>	action=home format=html
 http://example.com/home.xml		=>	action=home format=xml
 http://example.com/home.foo		=>	action=home format=foo]]>
 			</programlisting>
@@ -169,7 +169,7 @@ http://example.com/home.foo		=>	action=home format=foo]]>
 			<title>Routes with extension</title>
 			<programlisting>
 					<![CDATA[
-Atomik::set('routes', array(
+Atomik::set('app/routes', array(
    ':category/:article.:format' => array(
    		'action' => 'article'
    ),

@@ -312,7 +312,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 * 	array(fieldName, fieldName => direction)
 	 * Otherwise it can be specified as argument of the method.
 	 * 
-	 * @param	string|array	$field
+	 * @param	string|array	$field		If the value contain ASC, DESC or a comma, it will be considered as a custom order by statement
 	 * @param 	string			$direction
 	 * @return	Atomik_Db_Query
 	 */
@@ -327,6 +327,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 				}
 			}
 			return $this;
+			
+		} else if (is_string($field)) {
+			if (strpos($field, ',') !== false || preg_match('/(.+)\s+(ASC|DESC)/', $field, $matches)) {
+				// use custom sql string
+				$this->_info['orderBy'] = $field;
+				return $this;
+			}
 		}
 		
 		$this->_info['orderBy'][$field] = $direction;
@@ -337,14 +344,20 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 * Specifies the LIMIT part
 	 * 
 	 * Arguments can be:
+	 *  - limit(sqlString)
 	 *  - limit(length)
 	 *  - limit(offset, length)
 	 * 
 	 * @return	Atomik_Db_Query
 	 */
-	public function limit()
+	public function limit($limit)
 	{
-		$args = func_get_args();
+		if (is_string($limit)) {
+			$args = explode(',', $limit);
+		} else {
+			$args = func_get_args();
+		}
+		
 		$offset = 0;
 		$length = $args[0];
 		
@@ -658,6 +671,10 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	protected function _buildOrderByPart()
 	{
 		$sql = '';
+		
+		if (is_string($this->_info['orderBy'])) {
+			return ' ORDER BY ' . $this->_info['orderBy'];
+		}
 		
 		if (count($this->_info['orderBy'])) {
 			$fields = array();

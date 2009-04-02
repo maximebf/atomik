@@ -22,9 +22,6 @@
 /** Atomik_Model_Builder */
 require_once 'Atomik/Model/Builder.php';
 
-/** Atomik_Model_Builder_Cache */
-require_once 'Atomik/Model/Builder/Cache.php';
-
 /**
  * @package Atomik
  * @subpackage Model

@@ -135,6 +135,9 @@ class Atomik_Db_QueryTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals("SELECT a FROM table ORDER BY a DESC", (string) $query->select('a')->from('table')->orderBy('a', 'DESC'));
 		
 		$query = new Atomik_Db_Query();
+		$this->assertEquals("SELECT a FROM table ORDER BY a DESC, b ASC", (string) $query->select('a')->from('table')->orderBy('a DESC, b ASC'));
+		
+		$query = new Atomik_Db_Query();
 		$this->assertEquals("SELECT a, b FROM table ORDER BY a, b DESC", 
 			(string) $query->select('a', 'b')->from('table')->orderBy(array('a', 'b' => 'DESC')));
 	}

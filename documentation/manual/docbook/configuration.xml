@@ -3,7 +3,7 @@
 	<title>Configuration</title>
 	<note>
 		There is a serious compatibility break in the configuration between Atomik 2.1 and 2.2.
-		Many keys have changed, check the release message for more information.
+		Many keys have changed, check the appendix A for more information.
 	</note>
 	<sect1 id="bootstrapping">
 		<title>Bootsrapping</title>

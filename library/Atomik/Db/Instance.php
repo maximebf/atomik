@@ -148,17 +148,20 @@ class Atomik_Db_Instance
 	/**
 	 * Finds the first row matching the arguments
 	 *
-	 * @see Db::buildWhere()
+	 * @see Atomik_Db_Instance::findAll()
 	 * @param 	string 			$table
 	 * @param 	array 			$where
 	 * @param 	string 			$orderBy
 	 * @param 	string 			$limit
 	 * @param 	string|array 	$fields
-	 * @return 	array
+	 * @return 	array|bool					False if nothing found
 	 */
 	public function find($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		$stmt = self::findAll($table, $where, $orderBy, $limit, $fields);
+		if (($stmt = self::findAll($table, $where, $orderBy, $limit, $fields)) === false) {
+			return false;
+		}
+		
 		$row = $stmt->fetch();
 		$stmt->closeCursor();
 		return $row;
@@ -167,6 +170,7 @@ class Atomik_Db_Instance
 	/**
 	 * Finds all rows matching the arguments
 	 *
+	 * @see Atomik_Db_Query
 	 * @param 	string|array 	$table
 	 * @param 	array 			$where
 	 * @param 	string 			$orderBy
@@ -190,7 +194,7 @@ class Atomik_Db_Instance
 	 * @param 	string 			$limit
 	 * @return 	int
 	 */
-	public function count($table, $where = null, $limit = '')
+	public function count($table, $where = null, $limit = null)
 	{
 		$this->connect();
 		
@@ -270,8 +274,12 @@ class Atomik_Db_Instance
 	 */
 	protected function _buildQuery($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
+		if (empty($fields)) {
+			$fields = '*';
+		}
+		
 		$query = new Atomik_Db_Query();
-		$query->from($table);
+		$query->select($fields)->from($table);
 	
 		if ($where !== null) {
 			$query->where($where);
@@ -281,9 +289,6 @@ class Atomik_Db_Instance
 		}
 		if ($limit !== null) {
 			$query->limit($limit);
-		}
-		if ($fields !== null) {
-			$query->select($fields);
 		}
 		
 		return $query;

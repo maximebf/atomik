@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
-	<xsl:param name="atomik.base" select="'..'" />
+	<xsl:param name="atomik.base" select="'../..'" />
 	<xsl:param name="atomik.stylesheet" select="'manual.css'" />
 	
 	<xsl:template name="atomik.header">
@@ -13,6 +13,9 @@
 				<ul id="menu">
 					<li>
 						<a href="http://code.google.com/p/atomikframework">Code</a>
+					</li>
+					<li>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/whats-next')" /></xsl:attribute>What's next?</a>
 					</li>
 					<li>
 						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/plugins')" /></xsl:attribute>Plugins</a>

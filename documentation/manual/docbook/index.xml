@@ -23,4 +23,5 @@
 	<xi:include href="events.xml" />
 	<xi:include href="using_plugins.xml" />
 	<xi:include href="developing_plugins.xml" />
+	<xi:include href="update_2.1_to_2.2.xml" />
 </book>

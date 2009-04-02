@@ -2003,6 +2003,10 @@ class Atomik
 			throw new Exception('The session must be started before using Atomik::flash()');
 		}
 		
+		if (!self::has('session/__FLASH/' . $label)) {
+			self::set('session/__FLASH/' . $label, array());
+		}
+		
 		self::add('session/__FLASH/' . $label, $message);
 	}
 	

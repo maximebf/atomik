@@ -1,5 +1,6 @@
 OUTPUT = output
 XSL = standalone
+ATOMIK_BASE = ../..
 
 all: manual getstarted events manifest
 
@@ -8,17 +9,19 @@ manual:
 	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual/manual.css
 	cat docbook-xsl/common.css >> $(OUTPUT)/manual/manual.css
 	svn export manual/images $(OUTPUT)/manual/images
-	xsltproc --xinclude -o $(OUTPUT)/manual/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
 	xsltproc --xinclude \
-		--stringparam atomik.base "../.." \
+		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		-o $(OUTPUT)/manual/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
+	xsltproc --xinclude \
+		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
 		-o $(OUTPUT)/manual/plugins/ docbook-xsl/$(XSL).xsl manual/docbook/plugins/index.xml
 	xsltproc --xinclude \
-		--stringparam atomik.base "../.." \
+		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
 		-o $(OUTPUT)/manual/library/ docbook-xsl/$(XSL).xsl manual/docbook/library/index.xml
 	xsltproc --xinclude \
-		--stringparam atomik.base "../.." \
+		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
 		-o $(OUTPUT)/manual/backend/ docbook-xsl/$(XSL).xsl manual/docbook/backend/index.xml
 		
@@ -28,7 +31,9 @@ getstarted:
 	cp manual/images/logo.png $(OUTPUT)/get-started/images
 	cp docbook-xsl/$(XSL).css $(OUTPUT)/get-started/manual.css
 	cat docbook-xsl/common.css >> $(OUTPUT)/get-started/manual.css
-	xsltproc --xinclude -o $(OUTPUT)/get-started/ docbook-xsl/$(XSL).xsl get-started/index.xml
+	xsltproc --xinclude \
+		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		-o $(OUTPUT)/get-started/ docbook-xsl/$(XSL).xsl get-started/index.xml
 	
 	svn export get-started/source $(OUTPUT)/get-started/atomik-get-started
 	svn export ../plugins/Db $(OUTPUT)/get-started/atomik-get-started/app/plugins/Db
@@ -41,7 +46,9 @@ getstarted:
 events: events-api
 	-mkdir -p $(OUTPUT)/events
 	cp events/events.css $(OUTPUT)/events/events.css
-	xsltproc --xinclude -o $(OUTPUT)/events/ events/events.xsl events/xml/index.xml
+	xsltproc --xinclude \
+		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		-o $(OUTPUT)/events/ events/events.xsl events/xml/index.xml
 	
 events-api:
 	-mkdir -p $(OUTPUT)/events

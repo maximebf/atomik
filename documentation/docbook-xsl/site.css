@@ -1,7 +1,8 @@
 
 div.book,
 div.chapter,
-div.navfooter {
+div.navfooter,
+div.appendix {
 	margin: auto;
 	width: 960px;
 }

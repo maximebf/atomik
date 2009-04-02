@@ -56,8 +56,8 @@ plugin-lang:
 plugin-auth:
 	mkdir -p $(RELEASE_DIR)/plugins
 	svn export plugins/Auth $(RELEASE_DIR)/plugins/Auth
-	svn export library/Atomik/Auth $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Auth
-	svn export library/Atomik/Auth.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Auth.php
+	svn export library/Atomik/Auth $(RELEASE_DIR)/plugins/Auth/libraries/Atomik/Auth
+	svn export library/Atomik/Auth.php $(RELEASE_DIR)/plugins/Auth/libraries/Atomik/Auth.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-auth.zip Auth
 	rm -r $(RELEASE_DIR)/plugins/Auth
 	
@@ -70,8 +70,8 @@ plugin-backend:
 plugin-config:
 	mkdir -p $(RELEASE_DIR)/plugins
 	svn export plugins/Config $(RELEASE_DIR)/plugins/Config
-	svn export library/Atomik/Config $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Config
-	svn export library/Atomik/Config.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Config.php
+	svn export library/Atomik/Config $(RELEASE_DIR)/plugins/Config/libraries/Atomik/Config
+	svn export library/Atomik/Config.php $(RELEASE_DIR)/plugins/Config/libraries/Atomik/Config.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-config.zip Config
 	rm -r $(RELEASE_DIR)/plugins/Config
 	

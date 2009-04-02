@@ -195,7 +195,7 @@ Atomik::set('app/layout', '_layout');]]>
 Atomik::set('app/views/contexts/rdf', array(
 	'prefix' 		=> 'rdf',					// the view's file prefix (set to false for no prefix)
 	'layout' 		=> false,					// whether to enable the layout
-	'content-type' 	=> 'application/xml+rdf'	// the response content type
+	'content-type' 		=> 'application/xml+rdf'	// the response content type
 ));]]>
 			</programlisting>
 			<para>
