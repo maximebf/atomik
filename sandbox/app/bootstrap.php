@@ -37,8 +37,8 @@ Atomik::set(array(
 
 Atomik::set('plugins/Auth', array(
 	'users' => array(
-		'admin:admin' => array('member', 'backend'),
-		'foo:bar' => array('member')
+		'admin' => array('password' => 'admin', 'roles' => array('member', 'backend')),
+		'foo' => array('password' => 'bar', 'roles' => array('member'))
 	),
 	'resources' => array(
 		'/private/*' => 'member',

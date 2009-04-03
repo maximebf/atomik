@@ -1,5 +1,30 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package Atomik
+ * @subpackage Auth
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
 
+/**
+ * Manage roles and users
+ * 
+ * @package Atomik
+ * @subpackage Auth
+ */
 class Atomik_Auth
 {
 	/**
@@ -8,7 +33,12 @@ class Atomik_Auth
 	private static $_backend;
 	
 	/**
-	 * @var Atomik_Auth_User
+	 * @var string
+	 */
+	private static $_currentUsername;
+	
+	/**
+	 * @var Atomik_Auth_User_Interface
 	 */
 	private static $_currentUser;
 	
@@ -60,7 +90,7 @@ class Atomik_Auth
 			return false;
 		}
 		
-		self::$_currentUser = $_SESSION['__USER'] = $username;
+		self::$_currentUsername = $_SESSION['__USER'] = $username;
 		
 		if ($remember !== false) {
 			if ($remember === true) {
@@ -82,6 +112,7 @@ class Atomik_Auth
 		if (isset($_SESSION['__USER'])) {
 			unset($_SESSION['__USER']);
 		}
+		self::$_currentUsername = null;
 		self::$_currentUser = null;
 	}
 	
@@ -92,18 +123,33 @@ class Atomik_Auth
 	 */
 	public static function isLoggedIn()
 	{
-		return self::$_currentUser !== null;
+		return self::$_currentUsername !== null;
+	}
+	
+	/**
+	 * Returns the current logged in username
+	 * 
+	 * @return string
+	 */
+	public static function getCurrentUsername()
+	{
+		if (self::$_currentUsername === null && isset($_SESSION['__USER'])) {
+			self::$_currentUsername = $_SESSION['__USER'];
+		}
+		return self::$_currentUsername;
 	}
 	
 	/**
 	 * Returns the current logged in user object
 	 * 
-	 * @return Atomik_Auth_User
+	 * @return Atomik_Auth_User_Interface
 	 */
 	public static function getCurrentUser()
 	{
-		if (self::$_currentUser === null && isset($_SESSION['__USER'])) {
-			self::$_currentUser = $_SESSION['__USER'];
+		if (self::$_currentUser === null) {
+			if (($username = self::getCurrentUsername()) !== null) {
+				self::$_currentUser = Atomik_Auth_User_Locator::find($username);
+			}
 		}
 		return self::$_currentUser;
 	}

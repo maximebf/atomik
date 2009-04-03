@@ -43,6 +43,11 @@ $toto = new User();
 $toto->name = 'toto';
 $toto->save();
 
+$titi = new Employee();
+$titi->name = 'titi';
+$titi->department = 'marketing';
+$titi->save();
+
 $album = new Album(array('name' => 'Holiday'));
 $toto->albums[] = $album;
 $album->save();
@@ -53,13 +58,14 @@ $album->images[] = $image;
 $image->save();
 
 unset($toto);
+unset($titi);
 unset($album);
 unset($image);
 
 
 //print_r(LocalModelAdapter::getInstance());
 
-//print_r(Atomik_Model::findAll('Image'));
+//print_r(Atomik_Model::findAll('Employee'));
 
 //$toto = Atomik_Model::find('User', array('name' => 'toto'));
 
@@ -74,6 +80,9 @@ foreach (Atomik_Model::findAll('User') as $user) {
 		echo '</ul></li>';
 	}
 	echo '</ul></li>';
+}
+foreach (Atomik_Model::findAll('Employee') as $user) {
+	echo '<li>' . $user->name . '</li>';
 }
 echo '</ul>';
 

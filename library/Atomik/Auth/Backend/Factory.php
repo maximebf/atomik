@@ -19,40 +19,33 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Auth_Backend_Interface */
+require_once 'Atomik/Auth/Backend/Interface.php';
+
 /**
- * Store users in an array
- * 
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_Backend_Array implements Atomik_Auth_Backend_Interface
+class Atomik_Auth_Backend_Factory
 {
 	/**
-	 * array(username => password)
+	 * Creates an instance of a backend
 	 * 
-	 * @var array
+	 * @param 	string|objet 	$name	The last part of the backend name if it starts with Atomik_Auth_Backend_ or a class name
+	 * @return 	Atomik_Auth_Backend_Interface
 	 */
-	public $users = array();
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param	array	$users
-	 */
-	public function __construct($users = array())
+	public static function factory($name, $args = array())
 	{
-		$this->users = $users;
-	}
-	
-	/**
-	 * Checks whether a user exists with the specified credentials
-	 * 
-	 * @param	string	$username
-	 * @param`	string	$password
-	 * @return	bool
-	 */
-	public function authentify($username, $password)
-	{
-		return isset($this->users[$username]) && $this->users[$username] == $password;
+		$className = 'Atomik_Auth_Backend_' . ucfirst($name);
+		if (!class_exists($className)) {
+			$className = $name;
+			if (!class_exists($className)) {
+				require_once 'Atomik/Model/Adapter/Exception.php';
+				throw new Atomik_Model_Adapter_Exception('No model adapter named ' . $name . ' were found');
+			}
+		}
+		
+    	$class = new ReflectionClass($className);
+    	return $class->newInstanceArgs($args);
 	}
 }

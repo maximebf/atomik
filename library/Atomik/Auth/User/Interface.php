@@ -20,39 +20,25 @@
  */
 
 /**
- * Store users in an array
+ * Interface that must implement user objects
  * 
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_Backend_Array implements Atomik_Auth_Backend_Interface
+interface Atomik_Auth_User_Interface
 {
 	/**
-	 * array(username => password)
-	 * 
-	 * @var array
-	 */
-	public $users = array();
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param	array	$users
-	 */
-	public function __construct($users = array())
-	{
-		$this->users = $users;
-	}
-	
-	/**
-	 * Checks whether a user exists with the specified credentials
+	 * Returns the user object associated to the specified username
 	 * 
 	 * @param	string	$username
-	 * @param`	string	$password
-	 * @return	bool
+	 * @return Atomik_Auth_User_Interface
 	 */
-	public function authentify($username, $password)
-	{
-		return isset($this->users[$username]) && $this->users[$username] == $password;
-	}
+	static function find($username);
+	
+	/**
+	 * Returns roles of the user
+	 *
+	 * @return array
+	 */
+	function getRoles();
 }

@@ -13,7 +13,7 @@
 		<div id="body">
 			<div id="header">
 				<div id="header-info">
-					Logged in as <?php echo Atomik_Auth::getCurrentUser()->getUsername() ?> | 
+					Logged in as <?php echo Atomik_Auth::getCurrentUsername() ?> | 
 					<a href="<?php echo Atomik::url('auth/logout') ?>">Log out</a> | 
 					<a href="<?php echo Atomik::url('/') ?>">View site</a>
 				</div>

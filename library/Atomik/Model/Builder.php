@@ -50,6 +50,11 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	public $className;
 	
 	/**
+	 * @var Atomik_Model_Builder
+	 */
+	protected $_parentModelBuilder;
+	
+	/**
 	 * @var array
 	 */
 	protected $_adapter;
@@ -114,6 +119,44 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	}
 	
 	/**
+	 * Sets the parent model
+	 * 
+	 * @param	string|Atomik_Model_Builder	$parentModel
+	 */
+	public function setParentModel($parentModel)
+	{
+		$builder = Atomik_Model_Builder_Factory::get($parentModel);
+		
+		if ($this->_adapter !== null) {
+			throw new Atomik_Model_Builder_Exception('Inherited model can\'t have a different adapter');
+		}
+		
+		$this->_adapter = $builder->getAdapter();
+		$this->_options = array_merge($builder->getOptions(), $this->_options);
+		$this->_parentModelBuilder = $builder;
+	}
+	
+	/**
+	 * Checks if it as a parent
+	 * 
+	 * @return bool
+	 */
+	public function hasParentModel()
+	{
+		return $this->_parentModelBuilder !== null;
+	}
+	
+	/**
+	 * Returns the parent model builder or null
+	 * 
+	 * @return Atomik_Model_Builder
+	 */
+	public function getParentModel()
+	{
+		return $this->_parentModelBuilder;
+	}
+	
+	/**
 	 * Sets the adapter
 	 *
 	 * @param Atomik_Model_Adapter_Interface $adapter
@@ -121,6 +164,9 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	public function setAdapter(Atomik_Model_Adapter_Interface $adapter = null)
 	{
 		if ($adapter === null) {
+			if ($this->_parentModelBuilder !== null) {
+				throw new Atomik_Model_Builder_Exception('Inherited model can\'t have a different adapter');
+			}
 			$adapter = self::getDefaultAdapter();
 		}
 		$this->_adapter = $adapter;

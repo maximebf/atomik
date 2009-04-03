@@ -63,8 +63,11 @@ class Atomik_Model_Builder_ClassMetadata
 		}
 		
 		// removes the has key to set options before references
-		$references = (array) $options['has'];
-		unset($options['has']);
+		$references = array();
+		if (isset($options['has'])) {
+			$references = (array) $options['has'];
+			unset($options['has']);
+		}
 		
 		// use the remaining metadatas as options
 		$builder->setOptions($options);
@@ -72,6 +75,12 @@ class Atomik_Model_Builder_ClassMetadata
 		// adds references
 		foreach ($references as $referenceString) {
 			self::addReferenceFromString($builder, $referenceString);
+		}
+		
+		if (($parentClass = $class->getParentClass()) != null) {
+			if ($parentClass->getName() != 'Atomik_Model' && $parentClass->isSubclassOf('Atomik_Model')) {
+				$builder->setParentModel($parentClass->getName());
+			}
 		}
 		
 		return $builder;

@@ -360,4 +360,13 @@ class Atomik_Model extends Atomik_Model_Locator
 		require_once 'Atomik/Model/Form.php';
 		return new Atomik_Model_Form($this);
 	}
+	
+	/**
+	 * Drops the primary key and sets the model as new
+	 */
+	public function __clone()
+	{
+		$this->_new = true;
+		$this->setPrimaryKey(null);
+	}
 }

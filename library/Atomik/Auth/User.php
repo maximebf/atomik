@@ -1,117 +1,156 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package Atomik
+ * @subpackage Auth
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
 
-class Atomik_Auth_User
+/**
+ * The default user object. Store users in an array.
+ * 
+ * @package Atomik
+ * @subpackage Auth
+ */
+class Atomik_Auth_User implements Atomik_Auth_User_Interface 
 {
-	/**
-	 * @var string
-	 */
-	protected $_username;
-	
-	/**
-	 * @var string
-	 */
-	protected $_password;
-	
 	/**
 	 * @var array
 	 */
-	protected $_roles = array();
+	private static $_users = array();
 	
 	/**
-	 * Constructor
-	 * 
-	 * @param string $username
+	 * @var string
 	 */
-	public function __construct($username, $password = null, $roles = array())
-	{
-		$this->_username = $username;
-		$this->_password = $password;
-		$this->_roles = $roles;
-	}
+	public $username;
 	
 	/**
-	 * Returns the username
-	 * 
-	 * @return string
+	 * @var string
 	 */
-	public function getUsername()
-	{
-		return $this->_username;
-	}
+	public $password;
 	
 	/**
-	 * Sets the password
-	 * 
-	 * @param string $password
+	 * @var username
 	 */
-	public function setPassword($password)
-	{
-		$this->_password = $password;
-	}
+	public $roles = array();
 	
 	/**
-	 * Returns the user's password
+	 * Sets users
 	 * 
-	 * @return string
-	 */
-	public function getPassword()
-	{
-		return $this->_password;
-	}
-	
-	/**
-	 * Resets all roles associated to the user
+	 * Array values can be instances of Atomik_Auth_User or specify the username 
+	 * as the key and the password as the value. Instead of the password as the value you
+	 * can also use an array with the password and roles keys.
 	 * 
-	 * @param array $roles An array of string
+	 * @param	array	$users
 	 */
-	public function setRoles($roles)
+	public static function setUsers($users)
 	{
-		$this->_roles = (array) $roles;
-	}
-	
-	/**
-	 * Adds a role to the user
-	 * 
-	 * @param string $role
-	 */
-	public function addRole($role)
-	{
-		$this->_roles[] = (string) $role;
-	}
-	
-	/**
-	 * Removes a role from the user
-	 * 
-	 * @param string $role
-	 */
-	public function removeRole($role)
-	{
-		for ($i = 0, $c = count($this->_roles); $i < $c; $i++) {
-			if ($this->_roles[$i] == $role) {
-				unset($this->_roles[$i]);
-				break;
+		self::$_users = array();
+		foreach ($users as $key => $value) {
+			if ($value instanceof Atomik_Auth_User) {
+				self::addUser($value);
+				continue;
 			}
+			
+			$password = $value;
+			$roles = array();
+			if (is_array($value)) {
+				$password = isset($value['password']) ? $value['password'] : '';
+				$roles = isset($value['roles']) ? $value['roles'] : array();
+			}
+			self::addUser($key, $password, $roles);
 		}
 	}
 	
 	/**
-	 * Returns all user's roles
+	 * Adds a new user
 	 * 
+	 * @param	string|Atomik_Auth_User	$username
+	 * @param	string					$password
+	 * @param	array					$roles
+	 */
+	public static function addUser($username, $password = '', $roles = array())
+	{
+		if ($username instanceof Atomik_Auth_User) {
+			self::$_users[$username->username] = $username;
+			return;
+		}
+		
+		self::$_users[$username] = new Atomik_Auth_User($username, $password, $roles);
+	}
+	
+	/**
+	 * Returns all users
+	 * 
+	 * @return array
+	 */
+	public static function getUsers()
+	{
+		return self::$_users;
+	}
+	
+	/**
+	 * Creates and returns an {@see Atomik_Auth_Backend_Array} instance
+	 * 
+	 * @return Atomik_Auth_Backend_Array
+	 */
+	public static function getArrayBackend()
+	{
+		$backend = Atomik_Auth_Backend_Factory::factory('Array');
+		foreach (self::$_users as $user) {
+			$backend->users[$user->username] = $user->password;
+		}
+		return $backend;
+	}
+	
+	/**
+	 * Returns the user object associated to the specified username
+	 * 
+	 * @param	string	$username
+	 * @return Atomik_Auth_User_Interface
+	 */
+	public static function find($username)
+	{
+		if (!isset(self::$_users[$username])) {
+			return null;
+		}
+		return self::$_users[$username];
+	}
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param	string	$username
+	 * @param	string	$password
+	 * @param	array	$roles
+	 */
+	public function __construct($username, $password, $roles = array())
+	{
+		$this->username = $username;
+		$this->password = $password;
+		$this->roles = $roles;
+	}
+	
+	/**
+	 * Returns roles of the user
+	 *
 	 * @return array
 	 */
 	public function getRoles()
 	{
-		return $this->_roles;
-	}
-	
-	/**
-	 * Checks if the user has access to the specified resource
-	 * 
-	 * @param	string	$resource
-	 * @return 	boolean
-	 */
-	public function isAllowed($resource)
-	{
-		return Atomik_Auth::isAllowed($resource, $this->_roles);
+		return $this->roles;
 	}
 }

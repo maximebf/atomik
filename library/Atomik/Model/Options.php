@@ -50,4 +50,14 @@ abstract class Atomik_Model_Options
 		}
 		return $this->_options[$name];
 	}
+	
+	/**
+	 * Returns all options
+	 * 
+	 * @return array
+	 */
+	public function getOptions()
+	{
+		return $this->_options;
+	}
 }

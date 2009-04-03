@@ -30,6 +30,7 @@ class AuthPlugin
 	 */
     public static $config = array(
     	'route'				=> 'auth/*',
+    	'users' 			=> array(),
     	'roles' 			=> array(),
     	'resources' 		=> array(),
     	'guest_roles' 		=> array(),
@@ -56,21 +57,15 @@ class AuthPlugin
     		Atomik::registerPluggableApplication('Auth', self::$config['route'], array('overwriteDirs' => false));
     	}
     	
-    	// backend
-    	if (self::$config['backend'] === null) {
-    		self::$config['backend'] = 'Array';
-    		self::$config['backend_args'] = array(Atomik::get('users', array(), self::$config));
-    	}
+    	// users
+    	Atomik_Auth_User_Locator::setSource(self::$config['users']);
     	
-    	$classname = 'Atomik_Auth_Backend_' . self::$config['backend'];
-    	if (!class_exists($classname)) {
-    		$classname = self::$config['backend'];
-    		if (!class_exists($classname)) {
-    			throw new Exception('The backend ' . $classname . ' cannot be found');
-    		}
+    	// backend
+    	if (self::$config['backend'] === null && is_array(self::$config['users'])) {
+    		$backend = Atomik_Auth_User::getArrayBackend();
+    	} else {
+    		$backend = Atomik_Auth_Backend_Factory::factory(self::$config['backend'], self::$config['backend_args']);
     	}
-    	$class = new ReflectionClass($classname);
-    	$backend = $class->newInstanceArgs(self::$config['backend_args']);
     	Atomik_Auth::setBackend($backend);
     	
     	// roles and resources
