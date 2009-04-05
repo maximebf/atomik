@@ -19,11 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Exception */
+require_once 'Atomik/Exception.php';
+
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Exception extends Exception
+class Atomik_Model_Exception extends Atomik_Exception
 {
 	
 }

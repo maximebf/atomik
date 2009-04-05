@@ -43,11 +43,6 @@ $toto = new User();
 $toto->name = 'toto';
 $toto->save();
 
-$titi = new Employee();
-$titi->name = 'titi';
-$titi->department = 'marketing';
-$titi->save();
-
 $album = new Album(array('name' => 'Holiday'));
 $toto->albums[] = $album;
 $album->save();
@@ -58,7 +53,6 @@ $album->images[] = $image;
 $image->save();
 
 unset($toto);
-unset($titi);
 unset($album);
 unset($image);
 
@@ -81,16 +75,13 @@ foreach (Atomik_Model::findAll('User') as $user) {
 	}
 	echo '</ul></li>';
 }
-foreach (Atomik_Model::findAll('Employee') as $user) {
-	echo '<li>' . $user->name . '</li>';
-}
 echo '</ul>';
 
 exit;
 
 $form = new Atomik_Model_Form($image);
 
-if ($form->hasData()) {
+if ($form->hasModel()) {
 	if ($form->isValid()) {
 		$model = $form->getModel();
 		echo $model->name . '<br>' . $model->description . '<br>' . $model->file;

@@ -11,8 +11,6 @@ require_once dirname(__FILE__) . '/../../TestHelper.php';
 
 require_once 'Atomik/Model/Builder/AllTests.php';
 require_once 'Atomik/Model/BuilderTest.php';
-require_once 'Atomik/Model/Form/AllTests.php';
-require_once 'Atomik/Model/FormTest.php';
 require_once 'Atomik/Model/LocatorTest.php';
 require_once 'Atomik/Model/ModelsetTest.php';
 require_once 'Atomik/Model/QueryTest.php';
@@ -31,8 +29,6 @@ class Atomik_Model_AllTests
 
         $suite->addTest(Atomik_Model_Builder_AllTests::suite());
         $suite->addTestSuite('Atomik_Model_BuilderTest');
-        $suite->addTest(Atomik_Model_Form_AllTests::suite());
-        $suite->addTestSuite('Atomik_Model_FormTest');
         $suite->addTestSuite('Atomik_Model_LocatorTest');
         $suite->addTestSuite('Atomik_Model_ModelsetTest');
         $suite->addTestSuite('Atomik_Model_QueryTest');

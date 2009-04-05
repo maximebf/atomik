@@ -31,9 +31,9 @@ abstract class Atomik_Model_Options
 	 * @param string $name
 	 * @return bool
 	 */
-	public function hasOption($name)
+	public function hasOption($name, $prefix = '')
 	{
-		return array_key_exists($name, $this->_options);
+		return array_key_exists($prefix . $name, $this->_options);
 	}
 	
 	/**
@@ -43,12 +43,12 @@ abstract class Atomik_Model_Options
 	 * @param mixed $default OPTIONAL Default value if the key is not found
 	 * @return mixed
 	 */
-	public function getOption($name, $default = null)
+	public function getOption($name, $default = null, $prefix = '')
 	{
-		if (!array_key_exists($name, $this->_options)) {
+		if (!array_key_exists($prefix . $name, $this->_options)) {
 			return $default;
 		}
-		return $this->_options[$name];
+		return $this->_options[$prefix . $name];
 	}
 	
 	/**
@@ -56,8 +56,21 @@ abstract class Atomik_Model_Options
 	 * 
 	 * @return array
 	 */
-	public function getOptions()
+	public function getOptions($prefix = null, $keepPrefixInResult = false)
 	{
-		return $this->_options;
+		if (empty($prefix)) {
+			return $this->_options;
+		}
+		
+		$options = array();
+		foreach ($this->_options as $key => $value) {
+			if (substr($key, 0, strlen($prefix)) == $prefix) {
+				if (!$keepPrefixInResult) {
+					$key = substr($key, strlen($prefix));
+				}
+				$options[$key] = $value;
+			}
+		}
+		return $options;
 	}
 }

@@ -12,21 +12,16 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Exception */
-require_once 'Atomik/Exception.php';
-
 /**
  * @package Atomik
- * @subpackage Db
  */
-class Atomik_Db_Exception extends Atomik_Exception
+class Atomik_Exception extends Exception
 {
 	
 }

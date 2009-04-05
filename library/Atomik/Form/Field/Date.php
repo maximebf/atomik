@@ -12,21 +12,24 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Db
+ * @subpackage Form
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Exception */
-require_once 'Atomik/Exception.php';
+/** Atomik_Form_Field_Abstract */
+require_once 'Atomik/Form/Field/Abstract.php';
 
 /**
  * @package Atomik
- * @subpackage Db
+ * @subpackage Form
  */
-class Atomik_Db_Exception extends Atomik_Exception
+class Atomik_Form_Field_Date extends Atomik_Form_Field_Abstract
 {
-	
+	public function render()
+	{
+		return '';
+	}
 }

@@ -19,11 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Exception */
+require_once 'Atomik/Exception.php';
+
 /**
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_Exception extends Exception
+class Atomik_Auth_Exception extends Atomik_Exception
 {
 	
 }
