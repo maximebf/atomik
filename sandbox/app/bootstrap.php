@@ -21,9 +21,14 @@ Atomik::set(array(
         'Console',
 
         'Db' => array(
-            'dsn'         => false, //'mysql:host=localhost;dbname=atomik',
-            'username'    => '',
-            'password'    => ''
+            'dsn'         => 'mysql:host=localhost;dbname=atomik',
+            'username'    => 'atomik',
+            'password'    => 'atomik'
+        ),
+        
+        'Config' => array(
+        	'backend' => 'Xml',
+        	'backend_args' => array('app/config.xml')
         ),
         
         'Ajax',

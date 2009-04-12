@@ -19,6 +19,12 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Config */
+require_once 'Atomik/Config.php';
+
+/** Atomik_Config_Backend_Factory */
+require_once 'Atomik/Config/Backend/Factory.php';
+
 /**
  * Config plugin
  * 
@@ -34,6 +40,9 @@ class ConfigPlugin
 	 */
 	public static $config = array(
 	
+		'backend'		=>	'Database',
+		'backend_args'	=> 	array()
+	
 	);
 	
 	/**
@@ -44,7 +53,12 @@ class ConfigPlugin
 	 */
 	public static function start($config)
 	{
+		self::$config = array_merge(self::$config, $config);
 		
+		$backend = Atomik_Config_Backend_Factory::factory(self::$config['backend'], self::$config['backend_args']);
+		Atomik_Config::setBackend($backend);
+		
+		Atomik::set(Atomik_Config::getAll(), null, false);
 	}
 	
 	/**

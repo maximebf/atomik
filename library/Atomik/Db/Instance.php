@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Db_Query */
+require_once 'Atomik/Db/Query.php';
+
 /**
  * Helpers function for handling databases
  *
@@ -40,6 +43,11 @@ class Atomik_Db_Instance
 	 * @var array
 	 */
 	public $connectionInfo;
+	
+	/**
+	 * @var string
+	 */
+	protected $_tablePrefix;
 	
 	/**
 	 * Constructor
@@ -99,6 +107,26 @@ class Atomik_Db_Instance
 	}
 	
 	/**
+	 * Sets the prefix that will be prepended to all table names
+	 * 
+	 * @param	string	$prefix
+	 */
+	public function setTablePrefix($prefix)
+	{
+		$this->_tablePrefix = $prefix;
+	}
+	
+	/**
+	 * Returns the table prefix
+	 * 
+	 * @return string
+	 */
+	public function getTablePrefix()
+	{
+		return $this->_tablePrefix;
+	}
+	
+	/**
 	 * Prepares and executes a statement
 	 *
 	 * @param 	string|Atomik_Db_Query	$query
@@ -152,12 +180,14 @@ class Atomik_Db_Instance
 	 * @param 	string 			$table
 	 * @param 	array 			$where
 	 * @param 	string 			$orderBy
-	 * @param 	string 			$limit
+	 * @param 	string 			$offset
 	 * @param 	string|array 	$fields
 	 * @return 	array|bool					False if nothing found
 	 */
-	public function find($table, $where = null, $orderBy = null, $limit = null, $fields = null)
+	public function find($table, $where = null, $orderBy = null, $offset = 0, $fields = null)
 	{
+		$limit = array($offset, 1);
+		
 		if (($stmt = self::findAll($table, $where, $orderBy, $limit, $fields)) === false) {
 			return false;
 		}
@@ -186,9 +216,32 @@ class Atomik_Db_Instance
 	}
 	
 	/**
+	 * Returns the value of the specified column of the first row to be found
+	 * 
+	 * @see Atomik_Db_Instance::find()
+	 * @param 	string 			$table
+	 * @param 	string 			$column
+	 * @param 	array 			$where
+	 * @param 	string 			$orderBy
+	 * @param 	string 			$offset
+	 * @return 	array|bool					False if nothing found
+	 */
+	public function findValue($table, $column, $where = null, $orderBy = null, $offset = 0)
+	{
+		if (($row = self::find($table, $where, $orderBy, $offset, array($column))) === false) {
+			return false;
+		}
+		
+		if (!array_key_exists($column, $row)) {
+			return false;
+		}
+		return $row[$column];
+	}
+	
+	/**
 	 * Perform a SELECT COUNT(*) query
 	 *
-	 * @see Db::buildWhere()
+	 * @see Atomik_Db_Instance::buildWhere()
 	 * @param 	string|array 	$table
 	 * @param 	array 			$where
 	 * @param 	string 			$limit
@@ -199,11 +252,27 @@ class Atomik_Db_Instance
 		$this->connect();
 		
 		$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
-		$stmt = $query->execute($this->pdo);
+		if (($stmt = $query->execute($this->pdo)) === false) {
+			return 0;
+		}
+		
 		$count = $stmt->fetchColumn();
 		$stmt->closeCursor();
-		
 		return $count;
+	}
+	
+	/**
+	 * Checks if some rows exist with the specified $where
+	 * Kinf of an alias of {@see Atomik_Db_Instance::count()}
+	 * 
+	 * @param 	string|array 	$table
+	 * @param 	array 			$where
+	 * @param 	string 			$limit
+	 * @return 	bool
+	 */
+	public function has($table, $where, $limit = null)
+	{
+		return $this->count($table, $where, $limit) > 0;
 	}
 	
 	/**
@@ -221,6 +290,7 @@ class Atomik_Db_Instance
 		$this->connect();
 		
 		$query = new Atomik_Db_Query();
+		$query->setTablePrefix($this->_tablePrefix);
 		$stmt = $query->insertInto($table)->values($data)->execute($this->pdo);
 	
 		if ($stmt === false) {
@@ -232,7 +302,7 @@ class Atomik_Db_Instance
 	/**
 	 * Updates a row 
 	 *
-	 * @see Db::buildWhere()
+	 * @see Atomik_Db_Instance::buildWhere()
 	 * @param 	string 	$table
 	 * @param 	array 	$data
 	 * @param 	array 	$where
@@ -243,13 +313,54 @@ class Atomik_Db_Instance
 		$this->connect();
 		
 		$query = new Atomik_Db_Query();
+		$query->setTablePrefix($this->_tablePrefix);
 		return $query->update($table)->set($data)->where($where)->execute($this->pdo);
+	}
+	
+	/**
+	 * Inserts or updates values depending if they're already in the database.
+	 * 
+	 * Uses {@see Atomik_Db_Instance::has()} to check if data is already inserted.
+	 * If $where is null, $data will be used as the where clause. $where can also
+	 * be a string representing a key of the data array
+	 * 
+	 * @param 	string 			$table
+	 * @param 	array 			$data
+	 * @param 	array|string 	$where
+	 * @return 	int|bool				Last insert id if it's an insert, true for success on update, false otherwise
+	 */
+	public function set($table, $data, $where = null)
+	{
+		if ($where === null) {
+			$where = $data;
+		} else if (is_string($where) && array_key_exists($where, $data)) {
+			$where = array($where => $data[$where]);
+		} else if (is_array($where)) {
+			$tmpWhere = $where;
+			$where = array();
+			foreach ($tmpWhere as $key => $value) {
+				if (is_int($key)) {
+					if (array_key_exists($value, $data)) {
+						$where[$value] = $data[$value];
+					}
+				} else {
+					$where[$key] = $value;
+				}
+			}
+		} else {
+			return false;
+		}
+		
+		if ($this->has($table, $where)) {
+			return $this->update($table, $data, $where);
+		}
+		return $this->insert($table, $data);
 	}
 	
 	/**
 	 * Deletes rows
 	 *
-	 * @see Db::buildWhere()
+	 * @see Atomik_Db_Instance::buildWhere()
 	 * @param 	array|string 	$table
 	 * @param 	array 			$where
 	 * @return 	bool
@@ -258,6 +369,7 @@ class Atomik_Db_Instance
 	{
 		$this->connect();
 		$query = new Atomik_Db_Query();
+		$query->setTablePrefix($this->_tablePrefix);
 		return $query->delete()->from($table)->where($where)->execute($this->pdo);
 	}
 	
@@ -279,6 +391,7 @@ class Atomik_Db_Instance
 		}
 		
 		$query = new Atomik_Db_Query();
+		$query->setTablePrefix($this->_tablePrefix);
 		$query->select($fields)->from($table);
 	
 		if ($where !== null) {

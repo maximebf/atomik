@@ -70,8 +70,6 @@ plugin-backend:
 plugin-config:
 	mkdir -p $(RELEASE_DIR)/plugins
 	svn export plugins/Config $(RELEASE_DIR)/plugins/Config
-	svn export library/Atomik/Config $(RELEASE_DIR)/plugins/Config/libraries/Atomik/Config
-	svn export library/Atomik/Config.php $(RELEASE_DIR)/plugins/Config/libraries/Atomik/Config.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-config.zip Config
 	rm -r $(RELEASE_DIR)/plugins/Config
 	

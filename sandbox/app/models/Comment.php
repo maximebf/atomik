@@ -2,12 +2,12 @@
 
 /**
  * @table comments
- * @has one Post as post
+ * @has parent Post as post
  */
 class Comment extends Atomik_Model
 {
 	/**
-	 * @form-field Text
+	 * @form-field Textarea
 	 */
 	public $message;
 }

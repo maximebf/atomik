@@ -70,6 +70,17 @@ class Atomik_Db
 	}
 	
 	/**
+	 * Checks if an instance with the specified name exists
+	 * 
+	 * @param	string	$name
+	 * @return	bool
+	 */
+	public static function isInstanceAvailable($name)
+	{
+		return isset(self::$_availableInstances[$name]);
+	}
+	
+	/**
 	 * Returns all available instances
 	 * 
 	 * @return array
@@ -106,6 +117,7 @@ class Atomik_Db
 			if (isset(self::$_availableInstances[$instance])) {
 				$instance = self::$_availableInstances[$instance];
 			} else {
+				require_once 'Atomik/Db/Exception.php';
 				throw new Atomik_Db_Exception('The instance named ' . $instance . ' does not exist');
 			}
 		} else if ($instance === null) {
@@ -120,10 +132,19 @@ class Atomik_Db
 	/**
 	 * Gets the instance
 	 *
-	 * @return Atomik_Db_Instance
+	 * @param	string				$name
+	 * @return 	Atomik_Db_Instance
 	 */
-	public static function getInstance()
+	public static function getInstance($name = null)
 	{
+		if ($name !== null) {
+			if (!self::isInstanceAvailable($name)) {
+				require_once 'Atomik/Db/Exception.php';
+				throw new Atomik_Db_Exception('No instance named ' . $name . ' were found');
+			}
+			return self::$_availableInstances[$name];
+		}
+		
 		if (self::$_instance === null) {
 			self::setInstance();
 		}
@@ -173,9 +194,9 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::find()
 	 */
-	public static function find($table, $where = null, $orderBy = null, $limit = null, $fields = null)
+	public static function find($table, $where = null, $orderBy = null, $offset = 0, $fields = null)
 	{
-		return self::getInstance()->find($table, $where, $orderBy, $limit, $fields);
+		return self::getInstance()->find($table, $where, $orderBy, $offset, $fields);
 	}
 	
 	/**
@@ -187,11 +208,27 @@ class Atomik_Db
 	}
 	
 	/**
+	 * @see Atomik_Db_Instance::findValue()
+	 */
+	public function findValue($table, $column, $where = null, $orderBy = null, $offset = 0)
+	{
+		return self::getInstance()->findValue($table, $column, $where, $orderBy, $offset);
+	}
+	
+	/**
 	 * @see Atomik_Db_Instance::count()
 	 */
 	public static function count($table, $where = null, $limit = null)
 	{
 		return self::getInstance()->count($table, $where, $limit);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::has()
+	 */
+	public static function has($table, $where, $limit = null)
+	{
+		return self::getInstance()->has($table, $where, $limit);
 	}
 	
 	/**
@@ -208,6 +245,14 @@ class Atomik_Db
 	public static function update($table, $data, $where)
 	{
 		return self::getInstance()->update($table, $data, $where);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::set()
+	 */
+	public static function set($table, $data, $where = null)
+	{
+		return self::getInstance()->set($table, $data, $where);
 	}
 	
 	/**

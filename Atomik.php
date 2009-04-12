@@ -1056,12 +1056,12 @@ class Atomik
 	 */
 	public static function set($key, $value = null, $dimensionize = true, &$array = null, $add = false)
 	{
-		/* if $data is null, uses the global store */
+		// if $data is null, uses the global store
 		if ($array === null) {
 		    $array = &self::$_store;
 		}
 		
-		/* setting a key directly */
+		// setting a key directly
 		if (is_string($key)) {
 			$parentArrayKey = strpos($key, '/') !== false ? dirname($key) : null;
 			$key = basename($key);
@@ -1099,7 +1099,7 @@ class Atomik
     		$key = self::_dimensionizeArray($key);
 	    }
 	
-	    /* merges the store and the array */
+	    // merges the store and the array
     	if ($add) {
     		$array = array_merge_recursive($array, $key);
     	} else {
@@ -1163,26 +1163,26 @@ class Atomik
 		$dimArray = array();
 		
 		foreach ($array as $key => $value) {
-			/* checks if the key is a path */
+			// checks if the key is a path
 			if (strpos($key, '/') !== false) {
 				$parts = explode('/', $key);
 				$firstPart = array_shift($parts);
-				/* recursively dimensionize the key */
+				// recursively dimensionize the key
 				$value = self::_dimensionizeArray(array(implode('/', $parts) => $value));
 				
 				if (isset($dimArray[$firstPart])) {
 					if (!is_array($dimArray[$firstPart])) {
-						/* if $firstPart exists but is not an array, drops the value and use an array */
+						// if $firstPart exists but is not an array, drops the value and use an array
 						$dimArray[$firstPart] = array();
 					}
-					/* merge recursively both arrays */
+					// merge recursively both arrays
 					$dimArray[$firstPart] = self::_mergeRecursive($dimArray[$firstPart], $value);
 				} else {
 					$dimArray[$firstPart] = $value;
 				}
 				
 			} else if (is_array($value)) {
-				/* dimensionize sub arrays */
+				// dimensionize sub arrays
 				$value = self::_dimensionizeArray($value);
 				if (isset($dimArray[$key])) {
 					$dimArray[$key] = self::_mergeRecursive($dimArray[$key], $value);
@@ -1213,11 +1213,11 @@ class Atomik
 	 */
 	public static function get($key = null, $default = null, $array = null)
 	{
-	    /* checks if a namespace is used */
+	    // checks if a namespace is used
 	    if (is_string($key) && preg_match('/^([a-z]+):(.*)/', $key, $match)) {
-	        /* checks if the namespace exists */
+	        // checks if the namespace exists */
 	        if (isset(self::$_namespaces[$match[1]])) {
-	            /* calls the namespace callback and returns */
+	            // calls the namespace callback and returns
 	            $args = func_get_args();
 	            $args[0] = $match[2];
 	            return call_user_func_array(self::$_namespaces[$match[1]], $args);
@@ -1228,7 +1228,7 @@ class Atomik
 	    	return $value;
 	    }
 	    
-		/* key not found, returns default */
+		// key not found, returns default
 		return $default;
 	}
 	
@@ -1291,19 +1291,19 @@ class Atomik
 	{
 		$null = null;
 		
-	    /* returns the store */
+	    // returns the store
 	    if ($array === null) {
 	        $array = &self::$_store;
 	    }
 	    
-	    /* return the whole arrat */
+	    // return the whole arrat
 	    if ($key === null) {
 	    	return $array;
 	    }
 	    
-		/* checks if the $key is an array */
+		// checks if the $key is an array
 	    if (!is_array($key)) {
-	        /* checks if it has slashes */
+	        // checks if it has slashes
     	    if (!strpos($key, '/')) {
     	    	if (array_key_exists($key, $array)) {
 			    	$value =& $array[$key];
@@ -1311,18 +1311,18 @@ class Atomik
     	    	}
     	        return $null;
     	    }
-            /* creates an array by spliting using slashes */
+            // creates an array by spliting using slashes
             $key = explode('/', $key);
 	    }
 	    
-		/* checks if the key exists */
+		// checks if the key exists
 	    $firstKey = array_shift($key);
 	    if (array_key_exists($firstKey, $array)) {
 		    if (count($key) > 0) {
-		        /* there's still keys so it goes deeper */
+		        // there's still keys so it goes deeper
 		        return self::getRef($key, $array[$firstKey]);
 		    } else {
-		        /* the key has been found */
+		        // the key has been found
 		    	$value =& $array[$firstKey];
 		        return $value;
 		    }
@@ -1682,19 +1682,18 @@ class Atomik
 	 */
 	public static function listenEvent($event, $callback, $priority = 50, $important = false)
 	{
-		/* initialize the current event array */
+		// initialize the current event array */
 		if (!isset(self::$_events[$event])) {
 			self::$_events[$event] = array();
 		}
 		
-		/* while there is an event with the same priority, checks
-		 * with an higher or lower priority
-		 */
+		// while there is an event with the same priority, checks
+		// with an higher or lower priority
 		while (isset(self::$_events[$event][$priority])) {
 			$priority += $important ? -1 : 1;
 		}
 		
-		/* stores the callback */
+		// stores the callback
 		self::$_events[$event][$priority] = $callback;
 	}
 	
@@ -1771,28 +1770,28 @@ class Atomik
 	 */
 	public static function path($file, $paths = null, $check = true)
 	{
-	    /* case1, $file is an array */
+	    // case1, $file is an array
 	    if (is_array($file)) {
 	        if ($paths === true) {
-	            /* returns $paths as array */
+	            // returns $paths as array
 	            return $file;
 	        }
-	        /* returns the first path from the paths */
+	        // returns the first path from the paths
 	        return $file[0];
 	    }
-	    /* $file is a string */
+	    // $file is a string
         
-	    /* case 1 */
+	    // case 1
         if ($paths === null || is_bool($paths)) {
             if ($paths === true) {
-                /* returns $file as array */
+                // returns $file as array
                 return array($file);
             }
-            /* returns $file as string */
+            // returns $file as string
             return $file;
         }
         
-        /* case 2, $paths is a string */
+        // case 2, $paths is a string
         if (is_string($paths)) {
             $filename = rtrim($paths, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
             if (!$check || file_exists($filename)) {
@@ -1801,7 +1800,7 @@ class Atomik
             return false;
         }
         
-        /* case 2, $paths is an array */
+        // case 2, $paths is an array
         if (is_array($paths)) {
             foreach ($paths as $path) {
                 $filename = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
@@ -1811,7 +1810,7 @@ class Atomik
             }
         }
         
-        /* nothing found */
+        // nothing found
         return false;
 	}
 	
@@ -1834,7 +1833,7 @@ class Atomik
 			$action = self::get('request_uri');
 		}
 		
-		/* removes the query string from the action */
+		// removes the query string from the action
 		if (($separator = strpos($action, '?')) !== false) {
 			$queryString = parse_url($action, PHP_URL_QUERY);
 			$action = substr($action, 0, $separator);
@@ -1842,7 +1841,7 @@ class Atomik
 			$params = array_merge($actionParams, $params);
 		}
 		
-		/* injects parameters into the url */
+		// injects parameters into the url
 		if (preg_match_all('/(:([a-zA-Z0-9_]+))/', $action, $matches)) {
 			for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
 				if (isset($params[$matches[2][$i]])) {
@@ -1852,7 +1851,7 @@ class Atomik
 			}
 		}
 		
-		/* checks if $action is not a url (checking if there is a protocol) */
+		// checks if $action is not a url (checking if there is a protocol)
 		if (!preg_match('/^([a-z]+):\/\/.*/', $action)) {
 			$action = ltrim($action, '/');
 			$url = rtrim(self::get('atomik/base_url', '.'), '/') . '/';
@@ -1861,11 +1860,11 @@ class Atomik
 				$action = trim(self::get('atomik/base_action', ''), '/') . '/' . $action;
 			}
 			
-			/* checks if url rewriting is used */
+			// checks if url rewriting is used
 			if (!$useIndex || self::get('atomik/url_rewriting', false) === true) {
 				$url .= $action;
 			} else {
-				/* no url rewriting, using index.php */
+				// no url rewriting, using index.php
 				$url .= 'index.php';
 				$params[self::get('atomik/trigger')] = $action;
 			}
@@ -1875,7 +1874,7 @@ class Atomik
 		
 		$url .= count($params) ? '?' . http_build_query($params) : '';
 		
-		/* trigger an event */
+		// trigger an event
 		$args = func_get_args();
 		unset($args[0]);	
 		self::fireEvent('Atomik::Url', array($action, &$url, $args));
@@ -2046,7 +2045,7 @@ class Atomik
 	public static function filter($data, $filter = null, $options = null, $falseOnFail = true)
 	{
 		if (is_array($data)) {
-			/* the $filter must be a rule or a string to a rule defined under filters/rules */
+			// the $filter must be a rule or a string to a rule defined under app/filters/rules
 			if (is_string($filter)) {
 				if (($rule = self::get('app/filters/rules/' . $filter, false)) === false) {
 					throw new Exception('When $data is an array, the filter must be an array of definition or a rule name in Atomik::filter()');
@@ -2075,7 +2074,7 @@ class Atomik
 				$default = null;
 				$label = $field;
 				if (is_array($params)) {
-					/* extracting information from the array */
+					// extracting information from the array
 					if (isset($params['message'])) {
 						$message = self::delete('message', $params);
 					}
@@ -2098,26 +2097,26 @@ class Atomik
 				}
 				
 				if (!isset($data[$field]) && !$required) {
-					/* field not set and not required, do nothing */
+					// field not set and not required, do nothing
 					continue;
 				}
 				
 				if ((!isset($data[$field]) || $data[$field] == '') && $required) {
-					/* the field is required and either not set or empty, this is an error */
+					// the field is required and either not set or empty, this is an error
 					$results[$field] = false;
 					$message = self::get('app/filters/required_message', 'The %s field must be filled');
 					
 				} else if ($data[$field] === '' && !$required) {
-					/* empty but not required, null value */
+					// empty but not required, null value
 					$results[$field] = $default;
 					
 				} else {
-					/* normal, validating */
+					// normal, validating
 					$results[$field] = self::filter($data[$field], $filter, $options);
 				}
 				
 				if ($results[$field] === false) {
-					/* failed validation, adding the message */
+					// failed validation, adding the message
 					$messages[$field] = sprintf($message, $label);
 					$validate = false;
 				}
@@ -2129,16 +2128,16 @@ class Atomik
 		
 		if (is_string($filter)) {
 			if (in_array($filter, filter_list())) {
-				/* filter name from the extension filters */
+				// filter name from the extension filters
 				$filter = filter_id($filter);
 				
 			} else if (preg_match('@/.+/[a-zA-Z]*@', $filter)) {
-				/* regexp */
+				// regexp */
 				$options = array('options' => array('regexp' => $filter));
 				$filter = FILTER_VALIDATE_REGEXP;
 				
 			} else if (($callback = self::get('app/filters/callbacks/' . $filter, false)) !== false) {
-				/* callback defined under filters/callbacks */
+				// callback defined under app/filters/callbacks
 				$filter = FILTER_CALLBACK;
 				$options = $callback;
 				
@@ -2174,7 +2173,7 @@ class Atomik
 	{
 		self::fireEvent('Atomik::Redirect', array(&$url, &$useUrl, &$httpCode));
 		
-		/* uses Atomik::url() */
+		// uses Atomik::url()
 		if ($useUrl) {
 			$url = self::url($url);
 		}
@@ -2188,7 +2187,7 @@ class Atomik
 			session_write_close();
 		}
 		
-		/* redirects */
+		// redirects
 		header('Location: ' . $url, true, $httpCode);
 		self::end(true, false);
 	}
@@ -2203,7 +2202,7 @@ class Atomik
 	 */
 	public static function pluginRedirect($url, $useUrl, $httpCode = 302)
 	{
-		/* uses Atomik::pluginUrl() */
+		// uses Atomik::pluginUrl()
 		if ($useUrl) {
 			$url = self::pluginUrl($url);
 		}
@@ -2217,12 +2216,12 @@ class Atomik
 	{
 		self::fireEvent('Atomik::404');
 		
-		/* HTTP headers */
+		// HTTP headers
 		header('HTTP/1.0 404 Not Found');
 		header('Content-type: text/html');
 		
 		if (file_exists($filename = self::get('atomik/files/404'))) {
-			/* includes the 404 error file */
+			// includes the 404 error file
 			include($filename);
 		} else {
 			echo '<h1>404 - File not found</h1>';
@@ -2248,7 +2247,7 @@ class Atomik
 		
 		self::fireEvent('Atomik::Debug', array(&$data, &$force, &$echo));
 		
-		/* var_dump() does not support returns */
+		// var_dump() does not support returns
 		ob_start();
 		var_dump($data);
 		$dump = ob_get_clean();
@@ -2272,7 +2271,7 @@ class Atomik
 	 */
 	public static function errorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
 	{
-		/* handles errors depending on the level defined with error_reporting */
+		// handles errors depending on the level defined with error_reporting
 		if ($errno <= error_reporting()) {
 		    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 		}
@@ -2287,7 +2286,7 @@ class Atomik
 	 */
 	public static function renderException($exception, $return = false)
 	{	
-		/* checks if the user defined error file is available */
+		// checks if the user defined error file is available
 		if (file_exists($filename = self::get('atomik/files/error'))) {
 			include($filename);
 			self::end(false);
@@ -2299,27 +2298,27 @@ class Atomik
 		   . '<span ' . $attributes['atomik-error-title'] . '>'
 		   . 'An error has occured!</span>';
 		
-		/* only display error information if atomik/display_errors is true */
+		// only display error information if atomik/display_errors is true
 		if (self::get('atomik/display_errors', false) === false) {
 		    echo '</div>';
 		    self::end(false);
 		}
 		
-		/* builds the html erro report */
+		// builds the html erro report
 		$html = '<br />An error of type <strong>' . get_class($exception) . '</strong> '
 		      . 'was caught at <strong>line ' . $exception->getLine() . '</strong><br />'
 		      . 'in file <strong>' . $exception->getFile() . '</strong>'
 		      . '<p>' . $exception->getMessage() . '</p>'
 			  . '<table ' . $attributes['atomik-error-lines'] . '>';
 		
-	    /* builds the table which display the lines around the error */
+	    // builds the table which display the lines around the error
 		$lines = file($exception->getFile());
 		$start = $exception->getLine() - 7;
 		$start = $start < 0 ? 0 : $start;
 		$end = $exception->getLine() + 7;
 		$end = $end > count($lines) ? count($lines) : $end; 
 		for($i = $start; $i < $end; $i++) {
-		    /* color the line with the error. with standard Exception, lines are */
+		    // color the line with the error. with standard Exception, lines are
 			if($i == $exception->getLine() - (get_class($exception) != 'ErrorException' ? 1 : 0)) {
 				$html .= '<tr ' . $attributes['atomik-error-line-error'] . '><td>';
 			}

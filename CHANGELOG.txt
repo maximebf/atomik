@@ -38,8 +38,14 @@
 [Atomik_Backend]
  * New Plugin
  
+[Atomik_Config]
+ * New Plugin
+ 
 [Atomik_Db]
  * Added support for models
+ * Added Atomik_Db::findValue()
+ * Added Atomik_Db::has()
+ * Added Atomik_Db::set()
 
 ----------- Atomik 2.1 --------------
 

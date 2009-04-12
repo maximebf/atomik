@@ -34,19 +34,22 @@ class DbPlugin
 	 */
     public static $config = array (
     	
-    	/* connection string (see PDO) */
-    	'dsn' 			=> false,
+    	// connection string (see PDO)
+    	'dsn' 					=> false,
     	
-    	/* username */
-    	'username'		=> 'root',
+    	// username
+    	'username'				=> 'root',
     	
-    	/* password */
-    	'password'		=> '',
+    	// password
+    	'password'				=> '',
     
-    	/* directories where models are stored */
-    	'model_dirs' => './app/models',
+    	// table prefix
+    	'table_prefix'			=> '',
     
-    	/* default model adapter */
+    	// directories where models are stored
+    	'model_dirs' 			=> './app/models',
+    
+    	// default model adapter
     	'default_model_adapter' => 'Local'
     	
     );
@@ -62,8 +65,11 @@ class DbPlugin
     	
     	/** Atomik_Db */
     	require_once 'Atomik/Db.php';
+    	
+    	// table prefix
+    	Atomik_Db_Query::setDefaultTablePrefix(self::$config['table_prefix']);
 
-		/* automatic connection */
+		// automatic connection
 		if (self::$config['dsn'] !== false) {
 			$dsn = self::$config['dsn'];
 			$username = self::$config['username'];
@@ -71,7 +77,7 @@ class DbPlugin
 			Atomik_Db::createInstance('default', $dsn, $username, $password);
 		}
 		
-		/* adds model directories to php's include path */
+		// adds model directories to php's include path
 		$includes = array();
 		foreach (Atomik::path(self::$config['model_dirs'], true) as $dir) {
 			$includes[] = $dir;
@@ -82,14 +88,14 @@ class DbPlugin
     	/** Atomik_Model */
 		require_once 'Atomik/Model.php';
 		
-		/* loads the default model adapter */
+		// loads the default model adapter
 		if (false && !empty(self::$config['default_model_adapter'])) {
 			require_once 'Atomik/Model/Adapter/Factory.php';
 			$adapter = Atomik_Model_Adapter_Factory::factory(self::$config['default_model_adapter']);
 			Atomik_Model_Builder::setDefaultAdapter($adapter);
 		}
 		
-		/* registers the db selector namespace */
+		// registers the db selector namespace
 		Atomik::registerSelector('db', array('DbPlugin', 'selector'));
 		
 		if (Atomik::isPluginLoaded('Console')) {
@@ -115,22 +121,12 @@ class DbPlugin
 	 */
 	public static function selector($selector, $params = array())
 	{
-	    /* checks if only a table name is used */
+	    // checks if only a table name is used
 	    if (preg_match('/^[a-z_\-]+$/', $selector)) {
 	        return Atomik_Db::findAll($selector, $params);
 	    }
 	    
 	    return Atomik_Db::query($selector, $params);
-	}
-	
-	/**
-	 * Synchronise the database and the models
-	 * 
-	 * @param array $args
-	 */
-	public static function syncdbCommand($args)
-	{
-		
 	}
 }
 

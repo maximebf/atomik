@@ -36,6 +36,16 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	protected $_info;
 	
 	/**
+	 * @var string
+	 */
+	protected $_tablePrefix;
+	
+	/**
+	 * @var string
+	 */
+	protected static $_defaultTablePrefix;
+	
+	/**
 	 * Shortcut to create a new Atomik_Db_Query_Expr object
 	 * 
 	 * @see Atomik_Db_Query_Expr
@@ -45,6 +55,29 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public static function expr($value)
 	{
 		return new Atomik_Db_Query_Expr($value);
+	}
+	
+	/**
+	 * Sets the prefix that will be appended to all table names
+	 * 
+	 * @param	string	$prefix
+	 */
+	public static function setDefaultTablePrefix($prefix)
+	{
+		if (empty($prefix)) {
+			$prefix = '';
+		}
+		self::$_defaultTablePrefix = $prefix;
+	}
+	
+	/**
+	 * Returns the table prefix
+	 * 
+	 * @return string
+	 */
+	public static function getDefaultTablePrefix()
+	{
+		return self::$_defaultTablePrefix;
 	}
 	
 	/**
@@ -74,6 +107,32 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			'data'		=> array(),
 			'params'	=> array()
 		);
+	}
+	
+	/**
+	 * Sets the prefix that will be prepended to all table names
+	 * 
+	 * @param	string	$prefix
+	 */
+	public function setTablePrefix($prefix = null)
+	{
+		if ($prefix === null) {
+			$prefix = self::getDefaultTablePrefix();
+		}
+		$this->_tablePrefix = $prefix;
+	}
+	
+	/**
+	 * Returns the table prefix
+	 * 
+	 * @return string
+	 */
+	public function getTablePrefix()
+	{
+		if ($this->_tablePrefix === null) {
+			$this->setTablePrefix();
+		}
+		return $this->_tablePrefix;
 	}
 	
 	/**
@@ -126,7 +185,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		$this->reset();
 		$this->_info['statement'] = 'INSERT';
-		$this->_info['table'] = $table;
+		$this->_info['table'] = $this->getTablePrefix() . $table;
 		return $this;
 	}
 	
@@ -140,7 +199,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		$this->reset();
 		$this->_info['statement'] = 'UPDATE';
-		$this->_info['table'] = $table;
+		$this->_info['table'] = $this->getTablePrefix() . $table;
 		return $this;
 	}
 	
@@ -181,7 +240,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			return $this;
 		}
 		
-		$this->_info['from'][] = array('table' => $table, 'alias' => $alias);
+		$this->_info['from'][] = array('table' => $this->getTablePrefix() . $table, 'alias' => $alias);
 		return $this;
 	}
 	
@@ -193,7 +252,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function join($table, $on, $alias = null, $type = 'INNER')
 	{
-		$this->_info['join'][] = array('table' => $table, 'on' => $on, 'alias' => $alias, 'type' => $type);
+		$this->_info['join'][] = array('table' => $this->getTablePrefix() . $table, 'on' => $on, 'alias' => $alias, 'type' => $type);
 		return $this;
 	}
 	
@@ -347,6 +406,8 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 *  - limit(sqlString)
 	 *  - limit(length)
 	 *  - limit(offset, length)
+	 *  - limit(array(length))
+	 *  - limit(array(offset, length))
 	 * 
 	 * @return	Atomik_Db_Query
 	 */
@@ -354,6 +415,8 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		if (is_string($limit)) {
 			$args = explode(',', $limit);
+		} else if (is_array($limit)) {
+			$args = $limit;
 		} else {
 			$args = func_get_args();
 		}
