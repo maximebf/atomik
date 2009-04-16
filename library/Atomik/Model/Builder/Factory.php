@@ -57,6 +57,7 @@ class Atomik_Model_Builder_Factory
 			return Atomik_Model_Builder_ClassMetadata::read($name);
 		}
 		
+		require_once 'Atomik/Model/Builder/Exception.php';
 		throw new Atomik_Model_Builder_Exception('No model builder named ' . $name . ' were found');
 	}
 	

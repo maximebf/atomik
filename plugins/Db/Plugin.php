@@ -19,6 +19,12 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Db */
+require_once 'Atomik/Db.php';
+
+/** Atomik_Model */
+require_once 'Atomik/Model.php';
+    	
 /**
  * Helpers function for handling databases
  *
@@ -63,9 +69,6 @@ class DbPlugin
     {
     	self::$config = array_merge(self::$config, $config);
     	
-    	/** Atomik_Db */
-    	require_once 'Atomik/Db.php';
-    	
     	// table prefix
     	Atomik_Db_Query::setDefaultTablePrefix(self::$config['table_prefix']);
 
@@ -84,9 +87,6 @@ class DbPlugin
 		}
 		$includes[] = get_include_path();
 		set_include_path(implode(PATH_SEPARATOR, $includes));
-
-    	/** Atomik_Model */
-		require_once 'Atomik/Model.php';
 		
 		// loads the default model adapter
 		if (false && !empty(self::$config['default_model_adapter'])) {
@@ -99,7 +99,8 @@ class DbPlugin
 		Atomik::registerSelector('db', array('DbPlugin', 'selector'));
 		
 		if (Atomik::isPluginLoaded('Console')) {
-			ConsolePlugin::register('syncdb', array('DbPlugin', 'syncdbCommand'));
+			ConsolePlugin::register('db-create', array('DbPlugin', 'dbCreateCommand'));
+			ConsolePlugin::register('db-create-sql', array('DbPlugin', 'dbCreateSqlCommand'));
 		}
     }
     
@@ -127,6 +128,97 @@ class DbPlugin
 	    }
 	    
 	    return Atomik_Db::query($selector, $params);
+	}
+	
+	/**
+	 * Executes sql scripts for models and the ones located in the sql folder.
+	 * Will look in the app folder as well as in each plugin folder.
+	 * 
+	 * @param 	string	$instance
+	 * @param 	array	$filter
+	 * @param	bool	$echo		Whether to echo or return the output from the script execution
+	 * @return	string
+	 */
+	public static function dbCreate($instance = 'default', $filter = array(), $echo = false)
+	{
+		$script = self::getDbScript();
+		
+		$script->run(Atomik_Db::getInstance($instance));
+		return $script->getOutputHandler()->getText();
+	}
+	
+	/**
+	 * Returns the full sql script
+	 * 
+	 * @param 	array	$filter
+	 * @return	string
+	 */
+	public static function dbCreateSql($filter = array())
+	{
+		return self::getDbScript($filter)->getSql();
+	}
+	
+	/**
+	 * Returns an Atomik_Db_Script object
+	 * 
+	 * @return Atomik_Db_Script
+	 */
+	public static function getDbScript($filter = array())
+	{
+		$filter = array_map('ucfirst', $filter);
+		
+		$paths = array();
+		foreach (Atomik::getLoadedPlugins() as $plugin) {
+			if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
+				if (($path = Atomik::path($plugin, Atomik::get('atomik/dirs/plugins'))) !== false) {
+					$paths[] = $path;
+				}
+			}
+		}
+		
+		if ((count($filter) && in_array('App', $filter)) || !count($filter)) {
+			$paths[] = Atomik::get('atomik/dirs/app');
+		}
+		
+		require_once 'Atomik/Db/Script.php';
+		require_once 'Atomik/Db/Script/Output/Text.php';
+		require_once 'Atomik/Db/Script/Model.php';
+		require_once 'Atomik/Db/Script/File.php';
+		
+		$script = new Atomik_Db_Script();
+		$script->setOutputHandler(new Atomik_Db_Script_Output_Text($echo));
+		
+		foreach ($paths as $path) {
+			if (@is_dir($path . '/models')) {
+				$script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
+			}
+			if (@is_dir($path . '/sql')) {
+				$script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
+			}
+		}
+		
+		return $script;
+	}
+	
+	/**
+	 * The console command for db-create
+	 * 
+	 * @param	array	$args
+	 */
+	public static function dbCreateCommand($args)
+	{
+		$instance = isset($args[0]) ? array_shift($args) : 'default';
+		self::dbCreate($instance, $args, true);
+	}
+	
+	/**
+	 * The console command for db-create-sql
+	 * 
+	 * @param	array	$args
+	 */
+	public static function dbCreateSqlCommand($args)
+	{
+		echo self::dbCreateSql($args);
 	}
 }
 

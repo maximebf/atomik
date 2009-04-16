@@ -7,7 +7,29 @@
 				echo $tab['text'] . ' | '. Atomik::get('backend/title'); 
 			?>
 		</title>
-		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::pluginAsset('styles/main.css', 'backend') ?>" />
+		
+		<?php foreach (A('backend/styles') as $style): ?>
+			<?php 
+				$plugin = 'backend';
+				if (is_array($style)) {
+					$plugin = $style[0];
+					$style = $style[1];
+				}
+			?>
+			<link rel="stylesheet" type="text/css" href="<?php echo Atomik::pluginAsset($style, $plugin) ?>" />
+		<?php endforeach; ?>
+		
+		<?php foreach (A('backend/scripts') as $script): ?>
+			<?php 
+				$plugin = 'backend';
+				if (is_array($script)) {
+					$plugin = $script[0];
+					$script = $script[1];
+				}
+			?>
+			<script type="text/javascript" src="<?php echo Atomik::pluginAsset($script, $plugin) ?>"></script>
+		<?php endforeach; ?>
+		
 	</head>
 	<body>
 		<div id="body">

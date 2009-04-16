@@ -1480,6 +1480,16 @@ class Atomik
 	}
 	
 	/**
+	 * Returns all loaded plugins
+	 * 
+	 * @return array
+	 */
+	public static function getLoadedPlugins()
+	{
+		return array_keys(self::$_plugins);
+	}
+	
+	/**
 	 * Registers a pluggable application
 	 * 
 	 * Possible configuration keys are:

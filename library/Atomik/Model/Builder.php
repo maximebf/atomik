@@ -265,7 +265,7 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 			// checks if there is a field named id
 			if (($field = $this->getField('id')) === false) {
 				// creates a new id field
-				$field = new Atomik_Model_Builder_Field('id', array('form-ignore' => true));
+				$field = new Atomik_Model_Builder_Field('id', array('form-ignore' => true, 'var' => 'int'));
 				$this->addField($field);
 			}
 		}
@@ -308,7 +308,7 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	{
 		$reference->source = $this->name;
 		if (!$this->hasField($reference->sourceField)) {
-			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, array('form-ignore' => true)));
+			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, array('form-ignore' => true, 'var' => 'int')));
 		}
 		$this->_references[$reference->name] = $reference;
 	}

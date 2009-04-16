@@ -168,6 +168,54 @@ class Atomik_Db
 	}
 	
 	/**
+	 * @see Atomik_Db_Instance::setTablePrefix()
+	 */
+	public static function setTablePrefix($prefix)
+	{
+		return self::getInstance()->setTablePrefix($prefix);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::getTablePrefix()
+	 */
+	public static function getTablePrefix()
+	{
+		return self::getInstance()->getTablePrefix();
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::setCacheEnable()
+	 */
+	public static function setCacheEnable($enable = true)
+	{
+		return self::getInstance()->setCacheEnable($enable);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::isCacheEnable()
+	 */
+	public static function isCacheEnable()
+	{
+		return self::getInstance()->isCacheEnable();
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::emptyCache()
+	 */
+	public static function emptyCache()
+	{
+		return self::getInstance()->emptyCache();
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::getErrorInfo()
+	 */
+	public static function getErrorInfo()
+	{
+		return self::getInstance()->getErrorInfo();
+	}
+	
+	/**
 	 * @see Atomik_Db_Instance::query()
 	 */
 	public static function query($query, $params = array())
@@ -210,7 +258,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::findValue()
 	 */
-	public function findValue($table, $column, $where = null, $orderBy = null, $offset = 0)
+	public static function findValue($table, $column, $where = null, $orderBy = null, $offset = 0)
 	{
 		return self::getInstance()->findValue($table, $column, $where, $orderBy, $offset);
 	}

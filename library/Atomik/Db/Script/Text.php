@@ -12,51 +12,52 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Plugins
+ * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Db_Script_Interface */
+require_once 'Atomik/Db/Script/Interface.php';
+
 /**
- * Backend plugin
- * 
  * @package Atomik
- * @subpackage Plugins
+ * @subpackage Db
  */
-class BackendPlugin
+class Atomik_Db_Script_Text implements Atomik_Db_Script_Interface
 {
 	/**
-	 * Default configuration
-	 * 
-	 * @var array 
+	 * @var string
 	 */
-	public static $config = array(
-		
-		// the route needed to start the backend
-		'route' => 'backend/*',
-	
-		'title' => 'Atomik Backend',
-	
-		'scripts' => array(),
-	
-		'styles' => array(
-			'css/main.css'
-		)
-	
-	);
+	public $sql = '';
 	
 	/**
-	 * Plugin initialization
-	 *
-	 * @param array $config
-	 * @return bool
+	 * Constructor
+	 * 
+	 * @param	string	$sql
 	 */
-	public static function start($config)
+	public function __construct($sql = '')
 	{
-        self::$config = array_merge(self::$config, $config);
-        Atomik::set('backend', self::$config);
-        Atomik::registerPluggableApplication('Backend', self::$config['route']);
+		$this->sql = $sql;
+	}
+	
+	/**
+	 * Returns the sql text
+	 * 
+	 * @return string
+	 */
+	public function getSql()
+	{
+		return $this->sql;
+	}
+	
+	/**
+	 * @see Atomik_Db_Script_Text::getSql()
+	 */
+	public function __toString()
+	{
+		return $this->getSql();
 	}
 }

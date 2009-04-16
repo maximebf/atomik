@@ -22,6 +22,9 @@
 /** Atomik_Model_Builder */
 require_once 'Atomik/Model/Builder.php';
 
+/** Atomik_Model_Builder_Factory */
+require_once 'Atomik/Model/Builder/Factory.php';
+
 /**
  * Reads the doc comments of a class and its properties and generates a model builder
  * 
@@ -31,6 +34,11 @@ require_once 'Atomik/Model/Builder.php';
 class Atomik_Model_Builder_ClassMetadata
 {
 	/**
+	 * @var array
+	 */
+	private static $_cache = array();
+	
+	/**
 	 * Reads metadata from a class doc comments and creates a builder object
 	 * 
 	 * @param	string	$className
@@ -38,6 +46,35 @@ class Atomik_Model_Builder_ClassMetadata
 	 */
 	public static function read($className)
 	{
+		$builder = self::_getBaseBuilder($className);
+		
+		// removes the has key to set options before references
+		$references = array();
+		if ($builder->hasOption('has')) {
+			$references = (array) $builder->getOption('has');
+			$builder->removeOption('has');
+		}
+		
+		// adds references
+		foreach ($references as $referenceString) {
+			self::addReferenceFromString($builder, $referenceString);
+		}
+		
+		return $builder;
+	}
+	
+	/**
+	 * Returns a builder without the references
+	 * 
+	 * @param	string	$className
+	 * @return 	Atomik_Model_Builder
+	 */
+	private static function _getBaseBuilder($className)
+	{
+		if (isset(self::$_cache[$className])) {
+			return self::$_cache[$className];
+		}
+		
 		$class = new ReflectionClass($className);
 		$builder = Atomik_Model_Builder_Factory::create($className, $className);
 		
@@ -62,20 +99,8 @@ class Atomik_Model_Builder_ClassMetadata
 			unset($options['adapter']);
 		}
 		
-		// removes the has key to set options before references
-		$references = array();
-		if (isset($options['has'])) {
-			$references = (array) $options['has'];
-			unset($options['has']);
-		}
-		
 		// use the remaining metadatas as options
 		$builder->setOptions($options);
-		
-		// adds references
-		foreach ($references as $referenceString) {
-			self::addReferenceFromString($builder, $referenceString);
-		}
 		
 		if (($parentClass = $class->getParentClass()) != null) {
 			if ($parentClass->getName() != 'Atomik_Model' && $parentClass->isSubclassOf('Atomik_Model')) {
@@ -83,6 +108,7 @@ class Atomik_Model_Builder_ClassMetadata
 			}
 		}
 		
+		self::$_cache[$className] = $builder;
 		return $builder;
 	}
 	
@@ -188,14 +214,14 @@ class Atomik_Model_Builder_ClassMetadata
 	 */
 	public static function getReferenceFields(Atomik_Model_Builder $builder, Atomik_Model_Builder_Reference $reference)
 	{
-		$targetBuilder = Atomik_Model_Builder_Factory::get($reference->target);
+		$targetBuilder = self::_getBaseBuilder($reference->target);
 		
-		if ($reference->type == Atomik_Model_Builder_Reference::HAS_PARENT) {
+		if ($reference->isHasParent()) {
 			// targetModel.targetPrimaryKey = sourceModel.targetModel_targetPrimaryKey
 			$targetField = $targetBuilder->getPrimaryKeyField()->name;
 			$sourceField = strtolower($reference->target) . '_' . $targetField;
 			
-		} else if ($reference->type == Atomik_Model_Builder_Reference::HAS_ONE) {
+		} else if ($reference->isHasOne()) {
 			// targetModel.sourceModel_sourcePrimaryKey = sourceModel.sourcePrimaryKey
 			$sourceField = $builder->getPrimaryKeyField()->name;
 			$targetField = strtolower($builder->name) . '_' . $sourceField;
@@ -204,12 +230,18 @@ class Atomik_Model_Builder_ClassMetadata
 			// HAS_MANY
 			// searching through the target model references for one pointing back to this model
 			$parentsRef = $targetBuilder->getReferences();
+			$found = false;
 			foreach ($parentsRef as $parentRef) {
 				if ($parentRef->isHasParent() && $parentRef->isTarget($builder->name)) {
 					$sourceField = $parentRef->targetField;
 					$targetField = $parentRef->sourceField;
+					$found = true;
 					break;
 				}
+			}
+			if (!$found) {
+				require_once 'Atomik/Model/Exception.php';
+				throw new Atomik_Model_Exception('No back reference in ' . $reference->target . ' for ' . $builder->name);
 			}
 		}
 		

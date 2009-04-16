@@ -50,6 +50,16 @@ class Atomik_Db_Instance
 	protected $_tablePrefix;
 	
 	/**
+	 * @var bool
+	 */
+	protected $_cacheEnabled = false;
+	
+	/**
+	 * @var array
+	 */
+	protected $_queryCache = array();
+	
+	/**
 	 * Constructor
 	 *
 	 * @param 	PDO 	$pdo
@@ -127,6 +137,45 @@ class Atomik_Db_Instance
 	}
 	
 	/**
+	 * Sets whether to cache query results or not
+	 * 
+	 * @param bool $enable
+	 */
+	public function setCacheEnable($enable = true)
+	{
+		$this->_cacheEnabled = $enable;
+	}
+	
+	/**
+	 * Checks if the query cache is enabled.
+	 * Query are cached only if constructed with Atomik_Db_Query
+	 * 
+	 * @return bool
+	 */
+	public function isCacheEnable()
+	{
+		return $this->_cacheEnabled;
+	}
+	
+	/**
+	 * Empties the query cache
+	 */
+	public function emptyCache()
+	{
+		$this->_cacheEnabled = array();
+	}
+	
+	/**
+	 * Returns error information
+	 * 
+	 * @return array
+	 */
+	public function getErrorInfo()
+	{
+		return $this->pdo->errorInfo();
+	}
+	
+	/**
 	 * Prepares and executes a statement
 	 *
 	 * @param 	string|Atomik_Db_Query	$query
@@ -136,7 +185,7 @@ class Atomik_Db_Instance
 	public function query($query, $params = array())
 	{
 		if ($query instanceof Atomik_Db_Query) {
-			$params = $query->getParams();
+			return $this->_executeQuery($query);
 		}
 		
 		$this->connect();
@@ -188,12 +237,12 @@ class Atomik_Db_Instance
 	{
 		$limit = array($offset, 1);
 		
-		if (($stmt = self::findAll($table, $where, $orderBy, $limit, $fields)) === false) {
+		if (($result = self::findAll($table, $where, $orderBy, $limit, $fields)) === false) {
 			return false;
 		}
 		
-		$row = $stmt->fetch();
-		$stmt->closeCursor();
+		$row = $result->fetch();
+		$result->closeCursor();
 		return $row;
 	}
 	
@@ -212,7 +261,7 @@ class Atomik_Db_Instance
 	{
 		$this->connect();
 		$query = $this->_buildQuery($table, $where, $orderBy, $limit, $fields);
-		return $query->execute($this->pdo);
+		return $this->_executeQuery($query);
 	}
 	
 	/**
@@ -252,12 +301,12 @@ class Atomik_Db_Instance
 		$this->connect();
 		
 		$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
-		if (($stmt = $query->execute($this->pdo)) === false) {
+		if (($result = $this->_executeQuery($query)) === false) {
 			return 0;
 		}
 		
-		$count = $stmt->fetchColumn();
-		$stmt->closeCursor();
+		$count = $result->fetchColumn();
+		$result->closeCursor();
 		return $count;
 	}
 	
@@ -290,10 +339,9 @@ class Atomik_Db_Instance
 		$this->connect();
 		
 		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix);
-		$stmt = $query->insertInto($table)->values($data)->execute($this->pdo);
+		$query->setTablePrefix($this->_tablePrefix)->insertInto($table)->values($data);
 	
-		if ($stmt === false) {
+		if ($query->execute($this->pdo) === false) {
 			return false;
 		}
 		return $this->pdo->lastInsertId();
@@ -313,8 +361,8 @@ class Atomik_Db_Instance
 		$this->connect();
 		
 		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix);
-		return $query->update($table)->set($data)->where($where)->execute($this->pdo);
+		$query->setTablePrefix($this->_tablePrefix)->update($table)->set($data)->where($where);
+		return $query->execute($this->pdo);
 	}
 	
 	/**
@@ -369,8 +417,34 @@ class Atomik_Db_Instance
 	{
 		$this->connect();
 		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix);
-		return $query->delete()->from($table)->where($where)->execute($this->pdo);
+		$query->setTablePrefix($this->_tablePrefix)->delete()->from($table)->where($where);
+		return $query->execute($this->pdo);
+	}
+	
+	/**
+	 * Executes a query.
+	 * Uses the cache version if available
+	 * 
+	 * @param	Atomik_Db_Query		$query
+	 * @return 	PDOStatement|array
+	 */
+	protected function _executeQuery(Atomik_Db_Query $query)
+	{
+		$hash = $query->toHash();
+		if ($this->_cacheEnabled && isset($this->_queryCache[$hash])) {
+			$this->_queryCache[$hash]->rewind();
+			return $this->_queryCache[$hash];
+		}
+		
+		if (($result = $query->execute($this->pdo)) === false) {
+			return false;
+		}
+		
+		if ($this->_cacheEnabled) {
+			$this->_queryCache[$hash] = $result;
+			return $this->_queryCache[$hash];
+		}
+		return $result;
 	}
 	
 	/**

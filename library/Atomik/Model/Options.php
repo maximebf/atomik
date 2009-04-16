@@ -17,8 +17,8 @@ abstract class Atomik_Model_Options
 	/**
 	 * Sets an option
 	 *
-	 * @param string $name
-	 * @param mixed $value
+	 * @param 	string 	$name
+	 * @param 	mixed 	$value
 	 */
 	public function setOption($name, $value)
 	{
@@ -28,12 +28,26 @@ abstract class Atomik_Model_Options
 	/**
 	 * Checks if an option exists
 	 *
-	 * @param string $name
-	 * @return bool
+	 * @param 	string $name
+	 * @param 	string $prefix
+	 * @return 	bool
 	 */
 	public function hasOption($name, $prefix = '')
 	{
 		return array_key_exists($prefix . $name, $this->_options);
+	}
+	
+	/**
+	 * Checks if an option exists
+	 *
+	 * @param 	string $name
+	 * @param 	string $prefix
+	 */
+	public function removeOption($name, $prefix = '')
+	{
+		if (array_key_exists($prefix . $name, $this->_options)) {
+			unset($this->_options[$prefix . $name]);
+		}
 	}
 	
 	/**

@@ -80,40 +80,51 @@ class ConsolePlugin
 	 */
 	public static function onAtomikStart()
 	{
-		echo "Atomik " . ATOMIK_VERSION . " Console\n";
+		restore_error_handler();
+		$success = true;
 		
-		if ($_SERVER['argc'] <= 1) {
-			Atomik::fireEvent('Console::End');
-			Atomik::end(true);
-		}
-		
-		/* get parameters from the command line arguments */
-		$command = $_SERVER['argv'][1];
-		$arguments = array_slice($_SERVER['argv'], 2);
-		
-		/* console starts */
-		Atomik::fireEvent('Console::Start', array(&$command, &$arguments));
-		
-		/* checks if a script file exists */
-		if (($scriptFilename = Atomik::path($command . '.php', self::$config['scripts_dir'])) === false) {
-			/* run the script */
-			require $scriptFilename;
-		} else {
-			/* checks if the command is registered */
-			if (!array_key_exists($command, self::$_commands)) {
-				echo "The command $command does not exists\n";
+		try {
+			echo "Atomik " . ATOMIK_VERSION . " Console\n\n";
+			
+			if ($_SERVER['argc'] <= 1) {
+				Atomik::fireEvent('Console::End');
 				Atomik::end(true);
 			}
 			
-			/* executes the callback */
-			call_user_func(self::$_commands[$command], $arguments);
+			/* get parameters from the command line arguments */
+			$command = $_SERVER['argv'][1];
+			$arguments = array_slice($_SERVER['argv'], 2);
+			
+			/* console starts */
+			Atomik::fireEvent('Console::Start', array(&$command, &$arguments));
+			
+			/* checks if a script file exists */
+			if (($scriptFilename = Atomik::path($command . '.php', self::$config['scripts_dir'])) !== false) {
+				/* run the script */
+				require $scriptFilename;
+			} else {
+				/* checks if the command is registered */
+				if (!array_key_exists($command, self::$_commands)) {
+					echo "The command $command does not exists\n";
+					Atomik::end(true);
+				}
+				
+				/* executes the callback */
+				call_user_func(self::$_commands[$command], $arguments);
+			}
+			
+			/* console ends */
+			Atomik::fireEvent('Console::End', array($command, $arguments));
+			
+		} catch (Exception $e) {
+			self::println('AN ERROR OCCURED at line ' . $e->getLine() . ' in ' . $e->getFile() . "\n");
+			self::println($e->getMessage() . "\n", 1);
+			self::println($e->getTraceAsString());
+			$success = false;
 		}
 		
-		/* console ends */
-		Atomik::fireEvent('Console::End', array($command, $arguments));
-		
 		echo "\n\nDone\n";
-		Atomik::end(true);
+		Atomik::end($success);
 	}
 	
 	/**
