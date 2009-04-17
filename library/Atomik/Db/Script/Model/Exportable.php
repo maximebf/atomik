@@ -12,46 +12,21 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Adapter_Interface */
-require_once 'Atomik/Model/Adapter/Interface.php';
+/** Atomik_Model_Builder */
+require_once 'Atomik/Model/Builder.php';
 
 /**
  * @package Atomik
- * @subpackage Model
+ * @subpackage Db
  */
-class Atomik_Model_Adapter_Provisioning implements Atomik_Model_Adapter_Interface
+interface Atomik_Db_Script_Model_Exportable
 {
-	/**
-	 * Query the adapter
-	 * 
-	 * @param	Atomik_Model_Query	$query
-	 * @return 	Atomik_Model_Modelset
-	 */
-	public function query(Atomik_Model_Query $query)
-	{
-		
-	}
-	
-	/**
-	 * 
-	 */
-	public function save(Atomik_Model $model)
-	{
-		
-	}
-	
-	/**
-	 * 
-	 */
-	public function delete(Atomik_Model $model)
-	{
-		
-	}
+	static function getSqlDefinition(Atomik_Model_Builder $builder);
 }

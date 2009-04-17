@@ -22,6 +22,9 @@
 /** Atomik_Model_Adapter_Interface */
 require_once 'Atomik/Model/Adapter/Interface.php';
 
+/** Atomik_Db_Script_Model_Exportable */
+require_once 'Atomik/Db/Script/Model/Exportable.php';
+
 /** Atomik_Db */
 require_once 'Atomik/Db.php';
 
@@ -31,40 +34,46 @@ require_once 'Atomik/Db.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface, Atomik_Db_Script_Model_Exportable 
 {
+	/**
+	 * @var array
+	 */
+	public static $primaryKeyMap = array(
+		'mysql' => ' int PRIMARY KEY AUTO_INCREMENT',
+		'sqlite' => ' int PRIMARY KEY AUTOINCREMENT',
+		'pgsql' => ' serial PRIMARY KEY'
+	);
+	
 	/**
 	 * @var Atomik_Db_Instance
 	 */
-	protected static $_db;
+	protected static $_defaultDbInstance;
 	
 	/**
-	 * Sets the database instance
+	 * Sets the default database instance
 	 *
 	 * @param Atomik_Db_Instance $db
 	 */
-	public static function setDb(Atomik_Db_Instance $db = null)
+	public static function setDefaultDbInstance(Atomik_Db_Instance $db = null)
 	{
 		if ($db === null) {
-			if (($db = Atomik_Db::getInstance()) === null) {
-				require_once 'Atomik/Model/Exception.php';
-				throw new Atomik_Model_Exception('No database instances found');
-			}
+			$db = Atomik_Db::getInstance();
 		}
-		self::$_db = $db;
+		self::$_defaultDbInstance = $db;
 	}
 	
 	/**
-	 * Gets the database instance
+	 * Gets the default database instance
 	 *
 	 * @return Atomik_Db_Instance
 	 */
-	public static function getDb()
+	public static function getDefaultDbInstance()
 	{
-		if (self::$_db === null) {
-			self::setDb();
+		if (self::$_defaultDbInstance === null) {
+			self::setDefaultDbInstance();
 		}
-		return self::$_db;
+		return self::$_defaultDbInstance;
 	}
 	
 	/**
@@ -76,7 +85,7 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 	public static function convertModelQueryToDbQuery(Atomik_Model_Query $query)
 	{
 		$dbQuery = new Atomik_Db_Query();
-		$dbQuery->from(self::getTableNameFromBuilder($query->from));
+		$dbQuery->select()->from(self::getTableNameFromBuilder($query->from));
 		
 		if (!empty($query->where)) {
 			$dbQuery->where($query->where);
@@ -92,14 +101,79 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 	}
 	
 	/**
-	 * Returns the table name associated to a model
+	 * Returns the table name associated to a builder
 	 *
-	 * @param Atomik_Model_Builder $builder
 	 * @return string
 	 */
 	public static function getTableNameFromBuilder(Atomik_Model_Builder $builder)
 	{
 		return $builder->getOption('table', $builder->name);
+	}
+	
+	/**
+	 * Returns the db instance associated to the builder
+	 *
+	 * @return Atomik_Db_Instance
+	 */
+	public static function getDbInstanceFromBuilder(Atomik_Model_Builder $builder)
+	{
+		if (($instance = $builder->getOption('db-instance')) !== null) {
+			return Atomik_Db::getInstance($instance);
+		}
+		return self::getDefaultDbInstance();
+	}
+	
+	/**
+	 * Returns the sql needed to create the associated table
+	 * 
+	 * @param Atomik_Model_Builder $builder
+	 * @return string
+	 */
+	public static function getSqlDefinition(Atomik_Model_Builder $builder)
+	{
+		$primaryKeyField = $builder->getPrimaryKeyField();
+		$tableName = self::getTableNameFromBuilder($builder);
+		
+		$fields = array();
+		$indexes = array();
+		
+		$fields[] = "\t" . $primaryKeyField->name . self::getPrimaryKeySpecFromBuilder($builder);
+		
+		foreach ($builder->getFields() as $field) {
+			if ($field == $primaryKeyField) {
+				continue;
+			}
+			
+			$type = $field->getOption('sql-type', $field->getOption('var', 'varchar(50)'));
+			$null = $field->getOption('sql-nullable', false) ? 'NULL' : 'NOT NULL';
+			$fields[] = "\t" . $field->name . ' ' . $type . ' ' . $null;
+			
+			if ($field->hasOption('sql-index') || $type == 'int') {
+				if (($indexName = $field->getOption('sql-index', true)) === true) {
+					$indexName = 'idx_' . $tableName . '_' . $field->name;
+				}
+				$indexes[] = sprintf("CREATE INDEX %s ON %s (%s);\n", $indexName, $tableName, $field->name);
+			}
+		}
+		
+		$sql = sprintf("DROP TABLE IF EXISTS %s;\n", $tableName);
+		$sql .= sprintf("CREATE TABLE %s (\n%s\n);\n", $tableName, implode(", \n", $fields));
+		$sql .= implode('', $indexes);
+		
+		return $sql;
+	}
+	
+	/**
+	 * Returns the sql string for a primary key field definition
+	 * 
+	 * @param Atomik_Model_Builder $builder
+	 * @return string
+	 */
+	public static function getPrimaryKeySpecFromBuilder(Atomik_Model_Builder $builder)
+	{
+		$driver = self::getDbInstanceFromBuilder($builder)->getPdoDriverName();
+		return isset(self::$primaryKeyMap[$driver]) ? 
+			self::$primaryKeyMap[$driver] : ' int PRIMARY KEY';
 	}
 	
 	/**
@@ -111,8 +185,9 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 	public function query(Atomik_Model_Query $query)
 	{
 		$dbQuery = self::convertModelQueryToDbQuery($query);
-		$rows = self::getDb()->query($dbQuery);
-		return new Atomik_Model_Modelset($query->builder, $rows);
+		$rows = self::getDbInstanceFromBuilder($query->from)->query($dbQuery);
+		$rows->setFetchMode(PDO::FETCH_ASSOC);
+		return new Atomik_Model_Modelset($query->from, $rows);
 	}
 	
 	/**
@@ -123,13 +198,14 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 	 */
 	public function save(Atomik_Model $model)
 	{
-		$data = $model->toArray();
 		$builder = $model->getBuilder();
+		$db = self::getDbInstanceFromBuilder($builder);
 		$tableName = self::getTableNameFromBuilder($builder);
+		$data = $model->toArray();
 		
 		// insert
 		if ($model->isNew()) {
-			if (($id = self::getDb()->insert($tableName, $data)) === false) {
+			if (($id = $db->insert($tableName, $data)) === false) {
 				return false;
 			}
 			$model->setPrimaryKey($id);
@@ -138,7 +214,7 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 		
 		// update
 		$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
-		return self::getDb()->update($tableName, $data, $where);
+		return $db->update($tableName, $data, $where);
 	}
 	
 	/**
@@ -154,9 +230,10 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface
 		}
 		
 		$builder = $model->getBuilder();
+		$db = self::getDbInstanceFromBuilder($builder);
 		$tableName = self::getTableNameFromBuilder($builder);
 		
 		$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
-		return self::getDb()->delete($tableName, $where);
+		return $db->delete($tableName, $where);
 	}
 }

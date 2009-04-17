@@ -67,6 +67,16 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	}
 	
 	/**
+	 * Returns the raw data
+	 * 
+	 * @return array
+	 */
+	public function getData()
+	{
+		return $this->_data;
+	}
+	
+	/**
 	 * Returns the model at the specified index
 	 * 
 	 * @param	int		$index
@@ -74,7 +84,7 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	 */
 	public function item($index)
 	{
-		if (!array_key_exists($index, $this->_data)) {
+		if ($index >= $this->_count) {
 			return false;
 		}
 		

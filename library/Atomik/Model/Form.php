@@ -75,10 +75,13 @@ class Atomik_Model_Form extends Atomik_Form
 		$this->setAttributes($builder->getOptions('form-'));
 		
 		foreach ($builder->getFields() as $builderField) {
+			if ($builderField->getOption('form-ignore', false)) {
+				continue;
+			}
 			$this->_fields[$builderField->name] = Atomik_Form_Field_Factory::factory(
 				$builderField->getOption('form-field', 'Input'), 
 				$builderField->name,
-				$builderField->getOption('form-label', ''), 
+				$builderField->getOption('form-label', $builderField->name), 
 				$builderField->getOptions('form-')
 			);
 		}
@@ -95,6 +98,17 @@ class Atomik_Model_Form extends Atomik_Form
 	}
 	
 	/**
+	 * Adds a new field
+	 * 
+	 * @param	Atomik_Form_Field_Abstract	$field
+	 */
+	public function addField(Atomik_Form_Field_Abstract $field)
+	{
+		parent::addField($field);
+		$this->populateModel();
+	}
+	
+	/**
 	 * Sets the data
 	 * 
 	 * @param	array	$data
@@ -105,10 +119,7 @@ class Atomik_Model_Form extends Atomik_Form
 		parent::setData($data);
 		
 		if ($populateModel && !empty($data)) {
-			if ($this->_model === null) {
-				$this->_model = $this->_builder->createInstance();
-			}
-			$this->_model->populate($this->getData());
+			$this->populateModel();
 		}
 	}
 	
@@ -129,6 +140,17 @@ class Atomik_Model_Form extends Atomik_Form
 		if ($model !== null && $updateData) {
 			$this->setData($model->toArray(), false);
 		}
+	}
+	
+	/**
+	 * Populates the model with the data from the form
+	 */
+	public function populateModel()
+	{
+		if ($this->_model === null) {
+			$this->_model = $this->_builder->createInstance();
+		}
+		$this->_model->populate($this->getData());
 	}
 	
 	/**
@@ -157,6 +179,7 @@ class Atomik_Model_Form extends Atomik_Form
 	public function unsetModel()
 	{
 		$this->_model = null;
+		$this->clearData();
 	}
 	
 	/**

@@ -114,6 +114,19 @@ class Atomik_Db_Instance
 	public function disconnect()
 	{
 		$this->pdo = null;
+		$this->_pdoDriver = null;
+		$this->emptyCache();
+	}
+	
+	/**
+	 * Returns the PDO driver being used
+	 * 
+	 * @return string
+	 */
+	public function getPdoDriverName()
+	{
+		$this->connect();
+		return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 	}
 	
 	/**
@@ -159,9 +172,18 @@ class Atomik_Db_Instance
 	
 	/**
 	 * Empties the query cache
+	 * 
+	 * @param Atomik_Db_Query $query If specified will clear the cache only for this query
 	 */
-	public function emptyCache()
+	public function emptyCache(Atomik_Db_Query $query = null)
 	{
+		if ($query !== null) {
+			$hash = $query->toHash();
+			if (isset($this->_queryCache[$hash])) {
+				unset($this->_queryCache[$hash]);
+			}
+			return;
+		}
 		$this->_cacheEnabled = array();
 	}
 	
@@ -184,11 +206,11 @@ class Atomik_Db_Instance
 	 */
 	public function query($query, $params = array())
 	{
+		$this->connect();
 		if ($query instanceof Atomik_Db_Query) {
 			return $this->_executeQuery($query);
 		}
 		
-		$this->connect();
 		$stmt = $this->pdo->prepare((string) $query);
 		$stmt->execute($params);
 		

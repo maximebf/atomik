@@ -33,7 +33,7 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	/**
 	 * @var array
 	 */
-	protected static $_data = array();
+	protected $_data = array();
 	
 	/**
 	 * Query the adapter
@@ -45,12 +45,12 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	{
 		$builder = $query->from;
 		
-		if (!isset(self::$_data[$builder->name])) {
+		if (!isset($this->_data[$builder->name])) {
 			return new Atomik_Model_Modelset($builder, array());
 		}
 		
 		$data = array();
-		foreach (self::$_data[$builder->name] as $modelData) {
+		foreach ($this->_data[$builder->name] as $modelData) {
 			$match = true;
 			foreach ($query->where as $key => $value) {
 				if (!isset($modelData[$key]) || $modelData[$key] != $value) {
@@ -75,19 +75,19 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	public function save(Atomik_Model $model)
 	{
 		$name = $model->getBuilder()->name;
-		if (!isset(self::$_data[$name])) {
-			self::$_data[$name] = array();
+		if (!isset($this->_data[$name])) {
+			$this->_data[$name] = array();
 		}
 		
 		if ($model->isNew()) {
-			$model->setPrimaryKey(count(self::$_data[$name]));
-			self::$_data[$name][] = $model->toArray();
+			$model->setPrimaryKey(count($this->_data[$name]));
+			$this->_data[$name][] = $model->toArray();
 			
 		} else {
-			if (!isset(self::$_data[$name][$model->getPrimaryKey()])) {
+			if (!isset($this->_data[$name][$model->getPrimaryKey()])) {
 				return false;
 			}
-			self::$_data[$name][$model->getPrimaryKey()] = $model->toArray();
+			$this->_data[$name][$model->getPrimaryKey()] = $model->toArray();
 		}
 	}
 	
@@ -100,8 +100,8 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	public function delete(Atomik_Model $model)
 	{
 		$name = $model->getBuilder()->name;
-		if (isset(self::$_models[$name][$model->getPrimaryKey()])) {
-			unset(self::$_models[$name][$model->getPrimaryKey()]);
+		if (isset($this->_data[$name][$model->getPrimaryKey()])) {
+			unset($this->_data[$name][$model->getPrimaryKey()]);
 			return true;
 		}
 		return false;

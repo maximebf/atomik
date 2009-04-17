@@ -168,6 +168,14 @@ class Atomik_Db
 	}
 	
 	/**
+	 * @see Atomik_Db_Instance::getPdoDriverName()
+	 */
+	public static function getPdoDriverName()
+	{
+		return self::getInstance()->getPdoDriverName();
+	}
+	
+	/**
 	 * @see Atomik_Db_Instance::setTablePrefix()
 	 */
 	public static function setTablePrefix($prefix)
@@ -202,9 +210,9 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::emptyCache()
 	 */
-	public static function emptyCache()
+	public static function emptyCache(Atomik_Db_Query $query = null)
 	{
-		return self::getInstance()->emptyCache();
+		return self::getInstance()->emptyCache($query);
 	}
 	
 	/**

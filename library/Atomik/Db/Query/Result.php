@@ -397,7 +397,10 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	
 	public function offsetExists($index)
 	{
-		return true;
+		if ($this->_statement !== null) {
+			return $index < $this->_columnCount;
+		}
+		return $index < count($this->_rows);
 	}
 	
 	public function offsetGet($index)

@@ -76,7 +76,7 @@ class Atomik_Model_Builder_ClassMetadata
 		}
 		
 		$class = new ReflectionClass($className);
-		$builder = Atomik_Model_Builder_Factory::create($className, $className);
+		$builder = new Atomik_Model_Builder($className, $className);
 		
 		foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
 			$propData = self::getMetadataFromDocBlock($prop->getDocComment());
@@ -227,6 +227,8 @@ class Atomik_Model_Builder_ClassMetadata
 			$targetField = strtolower($builder->name) . '_' . $sourceField;
 			
 		} else {
+			$targetBuilder = Atomik_Model_Builder_Factory::get($reference->target);
+			
 			// HAS_MANY
 			// searching through the target model references for one pointing back to this model
 			$parentsRef = $targetBuilder->getReferences();

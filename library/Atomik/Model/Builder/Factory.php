@@ -54,7 +54,8 @@ class Atomik_Model_Builder_Factory
 		}
 		
 		if (class_exists($name)) {
-			return Atomik_Model_Builder_ClassMetadata::read($name);
+			self::$_cache[$name] = Atomik_Model_Builder_ClassMetadata::read($name);
+			return self::$_cache[$name];
 		}
 		
 		require_once 'Atomik/Model/Builder/Exception.php';

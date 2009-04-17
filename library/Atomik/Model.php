@@ -122,11 +122,8 @@ class Atomik_Model extends Atomik_Model_Locator
 	 */
 	public function populate($data)
 	{
-		$fields = $this->getBuilder()->getFields();
-		foreach ($fields as $field) {
-			if (array_key_exists($field->name, $data)) {
-				$this->{$field->name} = $data[$field->name];
-			}
+		foreach ($data as $name => $value) {
+			$this->{$name} = $value;
 		}
 	}
 	
@@ -160,8 +157,8 @@ class Atomik_Model extends Atomik_Model_Locator
 			return $reference;
 		}
 		
-		$query->limit(1, $offset);
-		$modelSet = Atomik_Model_Locator::query($builder, $query);
+		$query->limit(1);
+		$modelSet = Atomik_Model_Locator::query($reference->target, $query);
 		if (count($modelSet) == 0) {
 			$this->_references[$name] = null;
 		}
@@ -236,11 +233,7 @@ class Atomik_Model extends Atomik_Model_Locator
 		
 		if (property_exists($this, $name)) {
 			return $this->{$name};
-		} else if ($this->getBuilder()->hasField($name)) {
-			return null;
 		}
-		
-		throw new Atomik_Model_Exception('Field does not exist: ' . $name);
 	}
 	
 	/**

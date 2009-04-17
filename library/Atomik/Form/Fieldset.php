@@ -111,6 +111,17 @@ class Atomik_Form_Fieldset
 	}
 	
 	/**
+	 * Empties the data
+	 */
+	public function clearData()
+	{
+		$this->_data = array();
+		foreach ($this->_fields as $field) {
+			$field->setValue('');
+		}
+	}
+	
+	/**
 	 * Checks if there is data available
 	 *
 	 * @return bool

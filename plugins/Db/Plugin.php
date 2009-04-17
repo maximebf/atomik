@@ -56,7 +56,7 @@ class DbPlugin
     	'model_dirs' 			=> './app/models',
     
     	// default model adapter
-    	'default_model_adapter' => 'Local'
+    	'default_model_adapter' => 'Db'
     	
     );
     
@@ -89,7 +89,7 @@ class DbPlugin
 		set_include_path(implode(PATH_SEPARATOR, $includes));
 		
 		// loads the default model adapter
-		if (false && !empty(self::$config['default_model_adapter'])) {
+		if (!empty(self::$config['default_model_adapter'])) {
 			require_once 'Atomik/Model/Adapter/Factory.php';
 			$adapter = Atomik_Model_Adapter_Factory::factory(self::$config['default_model_adapter']);
 			Atomik_Model_Builder::setDefaultAdapter($adapter);
@@ -141,9 +141,12 @@ class DbPlugin
 	 */
 	public static function dbCreate($instance = 'default', $filter = array(), $echo = false)
 	{
-		$script = self::getDbScript();
+		$script = self::getDbScript($filter, $echo);
+		Atomik::fireEvent('Db::Create::Before', array(&$instance, $script));
 		
 		$script->run(Atomik_Db::getInstance($instance));
+		
+		Atomik::fireEvent('Db::Create::After', array($instance, $script));
 		return $script->getOutputHandler()->getText();
 	}
 	
@@ -155,6 +158,7 @@ class DbPlugin
 	 */
 	public static function dbCreateSql($filter = array())
 	{
+		Atomik::fireEvent('Db::CreateSql', array(&$filter));
 		return self::getDbScript($filter)->getSql();
 	}
 	
@@ -163,7 +167,7 @@ class DbPlugin
 	 * 
 	 * @return Atomik_Db_Script
 	 */
-	public static function getDbScript($filter = array())
+	public static function getDbScript($filter = array(), $echo = false)
 	{
 		$filter = array_map('ucfirst', $filter);
 		
@@ -197,6 +201,7 @@ class DbPlugin
 			}
 		}
 		
+		Atomik::fireEvent('Db::Script', array($script));
 		return $script;
 	}
 	

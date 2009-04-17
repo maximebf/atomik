@@ -31,6 +31,9 @@ require_once 'Atomik/Model/Builder/Factory.php';
 /** Atomik_Model_Adapter_Db */
 require_once 'Atomik/Model/Adapter/Db.php';
 
+/** Atomik_Db_Script_Model_Exportable */
+require_once 'Atomik/Db/Script/Model/Exportable.php';
+
 /**
  * @package Atomik
  * @subpackage Db
@@ -40,7 +43,7 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	/**
 	 * @var Atomik_Model_Builder
 	 */
-	protected $_modelBuilder;
+	protected $_builder;
 	
 	/**
 	 * Returns an array of script obtained from a directory
@@ -75,6 +78,9 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 			}
 			
 			$builder = Atomik_Model_Builder_Factory::get($className);
+			if (!($builder->getAdapter() instanceof Atomik_Db_Script_Model_Exportable)) {
+				continue;
+			}
 			$scripts[] = new Atomik_Db_Script_Model($builder);
 		}
 		
@@ -86,9 +92,9 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 * 
 	 * @param	Atomik_Model_Builder	$builder
 	 */
-	public function __construct(Atomik_Model_Builder $modelBuilder = null)
+	public function __construct(Atomik_Model_Builder $builder = null)
 	{
-		$this->_modelBuilder = $modelBuilder;
+		$this->setModelBuilder($builder);
 	}
 	
 	/**
@@ -96,13 +102,13 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 * 
 	 * @param	Atomik_Model_Builder	$builder
 	 */
-	public function setModelBuilder(Atomik_Model_Builder $modelBuilder)
+	public function setModelBuilder(Atomik_Model_Builder $builder)
 	{
-		if (get_class($modelBuilder->getAdapter()) != 'Atomik_Model_Adapter_Db') {
+		if (!($builder->getAdapter() instanceof Atomik_Db_Script_Model_Exportable)) {
 			require_once 'Atomik/Db/Script/Exception.php';
 			throw new Atomik_Db_Script_Exception('The model builder must use the Db adapter');
 		}
-		$this->_modelBuilder = $modelBuilder;
+		$this->_builder = $builder;
 	}
 	
 	/**
@@ -112,7 +118,7 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 */
 	public function getModelBuilder()
 	{
-		return $this->_modelBuilder;
+		return $this->_builder;
 	}
 	
 	/**
@@ -120,23 +126,8 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 */
 	public function getSql()
 	{
-		$table = Atomik_Model_Adapter_Db::getTableNameFromBuilder($this->_modelBuilder);
-		$fields = array();
-		$primaryKeyField = $this->_modelBuilder->getPrimaryKeyField();
-		
-		$fields[] = "\t" . $primaryKeyField->name . ' int PRIMARY KEY';
-		
-		foreach ($this->_modelBuilder->getFields() as $field) {
-			if ($field == $primaryKeyField) {
-				continue;
-			}
-			$type = $field->getOption('sql-type', $field->getOption('var', 'varchar(50)'));
-			$fields[] = "\t" . $field->name . ' ' . $type;
-		}
-		
-		$sql = sprintf("DROP TABLE IF EXISTS %s;\n", $table);
-		$sql .= sprintf("CREATE TABLE %s (\n%s\n);\n", $table, implode(", \n", $fields));
-		return $sql;
+		$callback = array(get_class($this->_builder->getAdapter()), 'getSqlDefinition');
+		return call_user_func($callback, $this->_builder);
 	}
 	
 	/**

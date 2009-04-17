@@ -27,16 +27,32 @@ class Album extends Atomik_Model
 }
 
 /**
- * @adapter Local
+ * @adapter File
  * @has parent Album as album
+ * @has one ImageMetadata as metadata
+ * @dir app/uploads
+ * @filename :album_id/:id.txt
  */
 class Image extends Atomik_Model
 {
-	public $name;
+	/**
+	 * @filename
+	 */
+	public $filename;
 	
-	public $description;
-	
+	/**
+	 * @file-content
+	 */
 	public $file;
+}
+
+/**
+ * @adapter Local
+ * @has parent Image as image
+ */
+class ImageMetadata extends Atomik_Model
+{
+	public $name;
 }
 
 $toto = new User();
@@ -47,10 +63,10 @@ $album = new Album(array('name' => 'Holiday'));
 $toto->albums[] = $album;
 $album->save();
 
-$image = new Image();
-$image->name = 'The beach';
-$album->images[] = $image;
-$image->save();
+$meta = new ImageMetadata();
+$meta->image_id = 0;
+$meta->name = 'toto';
+$meta->save();
 
 unset($toto);
 unset($album);
@@ -69,7 +85,7 @@ foreach (Atomik_Model::findAll('User') as $user) {
 	foreach ($user->albums as $album) {
 		echo '<li>' . $album->name . '<ul>';
 		foreach ($album->images as $image) {
-			echo '<li>' . $image->name . '</li>';
+			echo '<li>' . $image->metadata->name . ' (' . $image->filename . ')</li>';
 		}
 		echo '</ul></li>';
 	}

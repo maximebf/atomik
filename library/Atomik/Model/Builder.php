@@ -131,7 +131,7 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 			throw new Atomik_Model_Builder_Exception('Inherited model can\'t have a different adapter');
 		}
 		
-		$this->_adapter = $builder->getAdapter();
+		$this->setAdapter($builder->getAdapter());
 		$this->_options = array_merge($builder->getOptions(), $this->_options);
 		$this->_parentModelBuilder = $builder;
 	}

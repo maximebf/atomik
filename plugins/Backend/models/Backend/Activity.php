@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @table activities
+ * @adapter Db
+ * @table backend_activities
  */
 class Backend_Activity extends Atomik_Model
 {

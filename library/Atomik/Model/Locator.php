@@ -33,7 +33,7 @@ class Atomik_Model_Locator
 	 *
 	 * @param 	string|Atomik_Model_Builder $builder
 	 * @param 	Atomik_Model_Query			$query
-	 * @return 	array
+	 * @return 	Atomik_Model_Modelset
 	 */
 	public static function query($builder, Atomik_Model_Query $query)
 	{
@@ -49,7 +49,7 @@ class Atomik_Model_Locator
 	 * @param 	array 							$where
 	 * @param 	string 							$orderBy
 	 * @param 	string|array					$limit
-	 * @return 	Atomik_Model
+	 * @return 	Atomik_Model_Modelset
 	 */
 	public static function findAll($builder, $where = null, $orderBy = null, $limit = null)
 	{

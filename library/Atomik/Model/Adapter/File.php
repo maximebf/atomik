@@ -33,55 +33,133 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	protected $_orderBy;
 	
 	/**
+	 * Gets the directory where files are stored
+	 *
+	 * @param Atomik_Model_Builder $builder
+	 * @return string
+	 */
+	public static function getDirectoryFromBuilder(Atomik_Model_Builder $builder)
+	{
+		if (($dir = $builder->getOption('dir', null)) === null) {
+			require_once 'Atomik/Model/Exception.php';
+			throw new Atomik_Model_Exception('Missing dir optiom in ' . $builder->getName() . ' model');
+		}
+		
+		// making the dir absolute
+		if (substr($dir, 0, 1) != '/') {
+			$dir = dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $dir;
+		}
+		
+		return rtrim($dir, '/') . '/';
+	}
+	
+	/**
+	 * Transforms the filename template of a file to a real filename
+	 *
+	 * @param Atomik_Model_Builder $builder
+	 * @param array $data
+	 * @return string
+	 */
+	public static function getFilenameFromBuilder(Atomik_Model_Builder $builder, $data = array())
+	{
+		if (($filename = $builder->getOption('filename', null)) === null) {
+			require_once 'Atomik/Model/Exception.php';
+			throw new Atomik_Model_Exception('Missing filename option in ' . $builder->getName() . ' model');
+		}
+		
+		foreach ($data as $key => $value) {
+			$filename = str_replace(':' . $key, $value, $filename);
+		}
+		
+		return ltrim($filename, '/');
+	}
+	
+	/**
 	 * Query the adapter
 	 * 
 	 * @param	Atomik_Model_Query	$query
 	 * @return 	Atomik_Model_Modelset
 	 */
-	public function query(Atomik_Model_Builder $builder, $query)
+	public function query(Atomik_Model_Query $query)
 	{
-		return array();
-	}
-	
-	/**
-	 * Finds many models
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array $where
-	 * @param string $orderBy
-	 * @param string $limit
-	 * @return array
-	 */
-	public function findAll(Atomik_Model_Builder $builder, $where = null, $orderBy = '', $limit = '')
-	{
-		if ($where === null) {
-			$where = array();
-		}
-		
+		$builder = $query->from;
+		$dir = self::getDirectoryFromBuilder($builder);
+		$filename = self::getFilenameFromBuilder($builder, $query->where);
 		$files = array();
-		$dir = $this->_getDir($builder);
-		$templateFilename = $this->_getFilename($builder, $where);
 		
-		/* removes the extension from the path */
+		// removes the extension from the path
 		$extension = null;
-		if (($dot = strrpos($templateFilename, '.')) !== false) {
-			$extension = strtolower(substr($templateFilename, $dot + 1));
-			$templateFilename = substr($templateFilename, 0, $dot);
+		if (($dot = strrpos($filename, '.')) !== false) {
+			$extension = strtolower(substr($filename, $dot + 1));
+			$filename = substr($filename, 0, $dot);
 		}
 		
-		$segments = explode('/', $templateFilename);
+		$segments = explode('/', $filename);
 		$segment = array_shift($segments);
 		
-		/* start searching in the directory */
+		// start searching in the directory
 		foreach (new DirectoryIterator($dir) as $file) {
 			if (!$file->isDot()) {
 				$files = array_merge($files, $this->_search($file, $segment, $segments, $extension, $builder));
 			}
 		}
 		
-		if (!empty($orderBy)) {
-			$this->_orderBy = $orderBy;
+		if (!empty($query->orderByField)) {
+			$this->_orderBy = $query->orderByField;
 			usort($files, array($this, '_sortFiles'));
+		}
+		
+		return new Atomik_Model_Modelset($query->from, $files);
+	}
+	
+	/**
+	 * Searches for matching files
+	 *
+	 * @param Iterator $file
+	 * @param string $segment
+	 * @param array $segments
+	 * @param string $extension
+	 * @param Atomik_Model_Builder $builder
+	 * @return array
+	 */
+	protected function _search($file, $segment, $segments, $extension, $builder)
+	{
+		$files = array();
+		
+		if (!$file->isDir() && count($segments) == 0) {
+			// not a directory
+			
+			$filename = $file->getFilename();
+			$fileExt = null;
+			
+			if ($extension !== null) {
+				// extracting the extension from the filename
+				$fileExt = strtolower(substr($filename, strrpos($filename, '.') + 1));
+				$filename = substr($filename, 0, strrpos($filename, '.'));
+			}
+			
+			// to match, the segment can either be a variable or match the filename (without the extension)
+			// the file extension must matched the searched extensions
+			if ((substr($segment, 0, 1) == ':' || $filename == $segment) && $fileExt == $extension) {
+				$files[] = $this->_getDataFromFile($file->getPathname(), $builder);
+			}
+			
+		} else if ($file->isDir()) {
+			// it is a directory
+			
+			// the segment is not a variable and the filename does not match
+			if (substr($segment, 0, 1) != ':' && $file->getFilename() != $segment) {
+				return array();
+			}
+			
+			// the segment is either a variable or it matches the current filename
+			// checking in sub files
+			$segment = array_shift($segments);
+			foreach (new DirectoryIterator($file->getPathname()) as $subFile) {
+				if (!$file->isDot()) {
+					$files = array_merge($files, $this->_search($subFile, $segment, $segments, $extension, $builder));
+				}
+			}
 		}
 		
 		return $files;
@@ -100,78 +178,21 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	}
 	
 	/**
-	 * Searches for matching files
-	 *
-	 * @param Iterator $file
-	 * @param string $segment
-	 * @param array $segments
-	 * @param string $extension
-	 * @param Atomik_Model_Builder $builder
-	 * @return array
-	 */
-	protected function _search($file, $segment, $segments, $extension, $builder)
-	{
-		$files = array();
-		
-		if (!$file->isDir()) {
-			/* not a directory */
-			
-			$filename = $file->getFilename();
-			
-			if ($extension === null) {
-				/* no need to check the extension, to match the segment can either be a variable
-				 * or match the current filename */
-				if (substr($segment, 0, 1) == ':' || $filename == $segment) {
-					$files[] = $this->_createInstanceFromFile($file->getPathname(), $builder);
-				}
-			} else {
-				/* checking the extension, extracting the extension from the filename */
-				$fileExt = strtolower(substr($filename, strrpos($filename, '.') + 1));
-				$filename = substr($filename, 0, strrpos($filename, '.'));
-				/* to match, the segment can either be a variable or match the filename (without the extension)
-				 * the file extension must matched the searched extensions */
-				if ((substr($segment, 0, 1) == ':' || $filename == $segment) && $fileExt == $extension) {
-					$files[] = $this->_createInstanceFromFile($file->getPathname(), $builder);
-				}
-			}
-			
-		} else {
-			/* it is a directory*/
-			
-			/* the segment is not a variable and the filename does not match */
-			if (substr($segment, 0, 1) != ':' && $file->getFilename() != $segment) {
-				return array();
-			}
-			
-			/* the segment is either a variable or it matches the current filename
-			 * checking in sub files */
-			$segment = array_shift($segments);
-			foreach (new DirectoryIterator($file->getPathname()) as $subFile) {
-				if (!$file->isDot()) {
-					$files = array_merge($files, $this->_search($subFile, $segment, $segments, $extension, $builder));
-				}
-			}
-		}
-		
-		return $files;
-	}
-	
-	/**
 	 * Creates a model instance from a filename
 	 *
 	 * @param string $filename
 	 * @param Atomik_Model_Builder $builder
 	 * @return Atomik_Model
 	 */
-	protected function _createInstanceFromFile($filename, $builder)
+	protected function _getDataFromFile($filename, $builder)
 	{
-		$dir = $this->_getDir($builder);
+		$dir = self::getDirectoryFromBuilder($builder);
 		
-		/* gets the filename without the directory path */
-		$filename = ltrim(substr($filename, strlen($dir)), '/');
+		// gets the filename without the directory path
 		$fullname = $filename;
+		$filename = ltrim(substr($filename, strlen($dir)), '/');
 		
-		/* removes the extension in the path and in the filename if present */
+		// removes the extension in the filename if present
 		$templateFilename = $builder->getOption('filename');
 		if (($dot = strrpos($templateFilename, '.')) !== false) {
 			$templateFilename = substr($templateFilename, 0, $dot);
@@ -180,45 +201,25 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 		
 		$fileSegments = explode('/', $filename);
 		$segments = explode('/', $templateFilename);
-		$values = array();
+		$data = array();
 		
-		/* searches in path segments for variables and matching them with the filename segments */
+		// searches in path segments for variables and matching them with the filename segments
 		for ($i = 0, $c = count($segments); $i < $c; $i++) {
 			if (substr($segments[$i], 0, 1) == ':') {
-				$values[substr($segments[$i], 1)] = $fileSegments[$i];
+				$data[substr($segments[$i], 1)] = $fileSegments[$i];
 			}
 		}
 		
 		foreach ($builder->getFields() as $field) {
 			if ($field->hasOption('file-content')) {
-				$values[$field->getName()] = file_get_contents($file->getPathname());
+				$data[$field->name] = file_get_contents($fullname);
 				
 			} else if ($field->hasOption('filename')) {
-				$values[$field->getName()] = $fullname;
+				$data[$field->name] = $fullname;
 			}
 		}
 		
-		return $builder->createInstance($values);
-	}
-	
-	/**
-	 * Finds one model
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array $where
-	 * @param string $orderBy
-	 * @param string $limit
-	 * @return Atomik_Model
-	 */
-	public function find(Atomik_Model_Builder $builder, $where, $orderBy = '', $limit = '')
-	{
-		$file = $this->_getDir($builder) . $this->_getFilename($builder, $where);
-		
-		if (!file_exists($file)) {
-			return null;
-		}
-		
-		return $this->_createInstanceFromFile($file, $builder);
+		return $data;
 	}
 	
 	/**
@@ -241,45 +242,5 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	public function delete(Atomik_Model $model)
 	{
 		return true;
-	}
-	
-	/**
-	 * Gets the directory where files are stored
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @return string
-	 */
-	protected function _getDir(Atomik_Model_Builder $builder)
-	{
-		if (($dir = $builder->getOption('dir', null)) === null) {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Missing path key in ' . $builder->getName() . ' model');
-		}
-		
-		/* making the dir absolute */
-		if (substr($dir, 0, 1) != '/') {
-			$dir = dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $dir;
-		}
-		
-		return rtrim($dir, '/') . '/';
-	}
-	
-	/**
-	 * Transforms the filename template of a file to a real filename
-	 *
-	 * @param Atomik_Model_Builder $builder
-	 * @param array $data
-	 * @return string
-	 */
-	protected function _getFilename(Atomik_Model_Builder $builder, $data)
-	{
-		if (($path = $builder->getOption('filename', null)) === null) {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Missing path key in ' . $builder->getName() . ' model');
-		}
-		foreach ($data as $key => $value) {
-			$path = str_replace(':' . $key, $value, $path);
-		}
-		return ltrim($path, '/');
 	}
 }

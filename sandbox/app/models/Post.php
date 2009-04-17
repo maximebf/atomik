@@ -2,7 +2,7 @@
 
 /**
  * @table posts
- * @has many Comment as comment
+ * @has many Comment as comments
  * @cascade-save
  */
 class Post extends Atomik_Model
