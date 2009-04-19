@@ -80,7 +80,7 @@ class DbPlugin
 			Atomik_Db::createInstance('default', $dsn, $username, $password);
 		}
 		
-		// adds model directories to php's include path
+		// adds models directories to php's include path
 		$includes = array();
 		foreach (Atomik::path(self::$config['model_dirs'], true) as $dir) {
 			$includes[] = $dir;
@@ -102,6 +102,24 @@ class DbPlugin
 			ConsolePlugin::register('db-create', array('DbPlugin', 'dbCreateCommand'));
 			ConsolePlugin::register('db-create-sql', array('DbPlugin', 'dbCreateSqlCommand'));
 		}
+    }
+    
+    /**
+     * Adds models folders to php's include path
+     */
+    public static function onAtomikStart()
+    {
+		$includes = array();
+		
+		// add plugin's models folder to php's include path 
+		foreach (Atomik::getLoadedPlugins(true) as $plugin => $dir) {
+			if (!in_array($dir . '/models', $includes)) {
+				$includes[] = $dir . '/models';
+			}
+		}
+		
+		$includes[] = get_include_path();
+		set_include_path(implode(PATH_SEPARATOR, $includes));
     }
     
     /**
@@ -172,11 +190,9 @@ class DbPlugin
 		$filter = array_map('ucfirst', $filter);
 		
 		$paths = array();
-		foreach (Atomik::getLoadedPlugins() as $plugin) {
+		foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
 			if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
-				if (($path = Atomik::path($plugin, Atomik::get('atomik/dirs/plugins'))) !== false) {
-					$paths[] = $path;
-				}
+				$paths[] = $path;
 			}
 		}
 		

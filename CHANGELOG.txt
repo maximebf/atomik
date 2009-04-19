@@ -31,6 +31,10 @@
  * Added support for view helpers
  * Added Atomik::_render()
  * Added Atomik::__call()
+ * Added Atomik::getLoadedPlugins()
+ * Added Atomik::isPluginLoaded()
+ * Added Atomik::isPluginAvailable()
+ * Added Atomik::loadPluginIfAvailable()
  
 [Atomik_Auth]
  * New Plugin

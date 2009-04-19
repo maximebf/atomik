@@ -41,19 +41,21 @@ img {
 */
 
 #header {
-	background: #deea7a;
+	background: #f9fdda url(../images/header-bg.png) repeat-x;
 	color: #8e9d10;
-	padding: 10px 10px 0px 10px;
+	padding: 10px 0px 0px 0px;
 }
 
 	#header h1 {
 		font-size: 1.5em;
-		margin: 0px;
+		margin: 0;
+		margin-left: 10px;
 	}
 	
 	#header-info {
 		color: #333805;
 		float: right;
+		margin-right: 10px;
 	}
 	
 /* ----------------------------------------------------------------
@@ -64,7 +66,7 @@ img {
 	list-style: none;
 	margin: 0px;
 	margin-top: 15px;
-	padding: 0px;
+	padding: 0px 10px 0 10px;
 }
 
 	#menu li {
@@ -78,8 +80,8 @@ img {
 	}
 	
 	#menu li a {
-		background: #aebc35;
-    	color: #f5f8d9;
+		background: #c6d735;
+    	color: #eef3c3;
 		display: block;
 		float: left;
 		font-size: 14px;
@@ -89,10 +91,51 @@ img {
 		padding: 6px 8px 5px;
 	}
 	
+	#menu li a:hover {
+		color: #747b3a;
+		text-decoration: none;
+	}
+	
 	#menu li.selected a {
-		background: #f7f9e3;
+		background: #deea7a url(../images/selected-menu-bg.png) repeat-x;
 		color: #000;
 	}
+	
+	#menu li.selected a:hover {
+		color: #000;
+	}
+
+#sub-menu {
+	background: #deea7a;
+	border-bottom: 3px solid #C0D329;
+	clear: both;
+	list-style-type: none;
+	margin: 0;
+	padding: 5px 20px 3px 20px;
+}
+
+	#sub-menu li {
+		display: inline;
+		margin: 0 30px 0 0;
+	}
+
+		#sub-menu li a {
+			color: #607404;
+			font-weight: bold;
+		}
+
+		#sub-menu li a:hover {
+			color: #445203;
+			text-decoration: none;
+		}
+
+/* ----------------------------------------------------------------
+	[ Main ]
+*/
+
+#main {
+	background: #f7f9e3 url(../images/main-bg.png) repeat-x;
+}
 	
 /* ----------------------------------------------------------------
 	[ Messages ]
@@ -114,29 +157,33 @@ img {
 }
 
 /* ----------------------------------------------------------------
-	[ Main ]
+	[ Content ]
 */
 
-#main-wrapper {
+#content-wrapper {
 	float: left;
 	width: 75%;
 }
-	#main {
-		background: #fff;
-		margin: 10px;
+
+/* ----------------------------------------------------------------
+	[ Panel ]
+*/
+
+.panel {
+	background: #fff;
+	margin: 10px;
+}
+	.panel-title {
+		background: #dae0aa;
+		color: #50580e;
+		font-size: 1.2em;
+		margin: 0px;
+		padding: 10px;
 	}
-		#main h1,
-		#sidebar .sidebar-action {
-			background: #dae0aa;
-			color: #50580e;
-			font-size: 1.2em;
-			margin: 0px;
-			padding: 10px;
-		}
 	
-		#content {
-			padding: 10px;
-		}
+	.panel-content {
+		padding: 10px;
+	}
 	
 /* ----------------------------------------------------------------
 	[ Sidebar ]
@@ -154,8 +201,12 @@ img {
 	}
 	
 		#sidebar .sidebar-action {
+			background: #dae0aa;
+			color: #50580e;
 			display: block;
+			font-size: 1.2em;
 			line-height: 37px;
+			margin: 0px;
 			margin-bottom: 10px;
 			padding: 0px;
 		}

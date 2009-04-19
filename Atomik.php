@@ -1417,7 +1417,7 @@ class Atomik
 			// directory found, plugin file should be inside
 			$filename = $dirname . '/Plugin.php';
 			$appFilename = $dirname . '/Application.php';
-			$pluginDir = dirname($dirname);
+			$pluginDir = $dirname;
 			
 			if (!($isPluggApp = file_exists($appFilename)) && !file_exists($filename)) {
 				throw new Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
@@ -1469,6 +1469,18 @@ class Atomik
 	}
 	
 	/**
+	 * Loads a plugin only if it's available
+	 * 
+	 * @see Atomik::loadPlugin()
+	 */
+	public static function loadPluginIfAvailable($plugin, $config = array(), $dirs = null, $classNameTemplate = '%Plugin', $callStart = true)
+	{
+		if (!Atomik::isPluginLoaded($plugin) && Atomik::isPluginAvailable($plugin)) {
+			Atomik::loadPlugin($plugin, $config, $dirs, $classNameTemplate, $callStart);
+		}
+	}
+	
+	/**
 	 * Checks if a plugin is already loaded
 	 *
 	 * @param 	string $plugin
@@ -1480,12 +1492,30 @@ class Atomik
 	}
 	
 	/**
+	 * Checks if a plugin is available
+	 *
+	 * @param 	string $plugin
+	 * @return 	bool
+	 */
+	public static function isPluginAvailable($plugin)
+	{
+		if (self::path($plugin . '.php', self::get('atomik/dirs/plugins')) === false) {
+			return self::path($plugin, self::get('atomik/dirs/plugins')) !== false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Returns all loaded plugins
 	 * 
-	 * @return array
+	 * @param	bool	$withDir	Whether to only returns plugin names or the name (as array key) and the directory
+	 * @return 	array
 	 */
-	public static function getLoadedPlugins()
+	public static function getLoadedPlugins($withDir = false)
 	{
+		if ($withDir) {
+			return self::$_plugins;
+		}
 		return array_keys(self::$_plugins);
 	}
 	
@@ -1560,7 +1590,7 @@ class Atomik
 		
 		// plugin dir
 		if ($config['pluginDir'] === null) {
-			$pluginDir = self::$_plugins[$plugin] . '/' . $plugin;
+			$pluginDir = self::$_plugins[$plugin];
 		} else {
 			$pluginDir = rtrim($config['pluginDir'], '/');
 		}

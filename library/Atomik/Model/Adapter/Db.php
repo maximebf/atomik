@@ -184,10 +184,15 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface, Atomik_
 	 */
 	public function query(Atomik_Model_Query $query)
 	{
-		$dbQuery = self::convertModelQueryToDbQuery($query);
+		if ($query->isRaw()) {
+			$dbQuery = $query->rawQuery;
+		} else {
+			$dbQuery = self::convertModelQueryToDbQuery($query);
+		}
+		
 		$rows = self::getDbInstanceFromBuilder($query->from)->query($dbQuery);
 		$rows->setFetchMode(PDO::FETCH_ASSOC);
-		return new Atomik_Model_Modelset($query->from, $rows);
+		return $rows;
 	}
 	
 	/**

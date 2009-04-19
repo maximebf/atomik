@@ -1,0 +1,37 @@
+
+#activities {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+	#activities .activity {
+		border-bottom: 1px solid #EFEFEF;
+		clear: both;
+		padding: 4px;
+	}
+	
+		#activities .activity .label {
+			background: #DAE0AA;
+			color: #fff;
+			display: block;
+			float: left;
+			margin: 2px;
+			margin-right: 5px;
+			padding: 2px 4px 2px 4px;
+		}
+		
+		#activities .activity .message {
+			display: block;
+			float: left;
+			margin: 2px;
+			padding: 2px 4px 2px 4px;
+		}
+		
+		#activities .activity .userAction {
+			color: #c1c1c1;
+			display: block;
+			float: right;
+			margin: 2px;
+			padding: 2px 4px 2px 4px;
+		}

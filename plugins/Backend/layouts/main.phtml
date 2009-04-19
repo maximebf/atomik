@@ -52,26 +52,31 @@
 					<?php endforeach; ?>
 					<?php echo Atomik::fireEvent('Backend::Layout::Tabs::After', array(), true); ?>
 				</ul>
+				<ul id="sub-menu">
+				</ul>
+			</div>
+			
+			<div id="main">
+				<div id="messages">
+					<?php echo Atomik::fireEvent('Backend::Layout::Messages::Before', array(), true); ?>
+					
+					<?php foreach (Atomik::get('flash:all') as $label => $messages): ?>
+						<?php foreach ($messages as $message): ?>
+							<div class="message <?php echo $label ?>">
+								<?php echo $message ?>
+							</div>
+						<?php endforeach; ?>
+					<?php endforeach; ?>
+					
+					<?php echo Atomik::fireEvent('Backend::Layout::Messages::After', array(), true); ?>
+				</div>
+				
+				<?php echo Atomik::fireEvent('Backend::Layout::Content::Before', array(), true); ?>
+				<?php echo $contentForLayout ?>
+				<?php echo Atomik::fireEvent('Backend::Layout::Content::After', array(), true); ?>
+				
 				<div class="clear"></div>
 			</div>
-			
-			<div id="messages">
-				<?php echo Atomik::fireEvent('Backend::Layout::Messages::Before', array(), true); ?>
-				
-				<?php foreach (Atomik::get('flash:all') as $label => $messages): ?>
-					<?php foreach ($messages as $message): ?>
-						<div class="message <?php echo $label ?>">
-							<?php echo $message ?>
-						</div>
-					<?php endforeach; ?>
-				<?php endforeach; ?>
-				
-				<?php echo Atomik::fireEvent('Backend::Layout::Messages::After', array(), true); ?>
-			</div>
-			
-			<?php echo Atomik::fireEvent('Backend::Layout::Content::Before', array(), true); ?>
-			<?php echo $contentForLayout ?>
-			<?php echo Atomik::fireEvent('Backend::Layout::Content::After', array(), true); ?>
 			
 			<div id="footer">
 				Thank you for using Atomik Framework. 

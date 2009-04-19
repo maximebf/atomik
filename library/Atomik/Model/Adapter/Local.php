@@ -63,7 +63,7 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 			}
 		}
 		
-		return new Atomik_Model_Modelset($builder, $data);
+		return $data;
 	}
 	
 	/**

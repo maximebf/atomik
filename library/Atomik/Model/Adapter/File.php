@@ -75,6 +75,25 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	}
 	
 	/**
+	 * Returns the filename of a model associated file
+	 * 
+	 * @param 	Atomik_Model	$model
+	 * @return 	string
+	 */
+	public static function getFilenameFromModel(Atomik_Model $model)
+	{
+		$dir = self::getDirectoryFromBuilder($model->getBuilder());
+		$filename = self::getFilenameFromBuilder($model->getBuilder(), $model->toArray());
+		
+		if (preg_match('/:[a-zA-Z0-9]+/', $filename)) {
+			require_once 'Atomik/Model/Exception.php';
+			throw new Atomik_Model_Exception('Some fields are missing for the filename to be complete in ' . get_class($model));
+		}
+		
+		return $dir . $filename;
+	}
+	
+	/**
 	 * Query the adapter
 	 * 
 	 * @param	Atomik_Model_Query	$query
@@ -109,7 +128,7 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 			usort($files, array($this, '_sortFiles'));
 		}
 		
-		return new Atomik_Model_Modelset($query->from, $files);
+		return $files;
 	}
 	
 	/**
@@ -230,7 +249,17 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	 */
 	public function save(Atomik_Model $model)
 	{
-		return true;
+		$builder = $model->getBuilder();
+		$filename = self::getFilenameFromModel($model);
+		$content = '';
+		
+		foreach ($builder->getFields() as $field) {
+			if ($field->hasOption('file-content')) {
+				$content = $model->{$field->name};
+			}
+		}
+		
+		return file_put_contents($filename, $content);
 	}
 	
 	/**
@@ -241,6 +270,10 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 	 */
 	public function delete(Atomik_Model $model)
 	{
-		return true;
+		$filename = self::getFilenameFromModel($model);
+		if (!file_exists($filename)) {
+			return false;
+		}
+		return @unlink($filename);
 	}
 }

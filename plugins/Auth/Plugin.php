@@ -80,6 +80,17 @@ class AuthPlugin
     	}
     }
     
+    /**
+     * Adds a restricted URI
+     * 
+     * @param	string	$uri
+     * @param	array	$roles
+     */
+    public static function addRestrictedUri($uri, $roles = array())
+    {
+    	self::$_privateUris[$uri] = (array) $roles;
+    }
+    
 	/**
 	 * Checks if the request uri is accessible to the currently logged in user
 	 * 

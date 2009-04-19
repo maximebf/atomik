@@ -85,7 +85,7 @@ class Atomik_Model_Adapter_Dynamicdb extends Atomik_Model_Adapter_Db
 			$rows[$primaryKey][$row['dynamic_field_name']] = $row['dynamic_field_value'];
 		}
 		
-		return new Atomik_Model_Modelset($builder, array_values($rows));
+		return array_values($rows);
 	}
 	
 	/**

@@ -66,6 +66,6 @@ class ConfigPlugin
 	 */
 	public static function onBackendStart()
 	{
-		Atomik_Backend::addTab('Configuration', 'Config', 'index', 'right');
+		Atomik_Backend::addTab('Settings', 'Config', 'index', 'right');
 	}
 }

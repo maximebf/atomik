@@ -611,6 +611,20 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
+	 * Returns query information
+	 * 
+	 * @param	string	$key	To retreive only one type of information
+	 * @return 	array
+	 */
+	public function getInfo($key = null)
+	{
+		if ($key === null) {
+			return $this->_info;
+		}
+		return $this->_info[$key];
+	}
+	
+	/**
 	 * Returns the query's info as an array
 	 * 
 	 * @return array

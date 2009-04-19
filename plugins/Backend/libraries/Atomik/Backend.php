@@ -110,9 +110,4 @@ class Atomik_Backend
 		
 		return strlen($uri) >= strlen($match) && substr($uri, 0, strlen($match)) == $match;
 	}
-	
-	public static function addActivity($plugin, $label, $text, $user, $userAction = 'Added by')
-	{
-		
-	}
 }

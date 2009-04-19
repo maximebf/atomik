@@ -28,6 +28,8 @@ require_once 'Atomik/Db/Query.php';
  */
 class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 {
+	const FETCH_OBJECT = 'atomik_fetch_object';
+	
 	/**
 	 * @var Atomik_Db_Query
 	 */
@@ -69,7 +71,12 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	protected $_fetchMode;
 	
 	/**
-	 * @var int
+	 * @var array
+	 */
+	protected $_fetchObjectParams;
+	
+	/**
+	 * @var array
 	 */
 	protected static $_defaultFetchMode = PDO::FETCH_BOTH;
 	
@@ -80,7 +87,7 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	 */
 	public static function setDefaultFetchMode($fetchMode)
 	{
-		self::$_defaultFetchMode = $fetchMode;
+		self::$_defaultFetchMode = func_get_args();
 	}
 	
 	/**
@@ -90,7 +97,7 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	 */
 	public static function getDefaultFetchMode()
 	{
-		return self::$_defaultFetchMode;
+		return self::$_defaultFetchMode[0];
 	}
 	
 	/**
@@ -131,7 +138,7 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 		$this->_index = -1;
 		$this->_rows = array();
 		
-		$this->setFetchMode(self::getDefaultFetchMode());
+		call_user_func_array(array($this, 'setFetchMode'), self::$_defaultFetchMode);
 	}
 	
 	/**
@@ -248,7 +255,13 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 				throw new Atomik_Db_Query_Exception('Fetch mode can only be set before any row have been fetched');
 			}
 			$args = func_get_args();
+			
 			$this->_fetchMode = $fetchMode;
+			if ($fetchMode == self::FETCH_OBJECT) {
+				$args[0] = PDO::FETCH_ASSOC;
+				$this->_fetchObjectParams = $args;
+			}
+			
 			return call_user_func_array(array($this->_statement, 'setFetchMode'), $args);
 		}
 		
@@ -285,15 +298,22 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 		
 		if ($this->_statement !== null) {
 			if ($index !== null) {
-				$row = $this->_statement->fetch($this->getFetchMode(), PDO::FETCH_ORI_ABS, $this->_index);
+				$fetchMode = $this->_fetchMode == self::FETCH_OBJECT ? PDO::FETCH_ASSOC : $this->_fetchMode;
+				$row = $this->_statement->fetch($fetchMode, PDO::FETCH_ORI_ABS, $this->_index);
 			} else {
 				$row = $this->_statement->fetch();
 			}
+			
 			if ($row === false) {
 				$this->_statement = null;
 				return false;
 			}
+			
+			if ($this->_fetchMode == self::FETCH_OBJECT) {
+				$row = $this->_getObject($row);
+			}
 			$this->_rows[$this->_index] = $row;
+			
 			return $row;
 		}
 		
@@ -303,29 +323,48 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	/**
 	 * Fetches all rows
 	 * 
-	 * @return array
+	 * @param	int		$fetchMode	Only if no rows have been fetch
+	 * @return 	array
 	 */
-	public function fetchAll()
+	public function fetchAll($fetchMode = null)
 	{
 		if ($this->_statement !== null) {
-			$this->_rows = $this->_statement->fetchAll();
+			if ($fetchMode !== null) {
+				$args = func_get_args();
+				call_user_func_array(array($this, 'setFetchMode'), $args);
+			}
+			
+			$rows = $this->_statement->fetchAll();
+			
+			if ($this->_fetchMode == self::FETCH_OBJECT) {
+				$objectRows = array();
+				foreach ($rows as $row) {
+					$objectRows[] = $this->_getObject($row);
+				}
+				$rows = $objectRows;
+			}
+			
+			$this->_rows = $rows;
 			$this->_statement = null;
 			$this->_index = count($this->_rows) - 1;
 		}
+		
 		return $this->_rows;
 	}
 	
 	/**
-	 * Fetches one column from the next row
+	 * Creates an Atomik_Db_Object instance
 	 * 
-	 * @param 	int		$columnNumber
-	 * @return 	mixed
+	 * @param 	array	$data
+	 * @return 	Atomik_Db_Object
 	 */
-	public function fetchColumn($columnNumber = 0)
+	protected function _getObject($data)
 	{
-		// full fetch needed because data is cached
-		$row = $this->fetch();
+		$tables = $this->_query->getInfo('from');
+		$instance = isset($this->_fetchObjectParams[1]) ? $this->_fetchObjectParams[1] : Atomik_Db::getInstance();
+		$className = isset($this->_fetchObjectParams[2]) ? $this->_fetchObjectParams[2] : null;
 		
+		return Atomik_Db_Object::create($tables[0]['table'], $data, false, $instance, $className);
 	}
 	
 	/**

@@ -253,7 +253,7 @@ class Atomik_Db_Instance
 	 * @param 	string 			$orderBy
 	 * @param 	string 			$offset
 	 * @param 	string|array 	$fields
-	 * @return 	array|bool					False if nothing found
+	 * @return 	mixed						False if nothing found
 	 */
 	public function find($table, $where = null, $orderBy = null, $offset = 0, $fields = null)
 	{
@@ -277,7 +277,7 @@ class Atomik_Db_Instance
 	 * @param 	string 			$orderBy
 	 * @param 	string 			$limit
 	 * @param 	string|array 	$fields
-	 * @return 	array
+	 * @return 	Atomik_Db_Query_Result
 	 */
 	public function findAll($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
@@ -295,7 +295,7 @@ class Atomik_Db_Instance
 	 * @param 	array 			$where
 	 * @param 	string 			$orderBy
 	 * @param 	string 			$offset
-	 * @return 	array|bool					False if nothing found
+	 * @return 	mixed						False if nothing found
 	 */
 	public function findValue($table, $column, $where = null, $orderBy = null, $offset = 0)
 	{
@@ -327,7 +327,7 @@ class Atomik_Db_Instance
 			return 0;
 		}
 		
-		$count = $result->fetchColumn();
+		$count = $result->getStatement()->fetchColumn();
 		$result->closeCursor();
 		return $count;
 	}
@@ -384,7 +384,7 @@ class Atomik_Db_Instance
 		
 		$query = new Atomik_Db_Query();
 		$query->setTablePrefix($this->_tablePrefix)->update($table)->set($data)->where($where);
-		return $query->execute($this->pdo);
+		return $query->execute($this->pdo) !== false;
 	}
 	
 	/**
@@ -440,7 +440,7 @@ class Atomik_Db_Instance
 		$this->connect();
 		$query = new Atomik_Db_Query();
 		$query->setTablePrefix($this->_tablePrefix)->delete()->from($table)->where($where);
-		return $query->execute($this->pdo);
+		return $query->execute($this->pdo) !== false;
 	}
 	
 	/**
@@ -448,7 +448,7 @@ class Atomik_Db_Instance
 	 * Uses the cache version if available
 	 * 
 	 * @param	Atomik_Db_Query		$query
-	 * @return 	PDOStatement|array
+	 * @return 	Atomik_Db_Query_Result
 	 */
 	protected function _executeQuery(Atomik_Db_Query $query)
 	{

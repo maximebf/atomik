@@ -39,7 +39,8 @@ class Atomik_Model_Locator
 	{
 		$builder = Atomik_Model_Builder_Factory::get($builder);
 		$query->from($builder);
-		return $builder->getAdapter()->query($query);
+		$data = $builder->getAdapter()->query($query);
+		return new Atomik_Model_Modelset($builder, $data);
 	}
 	
 	/**

@@ -42,7 +42,10 @@ class Atomik_Model_Adapter_Xml implements Atomik_Model_Adapter_Interface
 	}
 	
 	/**
-	 * 
+	 * Saves a model
+	 *
+	 * @param Atomik_Model $model
+	 * @return bool
 	 */
 	public function save(Atomik_Model $model)
 	{
@@ -50,7 +53,10 @@ class Atomik_Model_Adapter_Xml implements Atomik_Model_Adapter_Interface
 	}
 	
 	/**
-	 * 
+	 * Deletes a model
+	 *
+	 * @param Atomik_Model $model
+	 * @return bool
 	 */
 	public function delete(Atomik_Model $model)
 	{
