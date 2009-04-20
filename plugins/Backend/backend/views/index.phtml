@@ -9,7 +9,10 @@
 					<li class="activity">
 						<span class="label"><?php echo $activity->label ?></span>
 						<span class="message"><?php echo $activity->message ?></span>
-						<span class="userAction"><?php echo $activity->userAction ?></span>
+						<span class="userAction">
+							<?php echo $activity->userAction ?> the 
+							<?php echo $this->sqlDate($activity->created, 'jS \o\f M') ?>
+						</span>
 						<div class="clear"></div>
 					</li>
 				<?php endforeach; ?>

@@ -19,8 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+Atomik::loadPlugin('Db');
 Atomik::loadPluginIfAvailable('Config');
-Atomik::loadPluginIfAvailable('Auth');
+Atomik::loadPlugin('Auth');
 
 /**
  * Backend plugin

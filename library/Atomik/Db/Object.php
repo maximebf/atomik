@@ -73,7 +73,7 @@ class Atomik_Db_Object implements ArrayAccess
 			}
 		}
 		
-		return new $className($table, $data, $new, $instance);
+		return new $className($data, $table, $new, $instance);
 	}
 	
 	/**
@@ -117,11 +117,17 @@ class Atomik_Db_Object implements ArrayAccess
 	 * @param 	bool				$new
 	 * @param 	Atomik_Db_Instance	$instance
 	 */
-	public function __construct($table, $data = array(), $new = true, Atomik_Db_Instance $instance = null)
+	public function __construct($data = array(), $table = null, $new = true, Atomik_Db_Instance $instance = null)
 	{
 		$this->setInstance($instance);
 		
-		$this->_table = $table;
+		if ($this->_table === null) {
+			if ($table === null) {
+				require_once 'Atomik/Db/Exception.php';
+				throw new Atomik_Db_Exception('A table name must be specified for ' . get_class($this));
+			}
+			$this->_table = $table;
+		}
 		$this->_new = $new;
 		$this->_primaryKey = $this->_computePrimaryKeyTemplate($table);
 		

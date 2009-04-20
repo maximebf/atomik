@@ -335,7 +335,7 @@ class Atomik
     		        $key = $value;
     		        $value = array();
     		    }
-    			self::loadPlugin(ucfirst($key), $value);
+    			self::loadPlugin(ucfirst($key));
     		}
     	
     		// core is starting
@@ -1374,9 +1374,22 @@ class Atomik
 	 *  Plugins methods
 	 * ------------------------------------------------------------------------------------------ */
 	
+	/**
+	 * Loads a plugin using the user configuration
+	 * 
+	 * @param	string	$name
+	 * @return 	bool
+	 */
+	public static function loadPlugin($name)
+	{
+		$name = ucfirst($name);
+		$config = self::get('plugins/' . $name, array());
+		
+		return self::loadCustomPlugin($name, $config);
+	}
 	
 	/**
-	 * Loads a plugin
+	 * Loads a custom plugin
 	 *
 	 * @param 	string 	$plugin 			The plugin name
 	 * @param 	array 	$config 			Configuration for this plugin
@@ -1385,18 +1398,18 @@ class Atomik
 	 * @param 	bool 	$callStart 			Whether to call the start() method on the plugin class
 	 * @return 	bool 						Success
 	 */
-	public static function loadPlugin($plugin, $config = array(), $dirs = null, $classNameTemplate = '%Plugin', $callStart = true)
+	public static function loadCustomPlugin($plugin, $config = array(), $dirs = null, $classNameTemplate = '%Plugin', $callStart = true)
 	{
 		$plugin = ucfirst($plugin);
-		
-		// use default directories
-		if ($dirs === null) {
-			$dirs = self::get('atomik/dirs/plugins');
-		}
 		
 		// checks if the plugin is already loaded
 		if (self::isPluginLoaded($plugin)) {
 			return true;
+		}
+		
+		// use default directories
+		if ($dirs === null) {
+			$dirs = self::get('atomik/dirs/plugins');
 		}
 		
 		self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config, &$dirs, &$classNameTemplate, &$callStart));
@@ -1473,10 +1486,22 @@ class Atomik
 	 * 
 	 * @see Atomik::loadPlugin()
 	 */
-	public static function loadPluginIfAvailable($plugin, $config = array(), $dirs = null, $classNameTemplate = '%Plugin', $callStart = true)
+	public static function loadPluginIfAvailable($plugin)
 	{
 		if (!Atomik::isPluginLoaded($plugin) && Atomik::isPluginAvailable($plugin)) {
-			Atomik::loadPlugin($plugin, $config, $dirs, $classNameTemplate, $callStart);
+			Atomik::loadPlugin($plugin);
+		}
+	}
+	
+	/**
+	 * Loads a plugin only if it's available
+	 * 
+	 * @see Atomik::loadPlugin()
+	 */
+	public static function loadCustomPluginIfAvailable($plugin, $config = array(), $dirs = null, $classNameTemplate = '%Plugin', $callStart = true)
+	{
+		if (!Atomik::isPluginLoaded($plugin) && Atomik::isPluginAvailable($plugin)) {
+			Atomik::loadCustomPlugin($plugin, $config, $dirs, $classNameTemplate, $callStart);
 		}
 	}
 	

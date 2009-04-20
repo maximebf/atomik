@@ -21,9 +21,6 @@
 
 /** Atomik_Db */
 require_once 'Atomik/Db.php';
-
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
     	
 /**
  * Helpers function for handling databases
@@ -52,11 +49,7 @@ class DbPlugin
     	// table prefix
     	'table_prefix'			=> '',
     
-    	// directories where models are stored
-    	'model_dirs' 			=> './app/models',
-    
-    	// default model adapter
-    	'default_model_adapter' => 'Db'
+    	'object_dirs'			=> './app/models'
     	
     );
     
@@ -81,19 +74,13 @@ class DbPlugin
 		}
 		
 		// adds models directories to php's include path
-		$includes = array();
-		foreach (Atomik::path(self::$config['model_dirs'], true) as $dir) {
-			$includes[] = $dir;
+		$includes = explode(PATH_SEPARATOR, get_include_path());
+		foreach (Atomik::path(self::$config['object_dirs'], true) as $dir) {
+			if (!in_array($dir, $includes)) {
+				array_unshift($includes, $dir);
+			}
 		}
-		$includes[] = get_include_path();
 		set_include_path(implode(PATH_SEPARATOR, $includes));
-		
-		// loads the default model adapter
-		if (!empty(self::$config['default_model_adapter'])) {
-			require_once 'Atomik/Model/Adapter/Factory.php';
-			$adapter = Atomik_Model_Adapter_Factory::factory(self::$config['default_model_adapter']);
-			Atomik_Model_Builder::setDefaultAdapter($adapter);
-		}
 		
 		// registers the db selector namespace
 		Atomik::registerSelector('db', array('DbPlugin', 'selector'));
@@ -109,16 +96,15 @@ class DbPlugin
      */
     public static function onAtomikStart()
     {
-		$includes = array();
+		$includes = explode(PATH_SEPARATOR, get_include_path());
 		
 		// add plugin's models folder to php's include path 
 		foreach (Atomik::getLoadedPlugins(true) as $plugin => $dir) {
 			if (!in_array($dir . '/models', $includes)) {
-				$includes[] = $dir . '/models';
+				array_unshift($includes, $dir . '/models');
 			}
 		}
 		
-		$includes[] = get_include_path();
 		set_include_path(implode(PATH_SEPARATOR, $includes));
     }
     
@@ -129,7 +115,6 @@ class DbPlugin
     public static function onBackendStart()
     {
     	Atomik_Backend::addTab('Database', 'Db', 'index', 'right');
-    	Atomik_Backend::addTab('Models', 'Db', 'models', 'right');
     }
 	
 	/**

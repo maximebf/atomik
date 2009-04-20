@@ -31,6 +31,8 @@ Atomik::set(array(
         	'backend_args' => array('app/config.xml')
         ),
         
+        'Models',
+        
         'Ajax',
         'Lang',
         'Auth' => array(),

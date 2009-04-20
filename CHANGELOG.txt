@@ -31,10 +31,13 @@
  * Added support for view helpers
  * Added Atomik::_render()
  * Added Atomik::__call()
+ ! Atomik::loadPlugin() only gets a plugin name as parameter and uses the configuration from the plugins/PluginName key
+ * Added Atomik::loadCustomPlugin() : replacement for the old Atomik::loadPlugin()
  * Added Atomik::getLoadedPlugins()
  * Added Atomik::isPluginLoaded()
  * Added Atomik::isPluginAvailable()
  * Added Atomik::loadPluginIfAvailable()
+ * Added Atomik::loadCustomPluginIfAvailable()
  
 [Atomik_Auth]
  * New Plugin
