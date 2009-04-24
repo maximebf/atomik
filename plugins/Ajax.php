@@ -88,12 +88,8 @@ class AjaxPlugin
 	 *
 	 * @see Atomik::execute()
 	 */
-	public static function onAtomikExecuteAfter($action, &$template, &$vars, &$render, &$echo, &$triggerError)
+	public static function onAtomikExecuteAfter($action, &$context, &$vars, &$triggerError)
 	{
-		if (!$echo) {
-			return;
-		}
-		
 		/* checks if ajax is enabled for this action */
 		if (self::$config['allow_all']) {
 			if (in_array($action, self::$config['restricted'])) {
@@ -116,7 +112,7 @@ class AjaxPlugin
 	public static function endWithJson($vars = array())
 	{
 		/* builds the json string */
-		$json = self::encode($vars);
+		$json = json_encode($vars);
 		
 		/* echo's output */
 		header('Content-type: application/json');
@@ -134,48 +130,6 @@ class AjaxPlugin
 	public static function isEnabled()
 	{
 		return self::$enabled;
-	}
-	
-	/**
-	 * Encode a php array into a json string
-	 * If the json_encode function is not found, uses a simple 
-	 * built in encoder
-	 * 
-	 * @param array $array
-	 * @return string
-	 */
-	public static function encode($array)
-	{
-        /* checks if the json_encode() function is available */
-        if (function_exists('json_encode')) {
-            return json_encode($array);
-        }
-        
-		if (!is_array($array)) {
-			if (is_string($array)) {
-				return '"' . $array . '"';
-			} else if (is_bool($array)) {
-				return $array ? 'true' : 'false';
-			} else {
-				return $array;
-			}
-		}
-		
-		/* checks if it's an associative array */
-		if (!empty($array) && (array_keys($array) !== range(0, count($array) - 1))) {
-			$items = array();
-			foreach ($array as $key => $value) {
-				$items[] = "'$key': " . self::encode($value);
-			}
-			return '{' . implode(', ', $items) . '}';
-		}
-		
-		/* standard array */
-		$items = array();
-		foreach ($array as $value) {
-			$items[] = self::encode($value);
-		}
-		return '[' . implode(', ', $items) . ']';
 	}
 }
 

@@ -7,3 +7,4 @@ if ($form->hasData()) {
 }
 
 $posts = Atomik_Model::findAll('Post');
+var_dump(Atomik_Model_Builder_Factory::get('Comment'));

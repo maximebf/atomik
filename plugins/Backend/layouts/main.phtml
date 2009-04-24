@@ -3,33 +3,20 @@
 	<head>
 		<title>
 			<?php 
-				$tab = Atomik_Backend::getCurrentTab();
-				echo $tab['text'] . ' | '. Atomik::get('backend/title'); 
+				$currentMenuItem = Atomik_Backend::getCurrentMenu();
+				echo __($currentMenuItem['label']) . ' | '. Atomik::get('backend/title'); 
 			?>
 		</title>
 		
-		<?php foreach (A('backend/styles') as $style): ?>
-			<?php 
-				$plugin = 'backend';
-				if (is_array($style)) {
-					$plugin = $style[0];
-					$style = $style[1];
-				}
-			?>
-			<link rel="stylesheet" type="text/css" href="<?php echo Atomik::pluginAsset($style, $plugin) ?>" />
+		<?php foreach (Atomik_Backend_Layout::getStyles() as $filename): ?>
+			<link rel="stylesheet" type="text/css" href="<?php echo $filename ?>" />
 		<?php endforeach; ?>
 		
-		<?php foreach (A('backend/scripts') as $script): ?>
-			<?php 
-				$plugin = 'backend';
-				if (is_array($script)) {
-					$plugin = $script[0];
-					$script = $script[1];
-				}
-			?>
-			<script type="text/javascript" src="<?php echo Atomik::pluginAsset($script, $plugin) ?>"></script>
+		<?php foreach (Atomik_Backend_Layout::getScripts() as $filename): ?>
+			<script type="text/javascript" src="<?php echo $filename ?>"></script>
 		<?php endforeach; ?>
 		
+		<?php echo Atomik_Backend_Layout::renderPlaceholder('head') ?>
 	</head>
 	<body>
 		<div id="body">
@@ -42,45 +29,54 @@
 				<h1><?php echo Atomik::get('backend/title'); ?></h1>
 				
 				<ul id="menu">
-					<?php echo Atomik::fireEvent('Backend::Layout::Tabs::Before', array(), true); ?>
-					<?php foreach (Atomik_Backend::getTabs() as $tab): ?>
-						<li class="<?php if (Atomik_Backend::isCurrentTab($tab)) echo 'selected '; echo $tab['position']; ?>">
-							<a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $tab['url']) ?>">
-								<?php echo __(ucfirst($tab['text'])); ?>
+					<?php echo Atomik_Backend_Layout::renderPlaceholder('before_menu') ?>
+					
+					<?php foreach (Atomik_Backend::getMenu() as $name => $item): ?>
+						<li class="<?php if (Atomik_Backend::isCurrentMenu($name)) echo 'selected '; echo $item['position']; ?>">
+							<a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $item['action']) ?>">
+								<?php echo __(ucfirst($item['label'])); ?>
 							</a>
 						</li>
 					<?php endforeach; ?>
-					<?php echo Atomik::fireEvent('Backend::Layout::Tabs::After', array(), true); ?>
+					
+					<?php echo Atomik_Backend_Layout::renderPlaceholder('after_menu') ?>
 				</ul>
 				<ul id="sub-menu">
+					<?php echo Atomik_Backend_Layout::renderPlaceholder('before_submenu') ?>
+					
+					<?php foreach ($currentMenuItem['submenu'] as $label => $action): ?>
+						<li><a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $action) ?>">
+							<?php echo __($label) ?>
+						</a></li>
+					<?php endforeach; ?>
+					
+					<?php echo Atomik_Backend_Layout::renderPlaceholder('before_submenu') ?>
 				</ul>
 			</div>
 			
 			<div id="main">
 				<div id="messages">
-					<?php echo Atomik::fireEvent('Backend::Layout::Messages::Before', array(), true); ?>
-					
 					<?php foreach (Atomik::get('flash:all') as $label => $messages): ?>
 						<?php foreach ($messages as $message): ?>
 							<div class="message <?php echo $label ?>">
-								<?php echo $message ?>
+								<?php echo __($message) ?>
 							</div>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
 					
-					<?php echo Atomik::fireEvent('Backend::Layout::Messages::After', array(), true); ?>
+					<?php echo Atomik_Backend_Layout::renderPlaceholder('messages') ?>
 				</div>
 				
-				<?php echo Atomik::fireEvent('Backend::Layout::Content::Before', array(), true); ?>
+				<?php echo Atomik_Backend_Layout::renderPlaceholder('before_content') ?>
 				<?php echo $contentForLayout ?>
-				<?php echo Atomik::fireEvent('Backend::Layout::Content::After', array(), true); ?>
+				<?php echo Atomik_Backend_Layout::renderPlaceholder('after_content') ?>
 				
 				<div class="clear"></div>
 			</div>
 			
 			<div id="footer">
-				Thank you for using Atomik Framework. 
-				<a href="http://www.atomikframework.com">www.atomikframework.com</a>
+				<?php echo Atomik_Backend_Layout::renderPlaceholder('footer') ?>
+				Thank you for using Atomik Framework. <a href="http://www.atomikframework.com">www.atomikframework.com</a>
 			</div>
 		</div>
 	</body>

@@ -19,9 +19,6 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Exception */
-require_once 'Atomik/Exception.php';
-
 /**
  * @package Atomik
  * @subpackage Form

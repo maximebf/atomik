@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Backend_Layout */
+require_once 'Atomik/Backend/Layout.php';
+
 /**
  * Backend main class
  * 
@@ -28,63 +31,78 @@
 class Atomik_Backend
 {
 	/**
-	 * Tabs
-	 *
 	 * @var array
 	 */
-	protected static $tabs = array();
+	protected static $_menu = array();
 	
 	/**
-	 * Adds a tab
-	 *
-	 * @param string $text
-	 * @param string $plugin
-	 * @param string $action
-	 * @param string $position OPTIONAL (default left)
-	 * @param bool $selectOnPlugin OPTIONAL The tabs is activated for any action of the plugin
+	 * Adds a new top menu item
+	 * 
+	 * @param 	string	$name
+	 * @param 	string	$label
+	 * @param 	string	$action
+	 * @param 	array	$submenus	An array where keys are labels and values are actions
+	 * @param 	string	$position	Either right or left
 	 */
-	public static function addTab($text, $plugin, $action, $position = 'left', $selectOnPlugin = true)
+	public static function addMenu($name, $label, $action, $submenus = array(), $position = 'left')
 	{
-		$url = strtolower($plugin) . '/' . ltrim($action, '/');
-		
-		self::$tabs[] = array(
-			'text' => $text,
-			'plugin' => $plugin,
-			'action' => $action,
+		self::$_menu[$name] = array(
+			'name' => $name,
+			'label' => $label,
+			'action' => trim($action, '/'),
 			'position' => $position,
-			'url' => $url,
-			'selectOnPlugin' => $selectOnPlugin
+			'submenu' => array()
 		);
+		
+		foreach ($submenus as $submenuLabel => $submenuAction) {
+			self::addSubMenu($name, $submenuLabel, $submenuAction);
+		}
 	}
 	
 	/**
-	 * Removes all tabs
+	 * Adds a sub menu item
+	 * 
+	 * @param	string	$menuName	Parent menu name
+	 * @param 	string	$label
+	 * @param 	string	$action
 	 */
-	public static function removeAllTabs()
+	public static function addSubMenu($menuName, $label, $action)
 	{
-		self::$tabs = array();
+		if (!isset(self::$_menu[$menuName])) {
+			return;
+		}
+		
+		self::$_menu[$menuName]['submenu'][$label] = $action;
 	}
 	
 	/**
-	 * Gets all tabs
+	 * Removes all menu items
+	 */
+	public static function resetMenu()
+	{
+		self::$_menu = array();
+	}
+	
+	/**
+	 * Returns all menu items
+	 * 
+	 * @return array
+	 */
+	public static function getMenu()
+	{
+		return self::$_menu;
+	}
+	
+	/**
+	 * Returns the current active menu item
 	 *
 	 * @return array
 	 */
-	public static function getTabs()
+	public static function getCurrentMenu()
 	{
-		return self::$tabs;
-	}
-	
-	/**
-	 * Gets the current active tab
-	 *
-	 * @return array
-	 */
-	public static function getCurrentTab()
-	{
-		foreach (self::$tabs as $tab) {
-			if (self::isCurrentTab($tab)) {
-				return $tab;
+		foreach (self::$_menu as $name => $item) {
+			if (self::isCurrentMenu($name)) {
+				return $item;
 			}
 		}
 		return null;
@@ -96,18 +114,9 @@ class Atomik_Backend
 	 * @param array $tab
 	 * @return bool
 	 */
-	public static function isCurrentTab($tab)
+	public static function isCurrentMenu($name)
 	{
-		$isPlugin = strtolower($tab['plugin']) == strtolower(Atomik::get('backend/plugin'));
-		if ($tab['selectOnPlugin'] && $isPlugin) {
-			return true;
-		} else if (!$isPlugin) {
-			return false;
-		}
-		
-		$uri = strtolower(Atomik::get('request_uri'));
-		$match = strtolower($tab['action']);
-		
-		return strlen($uri) >= strlen($match) && substr($uri, 0, strlen($match)) == $match;
+		$pattern = self::$_menu[$name]['action'] . '/*';
+		return Atomik::uriMatch($pattern, Atomik::get('backend/full_request_uri'));
 	}
 }

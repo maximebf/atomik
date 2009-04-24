@@ -19,7 +19,7 @@
 	<xi:include href="selectors_and_methods.xml" />
 	<xi:include href="includes.xml" />
 	<xi:include href="utilities.xml" />
-	<xi:include href="error_debug.xml" />
+	<xi:include href="error_log_debug.xml" />
 	<xi:include href="events.xml" />
 	<xi:include href="using_plugins.xml" />
 	<xi:include href="developing_plugins.xml" />

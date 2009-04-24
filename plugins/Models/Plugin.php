@@ -94,7 +94,7 @@ class ModelsPlugin
      */
     public static function onBackendStart()
     {
-    	Atomik_Backend::addTab('Models', 'Models', 'index', 'right');
+    	Atomik_Backend::addMenu('models', 'Models', 'models', array(), 'right');
     }
 }
 

@@ -52,6 +52,6 @@ class PagesPlugin
 	 */
 	public static function onBackendStart()
 	{
-		Atomik_Backend::addTab('Pages', 'Pages', 'index');
+		Atomik_Backend::addMenu('pages', 'Pages', 'pages');
 	}
 }

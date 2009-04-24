@@ -149,6 +149,77 @@ $_myPrivateVariable = 'secret';]]>
 			</para>
 		</sect2>
 	</sect1>
+	<sect1 id="actions-classes">
+		<title>Using classes to define actions</title>
+		<para>
+			Since Atomik 2.2, you can use classes in your action files. This allow for complex actions to be
+			better organized.
+		</para>
+		<tip>
+			For consistency, you should choose whether to use classes or not at the beginning of your project.
+		</tip>
+		<para>
+			When executing your action, Atomik will check if a class named <quote>{actionName}Action</quote> 
+			exists. If it does and has a static method called <methodname>execute()</methodname>, it will call it.
+		</para>
+		<example>
+			<title>Using a class in your action</title>
+			<para>
+				In an action file named <filename>index.php</filename>.
+			</para>
+			<programlisting>
+				<![CDATA[
+class IndexAction
+{
+	public static function execute()
+	{
+	}
+}]]>
+			</programlisting>
+		</example>
+		<para>
+			If your action file is located in a sub folder, the class name must follow the PEAR convention.
+		</para>
+		<para>
+			If the action is targeting a specific HTTP method, the method name should be appended before
+			the Action keyword in the class name.
+		</para>
+		<example>
+			<title>Using a class in an action located in a sub folder or targeting an HTTP method</title>
+			<para>
+				In an action file located at <filename>users/list.php</filename>, the class name would be
+				<classname>Users_ListAction</classname>.
+			</para>
+			<para>
+				If the action is targeting the POST method, the class name would be 
+				<classname>Users_ListPostAction</classname>.
+			</para>
+		</example>
+		<para>
+			To define view variables, you have two possibilities. Atomik will automatically make available 
+			all the public static class properties (unless they start with an underscore). 
+			The <methodname>execute()</methodname> method can also return an array of key/value paris that will
+			be available as variables in the view.
+		</para>
+		<example>
+			<title>Setting view variables with action classes</title>
+			<programlisting>
+				<![CDATA[
+class IndexAction
+{
+	public static $foo = 'foo';
+	
+	public static function execute()
+	{
+		return array('bar' => 'bar');
+	}
+}]]>
+			</programlisting>
+			<para>
+				<varname>$foo</varname> and <varname>$bar</varname> will be available into the view.
+			</para>
+		</example>
+	</sect1>
 	<sect1 id="actions-programmatically">
 		<title>Calling actions programmatically</title>
 		<para>

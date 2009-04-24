@@ -72,18 +72,21 @@ pre.programlisting {
 	[ Notes ]
 */
 
-.note {
+.note,
+.tip {
 	background: #eef4d2;
 	padding: 6px;
 	margin: 10px 0 10px 0;
 }
 
-	.note h3.title {
+	.note h3.title,
+	.tip h3.title {
 		border: 0;
 		margin: 0px;
 		margin-bottom: 5px;
 	}
 	
-	.note p {
+	.note p,
+	.tip p {
 		margin: 0px;
 	}

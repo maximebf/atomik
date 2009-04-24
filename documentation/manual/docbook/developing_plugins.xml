@@ -264,32 +264,60 @@ echo Atomik::pluginUrl('my-action'); // will echo /blog/my-action]]>
 	<sect1 id="loading-plugins">
 		<title>Loading plugins programmaticaly</title>
 		<para>
-			It is of course possible to load plugins at runtime. This is done using the <methodname>Atomik::loadPlugin()</methodname>
-			method.
+			It is of course possible to load plugins at runtime. Atomik provides a bunch of loading methods so it's simpler
+			for plugins to load dependency plugins or to create custom plugins.
+		</para>
+		<para>
+			The most common method is <methodname>Atomik::loadPlugin()</methodname> which will load a plugin and use
+			the user plugin's configuration (from the plugins key) if one is available.
+		</para>
+		<para>
+			If a plugin is not available, loading it will throw an exception. To prevent that you can use
+			<methodname>Atomik::loadPluginIfAvailable()</methodname>.
 		</para>
 		<example>
-			<title>Loading a plugin at runtime</title>
+			<title>Loading a plugin</title>
 			<programlisting>
 				<![CDATA[
 Atomik::loadPlugin('Db');]]>
 			</programlisting>
 		</example>
 		<para>
-			To provide some configuration for the plugin, pass an array as the second argument.
+			You can also load plugins by specifying custom configuration. This is done using 
+			<methodname>Atomik::loadCustomPlugin()</methodname>. As it's name imply, this method can also be used to load
+			custom plugins, which can be named differently, follow other development guidelines...
 		</para>
 		<example>
 			<title>Loading a plugin at runtime with some configuration</title>
 			<programlisting>
 				<![CDATA[
-Atomik::loadPlugin('Db', array('dbname' => 'test'));]]>
+Atomik::loadCustomPlugin('Db', array('dbname' => 'test'));]]>
 			</programlisting>
 		</example>
+		<example>
+			<title>More advance use of <methodname>Atomik::loadCustomPlugin()</methodname></title>
+			<programlisting>
+				<![CDATA[
+// load plugins from a custom directory
+Atomik::loadCustomPlugin('MyPlugin', array(), '/custom/plugins/directory');
+
+// using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
+Atomik::loadCustomPlugin('MyPlugin', array(), null, '%CustomPlugin');
+
+// do not call the start() method when loading plugins
+Atomik::loadCustomPlugin('MyPlugin', array(), null, '%Plugin', false);]]>
+			</programlisting>
+		</example>
+		<para>
+			<methodname>Atomik::loadCustomPluginIfAvailable()</methodname> is also available.
+		</para>
 		<note>
 			Be aware that some plugins may need to listen to some specific events. If you register your plugin too late,
 			the event may have already occured, making the plugin malfunction.
 		</note>
 		<para>
-			You can check if a plugin is already loaded using <methodname>Atomik::isPluginLoaded()</methodname>.
+			You can check if a plugin is already loaded using <methodname>Atomik::isPluginLoaded()</methodname> or if it's
+			available using <methodname>Atomik::isPluginAvailable()</methodname>.
 		</para>
 		<example>
 			<title>Checking if a plugin is already loaded</title>
@@ -301,22 +329,7 @@ if (Atomik::isPluginLoaded('Db')) {
 			</programlisting>
 		</example>
 		<para>
-			<methodname>Atomik::loadPlugin()</methodname> provides more advanced features which allow you for example 
-			to create plugins for your plugin!
+			Finally, you can retreive all loaded plugins using <methodname>Atomik::getLoadedPlugins()</methodname>.
 		</para>
-		<example>
-			<title>More advance use of <methodname>Atomik::loadPlugin()</methodname></title>
-			<programlisting>
-				<![CDATA[
-// load plugins from a custom directory
-Atomik::loadPlugin('MyPlugin', array(), '/custom/plugins/directory');
-
-// using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
-Atomik::loadPlugin('MyPlugin', array(), null, '%CustomPlugin');
-
-// do not call the start() method when loading plugins
-Atomik::loadPlugin('MyPlugin', array(), null, '%Plugin', false);]]>
-			</programlisting>
-		</example>
 	</sect1>
 </chapter>

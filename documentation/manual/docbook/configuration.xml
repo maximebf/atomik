@@ -13,27 +13,8 @@
 			configuration or even your own.
 		</para>
 		<para>
-			To do so, there is two possibilities: 
-			<itemizedlist>
-				<listitem>
-					modify Atomik's core file (<filename>index.php</filename>)
-				</listitem>
-				<listitem>
-					create a <filename>bootstrap.php</filename> file in the 
-					<filename>app</filename> directory.
-				</listitem>
-			</itemizedlist>
-		</para>
-		<para>
-			The first method is greatly discourage. It can however be useful if you want to
-			create your own Atomik distribution (this should be the only reason to use this
-			method).
-		</para>
-		<para>
-			The second method is of course the prefered one. It allows clearer configuration
-			in a unique place, perfect for maintenance. Just create a <filename>bootstrap.php</filename>
-			file in the <filename>app</filename> directory.
-			In this file, you can use accessors (the <methodname>set</methodname> method of course)
+			To do so, you can create a <filename>bootstrap.php</filename> file in the <filename>app</filename> directory.
+			In this file, you can use accessors (the <methodname>set()</methodname> method of course)
 			to define configuration keys.
 		</para>
 		<example>
@@ -111,5 +92,31 @@ Atomik::set(array(
 			The filename of these files can be changed using the <quote>atomik/files/error</quote> and
 			<quote>atomik/files/404</quote> configuration keys.
 		</para>
+	</sect1>
+	<sect1 id="advanced-configuration">
+		<title>Advanced configuration</title>
+		<para>
+			Sometimes it may be needed to create custom distributions with specific configuration. By default, when you
+			include the atomik core class, it will automatically start the dispatch process. This can be turned off
+			by setting the <constant>ATOMIK_AUTORUN</constant> to false. You can then do custom configuration using 
+			accessors and finally launch atomik using <methodname>Atomik::run()</methodname>.
+		</para>
+		<example>
+			<title>Creating custom distribution</title>
+			<programlisting>
+				<![CDATA[
+<?php
+define('ATOMIK_AUTORUN', false);
+require 'Atomik.php';
+
+// my configuration
+Atomik::set(array(
+	// .. custom config
+));
+
+// launch Atomik
+Atomik::run();]]>
+			</programlisting>
+		</example>
 	</sect1>
 </chapter>

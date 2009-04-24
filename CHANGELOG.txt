@@ -8,9 +8,14 @@
 
 [Atomik]
 
- WARNING: MASSIVE COMPATIBILITY BREAK IN CONFIGURATION
+ WARNING: MASSIVE COMPATIBILITY BREAK
 
  ! Reorganization of configuration keys
+ ! no more $echo param on execute() and render()
+ ! change in events from execute()
+ ! _executeInScope() renamed executeFile()
+ * Added the ability to use classes in action
+ ! The store array is now available under Atomik::$store
  # echo in action was outside of layout
  * Added Atomik::setView()
  * Actions specific to http methods
@@ -38,6 +43,10 @@
  * Added Atomik::isPluginAvailable()
  * Added Atomik::loadPluginIfAvailable()
  * Added Atomik::loadCustomPluginIfAvailable()
+ * Added Atomik::actionFilename()
+ * Added Atomik::viewFilename()
+ * Added Atomik::log()
+ * Added Atomik::logToFile()
  
 [Atomik_Auth]
  * New Plugin

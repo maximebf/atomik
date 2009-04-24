@@ -114,7 +114,7 @@ class DbPlugin
      */
     public static function onBackendStart()
     {
-    	Atomik_Backend::addTab('Database', 'Db', 'index', 'right');
+    	Atomik_Backend::addMenu('db', 'Database', 'db', array(), 'right');
     }
 	
 	/**

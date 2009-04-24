@@ -10,6 +10,10 @@
 		This plugin adds support for controllers to Atomik. Once activated you must use controllers in your
 		actions. There is not possible mix between the classic way and the controller way.
 	</para>
+	<note>
+		The plugin will be disabled when a pluggable application starts. It can be enabled using
+		<programlisting>ControllerPlugin::$disable = false;</programlisting>
+	</note>
 	<sect1 id="controller-differences">
 		<title>Differences with the classic Atomik way</title>
 		<para>
@@ -18,7 +22,7 @@
 		<para>
 			Each controller have multiple actions (methods) and each action has its own view. While having
 			for example one file named <filename>user.php</filename> in the <filename>actions</filename> directory which
-			contains the <classname>UserController</classname> class (will come to that later), you'll need many view
+			contains the <classname>UserController</classname> class (we'll come to that later), you'll need many view
 			files. Thus, instead of saving your views in the <filename>views</filename> directory you will have to save
 			them in a folder named after your action.
 		</para>
@@ -28,7 +32,7 @@
 			parameter refers to a method of the controller class.
 		</para>
 		<para>
-			The default route is <quote>:controller/:action</quote>.
+			The default route will use the last segment of the uri as the action name and the rest as the controller name.
 		</para>
 		<example>
 			<title>Creating routes</title>
@@ -57,9 +61,14 @@ Atomik::set('routes', array(
 				with a controller named <quote>user</quote> (saved in <filename>app/actions/user.php</filename>), the class name
 				will be <classname>UserController</classname>. 
 			</para>
+			<note>
+				If the action file is located in a sub folder, the class name as to follow the PEAR convention. For example,
+				if the file is <filename>app/actions/auth/user.php</filename> the class name will be 
+				<classname>Auth_UserController</classname>.
+			</note>
 			<para>
-				Then add public method to your class. All public method which does not start with am underscore will be callable as an
-				action.
+				Then add public methods to your class. All public methods which does not start with an underscore will be callable 
+				as an action.
 			</para>
 			<para>
 				Don't forget to also create the view associated to each action.
@@ -89,7 +98,7 @@ class UserController
 			</example>
 			<para>
 				In classic actions, all defined variables where accessible from the view. This is not possible anymore when using methods for
-				evident reasons. To forward method to the view, simply define class properties.
+				evident reasons. To forward variables to the view, simply define class properties.
 			</para>
 			<example>
 				<title>Creating a simple controller with view variables</title>

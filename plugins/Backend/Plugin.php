@@ -41,13 +41,7 @@ class BackendPlugin
 		// the route needed to start the backend
 		'route' => 'backend/*',
 	
-		'title' => 'Atomik Backend',
-	
-		'scripts' => array(),
-	
-		'styles' => array(
-			'css/main.css'
-		)
+		'title' => 'Atomik Backend'
 	
 	);
 	

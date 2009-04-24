@@ -219,8 +219,11 @@ img {
 			#sidebar .sidebar-action img {
 				background: #afb76a;
 				padding: 3px;
-				margin-right: 5px;
 				vertical-align: middle;
+			}
+	
+			#sidebar .sidebar-action span {
+				margin-left: 5px;
 			}
 			
 		#sidebar .sidebar-block {

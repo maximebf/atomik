@@ -139,6 +139,6 @@ class AuthPlugin
 	 */
     public static function onBackendStart()
     {
-        Atomik_Backend::addTab('Users', 'Auth', 'index', 'right');
+        Atomik_Backend::addMenu('auth', 'Users', 'auth', array(), 'right');
     }
 }

@@ -7,6 +7,7 @@
 	if (empty($uri)) {
 		$uri = 'backend/index';
 	}
+	Atomik::set('backend/full_request_uri', $uri);
 	
 	// extracting the plugin name from the uri
 	$segments = explode('/', trim($uri, '/'));
@@ -24,7 +25,8 @@
 	Atomik::set('atomik/base_action', $baseAction . '/' . $plugin);
 	Atomik::set('app/running_plugin', $plugin);
 	
-	Atomik_Backend::addTab('Dashboard', 'Backend', 'index');
+	Atomik_Backend::addMenu('dashboard', 'Dashboard', 'backend');
+	Atomik_Backend_Layout::addStyle('css/main.css');
 	Atomik::fireEvent('Backend::Start');
 	
 	// configuration for the re-dispatch

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="error-debug" xmlns="http://docbook.org/ns/docbook">
+	<title>Error handling, logging and debugging</title>
+	<sect1 id="handling-errors">
+		<title>Handling errors</title>
+		<para>
+			By default, Atomik won't catch any exceptions or errors, PHP's normal behavior preval. However it is possible
+			to enable error catching so you can display an error page to the user or error reports while developing.
+		</para>
+		<para>
+			The <quote>atomik/catch_errors</quote> configuration key must be set to true for Atomik to catch errors. Errors
+			and exceptions are treated the same way.
+		</para>
+		<para>
+			By default, an error report will be displayed. The report can be hidden for security purpose by setting false to
+			the <quote>atomik/display_errors</quote> configuration key.
+		</para>
+		<para>
+			A custom error page can be used as explain in the configuration chapter.
+		</para>
+		<note>
+			<para>
+				While disabled by default, it is advice to use Atomik's error catching mechanism coupled with a custom error page.
+				This avoid critical information to be displayed to any visitor of your website.
+			</para>
+			<para>
+				All exceptions thrown by Atomik are of type <classname>Atomik_Exception</classname>.
+			</para>
+		</note>
+	</sect1>
+	<sect1 id="logging">
+		<title>Logging</title>
+		<para>
+			Logging should be an important part of any application. To provide a unified way of logging, Atomik provide since
+			version 2.2 an <methodname>Atomik::log()</methodname> method. It takes two argument, the second one being optional:
+			the message and the level (default is LOG_ERR - 3).
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::log()</methodname></title>
+			<programlisting>
+				<![CDATA[
+Atomik::log('an error has occured!', LOG_ERR);]]>
+			</programlisting>
+		</example>
+		<tip>
+			As shown in the example, you should use PHP's LOG_* constants.
+		</tip>
+		<para>
+			The method will simply fire an event named <quote>Atomik::Log</quote>. Listeners will get two arguments, the message
+			and the level (the same as the <methodname>log()</methodname> method).
+		</para>
+		<example>
+			<title>Creating a custom logger</title>
+			<programlisting>
+				<![CDATA[
+function my_logger($message, $level) {
+	echo 'LOG: ' . $message;
+}
+Atomik::listenEvent('Atomik::Log', 'my_logger');]]>
+			</programlisting>
+		</example>
+		<para>
+			Atomik provide a default logger which will save messages to a text file. To register this logger, set
+			the config key named <quote>atomik/log/register_default</quote> to true.
+		</para>
+		<para>
+			The filename is defined in <quote>atomik/files/log</quote>. You can also define from which level message should
+			be saved by setting <quote>atomik/log/level</quote> to the minimum level. The default level is LOG_WARNING (4).
+		</para>
+		<para>
+			Finally, you can define the template of the string that will be added to the log file in 
+			<quote>atomik/log/message_template</quote>. You can use <quote>%date%</quote>, <quote>%level%</quote> and
+			<quote>%message%</quote> which will be replaced by the appropriate string.
+		</para>
+	</sect1>
+	<sect1 id="debugging">
+		<title>Debugging</title>
+		<para>
+			Atomik's only provides a simple method named <methodname>Atomik::debug()</methodname> which 
+			is an alias for <function>var_dump()</function>. However the method output can be hidden
+			by modifying the <quote>app/debug</quote> configuration key.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::debug()</methodname></title>
+			<programlisting>
+				<![CDATA[
+Atomik::debug($myVar);
+Atomik::set('app/debug', false);
+Atomik::debug($myVar2); // no output
+Atomik::debug($myVar2, true); // use true to force the output even if debug set to false]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>
