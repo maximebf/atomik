@@ -31,7 +31,7 @@ class Atomik_Form_Field_Textarea extends Atomik_Form_Field_Abstract
 	public function render()
 	{
 		return sprintf('<textarea name="%s" %s>%s</textarea>',
-			$this->getName(),
+			$this->getFullname(),
 			$this->getOptionsAsAttributeString(),
 			$this->getValue()
 		);

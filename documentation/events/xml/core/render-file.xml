@@ -6,7 +6,6 @@
 		</description>
 		<refparam name="$filename" type="string">Filename of the file that will be rendered</refparam>
 		<refparam name="$vars" type="array">Variables for the view file</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
 	</event>
 	<event name="Atomik::RenderFile::After">
 		<description>
@@ -15,18 +14,5 @@
 		<param name="$filename" type="string">Filename of the file that will be rendered</param>
 		<refparam name="$output" type="string">The output of the rendered file</refparam>
 		<param name="$vars" type="array">Variables for the view file</param>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
-	</event>
-	<event name="Atomik::RenderFile::Output::Before">
-		<description>
-			Fired before content is echoed.
-		</description>
-		<refparam name="$output" type="string">The content that will be echoed</refparam>
-	</event>
-	<event name="Atomik::RenderFile::Output::After">
-		<description>
-			Fired after content has been echoed.
-		</description>
-		<param name="$output" type="string">The content that has been echoed</param>
 	</event>
 </group>

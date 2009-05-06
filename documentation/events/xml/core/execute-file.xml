@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="execute-file" title="Atomik::executeFile()" xmlns="http://www.atomikframework.com/events">
+	<event name="Atomik::ExecuteFile">
+		<description>
+			Fired at the beginning of a call to the <code>Atomik::executeFile()</code> method.
+		</description>
+		<refparam name="$filename" type="string">The filename that will be included</refparam>
+		<refparam name="$vars" type="array">Variables to extract in the included file scope</refparam>
+	</event>
+</group>

@@ -96,5 +96,16 @@ class ModelsPlugin
     {
     	Atomik_Backend::addMenu('models', 'Models', 'models', array(), 'right');
     }
+    
+    public static function onDbScript($script, $paths)
+    {
+		require_once 'Atomik/Db/Script/Model.php';
+		
+		foreach ($paths as $path) {
+			if (@is_dir($path . '/models')) {
+				$script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
+			}
+		}
+    }
 }
 

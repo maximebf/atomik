@@ -5,9 +5,7 @@
 			Fired at the beginning of a call to the <code>Atomik::execute()</code> method.
 		</description>
 		<refparam name="$action" type="string">The action name</refparam>
-		<refparam name="$view" type="string">The view name associated to the action</refparam>
-		<refparam name="$render" type="boolean">Whether to render the view or return the action variables as an array</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
+		<refparam name="$context" type="array">The context associated to the action</refparam>
 		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
 	</event>
 	<event name="Atomik::Execute::Before">
@@ -15,10 +13,9 @@
 			Fired before the inclusion of the action file.
 		</description>
 		<refparam name="$action" type="string">The action name</refparam>
+		<refparam name="$context" type="array">The context associated to the action</refparam>
 		<refparam name="$actionFilename" type="string">The action file's name</refparam>
-		<refparam name="$view" type="string">The view name associated to the action</refparam>
-		<refparam name="$render" type="boolean">Whether to render the view or return the action variables as an array</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
+		<refparam name="$methodActionFilename" type="string">The method action file's name</refparam>
 		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
 	</event>
 	<event name="Atomik::Execute::After">
@@ -26,10 +23,8 @@
 			Fired after the inclusion of the action file.
 		</description>
 		<param name="$action" type="string">The action name</param>
-		<refparam name="$view" type="string">The view name associated to the action</refparam>
+		<refparam name="$context" type="array">The context associated to the action</refparam>
 		<refparam name="$vars" type="array">Variables defined in the action file</refparam>
-		<refparam name="$render" type="boolean">Whether to render the view or return the action variables as an array</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
 		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
 	</event>
 </group>

@@ -28,9 +28,14 @@
 class Atomik_Auth
 {
 	/**
-	 * @var Atomik_Auth_Backend_Interface
+	 * @var array
 	 */
-	private static $_backend;
+	private static $_backends = array();
+	
+	/**
+	 * @var Atomik_Auth_User_Locator_Interface
+	 */
+	private static $_userLocator;
 	
 	/**
 	 * @var string
@@ -53,26 +58,64 @@ class Atomik_Auth
 	private static $_resources = array();
 	
 	/**
+	 * Resets all backends
+	 * 
+	 * @param array $backends
+	 */
+	public static function setBackends($backends = array())
+	{
+		self::$_backends = array();
+		foreach ($backends as $backend) {
+			self::addBackend($backend);
+		}
+	}
+	
+	/**
 	 * Sets the login backend
 	 * 
-	 * @var Atomik_Auth_Backend_Interface $backend
+	 * @param Atomik_Auth_Backend_Interface $backend
 	 */
-	public static function setBackend(Atomik_Auth_Backend_Interface $backend)
+	public static function addBackend(Atomik_Auth_Backend_Interface $backend)
 	{
-		self::$_backend = $backend;
+		self::$_backends[] = $backend;
 	}
 	
 	/**
 	 * Returns the login backend
 	 * 
-	 * @return Atomik_Auth_Backend_Interface
+	 * @return array
 	 */
-	public static function getBackend()
+	public static function getBackends()
 	{
-		if (self::$_backend === null) {
-			throw new Atomik_Auth_Exception('A backend must be specified');
+		if (count(self::$_backends) == 0) {
+			require_once 'Atomik/Auth/Exception.php';
+			throw new Atomik_Auth_Exception('At least one login backend must be specified');
 		}
-		return self::$_backend;
+		return self::$_backends;
+	}
+	
+	/**
+	 * Sets the user locator
+	 * 
+	 * @var string|Atomik_Auth_User_Locator_Interface $userLocator
+	 */
+	public static function setUserLocator($userLocator)
+	{
+		self::$_userLocator = $userLocator;
+	}
+	
+	/**
+	 * Returns the user locator
+	 * 
+	 * @return Atomik_Auth_User_Locator_Interface
+	 */
+	public static function getUserLocator()
+	{
+		if (self::$_userLocator === null) {
+			require_once 'Atomik/Auth/Exception.php';
+			throw new Atomik_Auth_Exception('A user locator must be specified');
+		}
+		return self::$_userLocator;
 	}
 	
 	/**
@@ -85,8 +128,17 @@ class Atomik_Auth
 	 */
 	public static function login($username, $password, $remember = false)
 	{
-		$backend = self::getBackend();
-		if (!$backend->authentify($username, $password)) {
+		$backends = self::getBackends();
+		
+		$success = false;
+		foreach ($backends as $backend) {
+			if ($backend->authentify($username, $password)) {
+				$success = true;
+				break;
+			}
+		}
+		
+		if (!$success) {
 			return false;
 		}
 		
@@ -148,7 +200,7 @@ class Atomik_Auth
 	{
 		if (self::$_currentUser === null) {
 			if (($username = self::getCurrentUsername()) !== null) {
-				self::$_currentUser = Atomik_Auth_User_Locator::find($username);
+				self::$_currentUser = call_user_func(array(self::getUserLocator(), 'find'), $username);
 			}
 		}
 		return self::$_currentUser;
@@ -437,13 +489,13 @@ class Atomik_Auth
 	 * @param 	string|array	$roles
 	 * @return 	bool
 	 */
-	public static function isAllowed($resource, $roles)
+	public static function hasAccessTo($resource, $roles)
 	{
 		$roles = (array) $roles;
 		$resourceRoles = self::getResourceRoles($resource);
 		
 		foreach ($resourceRoles as $resourceRole) {
-			if (!self::checkRole($resourceRole, $roles)) {
+			if (!self::isAllowed($resourceRole, $roles)) {
 				return false;
 			}
 		}
@@ -458,7 +510,7 @@ class Atomik_Auth
 	 * @param 	array	$availableRoles
 	 * @return  bool
 	 */
-	public static function checkRole($neededRole, $availableRoles)
+	public static function isAllowed($neededRole, $availableRoles)
 	{
 		if (count($availableRoles) == 0) {
 			return false;
@@ -466,6 +518,6 @@ class Atomik_Auth
 			return true;
 		}
 		
-		return self::checkRole($neededRole, self::getRoleParents($availableRoles));
+		return self::isAllowed($neededRole, self::getRoleParents($availableRoles));
 	}
 }

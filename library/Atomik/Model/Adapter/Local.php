@@ -36,6 +36,18 @@ class Atomik_Model_Adapter_Local implements Atomik_Model_Adapter_Interface
 	protected $_data = array();
 	
 	/**
+	 * Constructor
+	 * 
+	 * @param array $source
+	 */
+	public function __construct(&$source = null)
+	{
+		if ($source !== null) {
+			$this->_data = $source;
+		}
+	}
+	
+	/**
 	 * Query the adapter
 	 * 
 	 * @param	Atomik_Model_Query	$query

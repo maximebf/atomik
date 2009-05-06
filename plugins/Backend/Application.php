@@ -27,6 +27,8 @@
 	
 	Atomik_Backend::addMenu('dashboard', 'Dashboard', 'backend');
 	Atomik_Backend_Layout::addStyle('css/main.css');
+	Atomik_Backend_Layout::addScript('js/libs/jquery-1.3.2.min.js');
+	Atomik_Backend_Layout::addScript('js/libs/Namespace.min.js');
 	Atomik::fireEvent('Backend::Start');
 	
 	// configuration for the re-dispatch

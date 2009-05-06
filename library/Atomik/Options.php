@@ -1,6 +1,6 @@
 <?php
 
-abstract class Atomik_Model_Options
+abstract class Atomik_Options
 {
 	protected $_options = array();
 	

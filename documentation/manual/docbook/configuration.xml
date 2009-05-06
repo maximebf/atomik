@@ -5,20 +5,81 @@
 		There is a serious compatibility break in the configuration between Atomik 2.1 and 2.2.
 		Many keys have changed, check the appendix A for more information.
 	</note>
-	<sect1 id="bootstrapping">
-		<title>Bootsrapping</title>
+	<sect1 id="configuration-file">
+		<title>Configuration file</title>
 		<para>
 			Atomik provides a default configuration for everything (to fullfill the convention
 			over configuration principle). However, you can override it and provide plugin's
 			configuration or even your own.
 		</para>
 		<para>
-			To do so, you can create a <filename>bootstrap.php</filename> file in the <filename>app</filename> directory.
+			Two file formats are available for the configuration: INI (which is the default) or JSON.
+			The format will be choosed depending on the file extension (either ini or json - in lower case).
+		</para>
+		<para>
+			The file is by default located in the app directory and has to be named <filename>config</filename>.
+			This can be changed in <quote>atomik/files/config</quote>. Do NOT specify the extension.
+		</para>
+		<para>
+			When using JSON, the data must be wrapped in a object.
+		</para>
+		<para>
+			When using INI, you can use dots in keys to specify multi-dimensional keys. You can use slashes
+			in JSON keys or simply use child objects.
+		</para>
+		<para>
+			INI categories will be treated as parent keys and also dimensionized.
+		</para>
+		<example>
+			<title>INI configuration</title>
+			<programlisting>
+				<![CDATA[
+my_key = my value
+
+[plugins]
+Db.dsn = mysql:host=localhost
+Db.username = root
+
+[atomik.files]
+pre_dispatch = pre.php
+post_dispatch = post.php]]>
+			</programlisting>
+		</example>
+		<example>
+			<title>JSON configuration</title>
+			<programlisting>
+				<![CDATA[
+{
+	"my_key": "my value",
+
+	"plugins" : {
+		"Db": {
+			"dsn": "mysql:host=localhost",
+			"username": "root"
+		}
+	},
+	
+	"atomik/files": {
+		"pre_dispatch": "pre.php",
+		"post_dispatch": "post.php"
+	}
+}]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="bootstrapping">
+		<title>Bootsrapping</title>
+		<para>
+			After the configuration file has been loaded, Atomik will try to call a bootstrap file. It can be used to
+			define configuration, initialize other libraries...
+		</para>
+		<para>
+			The file must be named <filename>bootstrap.php</filename> and located in the <filename>app</filename> directory.
 			In this file, you can use accessors (the <methodname>set()</methodname> method of course)
 			to define configuration keys.
 		</para>
 		<example>
-			<title>Exemple <filename>bootstrap.php</filename> file</title>
+			<title>Example <filename>bootstrap.php</filename> file</title>
 			<programlisting>
 				<![CDATA[
 <?php
@@ -36,7 +97,9 @@ Atomik::set(array(
 	
 	)
 
-));]]>
+));
+
+// do some fun stuff]]>
 			</programlisting>
 		</example>
 		<para>
@@ -65,7 +128,7 @@ Atomik::set(array(
 	<sect1 id="pre-post-dispatch-file">
 		<title>Pre and post dispatch files</title>
 		<para>
-			Atomik allows you to create to files: <filename>pre_dispatch.php</filename> and 
+			Atomik allows you to create two files: <filename>pre_dispatch.php</filename> and 
 			<filename>post_dispatch.php</filename> in the <filename>app</filename> directory. These files
 			will be called respectively before and after the dispatch process.
 		</para>

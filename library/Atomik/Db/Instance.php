@@ -212,7 +212,9 @@ class Atomik_Db_Instance
 		}
 		
 		$stmt = $this->pdo->prepare((string) $query);
-		$stmt->execute($params);
+		if (!$stmt->execute($params)) {
+			return false;
+		}
 		
 		return $stmt;
 	}

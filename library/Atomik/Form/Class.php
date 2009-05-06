@@ -46,23 +46,40 @@ class Atomik_Form_Class extends Atomik_Form
 			$className = get_class($className);
 		}
 		$class = new ReflectionClass($className);
+		return self::createInstance($class);
+	}
+	
+	/**
+	 * Creates a form instance from a class doc comments
+	 * 
+	 * @param	ReflectionClass	$class
+	 * @param 	Atomik_Form		$instance
+	 * @return 	Atomik_Form
+	 */
+	public static function createInstance(ReflectionClass $class, $instance = null)
+	{
+		if ($instance === null) {
+			$instance = new Atomik_Form();
+		}
 		
 		$attributes = self::getTagsFromDocBlock($class->getDocComment(), $tagsPrefix);
-		$fields = self::getFieldsFromClass($class, $tagsPrefix);
 		
-		$template = null;
 		if (isset($attributes['template'])) {
-			$template = $attributes['template'];
+			$instance->setFormTemplate($attributes['template']);
 			unset($attributes['template']);
 		}
 		
-		$form = new Atomik_Form();
-		$form->setFields($fields);
-		$form->setTemplate($template);
-		$form->setAttributes($attributes);
+		if (isset($attributes['field-template'])) {
+			$instance->setFieldTemplate($attributes['field-template']);
+			unset($attributes['field-template']);
+		}
 		
-		return $form;
+		$instance->setFields(self::getFieldsFromClass($class, $tagsPrefix));
+		$instance->setAttributes($attributes);
+		
+		return $instance;
 	}
+	
 	/**
 	 * Returns an array of Atomik_Form_Fields created using properties of a class
 	 * 
@@ -87,14 +104,15 @@ class Atomik_Form_Class extends Atomik_Form
 			}
 			
 			$field = Atomik_Form_Field_Factory::factory($type, $prop->getName());
+			$label = $prop->getName();
 			
 			if (isset($options['label'])) {
-				$field->setLabel($options['label']);
+				$label = $options['label'];
 				unset($options['label']);
 			}
 			
 			$field->setOptions($options);
-			$fields[] = $field;
+			$fields[$label] = $field;
 		}
 		
 		return $fields;
@@ -141,18 +159,7 @@ class Atomik_Form_Class extends Atomik_Form
 	public function __construct()
 	{
 		$class = new ReflectionClass(get_class($this));
-		
-		$attributes = self::getTagsFromDocBlock($class->getDocComment(), $this->_formTagPrefix);
-		$fields = self::getFieldsFromClass($class, $this->_formTagPrefix);
-		
-		$template = null;
-		if (isset($attributes['template'])) {
-			$this->setTemplate($attributes['template']);
-			unset($attributes['template']);
-		}
-		
-		$this->setAttributes($attributes);
-		$this->setFields($fields);
+		self::createInstance($class, $this);
 		
 		$this->setData(array_merge($_POST, $_FILES));
 	}

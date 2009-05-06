@@ -59,6 +59,14 @@ class Atomik_Db_Object implements ArrayAccess
 	private static $_classNameMap = array();
 	
 	/**
+	 * Sets Atomik_Db_Query_Result::FETCH_OBJECT as default fetch mode
+	 */
+	public static function register()
+	{
+		Atomik_Db_Query_Result::setDefaultFetchMode(Atomik_Db_Query_Result::FETCH_OBJECT);
+	}
+	
+	/**
 	 * Creates a new object using the mapped class name
 	 * 
 	 * @see Atomik_Db_Object::__constructor()

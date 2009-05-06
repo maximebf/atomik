@@ -19,8 +19,7 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Auth_User_Interface */
-require_once 'Atomik/Auth/User/Interface.php';
+require_once 'Atomik/Auth/User/Locator/Interface.php';
 
 /**
  * Used to get a user object
@@ -28,49 +27,35 @@ require_once 'Atomik/Auth/User/Interface.php';
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_User_Locator
+class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interface
 {
 	/**
 	 * @var string
 	 */
-	private static $_source;
+	private static $_modelName;
 	
 	/**
-	 * Sets the source to get user objects
-	 * 
-	 * If $source is an array, it will use the Atomik_Auth_User class and call {@see Atomik_Auth_User::setUsers()}
-	 * Otherwise, $source should be a class name of a class implementing {@see Atomik_Auth_User_Interface}
+	 * Sets the model name to use for user objects
 	 * 
 	 * @param	array|string	$source
 	 */
-	public static function setSource($source)
+	public static function setModelName($name)
 	{
-		if (is_array($source)) {
-			Atomik_Auth_User::setUsers($source);
-			self::$_source = 'Atomik_Auth_User';
-			return;
-		}
-		
-		if (!class_exists($source)) {
-			throw new Atomik_Auth_Exception('The source is a string but no class with this name was found: ' . $source);
-		}
-		
-    	$class = new ReflectionClass($source);
-    	if (!$class->implementsInterface('Atomik_Auth_User_Interface')) {
-    		throw new Atomik_Auth_Exception('User class must implement Atomik_Auth_User_Interface (' . $source . ')');
-    	}
-    	
-    	self::$_source = $source;
+    	self::$_modelName = $name;
 	}
 	
 	/**
-	 * Returns the class name being used as the source
+	 * Returns the model name used for user objects
 	 * 
 	 * @return string
 	 */
-	public static function getSource()
+	public static function getModelName()
 	{
-		return self::$_source;
+		if (self::$_modelName === null) {
+			require_once 'Atomik/Auth/Exception.php';
+			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_User_Locator_Model');
+		}
+		return self::$_modelName;
 	}
 	
 	/**
@@ -81,6 +66,6 @@ class Atomik_Auth_User_Locator
 	 */
 	public static function find($username)
 	{
-		return call_user_func(array(self::$_source, 'find'), $username);
+		return Atomik_Model_Locator::find(self::$_modelName, array('username' => $username));
 	}
 }

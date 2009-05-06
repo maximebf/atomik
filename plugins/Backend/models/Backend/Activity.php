@@ -1,12 +1,11 @@
 <?php
 
-class Backend_Activity extends Atomik_Db_Object
+/**
+ * @adapter Db
+ * @table backend_activities
+ */
+class Backend_Activity extends Atomik_Model
 {
-	/**
-	 * @var string
-	 */
-	protected $_table = 'backend_activities';
-	
 	/**
 	 * Creates a new activity
 	 * 
@@ -25,19 +24,6 @@ class Backend_Activity extends Atomik_Db_Object
 		$activity->created = empty($date) ? @date('Y-m-d H:i:s') : $date;
 		$activity->save();
 		return $activity;
-	}
-	
-	/**
-	 * Returns all activities
-	 * 
-	 * @param 	int|array	$limit
-	 * @return 	Atomik_Db_Query_Result
-	 */
-	public static function findAll($limit = 20)
-	{
-		$activities = Atomik_Db::findAll('backend_activities', null, 'created DESC', $limit);
-		$activities->setFetchMode(Atomik_Db_Query_Result::FETCH_OBJECT, null, 'Backend_Activity');
-		return $activities;
 	}
 	
 	/**

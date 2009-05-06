@@ -21,7 +21,7 @@ Atomik::set(array(
         'Console',
 
         'Db' => array(
-            'dsn'         => 'mysql:host=localhost;dbname=atomik-sandbox',
+            'dsn'         => 'mysql:host=localhost;dbname=atomik_sandbox',
             'username'    => 'atomik',
             'password'    => 'atomik'
         ),
@@ -43,10 +43,10 @@ Atomik::set(array(
 ));
 
 Atomik::set('plugins/Auth', array(
-	'users' => array(
-		'admin' => array('password' => 'admin', 'roles' => array('member', 'backend')),
-		'foo' => array('password' => 'bar', 'roles' => array('member'))
-	),
+	'model' => 'User',
+	/*'users' => array(
+		'admin' => array('password' => 'admin', 'roles' => array('backend', 'member'))
+	),*/
 	'resources' => array(
 		'/private/*' => 'member'
 	)

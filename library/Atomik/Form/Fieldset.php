@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Form_Field_Interface */
+require_once 'Atomik/Form/Field/Interface.php';
+
 /** Atomik_Form_Field_Abstract */
 require_once 'Atomik/Form/Field/Abstract.php';
 
@@ -26,7 +29,7 @@ require_once 'Atomik/Form/Field/Abstract.php';
  * @package Atomik
  * @subpackage Form
  */
-class Atomik_Form_Fieldset
+abstract class Atomik_Form_Fieldset extends Atomik_Form_Field_Abstract
 {
 	/**
 	 * @var array
@@ -36,12 +39,12 @@ class Atomik_Form_Fieldset
 	/**
 	 * @var array
 	 */
-	protected $_data;
+	protected $_labels = array();
 	
 	/**
 	 * @var array
 	 */
-	protected $_validationMessages = array();
+	protected $_data;
 	
 	/**
 	 * Resets all fields
@@ -51,19 +54,22 @@ class Atomik_Form_Fieldset
 	public function setFields($fields)
 	{
 		$this->_fields = array();
-		foreach ($fields as $field) {
-			$this->addField($field);
+		foreach ($fields as $label => $field) {
+			$this->addField($field, is_int($label) ? null : $label);
 		}
 	}
 	
 	/**
 	 * Adds a new field
 	 * 
-	 * @param	Atomik_Form_Field_Abstract	$field
+	 * @param	Atomik_Form_Field_Interface	$field
+	 * @param	string						$label
 	 */
-	public function addField(Atomik_Form_Field_Abstract $field)
+	public function addField(Atomik_Form_Field_Interface $field, $label = null)
 	{
 		$this->_fields[$field->getName()] = $field;
+		$this->_labels[$field->getName()] = $label === null ? $field->getName() : $label;
+		$field->setParent($this);
 		
 		if (isset($this->_data[$field->getName()])) {
 			$field->setValue($this->_data[$field->getName()]);
@@ -73,16 +79,35 @@ class Atomik_Form_Fieldset
 	/**
 	 * Removes a field
 	 * 
-	 * @param	Atomik_Form_Field_Abstract	$field
+	 * @param	string|Atomik_Form_Field_Interface	$field
 	 */
-	public function removeField(Atomik_Form_Field_Abstract $field)
+	public function removeField($field)
 	{
-		for ($i = 0, $c = count($this->_fields); $i < $c; $i++) {
-			if ($this->_fields[$i] == $field) {
-				unset($this->_fields[$i]);
-				break;
-			}
+		if ($field instanceof Atomik_Form_Field_Interface) {
+			$field = $field->getName();
 		}
+		
+		if (!isset($this->_fields[$field])) {
+			return;
+		}
+		
+		$this->_fields[$field]->setParent(null);
+		unset($this->_fields[$field]);
+		unset($this->_labels[$field]);
+	}
+	
+	/**
+	 * Returns a field object
+	 * 
+	 * @param $name
+	 * @return Atomik_Form_Field_Interface
+	 */
+	public function getField($name)
+	{
+		if (!isset($this->_fields[$name])) {
+			return null;
+		}
+		return $this->_fields[$name];
 	}
 	
 	/**
@@ -96,7 +121,68 @@ class Atomik_Form_Fieldset
 	}
 	
 	/**
-	 * @param array $data OPTIONAL
+	 * Sets a label associated to a field
+	 * 
+	 * @param 	string	$fieldName
+	 * @param 	string	$label
+	 */
+	public function setLabel($fieldName, $label)
+	{
+		$this->_labels[$fieldName] = $label;
+	}
+	
+	/**
+	 * Returns the label of a specified field
+	 * 
+	 * @param 	string|Atomik_Form_Field_Interface $fieldName
+	 * @return	string
+	 */
+	public function getLabel($fieldName)
+	{
+		if ($fieldName instanceof Atomik_Form_Field_Interface) {
+			$fieldName = $fieldName->getName();
+		}
+		
+		if (!isset($this->_labels[$fieldName])) {
+			return null;
+		}
+		return $this->_labels[$fieldName];
+	}
+	
+	/**
+	 * Returns all labels
+	 * 
+	 * @return array
+	 */
+	public function getLabels()
+	{
+		return $this->_labels;
+	}
+	
+	/**
+	 * Sets the value of the field
+	 * 
+	 * @param	string	$value
+	 */
+	public function setValue($value)
+	{
+		$this->setData($value);
+	}
+	
+	/**
+	 * Returns the value of the field
+	 * 
+	 * @return string
+	 */
+	public function getValue()
+	{
+		return $this->getData();
+	}
+	
+	/**
+	 * Sets the data for the fields
+	 * 
+	 * @param array $data
 	 */
 	public function setData($data)
 	{
@@ -176,15 +262,5 @@ class Atomik_Form_Fieldset
 		}
 		
 		return $valid;
-	}
-	
-	/**
-	 * Returns the messages generated during the last validation
-	 *
-	 * @return array
-	 */
-	public function getValidationMessages()
-	{
-		return $this->_validationMessages;
 	}
 }

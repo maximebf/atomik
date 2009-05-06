@@ -184,7 +184,7 @@ class Atomik_Model_Builder_ClassMetadata
 		
 		// fields
 		if (isset($matches['using']) && !empty($matches['using'])) {
-			list($sourceField, $targetField) = self::getReferenceFieldsFromString($matches['using']);
+			list($sourceField, $targetField) = self::getReferenceFieldsFromString($matches['using'], $reference);
 		} else {
 			list($sourceField, $targetField) = self::getReferenceFields($builder, $reference);
 		}
@@ -257,14 +257,14 @@ class Atomik_Model_Builder_ClassMetadata
 	 * @param 	string	$string
 	 * @return 	array			array(sourceField, targetField)
 	 */
-	public static function getReferenceFieldsFromString($string)
+	public static function getReferenceFieldsFromString($string, Atomik_Model_Builder_Reference $reference)
 	{
 		if (!preg_match('/(.+)\.(.+)\s(=)\s(.+)\.(.+)/', $string, $matches)) {
 			require_once 'Atomik/Model/Exception.php';
 			throw new Atomik_Model_Exception('Using statement for reference is malformed: ' . $string);
 		}
 		
-		if ($matches[1] == $source) {
+		if ($matches[1] == $reference->source) {
 			return array($matches[2], $matches[5]);
 		}
 		return array($matches[5], $matches[2]);

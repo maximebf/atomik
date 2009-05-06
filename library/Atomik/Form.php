@@ -22,6 +22,9 @@
 /** Atomik_Form_Fieldset */
 require_once 'Atomik/Form/Fieldset.php';
 
+/** Atomik_Form_Field_Interface */
+require_once 'Atomik/Form/Field/Interface.php';
+
 /**
  * Creates a form
  * 
@@ -50,75 +53,171 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	/**
 	 * @var string
 	 */
-	protected $_template;
+	protected $_formTemplate;
+	
+	/**
+	 * @var string
+	 */
+	protected $_fieldTemplate;
 
 	/**
 	 * @var string
 	 */
-	protected static $_defaultTemplate = 'Atomik/Form/Template/Dl.php';
+	protected static $_defaultFormTemplate = 'Atomik/Form/Template/Dl.php';
+
+	/**
+	 * @var string
+	 */
+	protected static $_defaultFieldTemplate = 'Atomik/Form/Template/Field/Dtdd.php';
 	
 	/**
-	 * Sets the default template 
+	 * Sets the default form template 
 	 *
 	 * @param string $filename
 	 */
-	public static function setDefaultTemplate($filename)
+	public static function setDefaultFormTemplate($filename)
 	{
-		self::$_defaultTemplate = $filename;
+		self::$_defaultFormTemplate = $filename;
 	}
 	
 	/**
-	 * Returns the default template
+	 * Returns the default form template
 	 *
 	 * @return string
 	 */
-	public static function getDefaultTemplate()
+	public static function getDefaultFormTemplate()
 	{
-		return self::$_defaultTemplate;
+		return self::$_defaultFormTemplate;
+	}
+	
+	/**
+	 * Sets the default fields template 
+	 *
+	 * @param string $filename
+	 */
+	public static function setDefaultFieldTemplate($filename)
+	{
+		self::$_defaultFieldTemplate = $filename;
+	}
+	
+	/**
+	 * Returns the default fields template
+	 *
+	 * @return string
+	 */
+	public static function getDefaultFieldTemplate()
+	{
+		return self::$_defaultFieldTemplate;
 	}
 	
 	/**
 	 * Constructor
 	 *
+	 * @param	array	$name
 	 * @param	array	$fields
 	 * @param 	string	$action
 	 * @param 	string	$method
 	 * @param 	string	$enctype
 	 */
-	public function __construct($fields = array(), $action = '', $method = 'POST', $enctype = self::URL_ENCODED)
+	public function __construct($name = null, $fields = array(), $action = '', $method = 'POST', $enctype = self::URL_ENCODED)
 	{
+		$this->setName($name);
 		$this->setFields($fields);
 		$this->setAction($action);
 		$this->setMethod($method);
 		$this->setEnctype($enctype);
+		$this->_setup();
 		
 		$this->setData(array_merge($_POST, $_FILES));
 	}
 	
 	/**
-	 * Sets the template filename used to render this form
+	 * For subclass to initialize themselves
+	 */
+	protected function _setup() {}
+	
+	/**
+	 * Sets the form template filename
 	 *
 	 * @param string $filename
 	 */
-	public function setTemplate($filename = null)
+	public function setFormTemplate($filename = null)
 	{
 		if ($filename === null) {
-			$filename = self::getDefaultTemplate();
+			$filename = self::getDefaultFormTemplate();
 		}
-		$this->_template = $filename;
+		$this->_formTemplate = $filename;
 	}
 	
 	/**
-	 * Returns the template filename
+	 * Returns the form template filename
 	 *
 	 * @return string
 	 */
-	public function getTemplate()
+	public function getFormTemplate()
 	{
-		if ($this->_template === null) {
-			$this->setTemplate();
+		if ($this->_formTemplate === null) {
+			$this->setFormTemplate();
 		}
-		return $this->_template;
+		return $this->_formTemplate;
+	}
+	
+	/**
+	 * Sets the fields template filename
+	 *
+	 * @param string $filename
+	 */
+	public function setFieldTemplate($filename = null)
+	{
+		if ($filename === null) {
+			$filename = self::getDefaultFieldTemplate();
+		}
+		$this->_fieldTemplate = $filename;
+	}
+	
+	/**
+	 * Returns the fields template filename
+	 *
+	 * @return string
+	 */
+	public function getFieldTemplate()
+	{
+		if ($this->_fieldTemplate === null) {
+			$this->setFieldTemplate();
+		}
+		return $this->_fieldTemplate;
+	}
+	
+	/**
+	 * Sets the form id
+	 * 
+	 * @see Atomik_Form::setId()
+	 * @param	string	$name
+	 */
+	public function setName($name)
+	{
+		$this->setId($name);
+	}
+	
+	/**
+	 * Sets the id attribute
+	 * 
+	 * @param string $id
+	 */
+	public function setId($id)
+	{
+		$this->_attributes['id'] = $id;
+		parent::setName($id);
+	}
+	
+	/**
+	 * Returns the id attribute
+	 * 
+	 * @return string
+	 */
+	public function getId()
+	{
+		return $this->_attributes['id'];
 	}
 	
 	/**
@@ -249,22 +348,71 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	}
 	
 	/**
-	 * Renders the form
-	 *
+	 * Sets the data for the fields
+	 * 
+	 * @param array $data
+	 */
+	public function setData($data)
+	{
+		if ($this->_parent === null && $this->_name !== null) {
+			if (!isset($data[$this->_name])) {
+				$data = array();
+			} else {
+				$data = $data[$this->_name];
+			}
+		}
+		
+		parent::setData($data);
+	}
+	
+	/**
+	 * @see Atomik_Form::renderFields()
 	 * @return string
 	 */
 	public function render()
 	{
+		return $this->renderFields();
+	}
+	
+	/**
+	 * Renders the form fields only
+	 *
+	 * @return string
+	 */
+	public function renderFields()
+	{
+		$output = '';
+		foreach ($this->_fields as $field) {
+			if ($field instanceof Atomik_Form) {
+				$output .= $field->render();
+				continue;
+			}
+			
+			$label = $this->getLabel($field->getName());
+			ob_start();
+			include $this->getFieldTemplate();
+			$output .= ob_get_clean();
+		}
+		return $output;
+	}
+	
+	/**
+	 * Renders the whole form (the form tag and all its fields)
+	 * 
+	 * @return string
+	 */
+	public function renderForm()
+	{
 		ob_start();
-		include $this->getTemplate();
+		include $this->getFormTemplate();
 		return ob_get_clean();
 	}
 	
 	/**
-	 * @see Atomik_Form::render()
+	 * @see Atomik_Form::renderForm()
 	 */
 	public function __toString()
 	{
-		return $this->render();
+		return $this->renderForm();
 	}
 }

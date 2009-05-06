@@ -32,7 +32,7 @@ require_once 'Atomik/Model/Builder/Factory.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model extends Atomik_Model_Locator
+class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 {
 	/**
 	 * @var Atomik_Model_Builder
@@ -48,11 +48,6 @@ class Atomik_Model extends Atomik_Model_Locator
 	 * @var array
 	 */
 	protected $_references = array();
-	
-	/**
-	 * @var array
-	 */
-	protected $_validationMessages = array();
 	
 	/**
 	 * Constructor
@@ -80,9 +75,17 @@ class Atomik_Model extends Atomik_Model_Locator
 	public function getBuilder()
 	{
 		if ($this->_builder === null) {
-			$this->_builder = Atomik_Model_Builder_Factory::get($this);
+			$this->_initBuilder();
 		}
 		return $this->_builder;
+	}
+	
+	/**
+	 * Inits the builder
+	 */
+	protected function _initBuilder()
+	{
+		$this->_builder = Atomik_Model_Builder_Factory::get($this);
 	}
 	
 	/**
@@ -243,14 +246,6 @@ class Atomik_Model extends Atomik_Model_Locator
 	 */
 	public function save()
 	{
-		if ($this->getBuilder()->getOption('validate-on-save', false)) {
-			if (!$this->isValid()) {
-				require_once 'Atomik/Model/Exception.php';
-				throw new Atomik_Model_Exception('Model failed to validate before saving:<br/>' . 
-					implode('<br/>', $this->getValidationMessages()));
-			}
-		}
-		
 		if (!$this->getBuilder()->getAdapter()->save($this)) {
 			return false;
 		}
@@ -291,42 +286,6 @@ class Atomik_Model extends Atomik_Model_Locator
 	}
 	
 	/**
-	 * Validates the model's fields value
-	 *
-	 * @return bool
-	 */
-	public function isValid()
-	{
-		$isValid = true;
-		$this->_validationMessages = array();
-		$fields = $this->getBuilder()->getFields();
-		
-		foreach ($fields as $field) {
-			if (isset($data[$field->name])) {
-				if (!$field->isValid($data[$field->name])) {
-					$this->_validationMessages += $field->getValidationMessages();
-					$isValid = false;
-				}
-			} else if ($field->getOption('required', false)) {
-				$this->_validationMessages[] = 'Missing required field: ' . $field->name;
-				$isValid = false;
-			}
-		}
-		
-		return $isValid;
-	}
-	
-	/**
-	 * Returns the messages generated during the validation
-	 *
-	 * @return array
-	 */
-	public function getValidationMessages()
-	{
-		return $this->getBuilder()->getValidationMessages();
-	}
-	
-	/**
 	 * Returns the data as an array (references won't be included)
 	 *
 	 * @return array
@@ -361,5 +320,29 @@ class Atomik_Model extends Atomik_Model_Locator
 	{
 		$this->_new = true;
 		$this->setPrimaryKey(null);
+	}
+	
+	/* -------------------------------------------------------------------------------------------
+	 *  ArrayAccess
+	 * ------------------------------------------------------------------------------------------ */
+	
+	public function offsetExists($index)
+	{
+		return isset($this->{$index});
+	}
+	
+	public function offsetGet($index)
+	{
+		return $this->{$index};
+	}
+	
+	public function offsetSet($index, $value)
+	{
+		$this->{$index} = $value;
+	}
+	
+	public function offsetUnset($index)
+	{
+		unset($this->{$index});
 	}
 }

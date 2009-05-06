@@ -190,7 +190,10 @@ class Atomik_Model_Adapter_Db implements Atomik_Model_Adapter_Interface, Atomik_
 			$dbQuery = self::convertModelQueryToDbQuery($query);
 		}
 		
-		$rows = self::getDbInstanceFromBuilder($query->from)->query($dbQuery);
+		if (($rows = self::getDbInstanceFromBuilder($query->from)->query($dbQuery)) === false) {
+			return array();
+		}
+		
 		$rows->setFetchMode(PDO::FETCH_ASSOC);
 		return $rows;
 	}

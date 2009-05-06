@@ -31,10 +31,12 @@ class Atomik_Form_Field_Factory
 	/**
 	 * Creates an instance of a field
 	 * 
-	 * @param 	string|objet 	$name	The last part of the field name if it starts with Atomik_Form_Field_ or a class name
+	 * @param 	string|objet 	$name		The last part of the field name if it starts with Atomik_Form_Field_ or a class name
+	 * @param	string			$fieldName
+	 * @param	array			$options
 	 * @return 	Atomik_Model_Form_Field_Abstract
 	 */
-	public static function factory($name, $fieldName, $label = null, $options = array())
+	public static function factory($name, $fieldName, $options = array())
 	{
 		$className = 'Atomik_Form_Field_' . ucfirst($name);
 		if (!class_exists($className)) {
@@ -45,6 +47,6 @@ class Atomik_Form_Field_Factory
 			}
 		}
 		
-		return new $className($fieldName, $label, $options);
+		return new $className($fieldName, $options);
 	}
 }

@@ -12,7 +12,7 @@
 body {
 	background: #f7f9e3;
 	font-family: Arial, sans-serif;
-	font-size: 95%;
+	font-size: 0.9em;
 	margin: 0px;
 	padding: 0px;
 }
@@ -135,6 +135,7 @@ img {
 
 #main {
 	background: #f7f9e3 url(../images/main-bg.png) repeat-x;
+	padding: 10px;
 }
 	
 /* ----------------------------------------------------------------
@@ -171,7 +172,6 @@ img {
 
 .panel {
 	background: #fff;
-	margin: 10px;
 }
 	.panel-title {
 		background: #dae0aa;
@@ -196,7 +196,6 @@ img {
 
 	#sidebar {
 		color: #595f22;
-		margin: 10px;
 		margin-left: 0px;
 	}
 	
@@ -362,103 +361,3 @@ img {
 
 .form dl dd.buttons {
 }
-
-/* ----------------------------------------------------------------
-	[ Tabs ]
-*/
-
-.ui-tabs-nav {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
-}
-
-	.ui-tabs-nav li {
-		display: inline;
-		margin: 0px;
-		padding: 0px;
-	}
-	
-		.ui-tabs-nav li a {
-			background: #e8e8e8;
-			color: #989898;
-			display: block;
-			float: left;
-			margin-right: 6px;
-			padding: 6px 8px 4px;
-		}
-		
-		.ui-tabs-nav li.ui-tabs-selected a {
-			background: #989898;
-			color: #fff;
-		}
-		
-.ui-tabs-panel {
-	background: #989898;
-	clear: both;
-	padding: 3px;
-}
-		
-.ui-tabs-hide {
-	display: none;
-}
-		
-	.ui-tabs-panel .tabs-body {
-		background: #fff;
-		padding: 10px;
-	}
-
-/* ----------------------------------------------------------------
-	[ Tree ]
-*/
-
-.tree dt.directory {
-	background: none;
-}
-
-	.tree dt.directory a.collapse {
-		background: url(../images/collapse.png) left 50% no-repeat;
-		display: block;
-		float: left;
-		height: 17px;
-		width: 17px;
-	}
-
-.tree dd {
-	margin: 0px
-}
-
-/* ----------------------------------------------------------------
-	[ File list ]
-*/
-
-.file-list {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
-}
-
-	.file-list-row {
-		background: url(../images/page.png) no-repeat;
-		border-bottom: 1px solid #bfbfbf;
-		padding-left: 35px;
-		font-weight: bold;
-		height: 35px;
-		line-height: 35px;
-		position: relative;
-	}
-
-	.file-list .hover {
-		background-color: #f6f9dc;
-	}
-	
-		.file-list-row .file-list-name {
-			color: #000;
-		}
-
-		.file-list-row .file-list-actions {
-			position: absolute;
-			right: 10px;
-			top: 3px;
-		}
-

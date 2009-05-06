@@ -19,14 +19,17 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Form_Field_Abstract */
-require_once 'Atomik/Form/Field/Abstract.php';
+/** Atomik_Options */
+require_once 'Atomik/Options.php';
+
+/** Atomik_Form_Field_Interface */
+require_once 'Atomik/Form/Field/Interface.php';
 
 /**
  * @package Atomik
  * @subpackage Form
  */
-abstract class Atomik_Form_Field_Abstract
+abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atomik_Form_Field_Interface
 {
 	/**
 	 * @var string
@@ -34,19 +37,14 @@ abstract class Atomik_Form_Field_Abstract
 	protected $_name;
 	
 	/**
-	 * @var string
+	 * @var Atomik_Form_Field_Interface
 	 */
-	protected $_label;
+	protected $_parent;
 	
 	/**
 	 * @var string
 	 */
 	protected $_value = '';
-	
-	/**
-	 * @var array
-	 */
-	protected $_options = array();
 	
 	/**
 	 * @var array
@@ -57,12 +55,10 @@ abstract class Atomik_Form_Field_Abstract
 	 * Constructor
 	 * 
 	 * @param	string	$name
-	 * @param	string	$label
 	 * @param	array	$options
 	 */
-	public function __construct($name, $label = null, $options = array())
+	public function __construct($name, $options = array())
 	{
-		$this->setLabel($label);
 		$this->setName($name);
 		$this->setOptions($options);
 	}
@@ -75,9 +71,6 @@ abstract class Atomik_Form_Field_Abstract
 	public function setName($name)
 	{
 		$this->_name = $name;
-		if ($this->_label === null) {
-			$this->_label = $name;
-		}
 	}
 	
 	/**
@@ -91,23 +84,36 @@ abstract class Atomik_Form_Field_Abstract
 	}
 	
 	/**
-	 * Sets the name of the field
-	 * 
-	 * @param	string	$label
-	 */
-	public function setLabel($label)
-	{
-		$this->_label = $label;
-	}
-	
-	/**
-	 * Returns the value of the field
+	 * Returns the full name of the field (including the parent name)
 	 * 
 	 * @return string
 	 */
-	public function getLabel()
+	public function getFullname()
 	{
-		return $this->_label;
+		if ($this->_parent === null || $this->_parent->getFullname() === null) {
+			return $this->_name;
+		}
+		return $this->_parent->getFullname() . '[' . $this->_name . ']';
+	}
+	
+	/**
+	 * Sets the field that contain this field
+	 * 
+	 * @param 	Atomik_Form_Field_Interface	$parent
+	 */
+	public function setParent(Atomik_Form_Field_Interface $parent)
+	{
+		$this->_parent = $parent;
+	}
+	
+	/**
+	 * Returns the parent field
+	 * 
+	 * @return Atomik_Form_Field_Interface
+	 */
+	public function getParent()
+	{
+		return $this->_parent;
 	}
 	
 	/**
@@ -128,63 +134,6 @@ abstract class Atomik_Form_Field_Abstract
 	public function getValue()
 	{
 		return $this->_value;
-	}
-	
-	/**
-	 * Sets all options
-	 *
-	 * @param array $options
-	 */
-	public function setOptions($options)
-	{
-		$this->_options = (array) $options;
-	}
-	
-	/**
-	 * Sets an option
-	 *
-	 * @param string $name
-	 * @param mixed $value
-	 */
-	public function setOption($name, $value)
-	{
-		$this->_options[$name] = $value;
-	}
-	
-	/**
-	 * Checks if an option exists
-	 *
-	 * @param string $name
-	 * @return bool
-	 */
-	public function hasOption($name)
-	{
-		return array_key_exists($name, $this->_options);
-	}
-	
-	/**
-	 * Returns an option
-	 *
-	 * @param string $name
-	 * @param mixed $default OPTIONAL Default value if the key is not found
-	 * @return mixed
-	 */
-	public function getOption($name, $default = null)
-	{
-		if (!array_key_exists($name, $this->_options)) {
-			return $default;
-		}
-		return $this->_options[$name];
-	}
-	
-	/**
-	 * Returns all options
-	 * 
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		return $this->_options;
 	}
 	
 	/**
@@ -213,6 +162,51 @@ abstract class Atomik_Form_Field_Abstract
 	 */
 	public function isValid()
 	{
+		$isValid = true;
+		$this->_validationMessages = array();
+		
+		if ($this->getOption('required', false) && empty($this->_value)) {
+			$this->_validationMessages[] = $this->_name . ' is required';
+			return false;
+		}
+		
+		if ($this->hasOption('validate-with')) {
+			$callback = $this->getOption('validate-with');
+			if (!call_user_func($callback, $value)) {
+				$this->_validationMessages[] = $this->_name . ' failed to validate because '
+											 . $this->getOption('validate-with') . '() returned false';
+				return false;
+			}
+			return true;
+		}
+		
+		if (!$this->hasOption('validate')) {
+			return true;
+		}
+			
+		$filter = $this->getOption('validate');
+		$options = array();
+		
+		if (in_array($filter, filter_list())) {
+			// filter name from the extension filters
+			$filter = filter_id($filter);
+			
+		} else if (preg_match('@/.+/[a-zA-Z]*@', $filter)) {
+			// regexp
+			$options = array('options' => array('regexp' => $filter));
+			$filter = FILTER_VALIDATE_REGEXP;
+			
+		} else {
+			$this->_validationMessages[] = $this->_name . ' failed to validate because the validation string is neither a filter or a regexp';
+			return false;
+		}
+		
+		
+		if (!filter_var($this->_value, $filter, $options)) {
+			$this->_validationMessages[] = $this->_name . ' is not valid';
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -225,13 +219,6 @@ abstract class Atomik_Form_Field_Abstract
 	{
 		return $this->_validationMessages;
 	}
-	
-	/**
-	 * Renders the field
-	 * 
-	 * @return string
-	 */
-	abstract public function render();
 	
 	/**
 	 * @see Atomik_Form_Field_Abstract::render()

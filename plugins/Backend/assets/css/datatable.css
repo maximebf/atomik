@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+
+.datatable {
+	border: 0;
+	border-spacing: 0;
+	border-collapse: collapse;
+	margin: 0;
+	padding: 0;
+	table-layout: fixed;
+	width: 100%;
+}
+
+	.datatable thead tr {
+		background: #F5F5F5;
+		border-bottom: 2px solid #DDDDDD;
+	}
+	
+		.datatable thead th {
+			color: #646464;
+			font-size: 1em;
+			font-weight: normal;
+			padding: 3px;
+			margin: 0;
+			text-align: left;
+		}
+		
+	.datatable tbody tr {
+		border-bottom: 1px solid #DDDDDD;
+		cursor: pointer;
+		height: 30px;
+	}
+	
+	.datatable tbody tr.hover {
+		background: #F5F5F5;
+	}
+	
+		.datatable tbody td {
+			padding-left: 3px;
+		}

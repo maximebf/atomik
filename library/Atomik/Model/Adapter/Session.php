@@ -41,6 +41,7 @@ class Atomik_Model_Adapter_Session extends Atomik_Model_Adapter_Local
 		if (!isset($_SESSION['__MODELS'])) {
 			$_SESSION['__MODELS'] = array();
 		}
-		$this->_data = &$_SESSION['__MODELS'];
+		
+		parent::__construct($_SESSION['__MODELS']);
 	}
 }

@@ -19,8 +19,8 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Options */
-require_once 'Atomik/Model/Options.php';
+/** Atomik_Options */
+require_once 'Atomik/Options.php';
 
 /** Atomik_Model_Adapter_Interface */
 require_once 'Atomik/Model/Adapter/Interface.php';
@@ -37,7 +37,7 @@ require_once 'Atomik/Model/Builder/Reference.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Builder extends Atomik_Model_Options
+class Atomik_Model_Builder extends Atomik_Options
 {
 	/**
 	 * @var string
@@ -53,6 +53,11 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	 * @var Atomik_Model_Builder
 	 */
 	protected $_parentModelBuilder;
+	
+	/**
+	 * @var string
+	 */
+	protected $_inheritanceType;
 	
 	/**
 	 * @var array
@@ -125,15 +130,35 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	 */
 	public function setParentModel($parentModel)
 	{
-		$builder = Atomik_Model_Builder_Factory::get($parentModel);
+		$parent = Atomik_Model_Builder_Factory::get($parentModel);
+		$type = $parent->getOption('inheritance', 'abstract');
 		
-		if ($this->_adapter !== null) {
-			throw new Atomik_Model_Builder_Exception('Inherited model can\'t have a different adapter');
+		switch($type) {
+			case 'none':
+				return;
+				
+			case 'abstract':
+				if ($this->_adapter === null) {
+					$this->setAdapter($parent->getAdapter());
+				}
+				$this->_fields = array_merge($parent->getFields(), $this->_fields);
+				$this->_options = array_merge($parent->getOptions(), $this->_options);
+				foreach ($parent->getReferences() as $ref) {
+					$this->addReference(clone $ref);
+				}
+				break;
+				
+			case 'reference':
+				$ref = new Atomik_Model_Builder_Reference('parent', Atomik_Model_Builder_Reference::HAS_PARENT);
+				$ref->target = $parent->name;
+				$ref->targetField = $parent->getPrimaryKeyField()->name;
+				$ref->sourceField = $ref->target . '_' . $ref->targetField;
+				$this->addReference($ref);
+				break;
 		}
 		
-		$this->setAdapter($builder->getAdapter());
-		$this->_options = array_merge($builder->getOptions(), $this->_options);
-		$this->_parentModelBuilder = $builder;
+		$this->_parentModelBuilder = $parent;
+		$this->_inheritanceType = $type;
 	}
 	
 	/**
@@ -154,6 +179,16 @@ class Atomik_Model_Builder extends Atomik_Model_Options
 	public function getParentModel()
 	{
 		return $this->_parentModelBuilder;
+	}
+	
+	/**
+	 * Returns the type of inheritance used
+	 * 
+	 * @return string
+	 */
+	public function getInheritanceType()
+	{
+		return $this->_inheritanceType;
 	}
 	
 	/**

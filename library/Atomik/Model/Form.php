@@ -71,7 +71,8 @@ class Atomik_Model_Form extends Atomik_Form
 		$this->_builder = $builder;
 		$this->_fields = array();
 		
-		$this->setTemplate($builder->getOption('form-template', null));
+		$this->setFormTemplate($builder->getOption('form-template', Atomik_Form::getDefaultFormTemplate()));
+		$this->setFieldTemplate($builder->getOption('form-field-template', Atomik_Form::getDefaultFieldTemplate()));
 		$this->setAttributes($builder->getOptions('form-'));
 		
 		foreach ($builder->getFields() as $builderField) {
@@ -81,9 +82,9 @@ class Atomik_Model_Form extends Atomik_Form
 			$this->_fields[$builderField->name] = Atomik_Form_Field_Factory::factory(
 				$builderField->getOption('form-field', 'Input'), 
 				$builderField->name,
-				$builderField->getOption('form-label', $builderField->name), 
 				$builderField->getOptions('form-')
 			);
+			$this->_labels[$builderField->name] = $builderField->getOption('form-label', $builderField->name);
 		}
 	}
 	
@@ -180,25 +181,5 @@ class Atomik_Model_Form extends Atomik_Form
 	{
 		$this->_model = null;
 		$this->clearData();
-	}
-	
-	/**
-	 * Validates the data
-	 *
-	 * @return bool
-	 */
-	public function isValid()
-	{
-		return $this->getBuilder()->isValid($this->getData());
-	}
-	
-	/**
-	 * Returns the messages generated during the last validation
-	 *
-	 * @return array
-	 */
-	public function getValidationMessages()
-	{
-		return $this->getBuilder()->getValidationMessages();
 	}
 }

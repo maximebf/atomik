@@ -19,24 +19,19 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Options */
-require_once 'Atomik/Model/Options.php';
+/** Atomik_Options */
+require_once 'Atomik/Options.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Builder_Field extends Atomik_Model_Options
+class Atomik_Model_Builder_Field extends Atomik_Options
 {
 	/**
 	 * @var string
 	 */
 	public $name;
-	
-	/**
-	 * @var array
-	 */
-	protected $_validationMessages = array();
 	
 	/**
 	 * Constructor
@@ -48,49 +43,6 @@ class Atomik_Model_Builder_Field extends Atomik_Model_Options
 	{
 		$this->name = $name;
 		$this->setOptions($options);
-	}
-	
-	/**
-	 * Checks if the specified value is valid
-	 *
-	 * @param 	mixed $value
-	 * @return 	bool
-	 */
-	public function isValid($value)
-	{
-		$isValid = true;
-		$this->_validationMessages = array();
-			
-		if ($this->hasOption('validate')) {
-			if(!preg_match($this->getOption('validate'), $value)) {
-				$this->_validationMessages[] = $this->name . ' failed to validate because it '
-											 . 'didn\'t match the regexp: ' . $this->getOption('validate');
-				return false;
-			}
-			
-			return true;
-		}
-		
-		if ($this->hasOption('validate-with')) {
-			$callback = $this->getOption('validate-with');
-			if (!call_user_func($callback, $value)) {
-				$this->_validationMessages[] = $this->name . ' failed to validate because '
-											 . $this->getOption('validate-with') . '() returned false';
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Returns the messages generated during the validation
-	 *
-	 * @return array
-	 */
-	public function getValidationMessages()
-	{
-		return $this->_validationMessages;
 	}
 	
 	/**

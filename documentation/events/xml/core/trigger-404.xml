@@ -4,5 +4,6 @@
 		<description>
 			Fired when a call to <code>Atomik::trigger404()</code> is made.
 		</description>
+		<refparam name="$cancel" type="boolean">To avoid the error to be processed</refparam>
 	</event>
 </group>

@@ -28,14 +28,6 @@
 interface Atomik_Auth_User_Interface
 {
 	/**
-	 * Returns the user object associated to the specified username
-	 * 
-	 * @param	string	$username
-	 * @return Atomik_Auth_User_Interface
-	 */
-	static function find($username);
-	
-	/**
 	 * Returns roles of the user
 	 *
 	 * @return array

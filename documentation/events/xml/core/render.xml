@@ -6,7 +6,7 @@
 		</description>
 		<refparam name="$view" type="string">The view name</refparam>
 		<refparam name="$vars" type="array">Variables for the view file</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
+		<refparam name="$dirs" type="array">Directories where to find the view</refparam>
 		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the view file is missing</refparam>
 	</event>
 	<event name="Atomik::Render::Before">
@@ -15,9 +15,8 @@
 		</description>
 		<refparam name="$view" type="string">The view name</refparam>
 		<refparam name="$vars" type="array">Variables for the view file</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
-		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the view file is missing</refparam>
 		<refparam name="$filename" type="string">The view files's name</refparam>
+		<param name="$triggerError" type="boolean">Whether to throw an exception when the view file is missing</param>
 	</event>
 	<event name="Atomik::Render::After">
 		<description>
@@ -25,21 +24,8 @@
 		</description>
 		<param name="$view" type="string">The view name</param>
 		<refparam name="$output" type="string">The view output</refparam>
-		<refparam name="$vars" type="array">Variables for the view file</refparam>
-		<refparam name="$filename" type="string">The view files's name</refparam>
-		<refparam name="$echo" type="boolean">Whether to echo the view output or return it</refparam>
-		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the view file is missing</refparam>
-	</event>
-	<event name="Atomik::Render::Output::Before">
-		<description>
-			Fired before content is echoed.
-		</description>
-		<refparam name="$output" type="string">The content that will be echoed</refparam>
-	</event>
-	<event name="Atomik::Render::Output::After">
-		<description>
-			Fired after content has been echoed.
-		</description>
-		<param name="$output" type="string">The content that has been echoed</param>
+		<param name="$vars" type="array">Variables for the view file</param>
+		<param name="$filename" type="string">The view files's name</param>
+		<param name="$triggerError" type="boolean">Whether to throw an exception when the view file is missing</param>
 	</event>
 </group>

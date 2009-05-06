@@ -47,9 +47,7 @@ class DbPlugin
     	'password'				=> '',
     
     	// table prefix
-    	'table_prefix'			=> '',
-    
-    	'object_dirs'			=> './app/models'
+    	'table_prefix'			=> ''
     	
     );
     
@@ -73,15 +71,6 @@ class DbPlugin
 			Atomik_Db::createInstance('default', $dsn, $username, $password);
 		}
 		
-		// adds models directories to php's include path
-		$includes = explode(PATH_SEPARATOR, get_include_path());
-		foreach (Atomik::path(self::$config['object_dirs'], true) as $dir) {
-			if (!in_array($dir, $includes)) {
-				array_unshift($includes, $dir);
-			}
-		}
-		set_include_path(implode(PATH_SEPARATOR, $includes));
-		
 		// registers the db selector namespace
 		Atomik::registerSelector('db', array('DbPlugin', 'selector'));
 		
@@ -92,29 +81,12 @@ class DbPlugin
     }
     
     /**
-     * Adds models folders to php's include path
-     */
-    public static function onAtomikStart()
-    {
-		$includes = explode(PATH_SEPARATOR, get_include_path());
-		
-		// add plugin's models folder to php's include path 
-		foreach (Atomik::getLoadedPlugins(true) as $plugin => $dir) {
-			if (!in_array($dir . '/models', $includes)) {
-				array_unshift($includes, $dir . '/models');
-			}
-		}
-		
-		set_include_path(implode(PATH_SEPARATOR, $includes));
-    }
-    
-    /**
      * Backend support
      * Adds tabs
      */
     public static function onBackendStart()
     {
-    	Atomik_Backend::addMenu('db', 'Database', 'db', array(), 'right');
+    	Atomik_Backend::addMenu('db', 'Database', 'db');
     }
 	
 	/**
@@ -187,22 +159,18 @@ class DbPlugin
 		
 		require_once 'Atomik/Db/Script.php';
 		require_once 'Atomik/Db/Script/Output/Text.php';
-		require_once 'Atomik/Db/Script/Model.php';
 		require_once 'Atomik/Db/Script/File.php';
 		
 		$script = new Atomik_Db_Script();
 		$script->setOutputHandler(new Atomik_Db_Script_Output_Text($echo));
 		
 		foreach ($paths as $path) {
-			if (@is_dir($path . '/models')) {
-				$script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
-			}
 			if (@is_dir($path . '/sql')) {
 				$script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
 			}
 		}
 		
-		Atomik::fireEvent('Db::Script', array($script));
+		Atomik::fireEvent('Db::Script', array($script, $paths));
 		return $script;
 	}
 	

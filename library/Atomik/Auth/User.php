@@ -19,129 +19,60 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Model */
+require_once 'Atomik/Model.php';
+
+/** Atomik_Auth_User_Interface */
+require_once 'Atomik/Auth/User/Interface.php';
+
+/** Atomik_Auth_User_Role */
+require_once 'Atomik/Auth/User/Role.php';
+
 /**
  * The default user object. Store users in an array.
  * 
  * @package Atomik
  * @subpackage Auth
+ * 
+ * @adapter Db
+ * @table auth_users
+ * @has many Atomik_Auth_User_Role as roles
+ * @inheritance abstract
  */
-class Atomik_Auth_User implements Atomik_Auth_User_Interface 
+class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interface
 {
 	/**
-	 * @var array
-	 */
-	private static $_users = array();
-	
-	/**
 	 * @var string
+	 * @sql-type varchar(100)
 	 */
 	public $username;
 	
 	/**
 	 * @var string
+	 * @sql-type varchar(50)
 	 */
 	public $password;
 	
 	/**
-	 * @var username
-	 */
-	public $roles = array();
-	
-	/**
-	 * Sets users
+	 * Checks if the user has access to the specified resource
 	 * 
-	 * Array values can be instances of Atomik_Auth_User or specify the username 
-	 * as the key and the password as the value. Instead of the password as the value you
-	 * can also use an array with the password and roles keys.
-	 * 
-	 * @param	array	$users
+	 * @param string $resource
+	 * @return bool
 	 */
-	public static function setUsers($users)
+	public function hasAccessTo($resource)
 	{
-		self::$_users = array();
-		foreach ($users as $key => $value) {
-			if ($value instanceof Atomik_Auth_User) {
-				self::addUser($value);
-				continue;
-			}
-			
-			$password = $value;
-			$roles = array();
-			if (is_array($value)) {
-				$password = isset($value['password']) ? $value['password'] : '';
-				$roles = isset($value['roles']) ? $value['roles'] : array();
-			}
-			self::addUser($key, $password, $roles);
-		}
+		return Atomik_Auth::hasAccessTo($resource, $this->getRoles());
 	}
 	
 	/**
-	 * Adds a new user
+	 * Checks if the user roles matches with the needed roles
 	 * 
-	 * @param	string|Atomik_Auth_User	$username
-	 * @param	string					$password
-	 * @param	array					$roles
+	 * @param string|array $roles
+	 * @return bool
 	 */
-	public static function addUser($username, $password = '', $roles = array())
+	public function isAllowed($roles)
 	{
-		if ($username instanceof Atomik_Auth_User) {
-			self::$_users[$username->username] = $username;
-			return;
-		}
-		
-		self::$_users[$username] = new Atomik_Auth_User($username, $password, $roles);
-	}
-	
-	/**
-	 * Returns all users
-	 * 
-	 * @return array
-	 */
-	public static function getUsers()
-	{
-		return self::$_users;
-	}
-	
-	/**
-	 * Creates and returns an {@see Atomik_Auth_Backend_Array} instance
-	 * 
-	 * @return Atomik_Auth_Backend_Array
-	 */
-	public static function getArrayBackend()
-	{
-		$backend = Atomik_Auth_Backend_Factory::factory('Array');
-		foreach (self::$_users as $user) {
-			$backend->users[$user->username] = $user->password;
-		}
-		return $backend;
-	}
-	
-	/**
-	 * Returns the user object associated to the specified username
-	 * 
-	 * @param	string	$username
-	 * @return Atomik_Auth_User_Interface
-	 */
-	public static function find($username)
-	{
-		if (!isset(self::$_users[$username])) {
-			return null;
-		}
-		return self::$_users[$username];
-	}
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param	string	$username
-	 * @param	string	$password
-	 * @param	array	$roles
-	 */
-	public function __construct($username, $password, $roles = array())
-	{
-		$this->username = $username;
-		$this->password = $password;
-		$this->roles = $roles;
+		return Atomik_Auth::isAllowed($resource, $this->getRoles());
 	}
 	
 	/**
@@ -151,6 +82,10 @@ class Atomik_Auth_User implements Atomik_Auth_User_Interface
 	 */
 	public function getRoles()
 	{
-		return $this->roles;
+		$roles = array();
+		foreach ($this->roles as $role) {
+			$roles[] = $role->name;
+		}
+		return $roles;
 	}
 }

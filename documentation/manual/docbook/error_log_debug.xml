@@ -80,6 +80,9 @@ Atomik::listenEvent('Atomik::Log', 'my_logger');]]>
 			is an alias for <function>var_dump()</function>. However the method output can be hidden
 			by modifying the <quote>app/debug</quote> configuration key.
 		</para>
+		<para>
+			Also, if <quote>app/debug</quote> is true, the error reporting level will be set to the maximum.
+		</para>
 		<example>
 			<title>Using <methodname>Atomik::debug()</methodname></title>
 			<programlisting>

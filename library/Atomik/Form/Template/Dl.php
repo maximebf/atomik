@@ -1,10 +1,7 @@
 <form <?php echo $this->getAttributesAsString() ?>>
 	  
 	<dl>
-		<?php foreach ($this->getFields() as $field): ?>
-			<dt><label for="<?php echo $field->getName() ?>"><?php echo $field->getLabel() ?></label></dt>
-			<dd><?php echo $field->render() ?></dd>
-		<?php endforeach; ?>
+		<?php echo $this->renderFields() ?>
 		
 		<dt class="buttons"></dt>
 		<dd class="buttons">

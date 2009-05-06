@@ -6,18 +6,24 @@
 	xsi:schemaLocation="../events.xsd">
 	
 	<category name="core" title="Core">
+		<xi:include href="core/run.xml" />
 		<xi:include href="core/dispatch.xml" />
 		<xi:include href="core/route.xml" />
 		<xi:include href="core/execute.xml" />
+		<xi:include href="core/execute-file.xml" />
 		<xi:include href="core/render.xml" />
 		<xi:include href="core/render-file.xml" />
 		<xi:include href="core/render-layout.xml" />
 		<xi:include href="core/end.xml" />
 		<xi:include href="core/load-plugin.xml" />
+		<xi:include href="core/register-pluggable-app.xml" />
+		<xi:include href="core/dispatch-pluggable-app.xml" />
 		<xi:include href="core/url.xml" />
+		<xi:include href="core/flash.xml" />
 		<xi:include href="core/needed.xml" />
 		<xi:include href="core/redirect.xml" />
 		<xi:include href="core/trigger-404.xml" />
+		<xi:include href="core/log.xml" />
 		<xi:include href="core/debug.xml" />
 	</category>
 	<category name="plugins" title="Plugins">

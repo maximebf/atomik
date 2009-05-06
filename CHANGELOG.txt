@@ -47,6 +47,8 @@
  * Added Atomik::viewFilename()
  * Added Atomik::log()
  * Added Atomik::logToFile()
+ * Added Atomik::prepend()
+ * Added support for configuration files in the ini or json formats
  
 [Atomik_Auth]
  * New Plugin

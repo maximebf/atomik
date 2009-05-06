@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="log" title="Atomik::log()" xmlns="http://www.atomikframework.com/events">
+	<event name="Atomik::Log">
+		<description>
+			Fired when a message is logged
+		</description>
+		<param name="$message" type="string">The message</param>
+		<param name="$level" type="int">The associated level</param>
+	</event>
+</group>

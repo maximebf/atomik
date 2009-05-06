@@ -151,6 +151,7 @@ Atomik::set(array(
     
     	// files
         'files' => array(
+        	'config'			=> './app/config',
         	'bootstrap'		    => './app/bootstrap.php',
         	'pre_dispatch' 	    => './app/pre_dispatch.php',
         	'post_dispatch' 	=> './app/post_dispatch.php',
@@ -307,6 +308,22 @@ class Atomik
 	    // wrap the whole app inside a try/catch block to catch all errors
 	    try {
     		 
+    		// loads the config file
+    		if (file_exists($filename = self::get('atomik/files/config') . '.ini')) {
+    			// INI
+    			if (($data = parse_ini_file($filename, true)) === false) {
+    				throw new Atomik_Exception('INI configuration malformed');
+    			}
+    			self::set(self::_dimensionizeArray($data, '.'), null, false);
+    			
+    		} else if (file_exists($filename = self::get('atomik/files/config') . '.json')) {
+    			// JSON
+    			if (($config = json_decode(file_get_contents($filename), true)) === null) {
+    				throw new Atomik_Exception('JSON configuration malformed');
+    			}
+    			self::set($config);
+    		}
+    		 
     		// loads bootstrap file
     		if (file_exists($filename = self::get('atomik/files/bootstrap'))) {
     			require($filename);
@@ -324,6 +341,11 @@ class Atomik
     		// registers the error handler
     		if (self::get('atomik/catch_errors', true) == true) {
     			set_error_handler(array('Atomik', 'errorHandler'));
+    		}
+	        
+    		// sets the error reporting to all errors if debug mode is on
+    		if (self::get('atomik/debug', false) == true) {
+    			error_reporting(E_ALL | E_STRICT);
     		}
     		
     		// default logger
@@ -477,7 +499,6 @@ class Atomik
 	    			$uri = '';
 	    		}
 	    		self::set('atomik/base_action', $baseAction);
-	    		self::set('app/running_plugin', $plugin); 
 	    		
 	    		// dispatches the pluggable application
 	    		return self::dispatchPluggableApplication($plugin, $uri, $pluggAppConfig['config']);
@@ -897,11 +918,11 @@ class Atomik
 			return false;
 		}
 		
-		self::fireEvent('Atomik::Render::Before', array(&$view, &$vars, &$filename));
+		self::fireEvent('Atomik::Render::Before', array(&$view, &$vars, &$filename, $triggerError));
 		
 		$output = self::renderFile($filename, $vars);
 		
-		self::fireEvent('Atomik::Render::After', array($view, &$output, &$vars, $filename));
+		self::fireEvent('Atomik::Render::After', array($view, &$output, $vars, $filename, $triggerError));
 		
 		return $output;
 	}
@@ -998,7 +1019,7 @@ class Atomik
 					throw new Exception('Helper ' . $helperName . ' file found but no function or class matching the helper name');
 				}
 				// helper defined as a class
-				self::$_loadedHelpers[$helperName] = array($className, $camelizedHelperName);
+				self::$_loadedHelpers[$helperName] = array(new $className(), $camelizedHelperName);
 				
 			} else {
 				// helper defined as a function
@@ -1006,15 +1027,7 @@ class Atomik
 			}
 		}
 		
-		$callback = self::$_loadedHelpers[$helperName];
-		if (is_array($callback)) {
-			// callback points to a class method
-			// creating an instance of the class
-			$className = $callback[0];
-			$callback[0] = new $className();
-		}
-		
-		return call_user_func_array($callback, $args);
+		return call_user_func_array(self::$_loadedHelpers[$helperName], $args);
 	}
 	
 	/**
@@ -1086,7 +1099,7 @@ class Atomik
         		$parentArray = &self::getRef($parentArrayKey, $array);
 			}
 			
-			if ($add) {
+			if ($add !== false) {
 				if (!isset($parentArray[$key]) || $parentArray[$key] === null) {
 					if (!is_array($value)) {
 						$parentArray[$key] = $value;
@@ -1096,7 +1109,13 @@ class Atomik
 				} else if (!is_array($parentArray[$key])) {
 					$parentArray[$key] = array($parentArray[$key]);
 				}
-				$parentArray[$key] = array_merge_recursive($parentArray[$key], is_array($value) ? $value : array($value));
+				
+				$value = is_array($value) ? $value : array($value);
+				if ($add == 'prepend') {
+					$parentArray[$key] = array_merge_recursive($value, $parentArray[$key]);
+				} else {
+					$parentArray[$key] = array_merge_recursive($parentArray[$key], $value);
+				}
 			} else {
 				$parentArray[$key] = $value;
 			}
@@ -1105,7 +1124,7 @@ class Atomik
 		}
 		
 		if (!is_array($key)) {
-			throw new Atomik_Exception('The first parameter of Atomik::set() must be a string or an array');
+			throw new Atomik_Exception('The first parameter of Atomik::set() must be a string or an array, ' . gettype($key) . ' given');
 		}
 	    
 	    if ($dimensionize) {
@@ -1140,7 +1159,23 @@ class Atomik
 	 */
 	public static function add($key, $value = null, $dimensionize = true, &$array = null)
 	{
-		return self::set($key, $value, $dimensionize, $array, true);
+		return self::set($key, $value, $dimensionize, $array, 'add');
+	}
+	
+	/**
+	 * Prependes a value to the array pointed by the key
+	 * 
+	 * Works the same as add()
+	 *
+	 * @see Atomik::add()
+	 * @param array|string 	$key 			Can be an array to add many key/value
+	 * @param mixed 		$value
+	 * @param bool 			$dimensionize 	Whether to use Atomik::_dimensionizeArray()
+	 * @param array 		$array 			The array on which the operation is applied
+	 */
+	public static function prepend($key, $value = null, $dimensionize = true, &$array = null)
+	{
+		return self::set($key, $value, $dimensionize, $array, 'prepend');
 	}
 	
 	/**
@@ -1168,20 +1203,21 @@ class Atomik
 	 * Recursively checks array for path-like keys (ie. keys containing slashes)
 	 * and transform them into multi dimensions array
 	 *
-	 * @param 	array $array
+	 * @param 	array 	$array
+	 * @param	string	$separator
 	 * @return 	array
 	 */
-	public static function _dimensionizeArray($array)
+	public static function _dimensionizeArray($array, $separator = '/')
 	{
 		$dimArray = array();
 		
 		foreach ($array as $key => $value) {
 			// checks if the key is a path
-			if (strpos($key, '/') !== false) {
-				$parts = explode('/', $key);
+			if (strpos($key, $separator) !== false) {
+				$parts = explode($separator, $key);
 				$firstPart = array_shift($parts);
 				// recursively dimensionize the key
-				$value = self::_dimensionizeArray(array(implode('/', $parts) => $value));
+				$value = self::_dimensionizeArray(array(implode($separator, $parts) => $value), $separator);
 				
 				if (isset($dimArray[$firstPart])) {
 					if (!is_array($dimArray[$firstPart])) {
@@ -1196,7 +1232,7 @@ class Atomik
 				
 			} else if (is_array($value)) {
 				// dimensionize sub arrays
-				$value = self::_dimensionizeArray($value);
+				$value = self::_dimensionizeArray($value, $separator);
 				if (isset($dimArray[$key])) {
 					$dimArray[$key] = self::_mergeRecursive($dimArray[$key], $value);
 				} else {
@@ -1646,10 +1682,16 @@ class Atomik
 			$overrideDir = rtrim($overrideDir, '/');
 		}
 		
+		if (!self::has('app/running_plugin')) {
+			// saves user configuration
+			self::set('userapp', self::get('app'));
+		}
+		
 		// resets the configuration but keep the layout
 		$layout = self::get('app/layout');
 		self::reset();
 		self::set('app/layout', $layout);
+	    self::set('app/running_plugin', $plugin); 
 		
 		// rewrite dirs
 		$dirs = array();
@@ -2008,7 +2050,7 @@ class Atomik
 	 * @param 	bool 	$useIndex
 	 * @return 	string
 	 */
-	public static function pluginUrl($action, $params = array(), $useIndex = true)
+	public static function pluginUrl($action = null, $params = array(), $useIndex = true)
 	{
 		return self::url($action, $params, $useIndex, true);
 	}
@@ -2117,6 +2159,8 @@ class Atomik
 		if (!isset($_SESSION)) {
 			throw new Atomik_Exception('The session must be started before using Atomik::flash()');
 		}
+		
+		self::fireEvent('Atomik::Flash', array(&$message, &$label));
 		
 		if (!self::has('session/__FLASH/' . $label)) {
 			self::set('session/__FLASH/' . $label, array());
@@ -2248,7 +2292,7 @@ class Atomik
 				$filter = filter_id($filter);
 				
 			} else if (preg_match('@/.+/[a-zA-Z]*@', $filter)) {
-				// regexp */
+				// regexp
 				$options = array('options' => array('regexp' => $filter));
 				$filter = FILTER_VALIDATE_REGEXP;
 				
@@ -2256,7 +2300,6 @@ class Atomik
 				// callback defined under app/filters/callbacks
 				$filter = FILTER_CALLBACK;
 				$options = $callback;
-				
 			} 
 		}
 		
