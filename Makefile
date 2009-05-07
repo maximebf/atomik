@@ -39,6 +39,7 @@ plugin-model:
 	svn export plugins/Model $(RELEASE_DIR)/plugins/Model
 	svn export library/Atomik/Model $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Model
 	svn export library/Atomik/Model.php $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Model.php
+	svn export library/Atomik/Options.php $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Options.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-model.zip Model
 	rm -r $(RELEASE_DIR)/plugins/Model
 
@@ -47,6 +48,7 @@ plugin-form:
 	svn export plugins/Form $(RELEASE_DIR)/plugins/Form
 	svn export library/Atomik/Form $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Form
 	svn export library/Atomik/Form.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Form.php
+	svn export library/Atomik/Options.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Options.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-form.zip Form
 	rm -r $(RELEASE_DIR)/plugins/Form
 
