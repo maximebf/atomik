@@ -28,7 +28,7 @@ require_once 'Atomik/Model.php';
  * @package Atomik
  * @subpackage Plugins
  */
-class ModelsPlugin
+class ModelPlugin
 {
 	/**
 	 * Default configuration
