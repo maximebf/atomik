@@ -123,11 +123,15 @@ abstract class Atomik_Form_Fieldset extends Atomik_Form_Field_Abstract
 	/**
 	 * Sets a label associated to a field
 	 * 
-	 * @param 	string	$fieldName
+	 * @param 	string|Atomik_Form_Field_Interface	$fieldName
 	 * @param 	string	$label
 	 */
 	public function setLabel($fieldName, $label)
 	{
+		if ($fieldName instanceof Atomik_Form_Field_Interface) {
+			$fieldName = $fieldName->getName();
+		}
+		
 		$this->_labels[$fieldName] = $label;
 	}
 	

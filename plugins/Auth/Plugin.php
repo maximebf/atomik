@@ -59,7 +59,7 @@ class AuthPlugin
     	
     	// model
     	if (self::$config['model'] !== null) {
-    		Atomik::loadPlugin('Models');
+    		Atomik::loadPlugin('Model');
     		Atomik_Auth_User_Locator_Model::setModelName(self::$config['model']);
     		Atomik_Auth::setUserLocator('Atomik_Auth_User_Locator_Model');
     		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model']));

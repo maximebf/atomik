@@ -22,6 +22,7 @@
 Atomik::loadPlugin('Db');
 Atomik::loadPluginIfAvailable('Config');
 Atomik::loadPlugin('Auth');
+Atomik::loadPlugin('Model');
 
 /**
  * Backend plugin

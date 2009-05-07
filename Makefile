@@ -11,7 +11,7 @@ atomik:
 	cd $(RELEASE_DIR) && zip -r atomik.zip atomik
 	rm -r $(RELEASE_DIR)/atomik
 	
-plugins: plugin-controller plugin-db plugin-ajax plugin-cache plugin-console plugin-lang plugin-auth plugin-backend plugin-config
+plugins: plugin-controller plugin-db plugin-model plugin-ajax plugin-cache plugin-console plugin-lang plugin-auth plugin-backend plugin-config
 
 plugin-controller:
 	mkdir -p $(RELEASE_DIR)/plugins
@@ -24,10 +24,16 @@ plugin-db:
 	svn export plugins/Db $(RELEASE_DIR)/plugins/Db
 	svn export library/Atomik/Db $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Db
 	svn export library/Atomik/Db.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Db.php
-	svn export library/Atomik/Model $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Model
-	svn export library/Atomik/Model.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Model.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-db.zip Db
 	rm -r $(RELEASE_DIR)/plugins/Db
+
+plugin-model:
+	mkdir -p $(RELEASE_DIR)/plugins
+	svn export plugins/Model $(RELEASE_DIR)/plugins/Model
+	svn export library/Atomik/Model $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Model
+	svn export library/Atomik/Model.php $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Model.php
+	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-model.zip Model
+	rm -r $(RELEASE_DIR)/plugins/Model
 
 plugin-ajax:
 	mkdir -p $(RELEASE_DIR)/plugins

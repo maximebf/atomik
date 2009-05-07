@@ -74,6 +74,11 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	protected static $_defaultTablePrefix;
 	
 	/**
+	 * @var bool
+	 */
+	protected static $_cacheAll;
+	
+	/**
 	 * Shortcut to create a new Atomik_Db_Query_Expr object
 	 * 
 	 * @see Atomik_Db_Query_Expr
@@ -129,6 +134,26 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
+	 * Activates the cache on all queries
+	 * 
+	 * @param	string	$enable
+	 */
+	public static function setCacheAllQueries($enable)
+	{
+		self::$_cacheAll = $enable;
+	}
+	
+	/**
+	 * Returns the table prefix
+	 * 
+	 * @return bool
+	 */
+	public static function areAllQueryCached()
+	{
+		return self::$_cacheAll;
+	}
+	
+	/**
 	 * Creates a new instance
 	 * 
 	 * @return Atomik_Db-Query
@@ -154,7 +179,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function reset()
 	{
-		$this->_cachedResult = null;
+		$this->_cachedResult = self::areAllQueryCached();
 		$this->_statement = null;
 		$this->_info = array(
 			'statement'	=> 'SELECT',

@@ -97,13 +97,17 @@ class Atomik_Db
 	 * @param string $dsn
 	 * @param string $username
 	 * @param string $password
+	 * @param bool	 $default
 	 * @return Atomik_Db_Instance
 	 */
-	public static function createInstance($name, $dsn, $username, $password)
+	public static function createInstance($name, $dsn, $username, $password, $default = true)
 	{
 		$instance = new Atomik_Db_Instance($dsn, $username, $password);
 		self::addAvailableInstance($name, $instance);
-		self::setInstance($instance);
+		
+		if ($default) {
+			self::setInstance($instance);
+		}
 	}
 	
 	/**
