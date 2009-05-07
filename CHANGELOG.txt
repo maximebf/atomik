@@ -50,6 +50,12 @@
  * Added Atomik::prepend()
  * Added support for configuration files in the ini or json formats
  
+[Atomik_Db]
+ * Added support for models
+ * Added Atomik_Db::findValue()
+ * Added Atomik_Db::has()
+ * Added Atomik_Db::set()
+ 
 [Atomik_Auth]
  * New Plugin
  
@@ -59,11 +65,11 @@
 [Atomik_Config]
  * New Plugin
  
-[Atomik_Db]
- * Added support for models
- * Added Atomik_Db::findValue()
- * Added Atomik_Db::has()
- * Added Atomik_Db::set()
+[Atomik_Model]
+ * New Plugin
+ 
+[Atomik_Form]
+ * New Plugin
 
 ----------- Atomik 2.1 --------------
 

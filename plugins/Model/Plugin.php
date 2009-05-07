@@ -23,8 +23,6 @@
 require_once 'Atomik/Model.php';
     	
 /**
- * Helpers function for handling databases
- *
  * @package Atomik
  * @subpackage Plugins
  */
