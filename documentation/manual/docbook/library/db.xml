@@ -76,6 +76,7 @@ $result = Atomik_Db::findAll('table');]]>
 		</sect2>
 	</sect1>
 	<sect1 id="db-instances">
+		<title>Working with Atomik_Db_Instance</title>
 		<sect2 id="db-instances-connection">
 			<title>Connecting to a database</title>
 			<para>
@@ -396,7 +397,7 @@ $query->select()->from('users')->limit(10, 10);]]>
 				the same approach. 
 			</para>
 			<example>
-				<title>Building ddl statement</title>
+				<title>Building ddl statements</title>
 				<programlisting>
 					<![CDATA[
 $query = new Atomik_Db_Query();

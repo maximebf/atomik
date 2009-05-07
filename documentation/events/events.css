@@ -5,7 +5,7 @@
 	margin-right: 40px;
 	margin-top: 10px;
 	padding: 2px;
-	width: 250px;
+	width: 300px;
 }
 
 	#sidebar ul.categories {
@@ -34,7 +34,7 @@
 
 #content {
 	float: left;
-	width: 650px;
+	width: 600px;
 }
 
 	h3.event-name {
