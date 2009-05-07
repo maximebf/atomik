@@ -31,7 +31,7 @@ Atomik::set(array(
         	'backend_args' => array('app/config.xml')
         ),
         
-        'Models',
+        'Model',
         
         'Ajax',
         'Lang',
