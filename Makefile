@@ -4,12 +4,19 @@ all: atomik plugins doc
 
 atomik:
 	mkdir -p $(RELEASE_DIR)
-	svn export ./release-base release/atomik
+	svn export ./release-base $(RELEASE_DIR)/atomik
 	cp Atomik.php $(RELEASE_DIR)/atomik/index.php
 	cp CHANGELOG.txt $(RELEASE_DIR)/atomik
 	cp LICENSE.txt $(RELEASE_DIR)/atomik
 	cd $(RELEASE_DIR) && zip -r atomik.zip atomik
 	rm -r $(RELEASE_DIR)/atomik
+	
+library:
+	mkdir -p $(RELEASE_DIR)
+	svn export ./library $(RELEASE_DIR)/atomik-lib
+	cp LICENSE.txt $(RELEASE_DIR)/atomik-lib
+	cd $(RELEASE_DIR) && zip -r atomik-lib.zip atomik-lib
+	rm -r $(RELEASE_DIR)/atomik-lib
 	
 plugins: plugin-controller plugin-db plugin-model plugin-ajax plugin-cache plugin-console plugin-lang plugin-auth plugin-backend plugin-config
 

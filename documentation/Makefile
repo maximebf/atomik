@@ -1,6 +1,6 @@
 OUTPUT = output
 XSL = standalone
-ATOMIK_BASE = ../..
+ATOMIK_BASE = ../../..
 
 all: manual getstarted events manifest
 
