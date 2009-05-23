@@ -314,6 +314,23 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	}
 	
 	/**
+	 * Returns a string representation of the model
+	 * 
+	 * If a field has the title-field option, it will be used. Otherwise, the first
+	 * primary key will be used 
+	 * 
+	 * @return string
+	 */
+	public function __toString()
+	{
+		if (($fieldToDisplay = $this->getBuilder()->getFieldWithOption('title-field')) === null) {
+			return '#' . $this->getPrimaryKey();
+		}
+		
+		return $this->{$fieldToDisplay->name};
+	}
+	
+	/**
 	 * Drops the primary key and sets the model as new
 	 */
 	public function __clone()

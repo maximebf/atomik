@@ -8,14 +8,7 @@
 			?>
 		</title>
 		
-		<?php foreach (Atomik_Backend_Layout::getStyles() as $filename): ?>
-			<link rel="stylesheet" type="text/css" href="<?php echo $filename ?>" />
-		<?php endforeach; ?>
-		
-		<?php foreach (Atomik_Backend_Layout::getScripts() as $filename): ?>
-			<script type="text/javascript" src="<?php echo $filename ?>"></script>
-		<?php endforeach; ?>
-		
+		<?php echo Atomik_Assets::render() ?>
 		<?php echo Atomik_Backend_Layout::renderPlaceholder('head') ?>
 	</head>
 	<body>

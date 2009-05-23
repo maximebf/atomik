@@ -3,7 +3,8 @@
 	$.fn.dataTable = function(options) {
 		options = $.extend({
 			'remote': 'remote.php',
-			'url': 'edit.php'
+			'url': 'edit.php',
+			'url_param': 'id'
 		}, options);
 		
 		this.each(function() {
@@ -17,7 +18,14 @@
 			);
 			
 			self.find('tbody td.clickable').click(function() {
-				document.location = options.url + '?id=' + $(this).parent().attr('rel');
+				var queryString = options.url_param + '=' + $(this).parent().attr('rel');
+				document.location = options.url + (options.url.indexOf('?') != -1 ? '&' : '?') + queryString;
+			});
+			
+			self.find('tbody td.actions a.action').click(function() {
+				var queryString = options.url_param + '=' + $(this).parent().parent().attr('rel');
+				document.location = this.href + (this.href.indexOf('?') != -1 ? '&' : '?') + queryString;
+				return false;
 			});
 		});
 	};

@@ -19,17 +19,19 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Form_Field_Abstract */
-require_once 'Atomik/Form/Field/Abstract.php';
+/** Atomik_Form_Field_Input */
+require_once 'Atomik/Form/Field/Input.php';
 
 /**
  * @package Atomik
  * @subpackage Form
  */
-class Atomik_Form_Field_Date extends Atomik_Form_Field_Abstract
+class Atomik_Form_Field_Date extends Atomik_Form_Field_Input
 {
 	public function render()
 	{
-		return '';
+		$html  = parent::render();
+		$html .= sprintf('<script type="text/javascript">$(function() { $("#%s").datepicker() });</script>', $this->getId());
+		return $html;
 	}
 }

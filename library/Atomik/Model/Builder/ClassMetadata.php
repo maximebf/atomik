@@ -127,6 +127,12 @@ class Atomik_Model_Builder_ClassMetadata
 			if (($separator = strpos($matches[1][$i], ' ')) !== false) {
 				$key = trim(substr($matches[1][$i], 0, $separator));
 				$value = trim(substr($matches[1][$i], $separator + 1));
+				// boolean
+				if ($value == 'false') {
+					$value = false;
+				} else if ($value == 'true') {
+					$value = true;
+				}
 			} else {
 				$key = trim($matches[1][$i]);
 				$value = true;

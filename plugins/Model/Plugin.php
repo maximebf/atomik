@@ -92,7 +92,7 @@ class ModelPlugin
      */
     public static function onBackendStart()
     {
-    	Atomik_Backend::addMenu('models', 'Models', 'models', array(), 'right');
+    	Atomik_Backend::addMenu('model', 'Models', 'model', array(), 'right');
     }
     
     public static function onDbScript($script, $paths)

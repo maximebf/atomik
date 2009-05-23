@@ -2,6 +2,7 @@
 
 /**
  * @table users
+ * @admin-ignore
  */
 class User extends Atomik_Auth_User
 {

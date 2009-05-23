@@ -79,15 +79,6 @@ class DbPlugin
 			ConsolePlugin::register('db-create-sql', array('DbPlugin', 'dbCreateSqlCommand'));
 		}
     }
-    
-    /**
-     * Backend support
-     * Adds tabs
-     */
-    public static function onBackendStart()
-    {
-    	Atomik_Backend::addMenu('db', 'Database', 'db');
-    }
 	
 	/**
 	 * Atomik selector

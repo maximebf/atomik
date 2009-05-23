@@ -273,6 +273,22 @@ class Atomik_Model_Builder extends Atomik_Options
 	}
 	
 	/**
+	 * Returns the field with the specifiec option
+	 * 
+	 * @param	string	 $option
+	 * @return 	Atomik_Model_Field_Abstract
+	 */
+	public function getFieldWithOption($option)
+	{
+		foreach ($this->_fields as $field) {
+			if ($field->hasOption($option)) {
+				return $field;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns all fields
 	 *
 	 * @return array
@@ -322,6 +338,17 @@ class Atomik_Model_Builder extends Atomik_Options
 	}
 	
 	/**
+	 * Checks if a field is the primary key
+	 * 
+	 * @param Atomik_Model_Builder_Field $field
+	 * @return bool
+	 */
+	public function isFieldThePrimaryKey(Atomik_Model_Builder_Field $field)
+	{
+		return $this->_primaryKeyField == $field;
+	}
+	
+	/**
 	 * Resets all the references
 	 *
 	 * @param array $references
@@ -343,7 +370,8 @@ class Atomik_Model_Builder extends Atomik_Options
 	{
 		$reference->source = $this->name;
 		if (!$this->hasField($reference->sourceField)) {
-			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, array('form-ignore' => true, 'var' => 'int')));
+			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, 
+				array('var' => 'int')));
 		}
 		$this->_references[$reference->name] = $reference;
 	}
@@ -374,6 +402,21 @@ class Atomik_Model_Builder extends Atomik_Options
 	}
 	
 	/**
+	 * Returns a reference from the source field
+	 * 
+	 * @param 	Atomik_Model_Builder_Field 		$field
+	 * @return 	Atomik_Model_Builder_Reference
+	 */
+	public function getReferenceFromSourceField(Atomik_Model_Builder_Field $field)
+	{
+		foreach ($this->_references as $reference) {
+			if ($reference->sourceField == $field->name) {
+				return $reference;
+			}
+		}
+	}
+	
+	/**
 	 * Returns all references or only the one associated to a model
 	 *
 	 * @param 	string 	$modelName
@@ -395,6 +438,22 @@ class Atomik_Model_Builder extends Atomik_Options
 			}
 		}
 		return $references;
+	}
+	
+	/**
+	 * Checks if a field is part of a reference
+	 * 
+	 * @param Atomik_Model_Builder_Field $field
+	 * @return bool
+	 */
+	public function isFieldPartOfReference(Atomik_Model_Builder_Field $field)
+	{
+		foreach ($this->_references as $reference) {
+			if ($reference->sourceField == $field->name) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

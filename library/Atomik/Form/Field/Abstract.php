@@ -61,6 +61,15 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	{
 		$this->setName($name);
 		$this->setOptions($options);
+		$this->_init();
+	}
+	
+	/**
+	 * Called after the constructor
+	 */
+	protected function _init()
+	{
+		
 	}
 	
 	/**
@@ -137,6 +146,23 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	}
 	
 	/**
+	 * Returns the id attributes or creates one if none exist
+	 * 
+	 * @return string
+	 */
+	public function getId()
+	{
+		if (($id = $this->getOption('id')) === null) {
+			$id = $this->_name;
+			if ($this->_parent !== null && (($parentId = $this->_parent->getId()) !== null)) {
+				$id = $parentId . '_' . $id;
+			}
+			$this->setOption('id', $id);
+		}
+		return $id;
+	}
+	
+	/**
 	 * Returns all options as an html attribute string
 	 * 
 	 * @param	array	$filter		Filters which options to include or exclude
@@ -147,7 +173,8 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	{
 		$string = '';
 		foreach ($this->_options as $name => $value) {
-			if (!empty($filter) && ((!$exclude && !in_array($name, $filter)) || ($exclude && in_array($name, $filter)))) {
+			if (!is_string($value) || (!empty($filter) && ((!$exclude && !in_array($name, $filter)) || 
+				($exclude && in_array($name, $filter))))) {
 				continue;
 			}
 			$string .= ' ' . $name . '="' . $value . '"';
@@ -226,5 +253,10 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	public function __toString()
 	{
 		return $this->render();
+	}
+	
+	protected function _getCssClasses($appendClasses = '')
+	{
+		return trim($this->getOption('class', '') . $appendClasses);
 	}
 }

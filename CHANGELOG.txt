@@ -49,6 +49,7 @@
  * Added Atomik::logToFile()
  * Added Atomik::prepend()
  * Added support for configuration files in the ini or json formats
+ * Added Atomik::autoload()
  
 [Atomik_Db]
  * Added support for models

@@ -66,6 +66,6 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	 */
 	public static function find($username)
 	{
-		return Atomik_Model_Locator::find(self::$_modelName, array('username' => $username));
+		return Atomik_Model_Locator::findOne(self::$_modelName, array('username' => $username));
 	}
 }

@@ -188,18 +188,18 @@ $field = new Atomik_Form_Field_Input('name', array(
 	<sect1 id="form-rendering">
 		<title>Rendering forms</title>
 		<para>
-			Atomik_Form allows you to render the whole form (fields and the form tag) or only the fields. The last way is the default
-			one and can be achieved by calling <methodname>render()</methodname> or simply echoing the form object.
+			Atomik_Form allows you to render the whole form (fields and the form tag) or only the fields. The last way can be achieved 
+			by calling <methodname>renderFields()</methodname>.
 		</para>
 		<para>
-			To render the whole form, you'll need to call <methodname>renderForm()</methodname>.
+			To render the whole form, you'll need to call <methodname>renderForm()</methodname> or simply echoing the object.
 		</para>
 		<example>
 			<title>Rendering form fields</title>
 			<programlisting>
 				<![CDATA[
 <form action="handler.php" method="post">
-	<?= $form ?>
+	<?= $form->renderFields() ?>
 	<input type="submit" value="Send" />
 </form>]]>
 			</programlisting>
@@ -208,7 +208,7 @@ $field = new Atomik_Form_Field_Input('name', array(
 			<title>Rendering the whole form</title>
 			<programlisting>
 				<![CDATA[
-<?= $form->renderForm() ?>]]>
+<?= $form ?>]]>
 			</programlisting>
 		</example>
 		<sect2 id="form-rendering-template">

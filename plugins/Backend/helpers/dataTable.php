@@ -6,6 +6,7 @@ class DataTableHelper
 	{
 		$clickableColumns = Atomik::get('clickable_cols', null, $options);
 		$idColumn = Atomik::get('id_column', 'id', $options);
+		$actions = Atomik::get('actions', array(), $options);
 		
 		$columns = array();
 		if (!isset($options['columns'])) {
@@ -31,9 +32,21 @@ class DataTableHelper
 		// builds <thead>
 		$thead = "<thead>\n\t<tr>\n";
 		foreach ($columns as $label) {
-			$thead .= "\t\t<th>" . $label . "</th>\n";
+			$thead .= "\t\t<th>" . ucfirst($label) . "</th>\n";
+		}
+		if (count($actions)) {
+			$thead .= "\t\t<th class=\"actions\"></th>\n";
 		}
 		$thead .= "\t</tr>\n</thead>";
+		
+		$actionsHtml = '';
+		if (count($actions)) {
+			$actionsHtml = '<td class="actions">';
+			foreach ($actions as $action) {
+				$actionsHtml .= sprintf('<a href="%s" class="action">%s</a> ', $action['url'], $action['label']);
+			}
+			$actionsHtml .= '</td>';
+		}
 		
 		// builds <tbody>
 		$tbody = '<tbody>';
@@ -50,6 +63,7 @@ class DataTableHelper
 				}
 				$tbody .= sprintf("\t\t<td class=\"%s\">%s</td>\n", $classes, $row[$key]);
 			}
+			$tbody .= $actionsHtml;
 			$tbody .= "\t</tr>\n";
 		}
 		$tbody .= '</tbody>';
@@ -62,8 +76,8 @@ class DataTableHelper
 		}
 		
 		// adds needed assets
-		Atomik_Backend_Layout::addScript('js/DataTable.js');
-		Atomik_Backend_Layout::addStyle('css/datatable.css');
+		Atomik_Backend_Assets::addScript('js/DataTable.js');
+		Atomik_Backend_Assets::addStyle('css/datatable.css');
 		
 		// options
 		$options['remote'] = Atomik::pluginUrl(null, array('dataTableRemote' => $id));

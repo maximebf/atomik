@@ -20,7 +20,7 @@ class Backend_Activity extends Atomik_Model
 		$activity = new self();
 		$activity->label = $label;
 		$activity->message = $message;
-		$activity->userAction = $userAction;
+		$activity->userAction = sprintf($userAction, Atomik_Auth::getCurrentUsername());
 		$activity->created = empty($date) ? @date('Y-m-d H:i:s') : $date;
 		$activity->save();
 		return $activity;

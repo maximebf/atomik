@@ -151,6 +151,7 @@ Atomik::set(array(
     
     	// files
         'files' => array(
+        	'index'				=> 'index.php',
         	'config'			=> './app/config',
         	'bootstrap'		    => './app/bootstrap.php',
         	'pre_dispatch' 	    => './app/pre_dispatch.php',
@@ -364,7 +365,7 @@ class Atomik
     			if (!function_exists('spl_autoload_register')) {
     				throw new Exception('Missing spl_autoload_register function');
     			}
-    			spl_autoload_register(array('Atomik', 'needed'));
+    			spl_autoload_register(array('Atomik', 'autoload'));
     		}
     	
     		// loads plugins
@@ -524,8 +525,8 @@ class Atomik
     	
     	// retreives view context params and prepare the response
     	if (($viewContextParams = self::get('app/views/contexts/' . $viewContext, false)) !== false) {
-    		if (!self::get('layout', true, $viewContextParams)) {
-    			self::disableLayout();
+    		if ($viewContextParams['layout'] !== true) {
+    			self::set('app/layout', $viewContextParams['layout']);
     		}
     		header('Content-type: ' . self::get('content-type', 'text/html', $viewContextParams));
     	}
@@ -551,11 +552,13 @@ class Atomik
     	$content = ob_get_clean() . $content;
     	
     	// renders the layouts if enable
-    	$layouts = array_reverse((array) self::get('app/layout', array()));
-    	if (!empty($layouts) && !self::get('app/disable_layout', false)) {
-    		foreach ($layouts as $layout) {
-				$content = self::renderLayout($layout, $content);
-    		}
+    	if (self::get('app/layout', false) !== false) {
+	    	$layouts = self::get('app/layout', array());
+	    	if (!empty($layouts) && !self::get('app/disable_layout', false)) {
+	    		foreach (array_reverse((array) $layouts) as $layout) {
+					$content = self::renderLayout($layout, $content);
+	    		}
+	    	}
     	}
     	
     	// echoes the content
@@ -1697,7 +1700,7 @@ class Atomik
 		$dirs = array();
 		$dirs['actions'] = array($overrideDir . '/actions', $appDir . '/actions');
 		$dirs['views'] = array($overrideDir . '/views', $appDir . '/views');
-		$dirs['layouts'] = array($overrideDir . '/layouts', $appDir . '/layouts');
+		$dirs['layouts'] = array($overrideDir . '/views', $overrideDir . '/layouts', $appDir . '/views', $appDir . '/layouts');
 		$dirs['helpers'] = array($overrideDir . '/helpers', $appDir . '/helpers');
 		
 		if ($config['overwriteDirs']) {
@@ -2020,17 +2023,21 @@ class Atomik
 			
 			// checks if url rewriting is used
 			if (!$useIndex || self::get('atomik/url_rewriting', false) === true) {
+				$useIndex = false;
 				$url .= $action;
 			} else {
 				// no url rewriting, using index.php
-				$url .= 'index.php';
-				$params[self::get('atomik/trigger')] = $action;
+				$url .= self::get('atomik/files/index', 'index.php');
+				$url .= '?' . self::get('atomik/trigger') . '=' . $action;
 			}
 		} else {
+			$useIndex = false;
 			$url = $action;
 		}
 		
-		$url .= count($params) ? '?' . http_build_query($params) : '';
+		if (count($params)) {
+			$url .= ($useIndex ? '&' : '?') . http_build_query($params);
+		}
 		
 		// trigger an event
 		$args = func_get_args();
@@ -2095,9 +2102,10 @@ class Atomik
 	/*
 	 * Includes a file
 	 *
-	 * @param string 		$include 	Filename or class name following the PEAR convention
-	 * @param bool 			$className 	If false, $include can't be a class name
-	 * @param string|array 	$dirs 		Include from specific directories rather than include path
+	 * @param 	string 			$include 	Filename or class name following the PEAR convention
+	 * @param 	bool 			$className 	If false, $include can't be a class name
+	 * @param 	string|array 	$dirs 		Include from specific directories rather than include path
+	 * @return	bool
 	 */
 	public static function needed($include, $className = true, $dirs = null)
 	{
@@ -2112,9 +2120,29 @@ class Atomik
 		$include .= '.php';
 		
 		if ($dirs !== null) {
-	    	require_once(self::path($include, $dirs));
+			if (($filename = self::path($include, $dirs)) === false) {
+				return false;
+			}
+	    	return include_once($filename);
 		} else {
-			require_once($include);
+			return include_once($include);
+		}
+	}
+	
+	/**
+	 * Class autoloader
+	 * 
+	 * @see spl_autoload_register()
+	 * @param	string	$className
+	 * @return 	bool
+	 */
+	public static function autoload($className)
+	{
+		try {
+			self::needed($className);
+			return true;
+		} catch (Exception $e) {
+			return false;
 		}
 	}
 	
@@ -2362,7 +2390,7 @@ class Atomik
 	 * @param bool 		$useUrl 	Use Atomik::url() on $url before redirecting
 	 * @param int		$httpCode	The redirection HTTP code
 	 */
-	public static function pluginRedirect($url, $useUrl, $httpCode = 302)
+	public static function pluginRedirect($url, $useUrl = true, $httpCode = 302)
 	{
 		// uses Atomik::pluginUrl()
 		if ($useUrl) {

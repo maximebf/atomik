@@ -49,6 +49,7 @@ plugin-form:
 	svn export library/Atomik/Form $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Form
 	svn export library/Atomik/Form.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Form.php
 	svn export library/Atomik/Options.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Options.php
+	svn export library/Atomik/Assets.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Assets.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-form.zip Form
 	rm -r $(RELEASE_DIR)/plugins/Form
 
@@ -87,6 +88,7 @@ plugin-auth:
 plugin-backend:
 	mkdir -p $(RELEASE_DIR)/plugins
 	svn export plugins/Backend $(RELEASE_DIR)/plugins/Backend
+	svn export library/Atomik/Assets.php $(RELEASE_DIR)/plugins/Backend/libraries/Atomik/Assets.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-backend.zip Backend
 	rm -r $(RELEASE_DIR)/plugins/Backend
 	

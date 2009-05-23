@@ -1,8 +1,42 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package Atomik
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
 
-abstract class Atomik_Options
+/**
+ * @package Atomik
+ */
+class Atomik_Options
 {
+	/**
+	 * @var array
+	 */
 	protected $_options = array();
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param array $options
+	 */
+	public function __construct($options = array())
+	{
+		$this->setOptions($options);
+	}
 	
 	/**
 	 * Sets all options
@@ -11,7 +45,14 @@ abstract class Atomik_Options
 	 */
 	public function setOptions($options)
 	{
-		$this->_options = (array) $options;
+		if ($options instanceof Atomik_Options) {
+			$options = $options->getOptions();
+		}
+		
+		$this->_options = array();
+		foreach ($options as $key => $value) {
+			$this->setOption($key, $value);
+		}
 	}
 	
 	/**
@@ -76,6 +117,15 @@ abstract class Atomik_Options
 			return $this->_options;
 		}
 		
+		$options = array();
+		foreach ((array) $prefix as $px) {
+			$options = array_merge($options, $this->_getOptionsWithPrefix($px));
+		}
+		return $options;
+	}
+	
+	protected function _getOptionsWithPrefix($prefix, $keepPrefixInResult = false)
+	{
 		$options = array();
 		foreach ($this->_options as $key => $value) {
 			if (substr($key, 0, strlen($prefix)) == $prefix) {

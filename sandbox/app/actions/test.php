@@ -62,7 +62,7 @@ unset($image);
 
 //print_r(Atomik_Model::findAll('Employee'));
 
-//$toto = Atomik_Model::find('User', array('name' => 'toto'));
+//$toto = Atomik_Model::findOne('User', array('name' => 'toto'));
 
 echo '<ul>';
 foreach (Atomik_Model::findAll('User') as $user) {

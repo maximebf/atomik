@@ -46,7 +46,7 @@ class Atomik_Form_Class extends Atomik_Form
 			$className = get_class($className);
 		}
 		$class = new ReflectionClass($className);
-		return self::createInstance($class);
+		return self::createInstance($class, null, $tagsPrefix);
 	}
 	
 	/**
@@ -56,7 +56,7 @@ class Atomik_Form_Class extends Atomik_Form
 	 * @param 	Atomik_Form		$instance
 	 * @return 	Atomik_Form
 	 */
-	public static function createInstance(ReflectionClass $class, $instance = null)
+	public static function createInstance(ReflectionClass $class, $instance = null, $tagsPrefix = '')
 	{
 		if ($instance === null) {
 			$instance = new Atomik_Form();
@@ -159,7 +159,7 @@ class Atomik_Form_Class extends Atomik_Form
 	public function __construct()
 	{
 		$class = new ReflectionClass(get_class($this));
-		self::createInstance($class, $this);
+		self::createInstance($class, $this, $this->_formTagPrefix);
 		
 		$this->setData(array_merge($_POST, $_FILES));
 	}

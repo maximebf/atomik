@@ -217,7 +217,7 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	 */
 	public function getId()
 	{
-		return $this->_attributes['id'];
+		return $this->getAttribute('id');
 	}
 	
 	/**
@@ -281,6 +281,18 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	}
 	
 	/**
+	 * (non-PHPdoc)
+	 * @see library/Atomik/Atomik_Options#setOption()
+	 */
+	public function setOption($name, $value)
+	{
+		if (substr($name, 0, 5) == 'html-') {
+			return $this->setAttribute(substr($name, 5), $value);
+		}
+		parent::setOption($name, $value);
+	}
+	
+	/**
 	 * Resets the form attributes
 	 *
 	 * @param array $attributes
@@ -313,12 +325,13 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	 * Returns an attribute value
 	 *
 	 * @param string $name
+	 * @param string $de
 	 * @return string
 	 */
-	public function getAttribute($name)
+	public function getAttribute($name, $default = null)
 	{
 		if (!isset($this->_attributes[$name])) {
-			return null;
+			return $default;
 		}
 		return $this->_attributes[$name];
 	}

@@ -23,6 +23,10 @@
 			margin: 0;
 			text-align: left;
 		}
+	
+		.datatable thead th.actions {
+			width: 100px;
+		}
 		
 	.datatable tbody tr {
 		border-bottom: 1px solid #DDDDDD;
@@ -36,4 +40,10 @@
 	
 		.datatable tbody td {
 			padding-left: 3px;
+		}
+	
+		.datatable tbody td.actions {
+			padding-right: 5px;
+			text-align: right;
+			width: 100px;
 		}

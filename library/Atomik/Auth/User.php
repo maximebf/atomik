@@ -44,6 +44,7 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	/**
 	 * @var string
 	 * @sql-type varchar(100)
+	 * @title-field
 	 */
 	public $username;
 	

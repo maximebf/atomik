@@ -26,9 +26,30 @@
 	Atomik::set('app/running_plugin', $plugin);
 	
 	Atomik_Backend::addMenu('dashboard', 'Dashboard', 'backend');
-	Atomik_Backend_Layout::addStyle('css/main.css');
-	Atomik_Backend_Layout::addScript('js/libs/jquery-1.3.2.min.js');
-	Atomik_Backend_Layout::addScript('js/libs/Namespace.min.js');
+	
+	// needed libs
+	Atomik_Backend_Assets::addScript('externals/jquery-1.3.2.min.js');
+	Atomik_Backend_Assets::addStyle('externals/jquery-ui/jquery-ui-1.7.1.custom.css');
+	Atomik_Backend_Assets::addScript('externals/jquery-ui/jquery-ui-1.7.1.custom.min.js');
+	Atomik_Backend_Assets::addScript('externals/Namespace.min.js');
+	
+	Atomik_Backend_Assets::addStyle('css/main.css');
+	Atomik_Backend_Assets::addStyle('css/form.css');
+	
+	// jwysiwyg
+	Atomik_Assets::registerNamedAsset('jwysiwyg', array(
+		Atomik_Backend_Assets::createAsset('externals/jwysiwyg/jquery.wysiwyg.css'),
+		Atomik_Backend_Assets::createAsset('externals/jwysiwyg/jquery.wysiwyg.js')
+	));
+	
+	// markitup
+	Atomik_Assets::registerNamedAsset('markitup', array(
+		Atomik_Backend_Assets::createAsset('externals/markitup/jquery.markitup.pack.js'),
+		Atomik_Backend_Assets::createAsset('externals/markitup/sets/default/set.js'),
+		Atomik_Backend_Assets::createAsset('externals/markitup/skins/markitup/style.css'),
+		Atomik_Backend_Assets::createAsset('externals/markitup/sets/default/style.css')
+	));
+	
 	Atomik::fireEvent('Backend::Start');
 	
 	// configuration for the re-dispatch
@@ -57,6 +78,11 @@
 	    	$args = func_get_args();
 	    	return vsprintf(array_shift($args), $args);
 		}
+	}
+	
+	if (class_exists('Atomik_Form')) {
+		Atomik_Form::setDefaultFormTemplate('Atomik/Backend/Form/FormTemplate.php');
+		Atomik_Form::setDefaultFieldTemplate('Atomik/Backend/Form/FieldTemplate.php');
 	}
     
     // dispatches the plugin application

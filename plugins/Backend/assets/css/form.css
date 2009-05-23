@@ -1,0 +1,115 @@
+
+/* ----------------------------------------------------------------
+	[ Forms ]
+*/
+
+.form {
+}
+
+	.form dl {
+		list-style: none;
+		margin: 0px;
+		padding: 0px;
+	}
+	
+		.form dl dt span.needed {
+			color: #cc0000;
+			cursor: help;
+			font-weight: bold;
+		}
+		
+/* ----------------------------------------------------------------
+	[ Inputs ]
+*/
+	
+.form input[type="text"],
+.form textarea {
+	border: 3px solid #e5ecc4;
+	padding: 2px;
+	width: 99%;
+}
+
+.form textarea {
+	height: 150px;
+}
+
+.form input[type="button"],
+.form input[type="submit"] {
+	background: #e9f4b5;
+	border: 1px solid #8da420;
+	cursor: pointer;
+	margin-top: 3px;
+	padding: 3px;
+}
+
+.form input[type="submit"] {
+	border: 2px solid #8da420;
+	font-size: 1.1em;
+	font-weight: bold;
+	padding: 5px;
+}
+
+a.form-link-button {
+	padding: 2px;
+	text-decoration: underline;
+}
+
+a.form-link-button:hover {
+	background: #e8efc8;
+}
+		
+/* ----------------------------------------------------------------
+	[ Atomik_Form_Fields ]
+*/
+
+.form input.datetime.date {
+	width: 100px;
+}
+
+.form div.wysiwyg {
+	border: 3px solid #e5ecc4;
+}
+
+/* ----------------------------------------------------------------
+	[ Simple form ]
+*/
+
+.form-simple dl dt {
+	clear: left;
+	float: left;
+	position: relative;
+	text-align: right;
+	width: 7em;
+}
+
+.form-simple dl dd {
+	clear: right;
+	margin-bottom: 0.8em;
+	margin-left: 7.5em;
+	padding-left: 0.5em;
+}
+
+.form-simple dl dd.buttons {
+	margin-top: 2em;
+}
+
+/* ----------------------------------------------------------------
+	[ Content form ]
+*/
+
+.form-content dl dt {
+	color: #949f5f;
+	display: block;
+	font-size: 1.2em;
+	font-weight: bold;
+	padding: 5px;
+	width: auto;
+}
+
+.form dl dd {
+	margin: 5px;
+	margin-bottom: 20px;
+}
+
+.form dl dd.buttons {
+}

@@ -47,12 +47,18 @@ class Atomik_Model_Form extends Atomik_Form
 	protected $_model;
 	
 	/**
+	 * @var string
+	 */
+	protected $_optionPrefix;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param string|Atomik_Model_Builder|Atomik_Model $object
 	 */
-	public function __construct($object)
+	public function __construct($object, $optionPrefix = 'form-')
 	{
+		$this->_optionPrefix = $optionPrefix;
 		$this->setBuilder(Atomik_Model_Builder_Factory::get($object));
 		if ($object instanceof Atomik_Model) {
 			$this->setModel($object);
@@ -71,20 +77,34 @@ class Atomik_Model_Form extends Atomik_Form
 		$this->_builder = $builder;
 		$this->_fields = array();
 		
-		$this->setFormTemplate($builder->getOption('form-template', Atomik_Form::getDefaultFormTemplate()));
-		$this->setFieldTemplate($builder->getOption('form-field-template', Atomik_Form::getDefaultFieldTemplate()));
-		$this->setAttributes($builder->getOptions('form-'));
+		$options = new Atomik_Options($builder->getOptions($this->_optionPrefix));
+		$this->setFormTemplate($options->getOption('template', Atomik_Form::getDefaultFormTemplate()));
+		$this->setFieldTemplate($options->getOption('field-template', Atomik_Form::getDefaultFieldTemplate()));
+		$this->setOptions($options->getOptions());
 		
 		foreach ($builder->getFields() as $builderField) {
-			if ($builderField->getOption('form-ignore', false)) {
+			$fieldOptions = new Atomik_Options($builderField->getOptions($this->_optionPrefix));
+			if ($fieldOptions->getOption('ignore', false)) {
 				continue;
 			}
-			$this->_fields[$builderField->name] = Atomik_Form_Field_Factory::factory(
-				$builderField->getOption('form-field', 'Input'), 
-				$builderField->name,
-				$builderField->getOptions('form-')
-			);
-			$this->_labels[$builderField->name] = $builderField->getOption('form-label', $builderField->name);
+			$defaultLabel = $builderField->name;
+			
+			if (($type = $fieldOptions->getOption('field', null)) === null) {
+				$type = 'Input';
+				if ($builder->isFieldPartOfReference($builderField)) {
+					$reference = $builder->getReferenceFromSourceField($builderField);
+					if ($reference->isHasMany()) {
+						continue;
+					}
+					require_once 'Atomik/Model/Form/Field/Reference.php';
+					$type = 'Atomik_Model_Form_Field_Reference';
+					$fieldOptions->setOption('reference', $reference);
+					$defaultLabel = $reference->name;
+				}
+			}
+			
+			$this->_fields[$builderField->name] = Atomik_Form_Field_Factory::factory($type, $builderField->name, $fieldOptions);
+			$this->_labels[$builderField->name] = $fieldOptions->getOption('label', $defaultLabel);
 		}
 	}
 	
@@ -181,5 +201,16 @@ class Atomik_Model_Form extends Atomik_Form
 	{
 		$this->_model = null;
 		$this->clearData();
+	}
+	
+	/**
+	 * Saves the current model
+	 * 
+	 * @see Atomik_Model::save()
+	 * @return bool
+	 */
+	public function save()
+	{
+		return $this->_model->save();
 	}
 }

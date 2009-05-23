@@ -66,7 +66,7 @@ class Atomik_Model_Locator
 	 * @param 	string|array					$limit
 	 * @return 	Atomik_Model
 	 */
-	public static function find($builder, $where, $orderBy = null, $offset = 0)
+	public static function findOne($builder, $where, $orderBy = null, $offset = 0)
 	{
 		$query = self::buildQuery($where, $orderBy);
 		$query->limit(1, $offset);
@@ -76,6 +76,20 @@ class Atomik_Model_Locator
 			return null;
 		}
 		return $modelSet[0]; 
+	}
+	
+	/**
+	 * Finds one model
+	 *
+	 * @param 	string|Atomik_Model_Builder 	$builder
+	 * @param 	string 							$primaryKey
+	 * @return 	Atomik_Model
+	 */
+	public static function find($builder, $primaryKey)
+	{
+		$builder = Atomik_Model_Builder_Factory::get($builder);
+		$where = array($builder->getPrimaryKeyField()->name => $primaryKey);
+		return self::findOne($builder, $where);
 	}
 	
 	/**
