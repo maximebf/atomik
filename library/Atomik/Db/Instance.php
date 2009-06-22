@@ -22,6 +22,12 @@
 /** Atomik_Db_Query */
 require_once 'Atomik/Db/Query.php';
 
+/** Atomik_Db_Adapter_Interface */
+require_once 'Atomik/Db/Adapter/Interface.php';
+
+/** Atomik_Db_Adapter_Factory */
+require_once 'Atomik/Db/Adapter/Factory.php';
+
 /**
  * Helpers function for handling databases
  *
@@ -45,14 +51,24 @@ class Atomik_Db_Instance
 	public $connectionInfo;
 	
 	/**
+	 * @var Atomik_Db_Adapter_Interface
+	 */
+	protected $_adapter;
+	
+	/**
 	 * @var string
 	 */
-	protected $_tablePrefix;
+	protected $_tablePrefix = '';
 	
 	/**
 	 * @var bool
 	 */
-	protected $_cacheEnabled = false;
+	protected $_queryCacheEnabled = false;
+	
+	/**
+	 * @var bool
+	 */
+	protected $_resultCacheEnabled = false;
 	
 	/**
 	 * @var array
@@ -60,48 +76,127 @@ class Atomik_Db_Instance
 	protected $_queryCache = array();
 	
 	/**
+	 * @var string
+	 */
+	protected static $_defaultTablePrefix = '';
+	
+	/**
+	 * @var bool
+	 */
+	protected static $_alwaysCacheQuery = false;
+	
+	/**
+	 * Sets the prefix that will be appended to all table names
+	 * 
+	 * @param	string	$prefix
+	 */
+	public static function setDefaultTablePrefix($prefix)
+	{
+		if (empty($prefix)) {
+			$prefix = '';
+		}
+		self::$_defaultTablePrefix = $prefix;
+	}
+	
+	/**
+	 * Returns the table prefix
+	 * 
+	 * @return string
+	 */
+	public static function getDefaultTablePrefix()
+	{
+		return self::$_defaultTablePrefix;
+	}
+	
+	/**
+	 * Sets whether queries should always be cached
+	 * 
+	 * @param string $enable
+	 */
+	public static function setAlwaysCacheQueries($enable = true)
+	{
+		self::$_alwaysCacheQuery = $enable;
+	}
+	
+	/**
+	 * Returns whether queries are always cached
+	 * 
+	 * @return bool
+	 */
+	public static function areQueriesAlwaysCached()
+	{
+		return self::$_alwaysCacheQuery;
+	}
+	
+	/**
 	 * Constructor
 	 *
 	 * @param 	PDO 	$pdo
 	 */
-	public function __construct($dsnOrPdo = null, $username = null, $password = null)
+	public function __construct($dsnOrPdo = null, $username = '', $password = '')
 	{
 		if ($dsnOrPdo instanceof PDO) {
 			$this->pdo = $pdo;
 			return;
 		}
 		
+		$this->_tablePrefix = self::getDefaultTablePrefix();
+		$this->_queryCacheEnabled = self::areQueriesAlwaysCached();
+		$this->_resultCacheEnabled = Atomik_Db_Query::areResultsAlwaysCached();
+		
+		$this->setConnectionInfo($dsnOrPdo, $username, $password);
+	}
+	
+	/**
+	 * Sets the connection information
+	 * 
+	 * @param	string	$dsn
+	 * @param 	string	$username
+	 * @param 	string	$password
+	 */
+	public function setConnectionInfo($dsn, $username, $password = '')
+	{
+		if ($this->pdo !== null) {
+			require_once 'Atomik/Db/Instance/Exception.php';
+			throw new Atomik_Db_Instance_Exception('Connection information cannot be set after the connection '
+				. 'have been established, you must disconnect first');
+		}
+		
 		$this->connectionInfo = array(
-			'dsn' 		=> $dsnOrPdo,
+			'dsn' 		=> $dsn,
 			'username' 	=> $username,
 			'password' 	=> $password
 		);
 	}
 	
 	/**
+	 * Returns connection information
+	 * 
+	 * @return array
+	 */
+	public function getConnectionInfo()
+	{
+		return $this->connectionInfo;
+	}
+	
+	/**
 	 * Connects to the database using the config values
 	 */
-	public function connect($dsn = null, $username = null, $password = null)
+	public function connect($dsn = null, $username = '', $password = '')
 	{
 		if ($this->pdo !== null) {
 			// already connected
 			return;
 		}
 		
-		if ($dsn === null && $this->connectionInfo !== null) {
-			$dsn = $this->connectionInfo['dsn'];
-			$username = $this->connectionInfo['username'];
-			$password = $this->connectionInfo['password'];
+		if ($dsn !== null) {
+			$this->setConnectionInfo($dsn, $username, $password);
 		}
+		$info = $this->getConnectionInfo();
 		
 		// creates the pdo instance
 		try {
-		    $this->pdo = new PDO($dsn, $username, $password);
-			$this->connectionInfo = array(
-				'dsn' 		=> $dsn,
-				'username' 	=> $username,
-				'password' 	=> $password
-			);
+		    $this->pdo = new PDO($info['dsn'], $info['username'], $info['password']);
 		} catch (Exception $e) {
 			require_once 'Atomik/Db/Exception.php';
 			throw new Atomik_Db_Exception('Database connection failed');
@@ -119,6 +214,16 @@ class Atomik_Db_Instance
 	}
 	
 	/**
+	 * Returns the managed PDO object
+	 * 
+	 * @return PDO
+	 */
+	public function getPdo()
+	{
+		return $this->pdo;
+	}
+	
+	/**
 	 * Returns the PDO driver being used
 	 * 
 	 * @return string
@@ -127,6 +232,20 @@ class Atomik_Db_Instance
 	{
 		$this->connect();
 		return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+	}
+	
+	/**
+	 * Returns the adapter associated to this instance
+	 * 
+	 * @return Atomik_Db_Adapter_Interface
+	 */
+	public function getAdapter()
+	{
+		if ($this->_adapter === null) {
+			$this->connect();
+			$this->_adapter = Atomik_Db_Adapter_Factory::factory($this->getPdoDriverName(), $this->pdo);
+		}
+		return $this->_adapter;
 	}
 	
 	/**
@@ -150,13 +269,13 @@ class Atomik_Db_Instance
 	}
 	
 	/**
-	 * Sets whether to cache query results or not
+	 * Sets whether to cache query or not
 	 * 
 	 * @param bool $enable
 	 */
-	public function setCacheEnable($enable = true)
+	public function enableQueryCache($enable = true)
 	{
-		$this->_cacheEnabled = $enable;
+		$this->_queryCacheEnabled = $enable;
 	}
 	
 	/**
@@ -165,9 +284,30 @@ class Atomik_Db_Instance
 	 * 
 	 * @return bool
 	 */
-	public function isCacheEnable()
+	public function isQueryCacheEnabled()
 	{
-		return $this->_cacheEnabled;
+		return $this->_queryCacheEnabled;
+	}
+	
+	/**
+	 * Sets whether query results are cached
+	 * 
+	 * @see Atomik_Db_Query
+	 * @param bool $enable
+	 */
+	public function enableResultCache($enable = true)
+	{
+		$this->_resultCacheEnabled = $enable;
+	}
+	
+	/**
+	 * Returns whether query results are cached
+	 * 
+	 * @return bool
+	 */
+	public function isResultCacheEnabled()
+	{
+		return $this->_resultCacheEnabled;
 	}
 	
 	/**
@@ -195,6 +335,17 @@ class Atomik_Db_Instance
 	public function getErrorInfo()
 	{
 		return $this->pdo->errorInfo();
+	}
+	
+	/**
+	 * Creates a query associated to this instance
+	 * 
+	 * @return Atomik_Db_Query
+	 */
+	public function q()
+	{
+		$this->connect();
+		return new Atomik_Db_Query($this);
 	}
 	
 	/**
@@ -283,7 +434,6 @@ class Atomik_Db_Instance
 	 */
 	public function findAll($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		$this->connect();
 		$query = $this->_buildQuery($table, $where, $orderBy, $limit, $fields);
 		return $this->_executeQuery($query);
 	}
@@ -315,21 +465,24 @@ class Atomik_Db_Instance
 	 * Perform a SELECT COUNT(*) query
 	 *
 	 * @see Atomik_Db_Instance::buildWhere()
-	 * @param 	string|array 	$table
-	 * @param 	array 			$where
-	 * @param 	string 			$limit
+	 * @param 	string|array|Atomik_Db_Query 	$table
+	 * @param 	array 							$where
+	 * @param 	string 							$limit
 	 * @return 	int
 	 */
 	public function count($table, $where = null, $limit = null)
 	{
-		$this->connect();
+		if (!($table instanceof Atomik_Db_Query)) {
+			$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
+		} else {
+			$query = $table;
+		}
 		
-		$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
 		if (($result = $this->_executeQuery($query)) === false) {
 			return 0;
 		}
 		
-		$count = $result->getStatement()->fetchColumn();
+		$count = $result->fetchColumn();
 		$result->closeCursor();
 		return $count;
 	}
@@ -360,12 +513,9 @@ class Atomik_Db_Instance
 	 */
 	public function insert($table, $data)
 	{
-		$this->connect();
-		
-		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix)->insertInto($table)->values($data);
+		$query = $this->q()->insertInto($table)->values($data);
 	
-		if ($query->execute($this->pdo) === false) {
+		if ($query->execute() === false) {
 			return false;
 		}
 		return $this->pdo->lastInsertId();
@@ -382,11 +532,8 @@ class Atomik_Db_Instance
 	 */
 	public function update($table, $data, $where)
 	{
-		$this->connect();
-		
-		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix)->update($table)->set($data)->where($where);
-		return $query->execute($this->pdo) !== false;
+		$query = $this->q()->update($table)->set($data)->where($where);
+		return $query->execute() !== false;
 	}
 	
 	/**
@@ -439,10 +586,8 @@ class Atomik_Db_Instance
 	 */
 	public function delete($table, $where = array())
 	{
-		$this->connect();
-		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix)->delete()->from($table)->where($where);
-		return $query->execute($this->pdo) !== false;
+		$query = $this->q()->delete()->from($table)->where($where);
+		return $query->execute() !== false;
 	}
 	
 	/**
@@ -455,16 +600,16 @@ class Atomik_Db_Instance
 	protected function _executeQuery(Atomik_Db_Query $query)
 	{
 		$hash = $query->toHash();
-		if ($this->_cacheEnabled && isset($this->_queryCache[$hash])) {
+		if ($this->_queryCacheEnabled && isset($this->_queryCache[$hash])) {
 			$this->_queryCache[$hash]->rewind();
 			return $this->_queryCache[$hash];
 		}
 		
-		if (($result = $query->execute($this->pdo)) === false) {
+		if (($result = $query->execute()) === false) {
 			return false;
 		}
 		
-		if ($this->_cacheEnabled) {
+		if ($this->_queryCacheEnabled) {
 			$this->_queryCache[$hash] = $result;
 			return $this->_queryCache[$hash];
 		}
@@ -484,13 +629,7 @@ class Atomik_Db_Instance
 	 */
 	protected function _buildQuery($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
-		if (empty($fields)) {
-			$fields = '*';
-		}
-		
-		$query = new Atomik_Db_Query();
-		$query->setTablePrefix($this->_tablePrefix);
-		$query->select($fields)->from($table);
+		$query = $this->q()->select($fields)->from($table);
 	
 		if ($where !== null) {
 			$query->where($where);

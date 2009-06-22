@@ -22,14 +22,20 @@
 /** Atomik_Options */
 require_once 'Atomik/Options.php';
 
-/** Atomik_Model_Adapter_Interface */
-require_once 'Atomik/Model/Adapter/Interface.php';
+/** Atomik_Model_Manager */
+require_once 'Atomik/Model/Manager.php';
 
 /** Atomik_Model_Builder_Field */
 require_once 'Atomik/Model/Builder/Field.php';
 
 /** Atomik_Model_Builder_Reference */
 require_once 'Atomik/Model/Builder/Reference.php';
+
+/** Atomik_Model_Builder_Link */
+require_once 'Atomik/Model/Builder/Link.php';
+
+/** Atomik_Model_Behaviour_Broker */
+require_once 'Atomik/Model/Behaviour/Broker.php';
 
 /**
  * A model builder can be used to programatically build models
@@ -50,6 +56,16 @@ class Atomik_Model_Builder extends Atomik_Options
 	public $className;
 	
 	/**
+	 * @var string
+	 */
+	public $tableName;
+	
+	/**
+	 * @var Atomik_Model_Manager
+	 */
+	protected $_manager;
+	
+	/**
 	 * @var Atomik_Model_Builder
 	 */
 	protected $_parentModelBuilder;
@@ -58,11 +74,6 @@ class Atomik_Model_Builder extends Atomik_Options
 	 * @var string
 	 */
 	protected $_inheritanceType;
-	
-	/**
-	 * @var array
-	 */
-	protected $_adapter;
 	
 	/**
 	 * @var array
@@ -80,36 +91,14 @@ class Atomik_Model_Builder extends Atomik_Options
 	protected $_references = array();
 	
 	/**
-	 * @var Atomik_Model_Adapter_Interface
+	 * @var Atomik_Model_Behaviour_Broker
 	 */
-	protected static $_defaultAdapter;
+	protected $_behaviourBroker = array();
 	
 	/**
-	 * Sets the default adapter 
-	 *
-	 * @param Atomik_Model_Adapter_Interface $adapter
+	 * @var array
 	 */
-	public static function setDefaultAdapter(Atomik_Model_Adapter_Interface $adapter = null)
-	{
-		if ($adapter === null) {
-			require_once 'Atomik/Model/Adapter/Local.php';
-			$adapter = new Atomik_Model_Adapter_Local();
-		}
-		self::$_defaultAdapter = $adapter;
-	}
-	
-	/**
-	 * Returns the default adapter
-	 *
-	 * @return Atomik_Model_Adapter_Interface
-	 */
-	public static function getDefaultAdapter()
-	{
-		if (self::$_defaultAdapter === null) {
-			self::setDefaultAdapter();
-		}
-		return self::$_defaultAdapter;
-	}
+	protected $_links = array();
 	
 	/**
 	 * Constructor
@@ -117,10 +106,38 @@ class Atomik_Model_Builder extends Atomik_Options
 	 * @param 	string 	$name
 	 * @param 	array 	$metadata
 	 */
-	public function __construct($name, $className = null)
+	public function __construct($name, $className = null, $tableName = null)
 	{
 		$this->name = $name;
 		$this->className = $className;
+		$this->tableName = $tableName === null ? $name : $tableName;
+		$this->_behaviourBroker = new Atomik_Model_Behaviour_Broker($this);
+	}
+	
+	/**
+	 * Sets the manager associated to this builder
+	 * 
+	 * @param Atomik_Model_Manager $manager
+	 */
+	public function setManager(Atomik_Model_Manager $manager = null)
+	{
+		if ($manager === null) {
+			$manager = Atomik_Model_Manager::getDefault();
+		}
+		$this->_manager = $manager;
+	}
+	
+	/**
+	 * Returns the associated model manager
+	 * 
+	 * @return Atomik_Model_Manager
+	 */
+	public function getManager()
+	{
+		if ($this->_manager === null) {
+			$this->setManager();
+		}
+		return $this->_manager;
 	}
 	
 	/**
@@ -138,9 +155,6 @@ class Atomik_Model_Builder extends Atomik_Options
 				return;
 				
 			case 'abstract':
-				if ($this->_adapter === null) {
-					$this->setAdapter($parent->getAdapter());
-				}
 				$this->_fields = array_merge($parent->getFields(), $this->_fields);
 				$this->_options = array_merge($parent->getOptions(), $this->_options);
 				foreach ($parent->getReferences() as $ref) {
@@ -189,35 +203,6 @@ class Atomik_Model_Builder extends Atomik_Options
 	public function getInheritanceType()
 	{
 		return $this->_inheritanceType;
-	}
-	
-	/**
-	 * Sets the adapter
-	 *
-	 * @param Atomik_Model_Adapter_Interface $adapter
-	 */
-	public function setAdapter(Atomik_Model_Adapter_Interface $adapter = null)
-	{
-		if ($adapter === null) {
-			if ($this->_parentModelBuilder !== null) {
-				throw new Atomik_Model_Builder_Exception('Inherited model can\'t have a different adapter');
-			}
-			$adapter = self::getDefaultAdapter();
-		}
-		$this->_adapter = $adapter;
-	}
-	
-	/**
-	 * Returns the adapter associated to the model
-	 *
-	 * @return Atomik_Model_Adapter_Interface
-	 */
-	public function getAdapter()
-	{
-		if ($this->_adapter === null) {
-			$this->setAdapter();
-		}
-		return $this->_adapter;
 	}
 	
 	/**
@@ -316,7 +301,7 @@ class Atomik_Model_Builder extends Atomik_Options
 			// checks if there is a field named id
 			if (($field = $this->getField('id')) === false) {
 				// creates a new id field
-				$field = new Atomik_Model_Builder_Field('id', array('form-ignore' => true, 'var' => 'int'));
+				$field = new Atomik_Model_Builder_Field('id', 'int', array('form-ignore' => true));
 				$this->addField($field);
 			}
 		}
@@ -368,10 +353,8 @@ class Atomik_Model_Builder extends Atomik_Options
 	 */
 	public function addReference(Atomik_Model_Builder_Reference $reference)
 	{
-		$reference->source = $this->name;
 		if (!$this->hasField($reference->sourceField)) {
-			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, 
-				array('var' => 'int')));
+			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, 'int'));
 		}
 		$this->_references[$reference->name] = $reference;
 	}
@@ -423,18 +406,16 @@ class Atomik_Model_Builder extends Atomik_Options
 	 * @param 	string 	$type 		Reference type
 	 * @return 	array
 	 */
-	public function getReferences($modelName = null, $type = null)
+	public function getReferences($targetModel = null, $type = null)
 	{
-		if ($modelName === null) {
+		if ($targetModel === null) {
 			return $this->_references;
 		}
 		
 		$references = array();
 		foreach ($this->_references as $reference) {
-			if ($reference->isSource($modelName)) {
-				if ($type === null || $reference->type == $type) {
-					$references[] = $reference;
-				}
+			if ($reference->isTarget($targetModel) && ($type === null || $reference->type == $type)) {
+				$references[] = $reference;
 			}
 		}
 		return $references;
@@ -457,6 +438,120 @@ class Atomik_Model_Builder extends Atomik_Options
 	}
 	
 	/**
+	 * Checks if the specified model is related to this one
+	 * 
+	 * @param Atomik_Model_Builder $builder
+	 * @return bool
+	 */
+	public function isModelRelated(Atomik_Model_Builder $builder)
+	{
+		foreach ($this->_references as $reference) {
+			if ($reference->target == $builder) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks if the specified model is a child of this one
+	 * 
+	 * @param Atomik_Model_Builder $builder
+	 * @return bool
+	 */
+	public function isChildModel(Atomik_Model_Builder $builder)
+	{
+		foreach ($this->_references as $reference) {
+			if ($reference->target == $builder && $reference->type != Atomik_Model_Builder_Reference::HAS_PARENT) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks if the specified model is the parent of this one
+	 * 
+	 * @param Atomik_Model_Builder $builder
+	 * @return bool
+	 */
+	public function isParentModel(Atomik_Model_Builder $builder)
+	{
+		foreach ($this->_references as $reference) {
+			if ($reference->target == $builder && $reference->type == Atomik_Model_Builder_Reference::HAS_PARENT) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns the behaviour broker
+	 * 
+	 * @return Atomik_Model_Behaviour_Broker
+	 */
+	public function getBehaviourBroker()
+	{
+		return $this->_behaviourBroker;
+	}
+	
+	/**
+	 * Resets all links
+	 * 
+	 * @param array $links
+	 */
+	public function setLinks($links)
+	{
+		$this->_links = array();
+		foreach ($links as $link) {
+			$this->addLink($link);
+		}
+	}
+	
+	/**
+	 * Adds a new link
+	 * 
+	 * @param Atomik_Model_Builder_Link $link
+	 */
+	public function addLink(Atomik_Model_Builder_Link $link)
+	{
+		$this->_links[$link->name] = $link;
+	}
+	
+	/**
+	 * Checks if this builder as the specified link
+	 * 
+	 * @param string $name
+	 */
+	public function hasLink($name)
+	{
+		return isset($this->_links[$name]);
+	}
+	
+	/**
+	 * Returns the link with the specified name
+	 * 
+	 * @param string $name
+	 */
+	public function getLink($name)
+	{
+		if (!isset($this->_links[$name])) {
+			return null;
+		}
+		return $this->_links[$name];
+	}
+	
+	/**
+	 * Returns all links
+	 * 
+	 * @return array
+	 */
+	public function getLinks()
+	{
+		return $this->_links;
+	}
+	
+	/**
 	 * Creates a model instance
 	 *
 	 * @see Atomik_Model::__construct()
@@ -473,7 +568,10 @@ class Atomik_Model_Builder extends Atomik_Options
 			$className = 'Atomik_Model';
 		}
 		
+		$this->_behaviourBroker->notifyBeforeCreateInstance($values, $new);
 		$instance = new $className($values, $new, $this);
+		$this->_behaviourBroker->notifyAfterCreateInstance($instance);
+		
 		return $instance;
 	}
 	
@@ -486,5 +584,15 @@ class Atomik_Model_Builder extends Atomik_Options
 	{
 		require_once 'Atomik/Model/Form.php';
 		return new Atomik_Model_Form($this);
+	}
+	
+	/**
+	 * Returns the builder name
+	 * 
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->name;
 	}
 }

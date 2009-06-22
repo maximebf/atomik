@@ -28,10 +28,8 @@ require_once 'Atomik/Model/Adapter/Interface.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
+class Atomik_Model_Link_File implements Atomik_Model_Linkable
 {
-	protected $_orderBy;
-	
 	/**
 	 * Gets the directory where files are stored
 	 *
@@ -239,41 +237,5 @@ class Atomik_Model_Adapter_File implements Atomik_Model_Adapter_Interface
 		}
 		
 		return $data;
-	}
-	
-	/**
-	 * Saves a model
-	 *
-	 * @param Atomik_Model $model
-	 * @return bool
-	 */
-	public function save(Atomik_Model $model)
-	{
-		$builder = $model->getBuilder();
-		$filename = self::getFilenameFromModel($model);
-		$content = '';
-		
-		foreach ($builder->getFields() as $field) {
-			if ($field->hasOption('file-content')) {
-				$content = $model->{$field->name};
-			}
-		}
-		
-		return file_put_contents($filename, $content);
-	}
-	
-	/**
-	 * Deletes a model
-	 *
-	 * @param Atomik_Model $model
-	 * @return bool
-	 */
-	public function delete(Atomik_Model $model)
-	{
-		$filename = self::getFilenameFromModel($model);
-		if (!file_exists($filename)) {
-			return false;
-		}
-		return @unlink($filename);
 	}
 }

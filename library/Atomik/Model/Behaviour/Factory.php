@@ -19,43 +19,32 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Db_Query */
-require_once 'Atomik/Db/Query.php';
+/** Atomik_Model_Behaviour_Interface */
+require_once 'Atomik/Model/Behaviour/Interface.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Query extends Atomik_Db_Query
+class Atomik_Model_Behaviour_Factory
 {
 	/**
-	 * Creates a new query
+	 * Creates an instance of a behaviour
 	 * 
-	 * @return Atomik_Model_Query
+	 * @param 	string|objet 	$name		The last part of the field name if it starts with Atomik_Model_Behaviour_ or a class name
+	 * @return 	Atomik_Model_Behaviour_Interface
 	 */
-	public static function create()
+	public static function factory($name)
 	{
-		return new self();
-	}
-	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->reset();
-	}
-	
-	/**
-	 * Sets which model to query 
-	 * 
-	 * @param	string|Atomik_Model_Builder $model
-	 * @return 	Atomik_Model_Query
-	 */
-	public function from($model)
-	{
-		$builder = Atomik_Model_Builder_Factory::get($model);
-		$this->setInstance($builder->getManager()->getDbInstance());
-		return parent::from($builder->tableName);
+		$className = 'Atomik_Model_Behaviour_' . ucfirst($name);
+		if (!class_exists($className)) {
+			$className = $name;
+			if (!class_exists($className)) {
+				require_once 'Atomik/Model/Behaviour/Exception.php';
+				throw new Atomik_Model_Behaviour_Exception('No model behaviour named ' . $name . ' were found');
+			}
+		}
+		
+		return new $className();
 	}
 }

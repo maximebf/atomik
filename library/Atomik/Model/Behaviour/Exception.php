@@ -19,23 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
-
-/** Atomik_Model_Query */
-require_once 'Atomik/Model/Query.php';
+/** Atomik_Model_Exception */
+require_once 'Atomik/Model/Exception.php';
 
 /**
- * Interface for model's adapter
- *
  * @package Atomik
  * @subpackage Model
  */
-interface Atomik_Model_Adapter_Interface
+class Atomik_Model_Behaviour_Exception extends Atomik_Model_Exception
 {
-	function query(Atomik_Model_Query $query);
 	
-	function save(Atomik_Model $model);
-	
-	function delete(Atomik_Model $model);
 }

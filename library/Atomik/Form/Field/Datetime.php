@@ -49,6 +49,8 @@ class Atomik_Form_Field_Datetime extends Atomik_Form_Field_Abstract
 	 */
 	public function render()
 	{
+		Atomik_Assets::addNamedAsset('jquery-ui');
+
 		$value = $this->getValue();
 		$date = date('m/d/Y');
 		$time = date('H:i:s');

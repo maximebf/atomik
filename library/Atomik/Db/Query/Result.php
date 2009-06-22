@@ -28,8 +28,6 @@ require_once 'Atomik/Db/Query.php';
  */
 class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 {
-	const FETCH_OBJECT = 'atomik_fetch_object';
-	
 	/**
 	 * @var Atomik_Db_Query
 	 */
@@ -71,9 +69,9 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	protected $_fetchMode;
 	
 	/**
-	 * @var array
+	 * @var bool
 	 */
-	protected $_fetchObjectParams;
+	protected $_fetchColumnLock = false;
 	
 	/**
 	 * @var array
@@ -137,6 +135,7 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 		$this->_rowCount = $statement->rowCount();
 		$this->_index = -1;
 		$this->_rows = array();
+		$this->_fetchColumnLock = false;
 		
 		call_user_func_array(array($this, 'setFetchMode'), self::$_defaultFetchMode);
 	}
@@ -257,11 +256,6 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 			$args = func_get_args();
 			
 			$this->_fetchMode = $fetchMode;
-			if ($fetchMode == self::FETCH_OBJECT) {
-				$args[0] = PDO::FETCH_ASSOC;
-				$this->_fetchObjectParams = $args;
-			}
-			
 			return call_user_func_array(array($this->_statement, 'setFetchMode'), $args);
 		}
 		
@@ -297,9 +291,10 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 		}
 		
 		if ($this->_statement !== null) {
+			$this->_checkColumnLock();
+			
 			if ($index !== null) {
-				$fetchMode = $this->_fetchMode == self::FETCH_OBJECT ? PDO::FETCH_ASSOC : $this->_fetchMode;
-				$row = $this->_statement->fetch($fetchMode, PDO::FETCH_ORI_ABS, $this->_index);
+				$row = $this->_statement->fetch($this->_fetchMode, PDO::FETCH_ORI_ABS, $this->_index);
 			} else {
 				$row = $this->_statement->fetch();
 			}
@@ -309,15 +304,56 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 				return false;
 			}
 			
-			if ($this->_fetchMode == self::FETCH_OBJECT) {
-				$row = $this->_getObject($row);
-			}
 			$this->_rows[$this->_index] = $row;
-			
 			return $row;
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Fetches ony column only
+	 * 
+	 * If rows have already been fetched, this method will throw an exception.
+	 * Once used, you cannot use other fetch methods.
+	 * 
+	 * @param int $columnIndex
+	 * @return mixed
+	 */
+	public function fetchColumn($columnIndex = 0)
+	{
+		$this->_index++;
+		
+		if (isset($this->_rows[$this->_index])) {
+			return $this->_rows[$this->_index];
+		}
+		
+		if ($this->_statement !== null) {
+			if (!$this->_fetchColumnLock && count($this->_rows)) {
+				throw new Atomik_Db_Query_Exception('Atomik_Db_Query_Result cannot fetch only columns when full rows have already been fetched');
+			}
+			
+			if (($value = $this->_statement->fetchColumn($columnIndex)) === false) {
+				$this->_statement = null;
+				return false;
+			}
+			
+			$this->_fetchColumnLock = true;
+			$this->_rows[$this->_index] = $value;
+			return $value;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Checks if the result is locked in column mode
+	 */
+	protected function _checkColumnLock()
+	{
+		if ($this->_fetchColumnLock) {
+			throw new Atomik_Db_Query_Exception('Atomik_Db_Query_Result is locked in fetch column only');
+		}
 	}
 	
 	/**
@@ -329,42 +365,19 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	public function fetchAll($fetchMode = null)
 	{
 		if ($this->_statement !== null) {
+			$this->_checkColumnLock();
+			
 			if ($fetchMode !== null) {
 				$args = func_get_args();
 				call_user_func_array(array($this, 'setFetchMode'), $args);
 			}
 			
-			$rows = $this->_statement->fetchAll();
-			
-			if ($this->_fetchMode == self::FETCH_OBJECT) {
-				$objectRows = array();
-				foreach ($rows as $row) {
-					$objectRows[] = $this->_getObject($row);
-				}
-				$rows = $objectRows;
-			}
-			
-			$this->_rows = $rows;
+			$this->_rows = $this->_statement->fetchAll();
 			$this->_statement = null;
 			$this->_index = count($this->_rows) - 1;
 		}
 		
 		return $this->_rows;
-	}
-	
-	/**
-	 * Creates an Atomik_Db_Object instance
-	 * 
-	 * @param 	array	$data
-	 * @return 	Atomik_Db_Object
-	 */
-	protected function _getObject($data)
-	{
-		$tables = $this->_query->getInfo('from');
-		$instance = isset($this->_fetchObjectParams[1]) ? $this->_fetchObjectParams[1] : Atomik_Db::getInstance();
-		$className = isset($this->_fetchObjectParams[2]) ? $this->_fetchObjectParams[2] : null;
-		
-		return Atomik_Db_Object::create($tables[0]['table'], $data, false, $instance, $className);
 	}
 	
 	/**

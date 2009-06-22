@@ -19,14 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
+/** Atomik_Db_Exception */
+require_once 'Atomik/Db/Exception.php';
 
 /**
  * @package Atomik
  * @subpackage Db
  */
-interface Atomik_Db_Script_Model_Exportable
+class Atomik_Db_Adapter_Exception extends Atomik_Db_Exception
 {
-	static function getSqlDefinition(Atomik_Model_Builder $builder);
+	
 }

@@ -12,21 +12,38 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Exception */
-require_once 'Atomik/Model/Exception.php';
+/** Atomik_Db_Adapter_Interface */
+require_once 'Atomik/Db/Adapter/Interface.php';
 
 /**
  * @package Atomik
- * @subpackage Model
+ * @subpackage Db
  */
-class Atomik_Model_Adapter_Exception extends Atomik_Model_Exception
+class Atomik_Db_Adapter_Factory
 {
-	
+	/**
+	 * Creates an instance of an adapter
+	 * 
+	 * @param 	string|objet 	$name		The last part of the adapter name if it starts with Atomik_Db_Adapter_ or a class name
+	 * @return 	Atomik_Db_Adapter_Interface
+	 */
+	public static function factory($name, PDO $pdo)
+	{
+		$className = 'Atomik_Db_Adapter_' . ucfirst(strtolower($name));
+		if (!class_exists($className)) {
+			$className = $name;
+			if (!class_exists($className)) {
+				$className = 'Atomik_Db_Adapter';
+			}
+		}
+		
+		return new $className($pdo);
+	}
 }

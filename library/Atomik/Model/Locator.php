@@ -19,9 +19,6 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Query */
-require_once 'Atomik/Model/Query.php';
-
 /**
  * @package Atomik
  * @subpackage Model
@@ -32,15 +29,19 @@ class Atomik_Model_Locator
 	 * Query the adapter
 	 *
 	 * @param 	string|Atomik_Model_Builder $builder
-	 * @param 	Atomik_Model_Query			$query
+	 * @param 	Atomik_Db_Query				$query
 	 * @return 	Atomik_Model_Modelset
 	 */
-	public static function query($builder, Atomik_Model_Query $query)
+	public static function query(Atomik_Db_Query $query, $builder = null)
 	{
-		$builder = Atomik_Model_Builder_Factory::get($builder);
-		$query->from($builder);
-		$data = $builder->getAdapter()->query($query);
-		return new Atomik_Model_Modelset($builder, $data);
+		if ($builder !== null) {
+			$builder = Atomik_Model_Builder_Factory::get($builder);
+			$manager = $builder->getManager();
+		} else {
+			$manager = Atomik_Model_Manager::getDefault();
+		}
+		
+		return $manager->query($query);
 	}
 	
 	/**
@@ -54,7 +55,7 @@ class Atomik_Model_Locator
 	 */
 	public static function findAll($builder, $where = null, $orderBy = null, $limit = null)
 	{
-		return self::query($builder, self::buildQuery($where, $orderBy, $limit));
+		return self::query(self::buildQuery($builder, $where, $orderBy, $limit), $builder);
 	}
 	
 	/**
@@ -68,14 +69,14 @@ class Atomik_Model_Locator
 	 */
 	public static function findOne($builder, $where, $orderBy = null, $offset = 0)
 	{
-		$query = self::buildQuery($where, $orderBy);
-		$query->limit(1, $offset);
+		$query = self::buildQuery($builder, $where, $orderBy);
+		$query->limit($offset, 1);
 		
-		$modelSet = self::query($builder, $query);
+		$modelSet = self::query($query, $builder);
 		if (count($modelSet) == 0) {
 			return null;
 		}
-		return $modelSet[0]; 
+		return $modelSet[0];
 	}
 	
 	/**
@@ -93,34 +94,51 @@ class Atomik_Model_Locator
 	}
 	
 	/**
+	 * Returns the number of rows the query will return
+	 *
+	 * @param 	string|Atomik_Model_Builder|Atomik_Db_Query 	$builder
+	 * @param 	array 											$where
+	 * @param 	string 											$orderBy
+	 * @param 	string|array									$limit
+	 * @return 	Atomik_Model_Modelset
+	 */
+	public static function count($builder, $where = null, $orderBy = null, $limit = null)
+	{
+		if ($builder instanceof Atomik_Db_Query) {
+			$query = clone $builder;
+			$query->count();
+			$builder = Atomik_Model_Manager::getBuilderFromQuery($query);
+			return $builder->getManager()->getDbInstance()->count($query);
+		}
+		
+		$query = self::buildQuery($builder, $where, $orderBy, $limit);
+		return self::query($query->count(), $builder);
+	}
+	
+	/**
 	 * Builds a query object from the parameters
 	 *
-	 * @param 	array 				$where
-	 * @param 	string 				$orderBy
-	 * @param 	string|array		$limit
-	 * @return 	Atomik_Model_Query
+	 * @param 	string|Atomik_Model_Builder $builder
+	 * @param 	array 						$where
+	 * @param 	string 						$orderBy
+	 * @param 	string|array				$limit
+	 * @return 	Atomik_Db_Query
 	 */
-	public static function buildQuery($where = null, $orderBy = null, $limit = null)
+	public static function buildQuery($builder, $where = null, $orderBy = null, $limit = null)
 	{
-		$query = new Atomik_Model_Query();
+		$query = Atomik_Model_Query::create($builder);
+		$query->select()->from($builder);
 		
-		if ($where !== null && is_array($where)) {
+		if ($where !== null) {
 			$query->where($where);
 		}
 		
 		if ($orderBy !== null) {
-			if (preg_match('/^(.+)\s+(ASC|DESC)$/', $orderBy, $matches)) {
-				$query->orderBy($matches[1], $matches[2]);
-			} else {
-				$query->orderBy($orderBy);
-			}
+			$query->orderBy($orderBy);
 		}
 		
 		if ($limit !== null) {
-			if (!is_array($limit)) {
-				$limit = explode(',', $limit);
-			}
-			$query->limit($limit[0], count($limit) == 2 ? $limit[1] : 0);
+			$query->limit($limit);
 		}
 		
 		return $query;

@@ -19,6 +19,12 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Db_Query_Generator_Interface */
+require_once 'Atomik/Db/Query/Generator/Interface.php';
+
+/** Atomik_Db_Query_Generator */
+require_once 'Atomik/Db/Query/Generator.php';
+
 /** Atomik_Db_Query_Expr */
 require_once 'Atomik/Db/Query/Expr.php';
 
@@ -34,19 +40,29 @@ require_once 'Atomik/Db/Query/Result.php';
 class Atomik_Db_Query extends Atomik_Db_Query_Expr
 {
 	/**
+	 * @var Atomik_Db_Instance
+	 */
+	protected $_instance;
+	
+	/**
 	 * @var PDO
 	 */
 	protected $_pdo;
 	
 	/**
-	 * @var array
+	 * @var Atomik_Db_Query_Generator_Interface
 	 */
-	protected $_info;
+	protected $_generator;
 	
 	/**
 	 * @var string
 	 */
-	protected $_tablePrefix;
+	protected $_rawSql;
+	
+	/**
+	 * @var array
+	 */
+	protected $_info;
 	
 	/**
 	 * @var bool
@@ -64,19 +80,14 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	protected $_statement;
 	
 	/**
-	 * @var PDO
+	 * @var array
 	 */
-	protected static $_defaultPdo;
-	
-	/**
-	 * @var string
-	 */
-	protected static $_defaultTablePrefix;
+	protected $_lastError;
 	
 	/**
 	 * @var bool
 	 */
-	protected static $_cacheAll;
+	protected static $_cacheAll = false;
 	
 	/**
 	 * Shortcut to create a new Atomik_Db_Query_Expr object
@@ -91,64 +102,21 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
-	 * Sets the default pdo instance
-	 * 
-	 * @param	PDO	$pdo
-	 */
-	public static function setDefaultPdo($pdo)
-	{
-		self::$_defaultPdo = $pdo;
-	}
-	
-	/**
-	 * Returns the default pdo instance
-	 * 
-	 * @return PDO
-	 */
-	public static function getDefaultPdo()
-	{
-		return self::$_defaultPdo;
-	}
-	
-	/**
-	 * Sets the prefix that will be appended to all table names
-	 * 
-	 * @param	string	$prefix
-	 */
-	public static function setDefaultTablePrefix($prefix)
-	{
-		if (empty($prefix)) {
-			$prefix = '';
-		}
-		self::$_defaultTablePrefix = $prefix;
-	}
-	
-	/**
-	 * Returns the table prefix
-	 * 
-	 * @return string
-	 */
-	public static function getDefaultTablePrefix()
-	{
-		return self::$_defaultTablePrefix;
-	}
-	
-	/**
-	 * Activates the cache on all queries
+	 * Activates the result cache on all queries
 	 * 
 	 * @param	string	$enable
 	 */
-	public static function setCacheAllQueries($enable)
+	public static function setAlwaysCacheResults($enable = true)
 	{
 		self::$_cacheAll = $enable;
 	}
 	
 	/**
-	 * Returns the table prefix
+	 * Returns whether the result cache is activated on all queries
 	 * 
 	 * @return bool
 	 */
-	public static function areAllQueryCached()
+	public static function areResultsAlwaysCached()
 	{
 		return self::$_cacheAll;
 	}
@@ -156,21 +124,30 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	/**
 	 * Creates a new instance
 	 * 
-	 * @return Atomik_Db-Query
+	 * @return Atomik_Db_Query
 	 */
-	public static function create(PDO $pdo = null, $cacheable = false)
+	public static function create(Atomik_Db_Instance $instance = null, $cacheable = null)
 	{
-		return new self($pdo, $cacheable);
+		if ($instance === null) {
+			$instance = Atomik_Db::getInstance();
+		}
+		return new self($instance, $cacheable);
 	}
 	
 	/**
 	 * Constructor
 	 */
-	public function __construct(PDO $pdo = null, $cacheable = false)
+	public function __construct(Atomik_Db_Instance $instance = null, $cacheable = null)
 	{
 		$this->reset();
-		$this->_pdo = $pdo;
-		$this->_cacheable = $cacheable;
+		
+		if ($instance !== null) {
+			$this->setInstance($instance);
+		}
+		
+		if ($cacheable !== null) {
+			$this->_cacheable = $cacheable;
+		}
 	}
 	
 	/**
@@ -179,7 +156,8 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function reset()
 	{
-		$this->_cachedResult = self::areAllQueryCached();
+		$this->_cacheable = self::areResultsAlwaysCached();
+		$this->_cachedResult = null;
 		$this->_statement = null;
 		$this->_info = array(
 			'statement'	=> 'SELECT',
@@ -200,60 +178,38 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
-	 * Sets the pdo instance
+	 * Sets the associated instance
 	 * 
-	 * @param	PDO	$pdo
+	 * @param	Atomik_Db_Instance $instance
 	 * @return	Atomik_Db_Query
 	 */
-	public function setPdo($pdo = null)
+	public function setInstance(Atomik_Db_Instance $instance)
 	{
-		if ($pdo === null) {
-			$pdo = self::getDefaultPdo();
-		}
-		$this->_pdo = $pdo;
+		$this->_instance = $instance;
+		$this->_pdo = $instance->getPdo();
+		$this->_generator = $instance->getAdapter()->getQueryGenerator();
+		$this->_cacheable = $instance->isResultCacheEnabled();
 		return $this;
 	}
 	
 	/**
-	 * Returns the pdo instance
+	 * Returns the associated instance
 	 * 
-	 * @return PDO
+	 * @return Atomik_Db_Instance
 	 */
-	public function getPdo()
+	public function getInstance()
 	{
-		if ($this->_pdo === null) {
-			$this->setPdo();
-		}
-		return $this->_pdo;
+		return $this->_instance;
 	}
 	
 	/**
-	 * Sets the prefix that will be prepended to all table names
+	 * Returns the sql generator
 	 * 
-	 * @param	string	$prefix
-	 * @return	Atomik_Db_Query
+	 * @return Atomik_Db_Query_Generator_Interface
 	 */
-	public function setTablePrefix($prefix = null)
+	public function getGenerator()
 	{
-		if ($prefix === null) {
-			$prefix = self::getDefaultTablePrefix();
-		}
-		$this->_tablePrefix = $prefix;
-		$this->_statement = null;
-		return $this;
-	}
-	
-	/**
-	 * Returns the table prefix
-	 * 
-	 * @return string
-	 */
-	public function getTablePrefix()
-	{
-		if ($this->_tablePrefix === null) {
-			$this->setTablePrefix();
-		}
-		return $this->_tablePrefix;
+		return $this->_generator;
 	}
 	
 	/**
@@ -301,6 +257,18 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
+	 * Uses a raw sql query
+	 * 
+	 * @param 	string	$sqlString
+	 * @return	Atomik_Db_Query
+	 */
+	public function sql($sqlString)
+	{
+		$this->_rawSql = $sqlString;
+		return $this;
+	}
+	
+	/**
 	 * Creates a SELECT statement
 	 * 
 	 * Fields to select can be specified as an array or as arguments of the method
@@ -311,8 +279,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function select($fields = null)
 	{
-		$this->reset();
-		
 		if (!is_array($fields)) {
 			$fields = func_get_args();
 			if (count($fields) == 0) {
@@ -320,6 +286,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			}
 		}
 		
+		$this->_rawSql = null;
 		$this->_info['statement'] = 'SELECT';
 		$this->_info['fields'] = array_merge($this->_info['fields'], $fields);
 		
@@ -334,9 +301,9 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function count($field = '*')
 	{
-		$this->reset();
+		$this->_rawSql = null;
 		$this->_info['statement'] = 'SELECT';
-		$this->_info['fields'] = sprintf('COUNT(%s)', $field);
+		$this->_info['fields'] = array(sprintf('COUNT(%s)', $field));
 		return $this;
 	}
 	
@@ -348,9 +315,9 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function insertInto($table)
 	{
-		$this->reset();
+		$this->_rawSql = null;
 		$this->_info['statement'] = 'INSERT';
-		$this->_info['table'] = $this->getTablePrefix() . $table;
+		$this->_info['table'] = $this->_formatTableName($table);
 		return $this;
 	}
 	
@@ -362,9 +329,9 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function update($table)
 	{
-		$this->reset();
+		$this->_rawSql = null;
 		$this->_info['statement'] = 'UPDATE';
-		$this->_info['table'] = $this->getTablePrefix() . $table;
+		$this->_info['table'] = $this->_formatTableName($table);
 		return $this;
 	}
 	
@@ -375,7 +342,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function delete()
 	{
-		$this->reset();
+		$this->_rawSql = null;
 		$this->_info['statement'] = 'DELETE';
 		return $this;
 	}
@@ -405,7 +372,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			return $this;
 		}
 		
-		$this->_info['from'][] = array('table' => $this->getTablePrefix() . $table, 'alias' => $alias);
+		$this->_info['from'][] = array('table' => $this->_formatTableName($table), 'alias' => $alias);
 		$this->emptyCache();
 		return $this;
 	}
@@ -418,7 +385,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function join($table, $on, $alias = null, $type = 'INNER')
 	{
-		$this->_info['join'][] = array('table' => $this->getTablePrefix() . $table, 'on' => $on, 'alias' => $alias, 'type' => $type);
+		$this->_info['join'][] = array('table' => $this->_formatTableName($table), 'on' => $on, 'alias' => $alias, 'type' => $type);
 		$this->emptyCache();
 		return $this;
 	}
@@ -676,24 +643,10 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function toSql()
 	{
-		$sql = '';
-		
-		switch($this->_info['statement']) {
-			case 'SELECT':
-				$sql = $this->_buildSelectStatement();
-				break;
-			case 'INSERT':
-				$sql = $this->_buildInsertStatement();
-				break;
-			case 'UPDATE':
-				$sql = $this->_buildUpdateStatement();
-				break;
-			case 'DELETE':
-				$sql = $this->_buildDeleteStatement();
-				break;
+		if ($this->_rawSql !== null) {
+			return $this->_rawSql;
 		}
-		
-		return trim($sql);
+		return $this->getGenerator()->generate($this);
 	}
 	
 	/**
@@ -709,16 +662,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	/**
 	 * Executes the request against a PDO object
 	 * 
-	 * @param	PDO					$pdo
 	 * @return 	bool|PDOStatement			False if fail or the PDOStatement object
 	 */
-	public function execute(PDO $pdo = null, $reCache = false, Atomik_Db_Query_Result $resultObject = null)
+	public function execute($reCache = false, Atomik_Db_Query_Result $resultObject = null)
 	{
-		if ($pdo === null) {
-			if (($pdo = $this->getPdo()) === null) {
-				require_once 'Atomik/Db/Query/Exception.php';
-				throw new Atomik_Db_Query_Exception('No PDO instance specified for Atomik_Db_Query');
-			}
+		if ($this->_instance === null) {
+			require_once 'Atomik/Db/Query/Exception.php';
+			throw new Atomik_Db_Query_Exception('An Atomik_Db_Instance must be attached to the queyr to execute it');
 		}
 		
 		if (($resultObject === null || !$reCache) && $this->_cachedResult !== null) {
@@ -727,10 +677,12 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		
 		if ($this->_statement === null) {
 			// prepare the query only if the statement is not already prepared
-			$this->_statement = $pdo->prepare($this->toSql());
+			$this->_statement = $this->_pdo->prepare($this->toSql());
 		}
 		
+		$this->_lastError = false;
 		if (!$this->_statement->execute($this->getParams())) {
+			$this->_lastError = $this->_statement->errorInfo();
 			return false;
 		}
 		
@@ -746,6 +698,16 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
+	 * Returns the error from the last execute if one occured, false otherwise
+	 * 
+	 * @return array
+	 */
+	public function getLastErrorInfo()
+	{
+		return $this->_lastError;
+	}
+	
+	/**
 	 * PHP magic method. Returns the query as an SQL string.
 	 * 
 	 * @see Atomik_Db_Query::toSql()
@@ -754,6 +716,17 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function __toString()
 	{
 		return $this->toSql();
+	}
+	
+	/**
+	 * Returns the prefixed table name
+	 * 
+	 * @param	string	$tableName
+	 * @return 	string
+	 */
+	protected function _formatTableName($tableName)
+	{
+		return $this->_instance->getTablePrefix() . $tableName;
 	}
 	
 	/**
@@ -801,209 +774,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			'sql' 		=> $sql,
 			'operator' 	=> $operator
 		);
-	}
-	
-	/**
-	 * Builds a SELECT statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildSelectStatement()
-	{
-		return 	'SELECT '
-				. implode(', ', $this->_info['fields'])
-				. $this->_buildFromPart()
-				. $this->_buildJoinPart()
-				. $this->_buildWherePart()
-				. $this->_buildGroupByPart()
-				. $this->_buildOrderByPart()
-				. $this->_buildLimitPart();
-	}
-	
-	/**
-	 * Builds an INSERT statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildInsertStatement()
-	{
-		$data = $this->_info['data'];
-		
-		if (!is_array($data)) {
-			return sprintf('INSERT INTO %s %s',
-				$this->_info['table'],
-				(string) $data
-			);
-			
-		} else {
-			return sprintf('INSERT INTO %s (%s) VALUES (%s)',
-				$this->_info['table'],
-				implode(', ', array_keys($data)),
-				implode(', ', array_values($data))
-			);
-		}
-	}
-	
-	/**
-	 * Builds an UPDATE statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildUpdateStatement()
-	{
-		$sets = array();
-		foreach ($this->_info['data'] as $field => $value) {
-			$sets[] = "$field = $value";
-		}
-		
-		return sprintf('UPDATE %s SET %s',
-			$this->_info['table'],
-			implode(', ', $sets) .
-			$this->_buildWherePart() .
-			$this->_buildOrderByPart() .
-			$this->_buildLimitPart()
-		);
-	}
-	
-	/**
-	 * Builds a DELETE statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildDeleteStatement()
-	{
-		return 	'DELETE'
-				. $this->_buildFromPart()
-				. $this->_buildWherePart()
-				. $this->_buildOrderByPart()
-				. $this->_buildLimitPart();
-	}
-	
-	/**
-	 * Builds the FROM part
-	 * 
-	 * @return string
-	 */
-	protected function _buildFromPart()
-	{
-		$sql = '';
-		
-		if (count($this->_info['from'])) {
-			$tables = array();
-			foreach ($this->_info['from'] as $fromInfo) {
-				$fromSql = $fromInfo['table'];
-				if (!empty($fromInfo['alias'])) {
-					$fromSql .= ' AS ' . $fromInfo['alias'];
-				}
-				$tables[] = $fromSql;
-			}
-			$sql = ' FROM ' . implode(', ', $tables);
-		}
-		
-		return $sql;
-	}
-	
-	/**
-	 * Builds the JOIN part
-	 * 
-	 * @return string
-	 */
-	protected function _buildJoinPart()
-	{
-		$sql = '';
-		
-		if (count($this->_info['join'])) {
-			foreach ($this->_info['join'] as $joinInfo) {
-				$sql .= ' ' . trim(strtoupper($joinInfo['type'])) 
-					  . ' JOIN ' 
-					  . $joinInfo['table']
-					  . (!empty($joinInfo['alias']) ? ' AS ' . $joinInfo['alias'] : '')
-					  . ' ON '
-					  . $joinInfo['on'];
-			}
-		}
-		
-		return $sql;
-	}
-	
-	/**
-	 * Builds the WHERE part
-	 * 
-	 * @return string
-	 */
-	protected function _buildWherePart()
-	{
-		$sql = '';
-		
-		$where = $this->getConditionString();
-		if (!empty($where)) {
-			$sql = ' WHERE ' . $where;
-		}
-		
-		return $sql;
-	}
-	
-	/**
-	 * Builds the GROUP BY part
-	 * 
-	 * @return string
-	 */
-	protected function _buildGroupByPart()
-	{
-		$sql = '';
-		
-		if (count($this->_info['groupBy'])) {
-			$sql = ' GROUP BY ' . implode(', ', $this->_info['groupBy']);
-			if (count($this->_info['having'])) {
-				$sql .= ' HAVING ' . $this->_concatConditions($this->_info['having']);
-			}
-		}
-		
-		return $sql;
-	}
-	
-	/**
-	 * Builds the ORDER BY part
-	 * 
-	 * @return string
-	 */
-	protected function _buildOrderByPart()
-	{
-		$sql = '';
-		
-		if (is_string($this->_info['orderBy'])) {
-			return ' ORDER BY ' . $this->_info['orderBy'];
-		}
-		
-		if (count($this->_info['orderBy'])) {
-			$fields = array();
-			foreach ($this->_info['orderBy'] as $field => $direction) {
-				$fieldSql = $field;
-				if (!empty($direction)) {
-					$fieldSql .= ' ' . $direction;
-				}
-				$fields[] = $fieldSql;
-			}
-			$sql = ' ORDER BY ' . implode(', ', $fields);
-		}
-		
-		return $sql;
-	}
-	
-	/**
-	 * Builds the LIMIT part
-	 * 
-	 * @return string
-	 */
-	protected function _buildLimitPart()
-	{
-		$sql = '';
-		
-		if (!empty($this->_info['limit'])) {
-			$sql = ' LIMIT ' . $this->_info['limit']['offset'] . ', ' . $this->_info['limit']['length'];
-		}
-		
-		return $sql;
 	}
 	
 	/**

@@ -19,29 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Adapter_Local */
-require_once 'Atomik/Model/Adapter/Local.php';
+/** Atomik_Model_Behaviour_Abstract */
+require_once 'Atomik/Model/Behaviour/Abstract.php';
 
 /**
- * Stores models in the session
- * 
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_Session extends Atomik_Model_Adapter_Local
+class Atomik_Model_Behaviour_Translatable extends  Atomik_Model_Behaviour_Abstract
 {
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		@session_start();
-		
-		/* bind the _models property to the session array */
-		if (!isset($_SESSION['__MODELS'])) {
-			$_SESSION['__MODELS'] = array();
-		}
-		
-		parent::__construct($_SESSION['__MODELS']);
-	}
+	
 }

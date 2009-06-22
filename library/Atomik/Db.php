@@ -108,6 +108,8 @@ class Atomik_Db
 		if ($default) {
 			self::setInstance($instance);
 		}
+		
+		return $instance;
 	}
 	
 	/**
@@ -172,11 +174,11 @@ class Atomik_Db
 	}
 	
 	/**
-	 * @see Atomik_Db_Instance::getPdoDriverName()
+	 * @see Atomik_Db_Instance::getPdo()
 	 */
-	public static function getPdoDriverName()
+	public static function getPdo()
 	{
-		return self::getInstance()->getPdoDriverName();
+		return self::getInstance()->getPdo();
 	}
 	
 	/**
@@ -196,19 +198,35 @@ class Atomik_Db
 	}
 	
 	/**
-	 * @see Atomik_Db_Instance::setCacheEnable()
+	 * @see Atomik_Db_Instance::enableQueryCache()
 	 */
-	public static function setCacheEnable($enable = true)
+	public static function enableQueryCache($enable = true)
 	{
-		return self::getInstance()->setCacheEnable($enable);
+		return self::getInstance()->enableQueryCache($enable);
 	}
 	
 	/**
-	 * @see Atomik_Db_Instance::isCacheEnable()
+	 * @see Atomik_Db_Instance::isQueryCacheEnabled()
 	 */
-	public static function isCacheEnable()
+	public static function isQueryCacheEnabled()
 	{
-		return self::getInstance()->isCacheEnable();
+		return self::getInstance()->isQueryCacheEnabled();
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::enableResultCache()
+	 */
+	public static function enableResultCache($enable = true)
+	{
+		return self::getInstance()->enableResultCache($enable);
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::isResultCacheEnabled()
+	 */
+	public static function isResultCacheEnabled()
+	{
+		return self::getInstance()->isResultCacheEnabled();
 	}
 	
 	/**
@@ -225,6 +243,14 @@ class Atomik_Db
 	public static function getErrorInfo()
 	{
 		return self::getInstance()->getErrorInfo();
+	}
+	
+	/**
+	 * @see Atomik_Db_Instance::q()
+	 */
+	public function q()
+	{
+		return self::getInstance()->q();
 	}
 	
 	/**

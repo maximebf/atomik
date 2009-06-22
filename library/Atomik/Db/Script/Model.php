@@ -22,17 +22,11 @@
 /** Atomik_Db_Script_Interface */
 require_once 'Atomik/Db/Script/Interface.php';
 
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
-
 /** Atomik_Model_Builder_Factory */
 require_once 'Atomik/Model/Builder/Factory.php';
 
-/** Atomik_Model_Adapter_Db */
-require_once 'Atomik/Model/Adapter/Db.php';
-
-/** Atomik_Db_Script_Model_Exportable */
-require_once 'Atomik/Db/Script/Model/Exportable.php';
+/** Atomik_Model_Export_Sql */
+require_once 'Atomik/Model/Export/Sql.php';
 
 /**
  * @package Atomik
@@ -78,9 +72,6 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 			}
 			
 			$builder = Atomik_Model_Builder_Factory::get($className);
-			if (!($builder->getAdapter() instanceof Atomik_Db_Script_Model_Exportable)) {
-				continue;
-			}
 			$scripts[] = new Atomik_Db_Script_Model($builder);
 		}
 		
@@ -104,10 +95,6 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 */
 	public function setModelBuilder(Atomik_Model_Builder $builder)
 	{
-		if (!($builder->getAdapter() instanceof Atomik_Db_Script_Model_Exportable)) {
-			require_once 'Atomik/Db/Script/Exception.php';
-			throw new Atomik_Db_Script_Exception('The model builder must use the Db adapter');
-		}
 		$this->_builder = $builder;
 	}
 	
@@ -126,8 +113,8 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 */
 	public function getSql()
 	{
-		$callback = array(get_class($this->_builder->getAdapter()), 'getSqlDefinition');
-		return call_user_func($callback, $this->_builder);
+		$exporter = new Atomik_Model_Export_Sql();
+		return $exporter->export($this->_builder);
 	}
 	
 	/**

@@ -19,32 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Adapter_Interface */
-require_once 'Atomik/Model/Adapter/Interface.php';
+/** Atomik_Model_Behaviour_Abstract */
+require_once 'Atomik/Model/Behaviour/Abstract.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Adapter_Factory
+class Atomik_Model_Behaviour_Versionable extends  Atomik_Model_Behaviour_Abstract
 {
-	/**
-	 * Creates an instance of an adapter
-	 * 
-	 * @param 	string|objet 	$name	The last part of the adapter name if it starts with Atomik_Model_Adapter_ or a class name
-	 * @return 	Atomik_Model_Adapter_Interface
-	 */
-	public static function factory($name)
-	{
-		$className = 'Atomik_Model_Adapter_' . ucfirst($name);
-		if (!class_exists($className)) {
-			$className = $name;
-			if (!class_exists($className)) {
-				require_once 'Atomik/Model/Adapter/Exception.php';
-				throw new Atomik_Model_Adapter_Exception('No model adapter named ' . $name . ' were found');
-			}
-		}
-		
-		return new $className();
-	}
+	
 }

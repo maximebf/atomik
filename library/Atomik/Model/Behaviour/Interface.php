@@ -19,43 +19,25 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Db_Query */
-require_once 'Atomik/Db/Query.php';
-
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Query extends Atomik_Db_Query
+interface Atomik_Model_Behaviour_Interface
 {
-	/**
-	 * Creates a new query
-	 * 
-	 * @return Atomik_Model_Query
-	 */
-	public static function create()
-	{
-		return new self();
-	}
+	function setBuilder(Atomik_Model_Builder $builder);
 	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->reset();
-	}
+	function beforeQuery(Atomik_Db_Query $query);
+	function afterQuery(Atomik_Model_Modelset $modelSet);
 	
-	/**
-	 * Sets which model to query 
-	 * 
-	 * @param	string|Atomik_Model_Builder $model
-	 * @return 	Atomik_Model_Query
-	 */
-	public function from($model)
-	{
-		$builder = Atomik_Model_Builder_Factory::get($model);
-		$this->setInstance($builder->getManager()->getDbInstance());
-		return parent::from($builder->tableName);
-	}
+	function beforeCreateInstance(&$data, $isNew);
+	function afterCreateInstance(Atomik_Model $model);
+	
+	function beforeSave(Atomik_Model $model);
+	function failSave(Atomik_Model $model);
+	function afterSave(Atomik_Model $model);
+	
+	function beforeDelete(Atomik_Model $model);
+	function failDelete(Atomik_Model $model);
+	function afterDelete(Atomik_Model $model);
 }

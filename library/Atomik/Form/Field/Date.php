@@ -30,6 +30,8 @@ class Atomik_Form_Field_Date extends Atomik_Form_Field_Input
 {
 	public function render()
 	{
+		Atomik_Assets::addNamedAsset('jquery-ui');
+		
 		$html  = parent::render();
 		$html .= sprintf('<script type="text/javascript">$(function() { $("#%s").datepicker() });</script>', $this->getId());
 		return $html;

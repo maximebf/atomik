@@ -31,9 +31,8 @@ class Atomik_Model_Form_Field_Reference extends Atomik_Form_Field_List
 	protected function _initData()
 	{
 		$reference = $this->getOption('reference');
-		$builder = Atomik_Model_Builder_Factory::get($reference->target);
 		
-		$rows = Atomik_Model::findAll($builder);
+		$rows = Atomik_Model::findAll($reference->target);
 		$this->_data = array();
 		foreach ($rows as $row) {
 			$this->_data[$row->getPrimaryKey()] = (string) $row;

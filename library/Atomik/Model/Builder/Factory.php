@@ -54,12 +54,30 @@ class Atomik_Model_Builder_Factory
 		}
 		
 		if (class_exists($name)) {
+			require_once 'Atomik/Model/Builder/ClassMetadata.php';
 			self::$_cache[$name] = Atomik_Model_Builder_ClassMetadata::read($name);
 			return self::$_cache[$name];
 		}
 		
 		require_once 'Atomik/Model/Builder/Exception.php';
 		throw new Atomik_Model_Builder_Exception('No model builder named ' . $name . ' were found');
+	}
+	
+	/**
+	 * Returns the builder associated to the specified table name
+	 * 
+	 * @param 	string	$tableName
+	 * @return 	Atomik_Model_Builder
+	 */
+	public static function getFromTableName($tableName)
+	{
+		foreach (self::$_cache as $builder) {
+			if ($builder->tableName == $tableName) {
+				return $builder;
+			}
+		}
+		
+		return self::get($tableName);
 	}
 	
 	/**

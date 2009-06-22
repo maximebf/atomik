@@ -12,6 +12,7 @@
  * THE SOFTWARE.
  *
  * @package Atomik
+ * @subpackage Assets
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
@@ -20,6 +21,7 @@
 
 /**
  * @package Atomik
+ * @subpackage Assets
  */
 class Atomik_Assets
 {
@@ -85,14 +87,15 @@ class Atomik_Assets
 	 * @param	string			$name
 	 * @param	string|array	$url
 	 * @param 	string			$type
+	 * @param	array			$dependencies
 	 */
-	public static function registerNamedAsset($name, $url, $type = null)
+	public static function registerNamedAsset($name, $url, $type = null, $dependencies = array())
 	{
 		if (is_array($url)) {
 			$url['name'] = $name;
 			self::$_namedAssets[$name] = $url;
 		} else {
-			self::$_namedAssets[$name] = self::createAsset($url, $type, $name);
+			self::$_namedAssets[$name] = self::createAsset($url, $type, $dependencies, $name);
 		}
 	}
 	
@@ -122,15 +125,17 @@ class Atomik_Assets
 	 * 
 	 * @param	string	$url
 	 * @param 	string	$type
+	 * @param	array	$dependencies
 	 * @param 	string	$name
 	 * @return 	array
 	 */
-	public static function createAsset($url, $type = null, $name = null)
+	public static function createAsset($url, $type = null, $dependencies = array(), $name = null)
 	{
 		return array(
 			'name'	=> $name,
 			'url'	=> $url,
-			'type'	=> self::_getAssetType($url, $type)
+			'type'	=> self::_getAssetType($url, $type),
+			'dependencies' => $dependencies
 		);
 	}
 	
@@ -152,9 +157,13 @@ class Atomik_Assets
 		
 		$asset = self::$_namedAssets[$name];
 		if (!isset($asset['url'])) {
-			self::$_assets = array_merge(self::$_assets, $asset);
+			foreach ($asset as $a) {
+				if (is_array($a)) {
+					self::_addAssetWithDependencies($a, $a['dependencies']);
+				}
+			}
 		} else {
-			self::$_assets[] = $asset;
+			self::_addAssetWithDependencies($asset, $asset['dependencies']);
 		}
 		
 		return true;
@@ -166,16 +175,37 @@ class Atomik_Assets
 	 * @see Atomik::pluginAsset()
 	 * @param	string	$url
 	 * @param	string	$type
-	 * @param 	bool	$allowTwice	Whether the asset can be added twice
+	 * @param	array	$dependencies
+	 * @param 	bool	$allowTwice		Whether the asset can be added twice
 	 */
-	public static function addAsset($url, $type = null, $allowTwice = false)
+	public static function addAsset($url, $type = null, $dependencies = array(), $allowTwice = false)
 	{
 		if (!$allowTwice && self::hasAsset($url, $type)) {
 			return false;
 		}
 		
-		self::$_assets[] = self::createAsset($url, $type);
+		self::_addAssetWithDependencies(self::createAsset($url, $type), $dependencies);
 		return true;
+	}
+	
+	/**
+	 * Adds an asset and all its dependencies
+	 * 
+	 * @param	array	$asset
+	 * @param 	array	$dependencies
+	 */
+	private static function _addAssetWithDependencies($asset, $dependencies = array())
+	{
+		if (!empty($dependencies)) {
+			foreach ($dependencies as $dependency) {
+				if (!self::addNamedAsset($dependency)) {
+					require_once 'Atomik/Assets/Exception.php';
+					throw new Atomik_Assets_Exception('Asset dependency not found: ' . $dependency);
+				}
+			}
+		}
+		
+		self::$_assets[] = $asset;
 	}
 	
 	/**
@@ -262,12 +292,13 @@ class Atomik_Assets
 	/**
 	 * Adds a new asset of type text/css
 	 * 
-	 * @see Atomik_Backend_Layout::addAsset()
+	 * @see Atomik_Assets::addAsset()
 	 * @param 	string	$url
+	 * @param 	array	$dependencies
 	 */
-	public static function addStyle($url)
+	public static function addStyle($url, $dependencies = array())
 	{
-		self::addAsset($url, self::CSS);
+		self::addAsset($url, self::CSS, $dependencies);
 	}
 	
 	/**
@@ -297,12 +328,13 @@ class Atomik_Assets
 	/**
 	 * Adds a new asset of type text/javascript
 	 * 
-	 * @see Atomik_Backend_Layout::addAsset()
+	 * @see Atomik_Assets::addAsset()
 	 * @param 	string	$url
+	 * @param 	array	$dependencies
 	 */
-	public static function addScript($url)
+	public static function addScript($url, $dependencies = array())
 	{
-		self::addAsset($url, self::JS);
+		self::addAsset($url, self::JS, $dependencies);
 	}
 	
 	/**

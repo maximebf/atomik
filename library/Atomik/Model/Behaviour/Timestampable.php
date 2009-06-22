@@ -19,43 +19,18 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Db_Query */
-require_once 'Atomik/Db/Query.php';
+/** Atomik_Model_Behaviour_Abstract */
+require_once 'Atomik/Model/Behaviour/Abstract.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Query extends Atomik_Db_Query
+class Atomik_Model_Behaviour_Timestampable extends  Atomik_Model_Behaviour_Abstract
 {
-	/**
-	 * Creates a new query
-	 * 
-	 * @return Atomik_Model_Query
-	 */
-	public static function create()
+	public function init()
 	{
-		return new self();
-	}
-	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->reset();
-	}
-	
-	/**
-	 * Sets which model to query 
-	 * 
-	 * @param	string|Atomik_Model_Builder $model
-	 * @return 	Atomik_Model_Query
-	 */
-	public function from($model)
-	{
-		$builder = Atomik_Model_Builder_Factory::get($model);
-		$this->setInstance($builder->getManager()->getDbInstance());
-		return parent::from($builder->tableName);
+		$this->_builder->addField(new Atomik_Model_Builder_Field('created', 'datetime'));
+		$this->_builder->addField(new Atomik_Model_Builder_Field('updated', 'datetime'));
 	}
 }

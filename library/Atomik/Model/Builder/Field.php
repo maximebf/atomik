@@ -34,14 +34,20 @@ class Atomik_Model_Builder_Field extends Atomik_Options
 	public $name;
 	
 	/**
+	 * @var string
+	 */
+	public $type = 'string';
+	
+	/**
 	 * Constructor
 	 * 
 	 * @param	string	$name
 	 * @param 	array	$options
 	 */
-	public function __construct($name, $options = array())
+	public function __construct($name, $type = 'string', $options = array())
 	{
 		$this->name = $name;
+		$this->type = $type;
 		$this->setOptions($options);
 	}
 	

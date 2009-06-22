@@ -62,8 +62,20 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	public function __construct(Atomik_Model_Builder $builder, $data)
 	{
 		$this->_builder = $builder;
+		$this->setData($data);
+	}
+	
+	/**
+	 * Sets the raw data
+	 * 
+	 * @param array $data
+	 */
+	public function setData($data)
+	{
 		$this->_data = $data;
 		$this->_count = count($this->_data);
+		$this->_pointer = 0;
+		$this->_models = array();
 	}
 	
 	/**
@@ -135,6 +147,7 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	public function next()
 	{
 		$this->_pointer++;
+		return $this->valid();
 	}
 	
 	public function rewind()

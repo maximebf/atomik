@@ -12,54 +12,23 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Assets
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Adapter_Interface */
-require_once 'Atomik/Model/Adapter/Interface.php';
+if (!class_exists('Atomik_Exception', false)) {
+	/** Atomik_Exception */
+	require_once 'Atomik/Exception.php';
+}
 
 /**
- * XML Model Adapter
- * 
  * @package Atomik
- * @subpackage Model
+ * @subpackage Assets
  */
-class Atomik_Model_Adapter_Xml implements Atomik_Model_Adapter_Interface
+class Atomik_Assets_Exception extends Atomik_Exception
 {
-	/**
-	 * Query the adapter
-	 * 
-	 * @param	Atomik_Model_Query	$query
-	 * @return 	Atomik_Model_Modelset
-	 */
-	public function query(Atomik_Model_Query $query)
-	{
-		
-	}
 	
-	/**
-	 * Saves a model
-	 *
-	 * @param Atomik_Model $model
-	 * @return bool
-	 */
-	public function save(Atomik_Model $model)
-	{
-		
-	}
-	
-	/**
-	 * Deletes a model
-	 *
-	 * @param Atomik_Model $model
-	 * @return bool
-	 */
-	public function delete(Atomik_Model $model)
-	{
-		
-	}
 }

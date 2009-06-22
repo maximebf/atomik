@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Db_Query */
+require_once 'Atomik/Db/Query.php';
+
 /**
  * References are used to describe relations between models. There is two
  * types of references: one and many. The first one points to one model and the
@@ -56,15 +59,10 @@ class Atomik_Model_Builder_Reference
 	/**
 	 * @var string
 	 */
-	public $source;
-	
-	/**
-	 * @var string
-	 */
 	public $sourceField;
 	
 	/**
-	 * @var string
+	 * @var Atomik_Model_Builder
 	 */
 	public $target;
 	
@@ -74,7 +72,7 @@ class Atomik_Model_Builder_Reference
 	public $targetField;
 	
 	/**
-	 * @var Atomik_Model_Query
+	 * @var Atomik_Db_Query
 	 */
 	public $query;
 	
@@ -121,23 +119,6 @@ class Atomik_Model_Builder_Reference
 	}
 	
 	/**
-	 * Checks if the source is the specified model
-	 * 
-	 * @param	string|Atomik_Model_Builder|Atomik_Model 	$source
-	 * @return 	bool
-	 */
-	public function isSource($source)
-	{
-		if ($source instanceof Atomik_Model_Builder) {
-			$source = $source->name;
-		} else if ($source instanceof Atomik_Model) {
-			$source = get_class($source);
-		}
-		
-		return $source == $this->source;
-	}
-	
-	/**
 	 * Checks if the target is the specified model
 	 * 
 	 * @param	string|Atomik_Model_Builder|Atomik_Model 	$target
@@ -145,10 +126,11 @@ class Atomik_Model_Builder_Reference
 	 */
 	public function isTarget($target)
 	{
-		if ($target instanceof Atomik_Model_Builder) {
-			$target = $target->name;
-		} else if ($target instanceof Atomik_Model) {
-			$target = get_class($target);
+		if (is_string($target)) {
+			return $target == $this->target->name;
+		}
+		if (!($target instanceof Atomik_Model_Builder)) {
+			return get_class($target) == $this->target->className;
 		}
 		
 		return $target == $this->target;
@@ -158,12 +140,12 @@ class Atomik_Model_Builder_Reference
 	 * Returns the query object to query the target model
 	 * 
 	 * @param	Atomik_Model	$sourceModel
-	 * @return 	Atomik_Model_Query
+	 * @return 	Atomik_Db_Query
 	 */
 	public function getQuery(Atomik_Model $sourceModel)
 	{
-		$query = $this->query;
-		$query->from($this->target)->where($this->targetField, $sourceModel->{$this->sourceField});
+		$query = clone $this->query;
+		$query->from($this->target)->where(array($this->targetField => $sourceModel->{$this->sourceField}));
 		return $query;
 	}
 }

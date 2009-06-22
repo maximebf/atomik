@@ -81,6 +81,16 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	}
 	
 	/**
+	 * Returns the associated manager through the builder
+	 * 
+	 * @return Atomik_Model_Manager
+	 */
+	public function getManager()
+	{
+		return $this->getBuilder()->getManager();
+	}
+	
+	/**
 	 * Inits the builder
 	 */
 	protected function _initBuilder()
@@ -155,13 +165,13 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		$query = $reference->getQuery($this);
 		
 		if ($reference->isHasMany()) {
-			$modelSet = Atomik_Model_Locator::query($reference->target, $query);
+			$modelSet = $this->getManager()->query($query);
 			$this->_references[$name] = new Atomik_Model_ReferenceArray($this, $reference, $modelSet);
 			return $reference;
 		}
 		
 		$query->limit(1);
-		$modelSet = Atomik_Model_Locator::query($reference->target, $query);
+		$modelSet = $this->getManager()->query($query);
 		if (count($modelSet) == 0) {
 			$this->_references[$name] = null;
 		}
@@ -209,6 +219,30 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	}
 	
 	/**
+	 * Returns a linked object
+	 * 
+	 * @param	string	$name
+	 * @return	mixed
+	 */
+	public function getLink($name)
+	{
+		$link = $this->getBuilder()->getLink($name);
+		$className = $link->target;
+		$object = new $className();
+		$object->setBuilder($this->getBuilder());
+		
+		$values = array();
+		foreach ($link->fields as $alias => $field) {
+			$values[$alias] = $this->{$field};
+		}
+		
+		if ($link->type == Atomik_Model_Builder_Link::ONE) {
+			return $object->findOne($values);
+		}
+		return $object->findMany($values);
+	}
+	
+	/**
 	 * Sets a field or a reference
 	 * 
 	 * @param 	string	$name
@@ -219,6 +253,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		if ($this->getBuilder()->hasReference($name)) {
 			return $this->setReference($name, $value);
 		}
+		
 		$this->{$name} = $value;
 	}
 	
@@ -234,6 +269,10 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 			return $this->getReference($name);
 		}
 		
+		if ($this->getBuilder()->hasLink($name)) {
+			return $this->getLink($name);
+		}
+		
 		if (property_exists($this, $name)) {
 			return $this->{$name};
 		}
@@ -246,7 +285,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function save()
 	{
-		if (!$this->getBuilder()->getAdapter()->save($this)) {
+		if (!$this->getManager()->save($this)) {
 			return false;
 		}
 		
@@ -254,7 +293,9 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		if ($this->getBuilder()->getOption('cascade-save', false)) {
 			foreach ($this->getBuilder()->getReferences() as $reference) {
 				$this->initReference($reference->name);
-				$this->_references[$reference->name]->save();
+				if (!empty($this->_references[$reference->name])) {
+					$this->_references[$reference->name]->save();
+				}
 			}
 		}
 		
@@ -268,7 +309,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function delete()
 	{
-		if (!$this->getBuilder()->getAdapter()->delete($this)) {
+		if (!$this->getManager()->delete($this)) {
 			return false;
 		}
 		

@@ -48,7 +48,7 @@ class Atomik_Model_Builder_ClassMetadata
 	{
 		$builder = self::_getBaseBuilder($className);
 		
-		// removes the has key to set options before references
+		// extract references
 		$references = array();
 		if ($builder->hasOption('has')) {
 			$references = (array) $builder->getOption('has');
@@ -58,6 +58,33 @@ class Atomik_Model_Builder_ClassMetadata
 		// adds references
 		foreach ($references as $referenceString) {
 			self::addReferenceFromString($builder, $referenceString);
+		}
+		
+		// extract links
+		$links = array();
+		if ($builder->hasOption('link-to')) {
+			$links = (array) $builder->getOption('link-to');
+			$builder->removeOption('link-to');
+		}
+		
+		// adds links
+		foreach ($links as $linkString) {
+			self::addLinkFromString($builder, $linkString);
+		}
+		
+		// extract behaviours
+		$behaviours = array();
+		if ($builder->hasOption('act-as')) {
+			$behaviours = (array) $builder->getOption('act-as');
+			$builder->removeOption('act-as');
+		}
+		
+		// adds behaviours
+		foreach ($behaviours as $behaviourString) {
+			foreach (explode(',', $behaviourString) as $behaviour) {
+				$builder->getBehaviourBroker()->addBehaviour(
+					Atomik_Model_Behaviour_Factory::factory(trim($behaviour)));
+			}
 		}
 		
 		return $builder;
@@ -86,17 +113,22 @@ class Atomik_Model_Builder_ClassMetadata
 				continue;
 			}
 			
-			$field = new Atomik_Model_Builder_Field($prop->getName(), $propData);
+			$type = 'string';
+			if (isset($propData['var'])) {
+				$type = $propData['var'];
+				unset($propData['var']);
+			}
+			
+			$field = new Atomik_Model_Builder_Field($prop->getName(), $type, $propData);
 			$builder->addField($field);
 		}
 		
 		$options = self::getMetadataFromDocBlock($class->getDocComment());
 		
 		// sets the adapter
-		if (isset($options['adapter'])) {
-			$adapterName = $options['adapter'];
-			$builder->setAdapter(Atomik_Model_Adapter_Factory::factory($adapterName));
-			unset($options['adapter']);
+		if (isset($options['table'])) {
+			$builder->tableName = $options['table'];
+			unset($options['table']);
 		}
 		
 		// use the remaining metadatas as options
@@ -165,8 +197,8 @@ class Atomik_Model_Builder_ClassMetadata
 				. '((\susing\s(?P<using>.+))|)((\sorder by\s(?P<order>.+))|)((\slimit\s(?P<limit>.+))|)$/U';
 				
 		if (!preg_match($regexp, $string, $matches)) {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Reference string is malformed: ' . $string);
+			require_once 'Atomik/Model/Builder/Exception.php';
+			throw new Atomik_Model_Builder_Exception('Reference string is malformed: ' . $string);
 		}
 		
 		// type and target
@@ -180,8 +212,6 @@ class Atomik_Model_Builder_ClassMetadata
 		}
 		
 		$reference = new Atomik_Model_Builder_Reference($name, $type);
-		$reference->source = $builder->name;
-		$reference->target = $target;
 		
 		// via
 		if (isset($matches['via']) && !empty($matches['via'])) {
@@ -190,23 +220,24 @@ class Atomik_Model_Builder_ClassMetadata
 		
 		// fields
 		if (isset($matches['using']) && !empty($matches['using'])) {
-			list($sourceField, $targetField) = self::getReferenceFieldsFromString($matches['using'], $reference);
+			list($sourceField, $targetField) = self::getReferenceFieldsFromString($matches['using'], $builder->name);
 		} else {
-			list($sourceField, $targetField) = self::getReferenceFields($builder, $reference);
+			list($sourceField, $targetField) = self::getReferenceFields($builder, $target, $type);
 		}
 		$reference->sourceField = $sourceField;
 		$reference->targetField = $targetField;
 		
 		// order by
 		if (isset($matches['order']) && !empty($matches['order'])) {
-			$reference->orderBy = $matches['order'];
+			$reference->query->orderBy($matches['order']);
 		}
 		
 		// limit
 		if (isset($matches['limit']) && !empty($matches['limit'])) {
-			$reference->limit = $matches['limit'];
+			$reference->query->limit($matches['limit']);
 		}
 		
+		$reference->target = Atomik_Model_Builder_Factory::get($target);
 		$builder->addReference($reference);
 		return $reference;
 	}
@@ -214,26 +245,27 @@ class Atomik_Model_Builder_ClassMetadata
 	/**
 	 * Returns reference fields depending on the type of reference
 	 * 
-	 * @param	Atomik_Model_Builder			$builder
-	 * @param	Atomik_Model_Builder_Reference
-	 * @return 	array							array(sourceField, targetField)
+	 * @param	Atomik_Model_Builder	$builder
+	 * @param	string					$targetName
+	 * @param	string					$type
+	 * @return 	array					array(sourceField, targetField)
 	 */
-	public static function getReferenceFields(Atomik_Model_Builder $builder, Atomik_Model_Builder_Reference $reference)
+	public static function getReferenceFields(Atomik_Model_Builder $builder, $targetName, $type)
 	{
-		$targetBuilder = self::_getBaseBuilder($reference->target);
+		$targetBuilder = self::_getBaseBuilder($targetName);
 		
-		if ($reference->isHasParent()) {
+		if ($type == Atomik_Model_Builder_Reference::HAS_PARENT) {
 			// targetModel.targetPrimaryKey = sourceModel.targetModel_targetPrimaryKey
 			$targetField = $targetBuilder->getPrimaryKeyField()->name;
-			$sourceField = strtolower($reference->target) . '_' . $targetField;
+			$sourceField = strtolower($targetName) . '_' . $targetField;
 			
-		} else if ($reference->isHasOne()) {
+		} else if ($type == Atomik_Model_Builder_Reference::HAS_ONE) {
 			// targetModel.sourceModel_sourcePrimaryKey = sourceModel.sourcePrimaryKey
 			$sourceField = $builder->getPrimaryKeyField()->name;
 			$targetField = strtolower($builder->name) . '_' . $sourceField;
 			
 		} else {
-			$targetBuilder = Atomik_Model_Builder_Factory::get($reference->target);
+			$targetBuilder = Atomik_Model_Builder_Factory::get($targetName);
 			
 			// HAS_MANY
 			// searching through the target model references for one pointing back to this model
@@ -248,8 +280,8 @@ class Atomik_Model_Builder_ClassMetadata
 				}
 			}
 			if (!$found) {
-				require_once 'Atomik/Model/Exception.php';
-				throw new Atomik_Model_Exception('No back reference in ' . $reference->target . ' for ' . $builder->name);
+				require_once 'Atomik/Model/Builder/Exception.php';
+				throw new Atomik_Model_Builder_Exception('No back reference in ' . $targetName . ' for ' . $builder->name);
 			}
 		}
 		
@@ -261,18 +293,61 @@ class Atomik_Model_Builder_ClassMetadata
 	 * the pattern sourceMode.sourceField = targetModel.targetField (or vice versa)
 	 * 
 	 * @param 	string	$string
-	 * @return 	array			array(sourceField, targetField)
+	 * @param 	string	$sourceName
+	 * @return 	array	array(sourceField, targetField)
 	 */
-	public static function getReferenceFieldsFromString($string, Atomik_Model_Builder_Reference $reference)
+	public static function getReferenceFieldsFromString($string, $sourceName)
 	{
 		if (!preg_match('/(.+)\.(.+)\s(=)\s(.+)\.(.+)/', $string, $matches)) {
-			require_once 'Atomik/Model/Exception.php';
-			throw new Atomik_Model_Exception('Using statement for reference is malformed: ' . $string);
+			require_once 'Atomik/Model/Builder/Exception.php';
+			throw new Atomik_Model_Builder_Exception('Using statement for reference is malformed: ' . $string);
 		}
 		
-		if ($matches[1] == $reference->source) {
+		if ($matches[1] == $sourceName) {
 			return array($matches[2], $matches[5]);
 		}
 		return array($matches[5], $matches[2]);
+	}
+	
+	/**
+	 * Builds a link from the string and adds it to the builder
+	 * 
+	 * String template:
+	 * [one] Target [as property] on field [=> alias] [, field [=> alias]]
+	 * 
+	 * Example:
+	 * Tweets as tweets on twitter_username => username
+	 * 
+	 * @param 	Atomik_Model_Builder $builder
+	 * @param 	string				 $string
+	 */
+	public static function addLinkFromString(Atomik_Model_Builder $builder, $string)
+	{
+		$regexp = '/^((?P<type>one)\s+|)(?P<target>.+)((\sas\s(?P<as>.+))|)\s+on\s+(?P<on>.+)$/U';
+				
+		if (!preg_match($regexp, $string, $matches)) {
+			require_once 'Atomik/Model/Builder/Exception.php';
+			throw new Atomik_Model_Builder_Exception('Link string is malformed: ' . $string);
+		}
+		
+		$link = new Atomik_Model_Builder_Link();
+		$link->type = $matches['type'] == 'one' ? 'one' : 'many';
+		$link->target = trim($matches['target']);
+		$link->name = $link->target;
+		if (isset($matches['as']) && !empty($matches['as'])) {
+			$link->name = trim($matches['as']);
+		}
+		
+		$fields = explode(',', $matches['on']);
+		foreach ($fields as $field) {
+			if (!preg_match('/^(?P<name>.+)(\s+=\>\s(?P<alias>.+)|)$/U', trim($field), $fieldMatches)) {
+				require_once 'Atomik/Model/Builder/Exception.php';
+				throw new Atomik_Model_Builder_Exception('Field definition in link string is malformed: ' . $string);
+			}
+			$alias = isset($fieldMatches['alias']) ? $fieldMatches['alias'] : $fieldMatches['name'];
+			$link->fields[$alias] = $fieldMatches['name'];
+		}
+		
+		$builder->addLink($link);
 	}
 }
