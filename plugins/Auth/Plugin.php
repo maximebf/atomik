@@ -57,19 +57,18 @@ class AuthPlugin
     		Atomik::registerPluggableApplication('Auth', self::$config['route'], array('overwriteDirs' => false));
     	}
     	
-    	// model
-    	if (self::$config['model'] !== null) {
-    		Atomik::loadPlugin('Model');
-    		Atomik_Auth_User_Locator_Model::setModelName(self::$config['model']);
-    		Atomik_Auth::setUserLocator('Atomik_Auth_User_Locator_Model');
-    		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model']));
-    	}
-    	
-    	// the users array backend
-    	if (self::$config['model'] === null && self::$config['users'] !== null) {
+    	if (self::$config['users'] !== null) {
+    		// the users array backend
     		Atomik_Auth_User_Array::setUsers(self::$config['users']);
     		Atomik_Auth::setUserLocator('Atomik_Auth_User_Array');
     		Atomik_Auth::addBackend(Atomik_Auth_User_Array::getBackend());
+    		
+    	} else {
+    		// using a model
+    		Atomik::loadPlugin('Db');
+    		Atomik_Auth_User_Locator_Model::setModelName(self::$config['model']);
+    		Atomik_Auth::setUserLocator('Atomik_Auth_User_Locator_Model');
+    		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model']));
     	}
     	
     	// backends
@@ -141,16 +140,6 @@ class AuthPlugin
     		} else {
     			Atomik::trigger404();
     		}
-    	}
-    }
-    
-	/**
-	 * 
-	 */
-    public static function onBackendStart()
-    {
-    	if (Atomik::isPluginLoaded('Models')) {
-        	Atomik_Backend::addMenu('auth', 'Users', 'auth', array(), 'right');
     	}
     }
     

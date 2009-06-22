@@ -1,6 +1,18 @@
-<div class="panel">
-	<h2 class="panel-title"><?php echo __('Settings') ?></h2>
-	<div class="panel-content" id="content">
-		<?php echo $form->renderForm() ?>
+<div id="content-wrapper">
+	<div class="panel">
+		<h2 class="panel-title"><?php echo __('Settings') ?></h2>
+		<div class="panel-content" id="content">
+			<?php echo $form->renderForm() ?>
+		</div>
+	</div>
+</div>
+<div id="sidebar-wrapper">
+	<div id="sidebar">
+		<p>
+			<?php echo __('This page feature the most important settings from your application.') ?>
+		</p>
+		<p>
+			<?php echo __('Be careful when editing them as changed will be applied immediatly.') ?>
+		</p>
 	</div>
 </div>

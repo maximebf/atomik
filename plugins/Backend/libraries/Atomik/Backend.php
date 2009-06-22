@@ -51,7 +51,7 @@ class Atomik_Backend
 			'label' => $label,
 			'action' => trim($action, '/'),
 			'position' => $position,
-			'submenu' => array()
+			'submenu' => isset(self::$_menu[$name]) ? self::$_menu[$name]['submenu'] : array()
 		);
 		
 		foreach ($submenus as $submenuLabel => $submenuAction) {

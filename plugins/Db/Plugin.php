@@ -38,16 +38,25 @@ class DbPlugin
     public static $config = array (
     	
     	// connection string (see PDO)
-    	'dsn' 					=> false,
+    	'dsn' 			=> false,
     	
     	// username
-    	'username'				=> 'root',
+    	'username'		=> 'root',
     	
     	// password
-    	'password'				=> '',
+    	'password'		=> '',
     
     	// table prefix
-    	'table_prefix'			=> ''
+    	'table_prefix'	=> '',
+    
+    	// whether to enable query cache
+    	'query_cache'	=> false,
+    
+    	// whether to enable result cache
+    	'result_cache'	=> false,
+    
+    	// where to find models
+    	'model_dirs'	=> array('./app/models')
     	
     );
     
@@ -59,17 +68,27 @@ class DbPlugin
     public static function start($config)
     {
     	self::$config = array_merge(self::$config, $config);
-    	
-    	// table prefix
-    	Atomik_Db_Query::setDefaultTablePrefix(self::$config['table_prefix']);
 
 		// automatic connection
 		if (self::$config['dsn'] !== false) {
 			$dsn = self::$config['dsn'];
 			$username = self::$config['username'];
 			$password = self::$config['password'];
-			Atomik_Db::createInstance('default', $dsn, $username, $password);
+			
+			$instance = Atomik_Db::createInstance('default', $dsn, $username, $password);
+			$instance->setTablePrefix(self::$config['table_prefix']);
+			$instance->enableQueryCache(self::$config['query_cache']);
+			$instance->enableResultCache(self::$config['result_cache']);
 		}
+		
+		// adds models directories to php's include path
+		$includes = explode(PATH_SEPARATOR, get_include_path());
+		foreach (Atomik::path(self::$config['model_dirs'], true) as $dir) {
+			if (!in_array($dir, $includes)) {
+				array_unshift($includes, $dir);
+			}
+		}
+		set_include_path(implode(PATH_SEPARATOR, $includes));
 		
 		// registers the db selector namespace
 		Atomik::registerSelector('db', array('DbPlugin', 'selector'));
@@ -95,6 +114,34 @@ class DbPlugin
 	    
 	    return Atomik_Db::query($selector, $params);
 	}
+    
+    /**
+     * Adds models folders to php's include path
+     */
+    public static function onAtomikStart()
+    {
+		$includes = explode(PATH_SEPARATOR, get_include_path());
+		
+		// add plugin's models folder to php's include path 
+		foreach (Atomik::getLoadedPlugins(true) as $plugin => $dir) {
+			if (!in_array($dir . '/models', $includes)) {
+				array_unshift($includes, $dir . '/models');
+			}
+		}
+		
+		set_include_path(implode(PATH_SEPARATOR, $includes));
+    }
+    
+    /**
+     * 
+     */
+    public static function onBackendStart()
+    {
+    	Atomik_Backend::addMenu('model', 'Models', 'db/models', array(), 'right');
+    	
+    	// helpers should be accessible from all backend plugins
+    	Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/backend/helpers');
+    }
 	
 	/**
 	 * Executes sql scripts for models and the ones located in the sql folder.
@@ -158,6 +205,9 @@ class DbPlugin
 		foreach ($paths as $path) {
 			if (@is_dir($path . '/sql')) {
 				$script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
+			}
+			if (@is_dir($path . '/models')) {
+				$script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
 			}
 		}
 		

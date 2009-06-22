@@ -1,0 +1,35 @@
+<div id="content-wrapper">
+	<div class="panel">
+		<h2 class="panel-title"><?php echo __('Plugins') ?></h2>
+		<div class="panel-content" id="content">
+			<?php $this->dataTable('plugins', $plugins, array('columns' => array('name'), 'actions' => array(1), 'clickable_cols' => false, 'paginate' => false))->start() ?>
+				<?php foreach ($plugins as $plugin): ?>
+					<tr>
+						<td><?php echo $plugin['name'] ?></td>
+						<td>
+							<?php if ($plugin['is_loaded'] && $plugin['can_be_disabled']): ?>
+								<a href="<?php echo Atomik::pluginUrl('plugins/activate', array('name' => $plugin['id'], 'enable' => 'false')) ?>">
+									<?php echo __('Disable') ?>
+								</a>
+							<?php elseif ($plugin['can_be_disabled']): ?>
+								<a href="<?php echo Atomik::pluginUrl('plugins/activate', array('name' => $plugin['id'])) ?>">
+									<?php echo __('Enable') ?>
+								</a>
+							<?php endif; ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			<?php echo $this->dataTable()->end() ?>
+		</div>
+	</div>
+</div>
+<div id="sidebar-wrapper">
+	<div id="sidebar">
+		<p>
+			<?php echo __('Beside is the list of all available plugins in your installation.') ?>
+		</p>
+		<p>
+			<?php echo __('You can download new plugins from Atomik\'s website.') ?>
+		</p>
+	</div>
+</div>

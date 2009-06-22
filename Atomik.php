@@ -368,12 +368,26 @@ class Atomik
     			spl_autoload_register(array('Atomik', 'autoload'));
     		}
     	
-    		// loads plugins
-    		foreach (self::get('plugins') as $key => $value) {
+    		// cleans the plugins array
+    		$plugins = array();
+    		foreach (self::get('plugins', array()) as $key => $value) {
     		    if (!is_string($key)) {
     		        $key = $value;
+    		        $value = array();
     		    }
-    			self::loadPlugin(ucfirst($key));
+    		    $plugins[ucfirst($key)] = $value;
+    		}
+    		self::set('plugins', $plugins, false);
+    		
+    		// loads plugins
+    		// this method allows plugins that are being loaded to modify the plugins array
+    		$disabledPlugins = array();
+    		while (count($pluginsToLoad = array_diff(array_keys(self::get('plugins')), self::getLoadedPlugins(), $disabledPlugins)) > 0) {
+	    		foreach ($pluginsToLoad as $plugin) {
+	    			if (self::loadPlugin($plugin) === false) {
+	    				$disabledPlugins[] = $plugin;
+	    			}
+	    		}
     		}
     	
     		// core is starting
@@ -995,6 +1009,41 @@ class Atomik
 	}
 	
 	/**
+	 * Loads an helper file
+	 * 
+	 * @param string $helperName
+	 */
+	public static function loadHelper($helperName)
+	{
+		if (isset(self::$_loadedHelpers[$helperName])) {
+			return;
+		}
+		
+		if (($filename = self::path($helperName . '.php', self::get('atomik/dirs/helpers'))) === false) {
+			throw new Atomik_Exception('Helper ' . $helperName . ' not found');
+		}
+		
+		include $filename;
+	
+		if (!function_exists($helperName)) {
+			// searching for an helper defined as a class
+			$camelizedHelperName = str_replace(' ', '', ucwords(str_replace('_', ' ', $helperName)));
+			$className = $camelizedHelperName . 'Helper';
+			
+			if (!class_exists($className, false)) {
+				// neither a function nor a class has been found
+				throw new Exception('Helper ' . $helperName . ' file found but no function or class matching the helper name');
+			}
+			// helper defined as a class
+			self::$_loadedHelpers[$helperName] = array(new $className(), $camelizedHelperName);
+			
+		} else {
+			// helper defined as a function
+			self::$_loadedHelpers[$helperName] = $helperName;
+		}
+	}
+	
+	/**
 	 * PHP magic method to handle calls to helper in views
 	 * 
 	 * @param	string	$helperName
@@ -1003,33 +1052,7 @@ class Atomik
 	 */
 	public function __call($helperName, $args)
 	{
-		if (!isset(self::$_loadedHelpers[$helperName])) {
-			// helper needs to be loaded
-			
-			if (($filename = self::path($helperName . '.php', self::get('atomik/dirs/helpers'))) === false) {
-				throw new Atomik_Exception('Helper ' . $helperName . ' not found');
-			}
-			
-			include $filename;
-		
-			if (!function_exists($helperName)) {
-				// searching for an helper defined as a class
-				$camelizedHelperName = str_replace(' ', '', ucwords(str_replace('_', ' ', $helperName)));
-				$className = $camelizedHelperName . 'Helper';
-				
-				if (!class_exists($className, false)) {
-					// neither a function nor a class has been found
-					throw new Exception('Helper ' . $helperName . ' file found but no function or class matching the helper name');
-				}
-				// helper defined as a class
-				self::$_loadedHelpers[$helperName] = array(new $className(), $camelizedHelperName);
-				
-			} else {
-				// helper defined as a function
-				self::$_loadedHelpers[$helperName] = $helperName;
-			}
-		}
-		
+		self::loadHelper($helperName);
 		return call_user_func_array(self::$_loadedHelpers[$helperName], $args);
 	}
 	
@@ -1435,7 +1458,9 @@ class Atomik
 	public static function loadPlugin($name)
 	{
 		$name = ucfirst($name);
-		$config = self::get('plugins/' . $name, array());
+		if (($config = self::get('plugins/' . $name, array())) === false) {
+			return false;
+		}
 		
 		return self::loadCustomPlugin($name, $config);
 	}
@@ -1648,7 +1673,8 @@ class Atomik
 		// configuration
 		$defaultConfig = array(
 			'rootDir'				=> '', 
-			'pluginDir'				=> null, 
+			'pluginDir'				=> null,
+			'resetConfig'			=> true, 
 			'overwriteDirs'			=> true, 
 			'checkPluginIsLoaded'	=> true
 		);
@@ -1691,9 +1717,11 @@ class Atomik
 		}
 		
 		// resets the configuration but keep the layout
-		$layout = self::get('app/layout');
-		self::reset();
-		self::set('app/layout', $layout);
+		if ($config['resetConfig']) {
+			$layout = self::get('app/layout');
+			self::reset();
+			self::set('app/layout', $layout);
+		}
 	    self::set('app/running_plugin', $plugin); 
 		
 		// rewrite dirs
@@ -1990,8 +2018,15 @@ class Atomik
 	 */
 	public static function url($action = null, $params = array(), $useIndex = true, $useBaseAction = false)
 	{
+		$trigger = self::get('atomik/trigger', 'action');
+		
 		if ($action === null) {
 			$action = self::get('request_uri');
+			$GET = $_GET;
+			if (isset($GET[$trigger])) {
+				unset($GET[$trigger]);
+			}
+			$params = array_merge($GET, $params);
 		}
 		
 		// removes the query string from the action
@@ -2028,7 +2063,7 @@ class Atomik
 			} else {
 				// no url rewriting, using index.php
 				$url .= self::get('atomik/files/index', 'index.php');
-				$url .= '?' . self::get('atomik/trigger') . '=' . $action;
+				$url .= '?' . $trigger . '=' . $action;
 			}
 		} else {
 			$useIndex = false;

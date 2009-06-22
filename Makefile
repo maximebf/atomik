@@ -18,7 +18,7 @@ library:
 	cd $(RELEASE_DIR) && zip -r atomik-lib.zip atomik-lib
 	rm -r $(RELEASE_DIR)/atomik-lib
 	
-plugins: plugin-controller plugin-db plugin-model plugin-form plugin-ajax plugin-cache plugin-console plugin-lang plugin-auth plugin-backend plugin-config
+plugins: plugin-controller plugin-db plugin-form plugin-ajax plugin-cache plugin-console plugin-lang plugin-auth plugin-backend plugin-config
 
 plugin-controller:
 	mkdir -p $(RELEASE_DIR)/plugins
@@ -31,17 +31,11 @@ plugin-db:
 	svn export plugins/Db $(RELEASE_DIR)/plugins/Db
 	svn export library/Atomik/Db $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Db
 	svn export library/Atomik/Db.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Db.php
+	svn export library/Atomik/Model $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Model
+	svn export library/Atomik/Model.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Model.php
+	svn export library/Atomik/Options.php $(RELEASE_DIR)/plugins/Db/libraries/Atomik/Options.php
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-db.zip Db
 	rm -r $(RELEASE_DIR)/plugins/Db
-
-plugin-model:
-	mkdir -p $(RELEASE_DIR)/plugins
-	svn export plugins/Model $(RELEASE_DIR)/plugins/Model
-	svn export library/Atomik/Model $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Model
-	svn export library/Atomik/Model.php $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Model.php
-	svn export library/Atomik/Options.php $(RELEASE_DIR)/plugins/Model/libraries/Atomik/Options.php
-	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-model.zip Model
-	rm -r $(RELEASE_DIR)/plugins/Model
 
 plugin-form:
 	mkdir -p $(RELEASE_DIR)/plugins
@@ -50,6 +44,7 @@ plugin-form:
 	svn export library/Atomik/Form.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Form.php
 	svn export library/Atomik/Options.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Options.php
 	svn export library/Atomik/Assets.php $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Assets.php
+	svn export library/Atomik/Assets $(RELEASE_DIR)/plugins/Form/libraries/Atomik/Assets
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-form.zip Form
 	rm -r $(RELEASE_DIR)/plugins/Form
 
@@ -89,6 +84,7 @@ plugin-backend:
 	mkdir -p $(RELEASE_DIR)/plugins
 	svn export plugins/Backend $(RELEASE_DIR)/plugins/Backend
 	svn export library/Atomik/Assets.php $(RELEASE_DIR)/plugins/Backend/libraries/Atomik/Assets.php
+	svn export library/Atomik/Assets $(RELEASE_DIR)/plugins/Backend/libraries/Atomik/Assets
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-backend.zip Backend
 	rm -r $(RELEASE_DIR)/plugins/Backend
 	

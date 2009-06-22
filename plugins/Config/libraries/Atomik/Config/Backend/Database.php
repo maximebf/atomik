@@ -29,17 +29,35 @@ require_once 'Atomik/Config/Backend/Interface.php';
 class Atomik_Config_Backend_Database implements Atomik_Config_Backend_Interface
 {
 	/**
+	 * @var string
+	 */
+	public static $tableName = 'config';
+	
+	/**
 	 * @var Atomik_Db_Instance
 	 */
 	protected $_dbInstance;
+	
+	/**
+	 * Returns the sql code needed to create the database table to store the config
+	 * 
+	 * @return string
+	 */
+	public static function getTableSql()
+	{
+		return "DROP TABLE IF EXISTS " . self::$tableName . ";\n"
+			 . "CREATE TABLE " . self::$tableName . " (\n\t"
+			 . "id INT PRIMARY KEY AUTO_INCREMENT,\n\tparent_id INT,\n\tname VARCHAR(100),\n\tvalue TEXT\n);\n";
+	}
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param string|Atomik_Db_Instance $dbInstance
 	 */
-	public function __construct($dbInstance = null)
+	public function __construct($tableName = 'config', $dbInstance = null)
 	{
+		self::$tableName = $tableName;
 		$this->setDbInstance($dbInstance);
 	}
 	
@@ -90,10 +108,13 @@ class Atomik_Config_Backend_Database implements Atomik_Config_Backend_Interface
 	protected function _get($parentId = 0)
 	{
 		$array = array();
-		$rows = $this->getDbInstance()->findAll('config', array('parent_id' => $parentId));
+		
+		if (($rows = $this->getDbInstance()->findAll(self::$tableName, array('parent_id' => $parentId))) === false) {
+			return $array;
+		}
 		
 		foreach ($rows as $row) {
-			if ($this->getDbInstance()->has('config', array('parent_id' => $row['id']))) {
+			if ($this->getDbInstance()->has(self::$tableName, array('parent_id' => $row['id']))) {
 				$array[$row['name']] = $this->_get($row['id']);
 			} else {
 				$array[$row['name']] = unserialize($row['value']);
@@ -128,13 +149,13 @@ class Atomik_Config_Backend_Database implements Atomik_Config_Backend_Interface
 			$key = array_shift($segments);
 			
 			$this->set($key, array(), $parentId);
-			$parentId = $this->getDbInstance()->findValue('config', 'id', array('name' => $key, 'parent_id' => $parentId));
+			$parentId = $this->getDbInstance()->findValue(self::$tableName, 'id', array('name' => $key, 'parent_id' => $parentId));
 			
-			return $this->set(implode('/', $segments), $value, $parentId);
+			return $this->_setRecursive(implode('/', $segments), $value, $parentId);
 		}
 		
 		$value = serialize($value);
-		return $this->getDbInstance()->set('config', 
+		return $this->getDbInstance()->set(self::$tableName, 
 			array('name' => $key, 'value' => $value, 'parent_id' => $parentId), 
 			array('name', 'parent_id'));
 	}
@@ -166,7 +187,7 @@ class Atomik_Config_Backend_Database implements Atomik_Config_Backend_Interface
 			return $this->_findKeyId(implode('/', $segments), $this->_findKeyId($key, $parentId));
 		}
 		
-		return $this->getDbInstance()->findValue('config', 'id', array('name' => $key, 'parent_id' => $parentId));
+		return $this->getDbInstance()->findValue(self::$tableName, 'id', array('name' => $key, 'parent_id' => $parentId));
 	}
 	
 	/**
@@ -176,13 +197,13 @@ class Atomik_Config_Backend_Database implements Atomik_Config_Backend_Interface
 	 */
 	protected function _deleteRecursive($keyId)
 	{
-		if ($this->getDbInstance()->has('config', array('parent_id' => $keyId))) {
-			$children = $this->getDbInstance()->findAll('config', array('parent_id' => $keyId), null, null, array('id'));
+		if ($this->getDbInstance()->has(self::$tableName, array('parent_id' => $keyId))) {
+			$children = $this->getDbInstance()->findAll(self::$tableName, array('parent_id' => $keyId), null, null, array('id'));
 			foreach ($children as $child) {
 				$this->_deleteRecursive($child['id']);
 			}
 		}
 		
-		return $this->getDbInstance()->delete('config', array('id' => $keyId));
+		return $this->getDbInstance()->delete(self::$tableName, array('id' => $keyId));
 	}
 }

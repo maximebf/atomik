@@ -52,7 +52,7 @@
 					<?php foreach (Atomik::get('flash:all') as $label => $messages): ?>
 						<?php foreach ($messages as $message): ?>
 							<div class="message <?php echo $label ?>">
-								<?php echo __($message) ?>
+								<?php echo $message ?>
 							</div>
 						<?php endforeach; ?>
 					<?php endforeach; ?>

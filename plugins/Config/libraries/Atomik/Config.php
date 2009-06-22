@@ -120,7 +120,17 @@ class Atomik_Config
 	 */
 	public static function delete($key)
 	{
-		self::_getBackend()->delete($key);
+		self::deleteFromBackendOnly($key);
 		return Atomik::delete($key);
+	}
+	
+	/**
+	 * Only deletes the key from the backend
+	 * 
+	 * @param 	string 	$key
+	 */
+	public static function deleteFromBackendOnly($key)
+	{
+		self::_getBackend()->delete($key);
 	}
 }

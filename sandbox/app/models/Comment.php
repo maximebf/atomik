@@ -7,8 +7,8 @@
 class Comment extends Atomik_Model
 {
 	/**
-	 * @sql-type text
 	 * @form-field Textarea
+	 * @var string
 	 */
 	public $message;
 	
@@ -17,6 +17,7 @@ class Comment extends Atomik_Model
 	 * @admin-form-ignore false
 	 * @admin-form-label Parent post
 	 * @admin-show-in-list
+	 * @var int
 	 */
 	public $post_id;
 }

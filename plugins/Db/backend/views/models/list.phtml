@@ -1,0 +1,19 @@
+<div id="content-wrapper">
+	<div class="panel">
+		<h2 class="panel-title"><?php echo $modelName ?></h2>
+		<div class="panel-content" id="content">
+			<?php echo $this->modelDataTable($modelName, $models, array(
+						'url' => Atomik::pluginUrl('models/edit', array('name' => $modelName)),
+						'columns' => $columns,
+						'actions' => array(
+							array('label' => __('Delete'), 'url' => Atomik::pluginUrl('delete', array('name' => $modelName)))
+						)
+			))->render() ?>
+		</div>
+	</div>
+</div>
+<div id="sidebar-wrapper">
+	<div id="sidebar">
+		<?php echo $this->sidebarButton(__('Create a new %s', $modelName), Atomik::pluginUrl('models/edit', array('name' => $modelName))) ?>
+	</div>
+</div>

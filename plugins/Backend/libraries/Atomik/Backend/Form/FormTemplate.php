@@ -1,4 +1,7 @@
-<?php $this->setAttribute('class', trim($this->getAttribute('class', '') . ' form form-content')) ?>
+<?php 
+	Atomik_Backend_Assets::addStyle('css/form.css');
+	$this->setAttribute('class', trim($this->getAttribute('class', '') . ' form form-content')) 
+?>
 <form <?php echo $this->getAttributesAsString() ?>>
 	  
 	<dl>

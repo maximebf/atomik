@@ -26,26 +26,20 @@ Atomik::set(array(
             'password'    => 'atomik'
         ),
         
-        'Config' => array(
-        	'backend' => 'Xml',
-        	'backend_args' => array('app/config.xml')
-        ),
-        
-        'Model',
-        
+        'Config',
         'Ajax',
         'Lang',
-        'Auth' => array(),
+        'Auth',
         'Backend'
 	)
     
 ));
 
 Atomik::set('plugins/Auth', array(
-	'model' => 'User',
-	/*'users' => array(
+	//'model' => 'User',
+	'users' => array(
 		'admin' => array('password' => 'admin', 'roles' => array('backend', 'member'))
-	),*/
+	),
 	'resources' => array(
 		'/private/*' => 'member'
 	)

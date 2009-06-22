@@ -19,10 +19,10 @@
  * @link http://www.atomikframework.com
  */
 
+Atomik::loadPluginIfAvailable('Console');
 Atomik::loadPlugin('Db');
 Atomik::loadPluginIfAvailable('Config');
 Atomik::loadPlugin('Auth');
-Atomik::loadPlugin('Model');
 
 /**
  * Backend plugin

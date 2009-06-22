@@ -7,6 +7,7 @@
 	if (empty($uri)) {
 		$uri = 'backend/index';
 	}
+	Atomik::fireEvent('Backend::Uri', array(&$uri));
 	Atomik::set('backend/full_request_uri', $uri);
 	
 	// extracting the plugin name from the uri
@@ -23,39 +24,16 @@
 	Atomik::set('backend/plugin', $plugin);
 	Atomik::set('backend/base_action', $baseAction);
 	Atomik::set('atomik/base_action', $baseAction . '/' . $plugin);
-	Atomik::set('app/running_plugin', $plugin);
 	
 	Atomik_Backend::addMenu('dashboard', 'Dashboard', 'backend');
-	
-	// needed libs
-	Atomik_Backend_Assets::addScript('externals/jquery-1.3.2.min.js');
-	Atomik_Backend_Assets::addStyle('externals/jquery-ui/jquery-ui-1.7.1.custom.css');
-	Atomik_Backend_Assets::addScript('externals/jquery-ui/jquery-ui-1.7.1.custom.min.js');
-	Atomik_Backend_Assets::addScript('externals/Namespace.min.js');
-	
-	Atomik_Backend_Assets::addStyle('css/main.css');
-	Atomik_Backend_Assets::addStyle('css/form.css');
-	
-	// jwysiwyg
-	Atomik_Assets::registerNamedAsset('jwysiwyg', array(
-		Atomik_Backend_Assets::createAsset('externals/jwysiwyg/jquery.wysiwyg.css'),
-		Atomik_Backend_Assets::createAsset('externals/jwysiwyg/jquery.wysiwyg.js')
-	));
-	
-	// markitup
-	Atomik_Assets::registerNamedAsset('markitup', array(
-		Atomik_Backend_Assets::createAsset('externals/markitup/jquery.markitup.pack.js'),
-		Atomik_Backend_Assets::createAsset('externals/markitup/sets/default/set.js'),
-		Atomik_Backend_Assets::createAsset('externals/markitup/skins/markitup/style.css'),
-		Atomik_Backend_Assets::createAsset('externals/markitup/sets/default/style.css')
-	));
-	
-	Atomik::fireEvent('Backend::Start');
+	include dirname(__FILE__) . '/Assets.php';
+	Atomik::fireEvent('Backend::Start', array($plugin));
 	
 	// configuration for the re-dispatch
 	$pluggAppConfig = array(
 		'pluginDir' 			=> null,
 		'rootDir'				=> 'backend',
+		'resetConfig'			=> false,
 		'overwriteDirs'			=> false,
 		'checkPluginIsLoaded' 	=> true
 	);

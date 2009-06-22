@@ -26,39 +26,55 @@
 class Atomik_Backend_Assets
 {
 	/**
+	 * Registers a named asset
+	 * 
+	 * @param	string			$name
+	 * @param	string|array	$url
+	 * @param 	string			$type
+	 * @param	array			$dependencies
+	 */
+	public static function registerNamedAsset($name, $url, $plugin = null, $type = null, $dependencies = array())
+	{
+		if (is_array($url)) {
+			return Atomik_Assets::registerNamedAsset($name, $url);
+		}
+		return Atomik_Assets::registerNamedAsset($name, self::assetUrl($url, $plugin), $type, $dependencies);
+	}
+	
+	/**
 	 * Creates an asset for the backend
 	 * 
 	 * @param	string	$url
 	 * @param	string	$plugin
 	 * @param 	string	$type
 	 */
-	public static function createAsset($url, $plugin = 'backend', $type = null, $name = null)
+	public static function createAsset($url, $plugin = null, $type = null, $dependencies = array(), $name = null)
 	{
-		return Atomik_Assets::createAsset(self::assetUrl($url, $plugin), $type, $name);
+		return Atomik_Assets::createAsset(self::assetUrl($url, $plugin), $type, $dependencies, $name);
 	}
 	
 	/**
 	 * Adds a new asset of type text/css
 	 * 
-	 * @see Atomik_Backend_Layout::addAsset()
+	 * @see Atomik_Assets::addStyle()
 	 * @param 	string	$url
 	 * @param 	string	$plugin
 	 */
-	public static function addStyle($url, $plugin = 'backend')
+	public static function addStyle($url, $plugin = null, $dependencies = array())
 	{
-		Atomik_Assets::addAsset(self::assetUrl($url, $plugin), Atomik_Assets::CSS);
+		return Atomik_Assets::addAsset(self::assetUrl($url, $plugin), Atomik_Assets::CSS, $dependencies);
 	}
 	
 	/**
 	 * Adds a new asset of type text/javascript
 	 * 
-	 * @see Atomik_Backend_Layout::addAsset()
+	 * @see Atomik_Assets::addScript()
 	 * @param 	string	$url
 	 * @param 	string	$plugin
 	 */
-	public static function addScript($url, $plugin = 'backend')
+	public static function addScript($url, $plugin = null, $dependencies = array())
 	{
-		Atomik_Assets::addAsset(self::assetUrl($url, $plugin), Atomik_Assets::JS);
+		return Atomik_Assets::addAsset(self::assetUrl($url, $plugin), Atomik_Assets::JS, $dependencies);
 	}
 	
 	/**
@@ -68,11 +84,11 @@ class Atomik_Backend_Assets
 	 * @param	string	$plugin
 	 * @return	string
 	 */
-	public static function assetUrl($url, $plugin = 'backend')
+	public static function assetUrl($url, $plugin = null)
 	{
 		if ($plugin == 'app') {
 			return Atomik::asset($url);
 		}
-		return Atomik::pluginAsset($url, $plugin);
+		return Atomik::pluginAsset($url, empty($plugin) ? 'backend' : $plugin);
 	}
 }

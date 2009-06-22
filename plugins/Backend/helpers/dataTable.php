@@ -2,42 +2,292 @@
 
 class DataTableHelper
 {
-	public function dataTable($id, $data, $options = array())
+	/**
+	 * @var array
+	 */
+	public static $defaultOptions = array(
+		'currentPage'	=> 1,
+		'rowsPerPage'	=> 2,
+		'numberOfPages'	=> 1,
+		'paginate'		=> true,
+		'paginateData'	=> true,
+		'sortable'		=> true,
+		'serverSort'	=> false,
+		'sortColumn'	=> false,
+		'sortOrder'		=> 'asc',
+		'sortData'		=> true
+	);
+	
+	/**
+	 * @var string
+	 */
+	public $id;
+	
+	/**
+	 * @var array
+	 */
+	public $options;
+	
+	/**
+	 * @var array
+	 */
+	public $columns = array();
+	
+	/**
+	 * @var int
+	 */
+	public $startingRow = 0;
+	
+	/**
+	 * @var int
+	 */
+	public $maxRow = 20;
+	
+	/**
+	 * @var array
+	 */
+	protected $_data = array();
+	
+	/**
+	 * Constructor
+	 */
+	public function __construct()
 	{
-		$clickableColumns = Atomik::get('clickable_cols', null, $options);
-		$idColumn = Atomik::get('id_column', 'id', $options);
-		$actions = Atomik::get('actions', array(), $options);
+		$this->options = self::$defaultOptions;
+		Atomik_Assets::addNamedAsset('dataTable');
+	}
+	
+	/**
+	 * Method used for the view helper
+	 * 
+	 * @param 	string	$id
+	 * @param 	array	$data
+	 * @param 	array	$options
+	 * @return 	DataTableHelper
+	 */
+	public function dataTable($id = null, $data = array(), $options = array())
+	{
+		if ($id === null) {
+			return $this;
+		}
 		
-		$columns = array();
-		if (!isset($options['columns'])) {
+		$this->id = $id;
+		$this->options = array_merge(self::$defaultOptions, $options);
+		
+		// options
+		$this->options['remote'] = Atomik::pluginUrl(null, array('dataTableRemote' => $id));
+		$this->options['url'] = Atomik::get('url', Atomik::pluginUrl('edit'), $options);
+		
+		$this->_setupSorting();
+		$this->setData($data);
+		
+		return $this;
+	}
+	
+	/**
+	 * Sets the data
+	 * 
+	 * @param 	array	$data
+	 */
+	public function setData($data)
+	{
+		$this->_data = $data;
+		$this->_setupColumns();
+		$this->_setupPagination();
+		
+		if ($this->options['sortData'] && $this->options['sortColumn'] !== false) {
+			usort($this->_data, array($this, '_sortData'));
+		}
+	}
+	
+	/**
+	 * Returns the data
+	 * 
+	 * @return array
+	 */
+	public function getData()
+	{
+		return $this->_data;
+	}
+	
+	/**
+	 * Sorts the data
+	 */
+	protected function _sortData($a, $b)
+	{
+		$column = $this->options['sortColumn'];
+		$cmp = strnatcmp($a[$column], $b[$column]);
+		
+		if ($this->options['sortOrder'] == 'desc') {
+			return -$cmp;
+		}
+		return $cmp;
+	}
+	
+	/**
+	 * Setups the table columns
+	 */
+	protected function _setupColumns()
+	{
+		$this->columns = array();
+		
+		if (!isset($this->options['columns'])) {
 			// find columns through all rows
-			foreach ($data as $row) {
+			foreach ($this->_data as $row) {
 				foreach ($row as $key => $value) {
-					if (!isset($columns[$key])) {
-						$columns[$key] = $key;
+					if (!isset($this->columns[$key])) {
+						$this->columns[$key] = $key;
 					}
 				}
 			}
 			
 		} else {
 			// clean the columns array
-			foreach ($options['columns'] as $key => $value) {
+			foreach ((array) $this->options['columns'] as $key => $value) {
 				if (is_int($key)) {
 					$key = $value;
 				}
-				$columns[$key] = $value;
+				$this->columns[$key] = $value;
 			}
 		}
+	}
+	
+	/**
+	 * Setups the pagination
+	 */
+	protected function _setupPagination()
+	{
+		$dataCount = count($this->_data);
 		
-		// builds <thead>
-		$thead = "<thead>\n\t<tr>\n";
-		foreach ($columns as $label) {
-			$thead .= "\t\t<th>" . ucfirst($label) . "</th>\n";
+											
+		$this->options['currentPage'] = Atomik::get('request/dataTablePage', Atomik::get('currentPage', 1, $this->options));
+		$this->options['numberOfRows'] = Atomik::get('numberOfRows', $dataCount, $this->options);
+		
+		$this->options['rowsPerPage'] = Atomik::get('request/dataTableLength', 
+											Atomik::get('rowsPerPage', self::$defaultOptions['rowsPerPage'], $this->options));
+		if ($this->options['rowsPerPage'] == -1) {
+			$this->options['rowsPerPage'] = $this->options['numberOfRows'];
 		}
-		if (count($actions)) {
+		
+		if ($this->options['numberOfRows'] > 0) {
+			$this->options['numberOfPages'] = ceil($this->options['numberOfRows'] / $this->options['rowsPerPage']);
+		} else {
+			$this->options['numberOfPages'] = 1;
+		}
+		
+		if (!$this->options['paginateData']) {
+			$this->startingRow = 0;
+			$this->maxRow = $dataCount;
+		} else {
+			$this->startingRow = ($this->options['currentPage'] - 1) * $this->options['rowsPerPage'];
+			$this->maxRow = min($this->startingRow + $this->options['rowsPerPage'], $dataCount);
+		}
+	}
+	
+	/**
+	 * Setups sorting
+	 */
+	protected function _setupSorting()
+	{
+		if (!$this->options['sortable']) {
+			return;
+		}
+		
+		$this->options['sortColumn'] = Atomik::get('request/dataTableSortColumn', 
+											Atomik::get('sortColumn', false, $this->options));
+		$this->options['sortOrder'] = Atomik::get('request/dataTableSortOrder', 
+											Atomik::get('sortOrder', 'asc', $this->options));
+	}
+	
+	/**
+	 * Starts output bufferization to allow generation of a custom tbody.
+	 * Do not echo the tbody tag.
+	 * 
+	 * @return DataTableHelper
+	 */
+	public function start()
+	{
+		ob_start();
+		return $this;
+	}
+	
+	/**
+	 * Stops the output bufferization and renders the full table
+	 * 
+	 * @return string
+	 */
+	public function end()
+	{
+		return $this->renderWrapper('<tbody>' . ob_get_clean() . '</tbody>');
+	}
+	
+	/**
+	 * Renders the table without a custom tbodu
+	 * 
+	 * @return string
+	 */
+	public function render()
+	{
+		return $this->renderWrapper($this->renderBody());
+	}
+	
+	/**
+	 * Renders the wrapper div
+	 * 
+	 * @param 	string	$tbody
+	 * @return 	string
+	 */
+	public function renderWrapper($tbody)
+	{
+		// remote call to only get the data
+		if (isset($_GET['dataTableRemote']) && $_GET['dataTableRemote'] == $this->id) {
+			ob_clean();
+			echo $tbody;
+			Atomik::end(true);
+		}
+		
+		$table = sprintf("<table id=\"%s\" class=\"dataTable\">\n%s\n%s\n</table>\n%s", 
+			$this->id, $this->renderHead(), $tbody, $this->renderScript());
+			
+		return sprintf("<div id=\"%sWrapper\" class=\"dataTableWrapper\">\n%s\n<div class=\"clear\"></div>\n</div>",
+			$this->id, $this->renderSearch() . $table . $this->renderPager());
+	}
+	
+	/**
+	 * Renders the thead part of the table
+	 * 
+	 * @return string
+	 */
+	public function renderHead()
+	{
+		$sortClass = $this->options['sortOrder'] == 'asc' ? 'sortAsc' : 'sortDesc';
+		
+		$thead = "<thead>\n\t<tr>\n";
+		foreach ($this->columns as $key => $label) {
+			$thead .= sprintf("\t\t<th id=\"%s\" class=\"%s\">%s</th>\n",
+				$key,
+				$this->options['sortColumn'] == $key ? $sortClass : '',
+				ucfirst($label)
+			);
+		}
+		if (count(Atomik::get('actions', array(), $this->options))) {
 			$thead .= "\t\t<th class=\"actions\"></th>\n";
 		}
 		$thead .= "\t</tr>\n</thead>";
+		
+		return $thead;
+	}
+	
+	/**
+	 * Renders the tbody part of the table
+	 * 
+	 * @return string
+	 */
+	public function renderBody()
+	{
+		$clickableColumns = Atomik::get('clickableCols', null, $this->options);
+		$idColumn = Atomik::get('idColumn', 'id', $this->options);
+		$actions = Atomik::get('actions', array(), $this->options);
 		
 		$actionsHtml = '';
 		if (count($actions)) {
@@ -48,17 +298,18 @@ class DataTableHelper
 			$actionsHtml .= '</td>';
 		}
 		
-		// builds <tbody>
 		$tbody = '<tbody>';
-		foreach ($data as $row) {
+		for($currentRow = $this->startingRow; $currentRow < $this->maxRow; $currentRow++) {
+			$row = $this->_data[$currentRow];
+			
 			$rel = isset($row[$idColumn]) ? $row[$idColumn] : '';
 			$tbody .= sprintf("\t<tr rel=\"%s\">\n", $rel);
-			foreach ($columns as $key => $value) {
+			foreach ($this->columns as $key => $value) {
 				$classes = '';
 				if (!isset($row[$key])) {
 					$row[$key] = '';
 				}
-				if ($clickableColumns === null || in_array($key, $clickableColumns)) {
+				if ($clickableColumns !== false || (is_array($clickableColumns) && in_array($key, $clickableColumns))) {
 					$classes = 'clickable';
 				}
 				$tbody .= sprintf("\t\t<td class=\"%s\">%s</td>\n", $classes, $row[$key]);
@@ -66,28 +317,68 @@ class DataTableHelper
 			$tbody .= $actionsHtml;
 			$tbody .= "\t</tr>\n";
 		}
-		$tbody .= '</tbody>';
 		
-		if (isset($_GET['dataTableRemote']) && $_GET['dataTableRemote'] == $id) {
-			// remote call to only get the data
-			ob_clean();
-			echo '<table><tbody>' . $tbody . '</tbody></table>';
-			Atomik::end(true);
+		$tbody .= '</tbody>';
+		return $tbody;
+	}
+	
+	/**
+	 * Renders the needed javascript
+	 * 
+	 * @return string
+	 */
+	public function renderScript()
+	{
+		return sprintf('<script type="text/javascript">jQuery(document).ready(function() { jQuery("#%sWrapper").dataTable(%s); })</script>', 
+			$this->id, json_encode($this->options));
+	}
+	
+	/**
+	 * Renders the search box
+	 * 
+	 * @return string
+	 */
+	public function renderSearch()
+	{
+		
+	}
+	
+	/**
+	 * Renders the pager
+	 * 
+	 * @return string
+	 */
+	public function renderPager()
+	{
+		$selectLength = '';
+		/*$selectLength = '<div class="dataTableLengthWrapper"><label>' . __('Rows per page') . ': </label>'
+					  . '<select class="dataTableLength"><option value="10">10</option><option value="2">2</option>'
+					  . '<option value="20">20</option><option value="30">30</option>'
+					  . '<option value="50">50</option><option value="100">100</option>'
+					  . '<option value="-1">' . __('All') . '</option></select></div>';*/
+			  
+		if (!$this->options['paginate'] || (($numberOfPages = $this->options['numberOfPages']) <= 1)) {
+			return $selectLength;
 		}
 		
-		// adds needed assets
-		Atomik_Backend_Assets::addScript('js/DataTable.js');
-		Atomik_Backend_Assets::addStyle('css/datatable.css');
+		$button = "<li><a href=\"#\" class=\"%s\">%s</a></li>\n";
+		$html = "<ul class=\"dataTablePager\">\n" . sprintf($button, 'previous', 'Previous');
 		
-		// options
-		$options['remote'] = Atomik::pluginUrl(null, array('dataTableRemote' => $id));
-		$options['url'] = Atomik::get('url', Atomik::pluginUrl('edit'), $options);
-		$jsonOptions = json_encode($options);
+		for ($i = 1; $i <= $numberOfPages; $i++) {
+			$html .= sprintf("<li><a href=\"#%s\" class=\"page%s\">%s</a></li>\n",
+				$i, $this->options['currentPage'] == $i ? ' current' : '', $i);
+		}
 		
-		// the full html
-		$html = sprintf("<table id=\"%s\">\n%s\n%s\n</table>", $id, $thead, $tbody);
-		$html .= sprintf('<script type="text/javascript">jQuery(document).ready(function() { jQuery("#%s").dataTable(%s); })</script>', $id, $jsonOptions);
-		
+		$html .= sprintf($button, 'next', 'Next') . "</ul>\n" . $selectLength;
 		return $html;
+	}
+	
+	/**
+	 * @see DataTableHelper::render()
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->render();
 	}
 }

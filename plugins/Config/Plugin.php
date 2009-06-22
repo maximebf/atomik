@@ -66,8 +66,21 @@ class ConfigPlugin
 	 */
 	public static function onBackendStart()
 	{
-		Atomik_Backend::addMenu('config', 'Settings', 'config', array(), 'right');
-		Atomik_Backend::addSubMenu('config', 'General', 'config/index');
-		Atomik_Backend::addSubMenu('config', 'Configuration', 'config/editor');
+		Atomik_Backend::addMenu('settings', 'Settings', 'config', array(), 'right');
+		Atomik_Backend::addSubMenu('settings', 'General', 'config/index');
+		Atomik_Backend::addSubMenu('settings', 'Plugins', 'config/plugins');
+		Atomik_Backend::addSubMenu('settings', 'Configuration', 'config/editor');
 	}
+	
+	/**
+	 * 
+	 */
+    public static function onDbScript($script, $paths)
+    {
+    	if (self::$config['backend'] == 'Database') {
+			/** Atomik_Db_Script_Text */
+			require_once 'Atomik/Db/Script/Text.php';
+			$script->addScript(new Atomik_Db_Script_Text(Atomik_Config_Backend_Database::getTableSql()));
+    	}
+    }
 }
