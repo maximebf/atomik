@@ -157,14 +157,18 @@ class Atomik_Model_Builder extends Atomik_Options
 			case 'abstract':
 				$this->_fields = array_merge($parent->getFields(), $this->_fields);
 				$this->_options = array_merge($parent->getOptions(), $this->_options);
+				$this->_behaviourBroker = clone $parent->getBehaviourBroker();
 				foreach ($parent->getReferences() as $ref) {
 					$this->addReference(clone $ref);
+				}
+				foreach ($parent->getLinks() as $link) {
+					$this->addLink(clone $link);
 				}
 				break;
 				
 			case 'reference':
 				$ref = new Atomik_Model_Builder_Reference('parent', Atomik_Model_Builder_Reference::HAS_PARENT);
-				$ref->target = $parent->name;
+				$ref->target = $parent;
 				$ref->targetField = $parent->getPrimaryKeyField()->name;
 				$ref->sourceField = $ref->target . '_' . $ref->targetField;
 				$this->addReference($ref);

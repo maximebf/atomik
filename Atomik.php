@@ -420,6 +420,7 @@ class Atomik
 	        }
 	        
 			self::fireEvent('Atomik::Error', array($e));
+			header('Location: ', false, 500);
 			self::renderException($e);
 			self::end(false);
 	    }

@@ -16,15 +16,18 @@
 	}
 	
 		.dataTable thead th {
-			background-image: url(../images/bg.gif);
-			background-repeat: no-repeat;
-			background-position: center right;
 			color: #646464;
 			font-size: 1em;
 			font-weight: normal;
 			padding: 3px;
 			margin: 0;
 			text-align: left;
+		}
+		
+		.dataTable thead th.sortable {
+			background-image: url(../images/bg.gif);
+			background-repeat: no-repeat;
+			background-position: center right;
 		}
 
 		.dataTable thead th.sortAsc {

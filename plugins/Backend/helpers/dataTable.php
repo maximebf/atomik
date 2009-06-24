@@ -111,6 +111,20 @@ class DataTableHelper
 	}
 	
 	/**
+	 * Returns the data which needs to be displayed
+	 * 
+	 * @return array
+	 */
+	public function getDataToDisplay()
+	{
+		$data = array();
+		for($currentRow = $this->startingRow; $currentRow < $this->maxRow; $currentRow++) {
+			$data[] = $this->_data[$currentRow];
+		}
+		return $data;
+	}
+	
+	/**
 	 * Sorts the data
 	 */
 	protected function _sortData($a, $b)
@@ -264,7 +278,7 @@ class DataTableHelper
 		
 		$thead = "<thead>\n\t<tr>\n";
 		foreach ($this->columns as $key => $label) {
-			$thead .= sprintf("\t\t<th id=\"%s\" class=\"%s\">%s</th>\n",
+			$thead .= sprintf("\t\t<th id=\"%s\" class=\"sortable %s\">%s</th>\n",
 				$key,
 				$this->options['sortColumn'] == $key ? $sortClass : '',
 				ucfirst($label)
@@ -299,9 +313,7 @@ class DataTableHelper
 		}
 		
 		$tbody = '<tbody>';
-		for($currentRow = $this->startingRow; $currentRow < $this->maxRow; $currentRow++) {
-			$row = $this->_data[$currentRow];
-			
+		foreach ($this->getDataToDisplay() as $row) {
 			$rel = isset($row[$idColumn]) ? $row[$idColumn] : '';
 			$tbody .= sprintf("\t<tr rel=\"%s\">\n", $rel);
 			foreach ($this->columns as $key => $value) {
@@ -329,7 +341,7 @@ class DataTableHelper
 	 */
 	public function renderScript()
 	{
-		return sprintf('<script type="text/javascript">jQuery(document).ready(function() { jQuery("#%sWrapper").dataTable(%s); })</script>', 
+		return sprintf('<script type="text/javascript">jQuery(function($) { $("#%sWrapper").dataTable(%s); })</script>', 
 			$this->id, json_encode($this->options));
 	}
 	

@@ -63,7 +63,7 @@ class Atomik_Form_Field_MarkItUp extends Atomik_Form_Field_Textarea
 	public function render()
 	{
 		$html = parent::render();
-		$html .= sprintf('<script type="text/javascript">$(function() { $("#%s").markItUp(%s); });</script>', 
+		$html .= sprintf('<script type="text/javascript">jQuery(function($) { $("#%s").markItUp(%s); });</script>', 
 			$this->getId(), json_encode($this->_config));
 		return $html;
 	}

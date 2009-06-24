@@ -41,3 +41,4 @@ Atomik_Assets::registerNamedAsset('dataTable', array(
 // ----------------------------------------------------------------------------
 
 Atomik_Backend_Assets::addStyle('css/main.css');
+Atomik_Backend_Assets::addScript('js/common.js', null, array('jquery'));

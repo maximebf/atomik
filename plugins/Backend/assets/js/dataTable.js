@@ -149,7 +149,7 @@
 					reloadData.dataTableSortOrder = options.sortOrder;
 				}
 				
-				var columns = table.find('thead th');
+				var columns = table.find('thead th.sortable');
 				columns.click(function() {
 					var column = $(this),
 						sortAsc = !$(this).hasClass('sortAsc');
