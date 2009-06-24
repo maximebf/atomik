@@ -2158,9 +2158,9 @@ class Atomik
 			if (($filename = self::path($include, $dirs)) === false) {
 				return false;
 			}
-	    	return include_once($filename);
+	    	return @include_once($filename);
 		} else {
-			return include_once($include);
+			return @include_once($include);
 		}
 	}
 	

@@ -26,61 +26,29 @@ require_once 'Atomik/Form/Field/Abstract.php';
  * @package Atomik
  * @subpackage Form
  */
-class Atomik_Form_Field_List extends Atomik_Form_Field_Abstract
+class Atomik_Form_Field_Checkbox extends Atomik_Form_Field_Abstract
 {
-	/**
-	 * @var array
-	 */
-	protected $_data;
+	protected $_defaultValue = 0;
 	
-	/**
-	 * Sets the available data for the list
-	 * 
-	 * @param array $data
-	 */
-	public function setData($data)
+	public function isChecked()
 	{
-		$this->_data = array();
+		return $this->getValue() == $this->getOption('checked-value', 1);
 	}
 	
-	/**
-	 * Gets the available data for the list
-	 * 
-	 * @return array
-	 */
-	public function getData()
-	{
-		if ($this->_data === null) {
-			$this->_initData();
-		}
-		return $this->_data;
-	}
-	
-	/**
-	 * Initializes available data
-	 */
-	protected function _initData()
-	{
-		parse_str($this->getOption('values', ''), $this->_data);
-	}
-	
-	/**
-	 * Renders the field
-	 * 
-	 * @return string
-	 */
 	public function render()
 	{
-		$options = '';
-		foreach ($this->getData() as $key => $value) {
-			$selected = $this->getValue() == $key ? 'selected="selected"' : '';
-			$options .= sprintf('<option value="%s"%s>%s</option>', $key, $selected, $value);
-		}
-		
-		return sprintf('<select name="%s" %s>%s</select>',
+		$html = sprintf('<input type="hidden" name="%s" value="%s" />',
 			$this->getFullname(),
-			$this->getAttributesAsString(),
-			$options
+			$this->getOption('unchecked-value', 0)
 		);
+		
+		$html .= sprintf('<input type="checkbox" name="%s" value="%s" %s %s/>',
+			$this->getFullname(),
+			$this->getOption('checked-value', 1),
+			$this->getAttributesAsString(array('checked', 'value', 'type')),
+			$this->isChecked() ? 'checked="checked"' : ''
+		);
+		
+		return $html;
 	}
 }

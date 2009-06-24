@@ -1,7 +1,7 @@
 <?php
 
 if (!Atomik::has('request/name')) {
-	Atomik::pluginRedirect('index');
+	Atomik::pluginRedirect('models/index');
 }
 
 $modelName = Atomik::get('request/name');
@@ -26,7 +26,7 @@ if ($form->hasData()) {
 		$model = $form->getModel();
 		$model->save();
 		Backend_Activity::create('Models', $message, __(ucfirst($actionString) . ' by') . ' %s');
-		Atomik::pluginRedirect(Atomik::pluginUrl('list', array('name' => $modelName)), false);
+		Atomik::pluginRedirect(Atomik::pluginUrl('models/list', array('name' => $modelName)), false);
 	}
 	Atomik::flash($form->getValidationMessages(), 'error');
 }

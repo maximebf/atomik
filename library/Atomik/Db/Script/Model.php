@@ -25,8 +25,8 @@ require_once 'Atomik/Db/Script/Interface.php';
 /** Atomik_Model_Builder_Factory */
 require_once 'Atomik/Model/Builder/Factory.php';
 
-/** Atomik_Model_Export_Sql */
-require_once 'Atomik/Model/Export/Sql.php';
+/** Atomik_Model_Export */
+require_once 'Atomik/Model/Export.php';
 
 /**
  * @package Atomik
@@ -113,7 +113,7 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	 */
 	public function getSql()
 	{
-		$exporter = new Atomik_Model_Export_Sql();
+		$exporter = new Atomik_Model_Export();
 		return $exporter->export($this->_builder);
 	}
 	

@@ -3,20 +3,12 @@
 /** Atomik_Model_Modelset */
 require_once 'Atomik/Model/Modelset.php';
 
-/** Atomik_Model_Manager_TypeMap */
-require_once 'Atomik/Model/Manager/TypeMap.php';
-
 class Atomik_Model_Manager
 {
 	/**
 	 * @var Atomik_Db_Instance
 	 */
 	protected $_dbInstance;
-	
-	/**
-	 * @var Atomik_Model_Manager_TypeMap
-	 */
-	protected $_typeMap;
 	
 	/**
 	 * @var Atomik_Db_Instance
@@ -75,7 +67,6 @@ class Atomik_Model_Manager
 	public function __construct(Atomik_Db_Instance $instance)
 	{
 		$this->_dbInstance = $instance;
-		$this->_typeMap = new Atomik_Model_Manager_TypeMap($this);
 	}
 	
 	/**
@@ -96,26 +87,6 @@ class Atomik_Model_Manager
 	public function getDbInstance()
 	{
 		return $this->_dbInstance;
-	}
-	
-	/**
-	 * Sets the type map (model type to sql type)
-	 * 
-	 * @param Atomik_Model_Manager_TypeMap $map
-	 */
-	public function setTypeMap(Atomik_Model_Manager_TypeMap $map)
-	{
-		$this->_typeMap = $map;
-	}
-	
-	/**
-	 * Returns the associated type map
-	 * 
-	 * @return Atomik_Model_Manager_TypeMap
-	 */
-	public function getTypeMap()
-	{
-		return $this->_typeMap;
 	}
 	
 	/**
@@ -168,10 +139,10 @@ class Atomik_Model_Manager
 	public function save(Atomik_Model $model)
 	{
 		$builder = $model->getBuilder();
-		$data = $model->toArray();
 		$success = true;
 		
 		$builder->getBehaviourBroker()->notifyBeforeSave($model);
+		$data = $model->toArray();
 		
 		if ($model->isNew()) {
 			// insert

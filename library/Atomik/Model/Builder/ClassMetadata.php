@@ -119,7 +119,7 @@ class Atomik_Model_Builder_ClassMetadata
 				unset($propData['var']);
 			}
 			
-			$field = new Atomik_Model_Builder_Field($prop->getName(), $type, $propData);
+			$field = Atomik_Model_Field_Factory::factory($type, $prop->getName(), $propData);
 			$builder->addField($field);
 		}
 		

@@ -26,7 +26,7 @@ require_once 'Atomik/Form/Field/Abstract.php';
  * @package Atomik
  * @subpackage Form
  */
-class Atomik_Form_Field_Datetime extends Atomik_Form_Field_Abstract
+class Atomik_Form_Field_Timestamp extends Atomik_Form_Field_Abstract
 {
 	/**
 	 * (non-PHPdoc)
@@ -79,8 +79,8 @@ class Atomik_Form_Field_Datetime extends Atomik_Form_Field_Abstract
 			$this->getFullname(),
 			$this->getId(),
 			$date,
-			$this->_getCssClasses('datetime date'),
-			$this->getOptionsAsAttributeString(array('type', 'id', 'class'), true)
+			$this->_getCssClasses('timestamp date'),
+			$this->getAttributesAsString(array('type', 'id', 'class'))
 		);
 		$html .= sprintf('<script type="text/javascript">$(function() { $("#%s_date").datepicker() });</script>', $this->getId());
 		return $html;
@@ -114,8 +114,8 @@ class Atomik_Form_Field_Datetime extends Atomik_Form_Field_Abstract
 		$html = sprintf('<select name="%s[time][%s]" id="%s_time_%s" class="%s" %s>',
 			$this->getFullname(), $name, 
 			$this->getId(), $name,
-			$this->_getCssClasses('datetime time ' . $name),
-			$this->getOptionsAsAttributeString(array('type', 'id', 'class'), true)
+			$this->_getCssClasses('timestamp time ' . $name),
+			$this->getAttributesAsString(array('type', 'id', 'class'))
 		);
 					
 		for ($i = $start; $i <= $end; $i++) {

@@ -42,9 +42,19 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	protected $_parent;
 	
 	/**
+	 * @var array
+	 */
+	protected $_attributes = array();
+	
+	/**
 	 * @var string
 	 */
-	protected $_value = '';
+	protected $_value;
+	
+	/**
+	 * @var string
+	 */
+	protected $_defaultId = true;
 	
 	/**
 	 * @var array
@@ -80,6 +90,7 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	public function setName($name)
 	{
 		$this->_name = $name;
+		$this->_setDefaultId();
 	}
 	
 	/**
@@ -113,6 +124,7 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	public function setParent(Atomik_Form_Field_Interface $parent)
 	{
 		$this->_parent = $parent;
+		$this->_setDefaultId();
 	}
 	
 	/**
@@ -136,6 +148,111 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	}
 	
 	/**
+	 * (non-PHPdoc)
+	 * @see library/Atomik/Atomik_Options#setOption()
+	 */
+	public function setOption($name, $value)
+	{
+		if (substr($name, 0, 5) == 'attr-') {
+			return $this->setAttribute(substr($name, 5), $value);
+		}
+		parent::setOption($name, $value);
+	}
+	
+	/**
+	 * Resets the form attributes
+	 *
+	 * @param array $attributes
+	 */
+	public function setAttributes($attributes)
+	{
+		$this->_attributes = array();
+		foreach ($attributes as $name => $value) {
+			$this->setAttribute($name, $value);
+		}
+	}
+	
+	/**
+	 * Sets a form attribute
+	 *
+	 * @param string $name
+	 * @param string $value
+	 */
+	public function setAttribute($name, $value)
+	{
+		$this->_attributes[$name] = $value;
+	}
+	
+	/**
+	 * Returns an attribute value
+	 *
+	 * @param string $name
+	 * @param string $de
+	 * @return string
+	 */
+	public function getAttribute($name, $default = null)
+	{
+		if (!isset($this->_attributes[$name])) {
+			return $default;
+		}
+		return $this->_attributes[$name];
+	}
+	
+	/**
+	 * Returns all the attributes
+	 *
+	 * @return array
+	 */
+	public function getAttributes()
+	{
+		return $this->_attributes;
+	}
+	
+	/**
+	 * Returns all the attributes as an html attributes formatted string
+	 *
+	 * @param	array	$filter		Filters which attributes to include or exclude
+	 * @param	bool	$exclude	Whether to include or exclude attributes from the filter
+	 * @return string
+	 */
+	public function getAttributesAsString($filter = null, $exclude = true)
+	{
+		return $this->_getArrayAsAttributeString($this->_attributes, $filter, $exclude);
+	}
+	
+	/**
+	 * Returns all options as an html attribute string
+	 * 
+	 * @param	array	$filter		Filters which options to include or exclude
+	 * @param	bool	$exclude	Whether to include or exclude options from the filter
+	 * @return	string
+	 */
+	public function getOptionsAsAttributeString($filter = null, $exclude = true)
+	{
+		return $this->_getArrayAsAttributeString($this->getOptions(), $filter, $exclude);
+	}
+	
+	/**
+	 * Returns an array as an html attribute string
+	 * 
+	 * @param	array	$filter		Filters which keys to include or exclude
+	 * @param	bool	$exclude	Whether to include or exclude keys from the filter
+	 * @return	string
+	 */
+	protected function _getArrayAsAttributeString($array, $filter = null, $exclude = true)
+	{
+		$string = '';
+		foreach ($array as $key => $value) {
+			if (!is_string($value) || (!empty($filter) && ((!$exclude && !in_array($key, (array) $filter)) || 
+				($exclude && in_array($key, (array) $filter))))) {
+				continue;
+			}
+			$string .= ' ' . $key . '="' . $value . '"';
+		}
+		return trim($string);
+	}
+	
+	/**
 	 * Returns the value of the field
 	 * 
 	 * @return string
@@ -146,40 +263,48 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	}
 	
 	/**
+	 * Sets the id attribute
+	 * 
+	 * @param string $id
+	 */
+	public function setId($id = null)
+	{
+		if ($id === null) {
+			$this->_setDefaultId(true);
+			return;
+		}
+		
+		$this->_attributes['id'] = $id;
+		$this->_defaultId = false;
+	}
+	
+	/**
 	 * Returns the id attributes or creates one if none exist
 	 * 
 	 * @return string
 	 */
 	public function getId()
 	{
-		if (($id = $this->getOption('id')) === null) {
-			$id = $this->_name;
-			if ($this->_parent !== null && (($parentId = $this->_parent->getId()) !== null)) {
-				$id = $parentId . '_' . $id;
-			}
-			$this->setOption('id', $id);
-		}
-		return $id;
+		return $this->_attributes['id'];
 	}
 	
 	/**
-	 * Returns all options as an html attribute string
+	 * Sets a default id
 	 * 
-	 * @param	array	$filter		Filters which options to include or exclude
-	 * @param	bool	$exclude	Whether to include or exclude options from the filter
-	 * @return	string
+	 * @param bool $force
 	 */
-	public function getOptionsAsAttributeString($fitler = null, $exclude = false)
+	protected function _setDefaultId($force = false)
 	{
-		$string = '';
-		foreach ($this->_options as $name => $value) {
-			if (!is_string($value) || (!empty($filter) && ((!$exclude && !in_array($name, $filter)) || 
-				($exclude && in_array($name, $filter))))) {
-				continue;
-			}
-			$string .= ' ' . $name . '="' . $value . '"';
+		if (!$force && !$this->_defaultId) {
+			return;
 		}
-		return trim($string);
+		
+		$id = $this->_name;
+		if ($this->_parent !== null && (($parentId = $this->_parent->getId()) !== null)) {
+			$id = $parentId . '_' . $id;
+		}
+		$this->_defaultId = true;
+		$this->_attributes['id'] = $id;
 	}
 	
 	/**

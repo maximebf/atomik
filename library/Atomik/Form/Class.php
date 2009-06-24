@@ -59,7 +59,9 @@ class Atomik_Form_Class extends Atomik_Form
 	public static function createInstance(ReflectionClass $class, $instance = null, $tagsPrefix = '')
 	{
 		if ($instance === null) {
-			$instance = new Atomik_Form();
+			$instance = new Atomik_Form($class->getName());
+		} else {
+			$instance->setName($class->getName());
 		}
 		
 		$attributes = self::getTagsFromDocBlock($class->getDocComment(), $tagsPrefix);

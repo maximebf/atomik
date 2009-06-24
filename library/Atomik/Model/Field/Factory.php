@@ -19,32 +19,32 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Interface */
-require_once 'Atomik/Model/Behaviour/Interface.php';
+/** Atomik_Model_Field_Abstract */
+require_once 'Atomik/Model/Field/Abstract.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Factory
+class Atomik_Model_Field_Factory
 {
 	/**
-	 * Creates an instance of a behaviour
+	 * Creates an instance of a field
 	 * 
-	 * @param 	string|objet 	$name		The last part of the behaviour name if it starts with Atomik_Model_Behaviour_ or a class name
-	 * @return 	Atomik_Model_Behaviour_Interface
+	 * @param 	string|objet 	$name		The last part of the field name if it starts with Atomik_Model_Field_ or a class name
+	 * @return 	Atomik_Model_Field_Abstract
 	 */
-	public static function factory($name)
+	public static function factory($type, $name, $options = array())
 	{
-		$className = 'Atomik_Model_Behaviour_' . ucfirst($name);
+		$className = 'Atomik_Model_Field_' . ucfirst($type);
 		if (!class_exists($className)) {
-			$className = $name;
+			$className = $type;
 			if (!class_exists($className)) {
-				require_once 'Atomik/Model/Behaviour/Exception.php';
-				throw new Atomik_Model_Behaviour_Exception('No model behaviour named ' . $name . ' were found');
+				require_once 'Atomik/Model/Field.php';
+				return new Atomik_Model_Field($name, $type, $options);
 			}
 		}
 		
-		return new $className();
+		return new $className($name, $options);
 	}
 }

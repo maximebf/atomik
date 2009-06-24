@@ -40,4 +40,7 @@ interface Atomik_Model_Behaviour_Interface
 	function beforeDelete(Atomik_Model $model);
 	function failDelete(Atomik_Model $model);
 	function afterDelete(Atomik_Model $model);
+	
+	function beforeExport(Atomik_Db_Definition $definition);
+	function afterExport(&$sql);
 }

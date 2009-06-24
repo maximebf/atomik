@@ -72,7 +72,16 @@ class Atomik_Db_Definition_Generator
 			$sql .= ' DEFAULT ' . $this->_adapter->quote($column->options['default']);
 		}
 		
+		if (isset($column->options['auto-increment']) && $column->options['auto-increment']) {
+			$sql .= ' ' . $this->_buildAutoIncrement($column);
+		}
+		
 		return $sql;
+	}
+	
+	protected function _buildAutoIncrement(Atomik_Db_Definition_Column $column)
+	{
+		return 'AUTO_INCREMENT';
 	}
 	
 	protected function _buildIndex(Atomik_Db_Definition_Index $index)

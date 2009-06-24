@@ -19,32 +19,39 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Interface */
-require_once 'Atomik/Model/Behaviour/Interface.php';
+/** Atomik_Model_Field_Abstract */
+require_once 'Atomik/Model/Field/Abstract.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Factory
+class Atomik_Model_Field extends Atomik_Model_Field_Abstract
 {
 	/**
-	 * Creates an instance of a behaviour
-	 * 
-	 * @param 	string|objet 	$name		The last part of the behaviour name if it starts with Atomik_Model_Behaviour_ or a class name
-	 * @return 	Atomik_Model_Behaviour_Interface
+	 * @var string
 	 */
-	public static function factory($name)
+	public $type;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param	string	$name
+	 * @param 	array	$options
+	 */
+	public function __construct($name, $type, $options = array())
 	{
-		$className = 'Atomik_Model_Behaviour_' . ucfirst($name);
-		if (!class_exists($className)) {
-			$className = $name;
-			if (!class_exists($className)) {
-				require_once 'Atomik/Model/Behaviour/Exception.php';
-				throw new Atomik_Model_Behaviour_Exception('No model behaviour named ' . $name . ' were found');
-			}
-		}
-		
-		return new $className();
+		parent::__construct($name, $options);
+		$this->type = $type;
+	}
+	
+	/**
+	 * Returns an array where the first item is the sql type name and the second the length
+	 * 
+	 * @return array
+	 */
+	public function getSqlType()
+	{
+		return array($this->type, $this->getOption('length', null));
 	}
 }

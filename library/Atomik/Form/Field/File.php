@@ -32,7 +32,7 @@ class Atomik_Form_Field_File extends Atomik_Form_Field_Abstract
 	{
 		return sprintf('<input type="file" name="%s" %s/>',
 			$this->getFullname(),
-			$this->getOptionsAsAttributeString(array('type'), true)
+			$this->getAttributesAsString('type')
 		);
 	}
 }

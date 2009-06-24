@@ -7,7 +7,6 @@
 class Comment extends Atomik_Model
 {
 	/**
-	 * @form-field Textarea
 	 * @var string
 	 */
 	public $message;

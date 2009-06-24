@@ -7,7 +7,7 @@ class DataTableHelper
 	 */
 	public static $defaultOptions = array(
 		'currentPage'	=> 1,
-		'rowsPerPage'	=> 2,
+		'rowsPerPage'	=> 20,
 		'numberOfPages'	=> 1,
 		'paginate'		=> true,
 		'paginateData'	=> true,

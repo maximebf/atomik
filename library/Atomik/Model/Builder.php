@@ -25,8 +25,8 @@ require_once 'Atomik/Options.php';
 /** Atomik_Model_Manager */
 require_once 'Atomik/Model/Manager.php';
 
-/** Atomik_Model_Builder_Field */
-require_once 'Atomik/Model/Builder/Field.php';
+/** Atomik_Model_Field_Abstract */
+require_once 'Atomik/Model/Field/Abstract.php';
 
 /** Atomik_Model_Builder_Reference */
 require_once 'Atomik/Model/Builder/Reference.php';
@@ -221,9 +221,9 @@ class Atomik_Model_Builder extends Atomik_Options
 	/**
 	 * Adds a new field
 	 *
-	 * @param Atomik_Model_Builder_Field $field
+	 * @param Atomik_Model_Field_Abstract $field
 	 */
-	public function addField(Atomik_Model_Builder_Field $field)
+	public function addField(Atomik_Model_Field_Abstract $field)
 	{
 		$this->_fields[$field->name] = $field;
 		
@@ -288,9 +288,9 @@ class Atomik_Model_Builder extends Atomik_Options
 	 * 
 	 * If $field is null, will use or create a field named id
 	 * 
-	 * @param Atomik_Model_Builder_Field $field
+	 * @param Atomik_Model_Field_Abstract $field
 	 */
-	public function setPrimaryKeyField(Atomik_Model_Builder_Field $field = null)
+	public function setPrimaryKeyField(Atomik_Model_Field_Abstract $field = null)
 	{
 		if ($field === null) {
 			if ($this->_primaryKeyField !== null) {
@@ -301,7 +301,8 @@ class Atomik_Model_Builder extends Atomik_Options
 			// checks if there is a field named id
 			if (($field = $this->getField('id')) === false) {
 				// creates a new id field
-				$field = new Atomik_Model_Builder_Field('id', 'int', array('form-ignore' => true));
+				require_once 'Atomik/Model/Field.php';
+				$field = new Atomik_Model_Field('id', 'int', array('form-ignore' => true));
 				$this->addField($field);
 			}
 		}
@@ -325,10 +326,10 @@ class Atomik_Model_Builder extends Atomik_Options
 	/**
 	 * Checks if a field is the primary key
 	 * 
-	 * @param Atomik_Model_Builder_Field $field
+	 * @param Atomik_Model_Field_Abstract $field
 	 * @return bool
 	 */
-	public function isFieldThePrimaryKey(Atomik_Model_Builder_Field $field)
+	public function isFieldThePrimaryKey(Atomik_Model_Field_Abstract $field)
 	{
 		return $this->_primaryKeyField == $field;
 	}
@@ -354,7 +355,7 @@ class Atomik_Model_Builder extends Atomik_Options
 	public function addReference(Atomik_Model_Builder_Reference $reference)
 	{
 		if (!$this->hasField($reference->sourceField)) {
-			$this->addField(new Atomik_Model_Builder_Field($reference->sourceField, 'int'));
+			$this->addField(new Atomik_Model_Field($reference->sourceField, 'int'));
 		}
 		$this->_references[$reference->name] = $reference;
 	}
@@ -387,10 +388,10 @@ class Atomik_Model_Builder extends Atomik_Options
 	/**
 	 * Returns a reference from the source field
 	 * 
-	 * @param 	Atomik_Model_Builder_Field 		$field
+	 * @param 	Atomik_Model_Field_Abstract 		$field
 	 * @return 	Atomik_Model_Builder_Reference
 	 */
-	public function getReferenceFromSourceField(Atomik_Model_Builder_Field $field)
+	public function getReferenceFromSourceField(Atomik_Model_Field_Abstract $field)
 	{
 		foreach ($this->_references as $reference) {
 			if ($reference->sourceField == $field->name) {
@@ -424,10 +425,10 @@ class Atomik_Model_Builder extends Atomik_Options
 	/**
 	 * Checks if a field is part of a reference
 	 * 
-	 * @param Atomik_Model_Builder_Field $field
+	 * @param Atomik_Model_Field_Abstract $field
 	 * @return bool
 	 */
-	public function isFieldPartOfReference(Atomik_Model_Builder_Field $field)
+	public function isFieldPartOfReference(Atomik_Model_Field_Abstract $field)
 	{
 		foreach ($this->_references as $reference) {
 			if ($reference->sourceField == $field->name) {

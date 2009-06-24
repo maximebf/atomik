@@ -75,4 +75,8 @@ abstract class Atomik_Model_Behaviour_Abstract implements Atomik_Model_Behaviour
 	public function failDelete(Atomik_Model $model) {}
 	
 	public function afterDelete(Atomik_Model $model) {}
+	
+	public function beforeExport(Atomik_Db_Definition $definition) {}
+	
+	public function afterExport(&$sql) {}
 }

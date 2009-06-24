@@ -82,29 +82,34 @@ class Atomik_Model_Form extends Atomik_Form
 		$this->setFieldTemplate($options->getOption('field-template', Atomik_Form::getDefaultFieldTemplate()));
 		$this->setOptions($options->getOptions());
 		
-		foreach ($builder->getFields() as $builderField) {
-			$fieldOptions = new Atomik_Options($builderField->getOptions($this->_optionPrefix));
-			if ($fieldOptions->getOption('ignore', false)) {
+		foreach ($builder->getFields() as $modelField) {
+			if ($modelField->getOption('form-ignore', false)) {
 				continue;
 			}
-			$defaultLabel = $builderField->name;
 			
-			if (($type = $fieldOptions->getOption('field', null)) === null) {
-				$type = 'Input';
-				if ($builder->isFieldPartOfReference($builderField)) {
-					$reference = $builder->getReferenceFromSourceField($builderField);
-					if ($reference->isHasMany()) {
-						continue;
-					}
-					require_once 'Atomik/Model/Form/Field/Reference.php';
-					$type = 'Atomik_Model_Form_Field_Reference';
-					$fieldOptions->setOption('reference', $reference);
-					$defaultLabel = $reference->name;
+			$formField = null;
+			$defaultLabel = $modelField->name;
+			
+			if ($builder->isFieldPartOfReference($modelField) && !$modelField->getOption('form-no-reference', false)) {
+				$reference = $builder->getReferenceFromSourceField($modelField);
+				if ($reference->isHasMany()) {
+					continue;
 				}
+				
+				$defaultLabel = $reference->name;
+				$options = $modelField->getOptions('form-');
+				$options['reference'] = $reference;
+				
+				require_once 'Atomik/Model/Form/Field/Reference.php';
+				$formField = Atomik_Form_Field_Factory::factory('Atomik_Model_Form_Field_Reference', 
+					$modelField->name, $options);
+					
+			} else {
+				$formField = $modelField->getFormField();
 			}
 			
-			$this->_fields[$builderField->name] = Atomik_Form_Field_Factory::factory($type, $builderField->name, $fieldOptions);
-			$this->_labels[$builderField->name] = $fieldOptions->getOption('label', $defaultLabel);
+			$this->_fields[$modelField->name] = $formField;
+			$this->_labels[$modelField->name] = $modelField->getOption('form-label', $defaultLabel);
 		}
 	}
 	
@@ -139,7 +144,7 @@ class Atomik_Model_Form extends Atomik_Form
 	{
 		parent::setData($data);
 		
-		if ($populateModel && !empty($data)) {
+		if ($populateModel) {
 			$this->populateModel();
 		}
 	}

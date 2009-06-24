@@ -34,7 +34,7 @@ class Atomik_Form_Field_Factory
 	 * @param 	string|objet 	$name		The last part of the field name if it starts with Atomik_Form_Field_ or a class name
 	 * @param	string			$fieldName
 	 * @param	array			$options
-	 * @return 	Atomik_Model_Form_Field_Abstract
+	 * @return 	Atomik_Form_Field_Interface
 	 */
 	public static function factory($name, $fieldName, $options = array())
 	{

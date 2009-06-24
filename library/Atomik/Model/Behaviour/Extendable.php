@@ -28,32 +28,31 @@ require_once 'Atomik/Model/Behaviour/Abstract.php';
  */
 class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 {
-	public function setupSqlGeneration()
+	public $keyword = 'extfields';
+	
+	public function beforeExport(Atomik_Db_Definition $definition)
 	{
-		// TODO
-		
-		$tpl = "CREATE TABLE %s_dynamic (\n\tdynamic_id %s,\n\tdynamic_%s INT NOT NULL,\n\t"
-			 . "dynamic_field_name VARCHAR(100) NOT NULL,\n\t"
-			 . "dynamic_field_value TEXT NOT NULL\n);\n"
-			 . "CREATE INDEX idx_%s_dynamic_%s ON %s (%s);\n";
-			 
-		/*$tableName = $this->_builder->tableName;
-		$primaryKeySpec = Atomik_Model_Adapter_Db::getPrimaryKeySpecFromBuilder($builder);
+		$tableName = $this->_builder->tableName;
 		$foreignFieldName = $tableName . '_' . $builder->getPrimaryKeyField()->name;
-		$sql .= sprintf($tpl, $tableName, $primaryKeySpec, $foreignFieldName, $tableName, $foreignFieldName, $tableName, $foreignFieldName);*/
 		
-		return null;
+		$definition->table($this->_suffix($tableName))
+			->column($this->_prefix('id'), 'int')
+			->column($this->_prefix($foreignFieldName), 'int')
+			->column($this->_prefix('field_name'), 'varchar', 100)
+			->column($this->_prefix('field_value'), 'text')
+			->primaryKey('id')
+			->index($foreignFieldName);
 	}
 	
 	public function beforeQuery(Atomik_Db_Query $query)
 	{
 		$tableName = $this->_builder->tableName;
 		$primaryKeyName = $this->_builder->getPrimaryKeyField()->name;
-		$foreignFieldName = 'dynamic_' . $tableName . '_' . $primaryKeyName;
-		$on = sprintf('%s_dynamic.%s = %s.%s', $tableName, $foreignFieldName, $tableName, $primaryKeyName);
+		$foreignFieldName = $this->_prefix($tableName . '_' . $primaryKeyName);
+		$on = sprintf('%s.%s = %s.%s', $this->_suffix($tableName), $foreignFieldName, $tableName, $primaryKeyName);
 		
 		// add a join clause to the query
-		$query->join($tableName . '_dynamic', $on, null, 'LEFT');
+		$query->join($this->_suffix($tableName), $on, null, 'LEFT');
 	}
 	
 	public function afterQuery(Atomik_Model_Modelset $modelSet)
@@ -64,7 +63,7 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 		// parses the results to rebuild the row with the dynamic fields
 		foreach ($modelSet as $row) {
 			$primaryKey = $row[$primaryKeyName];
-			if ($row['dynamic_id'] === null) {
+			if ($row[$this->_prefix('id')] === null) {
 				// no dyn field
 				$rows[$primaryKey] = $this->_stripDynamicKeysFromRow($row);
 				continue;
@@ -72,7 +71,7 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 			if (!isset($rows[$primaryKey])) {
 				$rows[$primaryKey] = $this->_stripDynamicKeysFromRow($row);;
 			}
-			$rows[$primaryKey][$row['dynamic_field_name']] = $row['dynamic_field_value'];
+			$rows[$primaryKey][$row[$this->_prefix('field_name')]] = $row[$this->_prefix('field_value')];
 		}
 		
 		$modelSet->setData(array_values($rows));
@@ -84,9 +83,9 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 		$fullDynamic = $this->_builder->getOption('dynamic', false);
 		
 		$tableName = $this->_builder->tableName;
-		$foreignFieldName = 'dynamic_' . $tableName . '_' . $this->_builder->getPrimaryKeyField()->name;
+		$foreignFieldName = $this->_prefix($tableName) . '_' . $this->_builder->getPrimaryKeyField()->name;
 		$primaryKey = $model->getPrimaryKey();
-		$tableName .= '_dynamic';
+		$tableName = $this->_suffix($tableName);
 		
 		foreach (get_object_vars($model) as $name => $value) {
 			if (!$fullDynamic && ($this->_builder->hasField($name) || $this->_builder->hasReference($name))) {
@@ -95,8 +94,8 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 			
 			$data = array(
 				$foreignFieldName => $primaryKey,
-				'dynamic_field_name' => $name,
-				'dynamic_field_value' => $value
+				$this->_prefix('field_name') => $name,
+				$this->_prefix('field_value') => $value
 			);
 			
 			$db->set($tableName, $data, $foreignFieldName);
@@ -109,10 +108,20 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 		
 		$db = $this->_builder->getManager()->getDbInstance();
 		$tableName = $this->_builder->tableName;
-		$foreignFieldName = 'dynamic_' . $tableName . '_' . $this->_builder->getPrimaryKeyField()->name;
-		$tableName .= '_dynamic';
+		$foreignFieldName = $this->_prefix($tableName) . '_' . $this->_builder->getPrimaryKeyField()->name;
+		$tableName = $this->_suffix($tableName);
 		
 		$db->delete($tableName, array($foreignFieldName => $primaryKey));
+	}
+	
+	protected function _prefix($string)
+	{
+		return $this->keyword . '_' . $string;
+	}
+	
+	protected function _suffix($string)
+	{
+		return $string . '_' . $this->keyword;
 	}
 	
 	/**
@@ -125,7 +134,7 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 	{
 		$strippedRow = array();
 		foreach ($row as $key => $value) {
-			if (substr($key, 0, 8) == 'dynamic_') {
+			if (substr($key, 0, strlen($this->keyword) + 1) == $this->keyword . '_') {
 				continue;
 			}
 			$strippedRow[$key] = $value;

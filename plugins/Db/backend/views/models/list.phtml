@@ -6,7 +6,7 @@
 						'url' => Atomik::pluginUrl('models/edit', array('name' => $modelName)),
 						'columns' => $columns,
 						'actions' => array(
-							array('label' => __('Delete'), 'url' => Atomik::pluginUrl('delete', array('name' => $modelName)))
+							array('label' => __('Delete'), 'url' => Atomik::pluginUrl('models/delete', array('name' => $modelName)))
 						)
 			))->render() ?>
 		</div>

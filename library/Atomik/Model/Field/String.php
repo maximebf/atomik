@@ -19,32 +19,36 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Interface */
-require_once 'Atomik/Model/Behaviour/Interface.php';
+/** Atomik_Model_Field_Abstract */
+require_once 'Atomik/Model/Field/Abstract.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Factory
+class Atomik_Model_Field_String extends Atomik_Model_Field_Abstract
 {
 	/**
-	 * Creates an instance of a behaviour
-	 * 
-	 * @param 	string|objet 	$name		The last part of the behaviour name if it starts with Atomik_Model_Behaviour_ or a class name
-	 * @return 	Atomik_Model_Behaviour_Interface
+	 * @return array
 	 */
-	public static function factory($name)
+	public function getSqlType()
 	{
-		$className = 'Atomik_Model_Behaviour_' . ucfirst($name);
-		if (!class_exists($className)) {
-			$className = $name;
-			if (!class_exists($className)) {
-				require_once 'Atomik/Model/Behaviour/Exception.php';
-				throw new Atomik_Model_Behaviour_Exception('No model behaviour named ' . $name . ' were found');
-			}
+		if (($length = $this->getOption('length', false)) === false || $length > 255) {
+			return array('text', null);
 		}
+		return array('varchar', $length);
+	}
+	
+	/**
+	 * @return Atomik_Form_Field_Interface
+	 */
+	public function getDefaultFormField()
+	{
+		$length = $this->getOption('length', false);
 		
-		return new $className();
+		if ($length === false || $length > 255) {
+			return Atomik_Form_Field_Factory::factory('Textarea', $this->name, $this->getOptions('form-'));
+		}
+		return Atomik_Form_Field_Factory::factory('Input', $this->name, $this->getOptions('form-'));
 	}
 }

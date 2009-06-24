@@ -26,7 +26,7 @@ require_once 'Atomik/Options.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Builder_Field extends Atomik_Options
+abstract class Atomik_Model_Field_Abstract extends Atomik_Options
 {
 	/**
 	 * @var string
@@ -34,21 +34,46 @@ class Atomik_Model_Builder_Field extends Atomik_Options
 	public $name;
 	
 	/**
-	 * @var string
-	 */
-	public $type = 'string';
-	
-	/**
 	 * Constructor
 	 * 
 	 * @param	string	$name
 	 * @param 	array	$options
 	 */
-	public function __construct($name, $type = 'string', $options = array())
+	public function __construct($name, $options = array())
 	{
 		$this->name = $name;
-		$this->type = $type;
 		$this->setOptions($options);
+	}
+	
+	/**
+	 * Returns an array where the first item is the sql type name and the second the length
+	 * 
+	 * @return array
+	 */
+	abstract public function getSqlType();
+	
+	/**
+	 * Returns a form field
+	 * 
+	 * @return Atomik_Form_Field_Interface
+	 */
+	public function getFormField()
+	{
+		if (($type = $this->getOption('form-field', null)) !== null) {
+			return Atomik_Form_Field_Factory::factory($type, $this->name, $this->getOptions('form-'));
+		}
+			
+		return $this->getDefaultFormField();
+	}
+	
+	/**
+	 * Returns the default form field
+	 * 
+	 * @return Atomik_Form_Field_Interface
+	 */
+	public function getDefaultFormField()
+	{
+		return Atomik_Form_Field_Factory::factory('Input', $this->name, $this->getOptions('form-'));
 	}
 	
 	/**

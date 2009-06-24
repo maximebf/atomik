@@ -19,32 +19,20 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Interface */
-require_once 'Atomik/Model/Behaviour/Interface.php';
+/** Atomik_Model_Behaviour_Abstract */
+require_once 'Atomik/Model/Behaviour/Abstract.php';
+
+/** Atomik_Model_Field_Bool */
+require_once 'Atomik/Model/Field/Bool.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Factory
+class Atomik_Model_Behaviour_Publishable extends  Atomik_Model_Behaviour_Abstract
 {
-	/**
-	 * Creates an instance of a behaviour
-	 * 
-	 * @param 	string|objet 	$name		The last part of the behaviour name if it starts with Atomik_Model_Behaviour_ or a class name
-	 * @return 	Atomik_Model_Behaviour_Interface
-	 */
-	public static function factory($name)
+	public function init()
 	{
-		$className = 'Atomik_Model_Behaviour_' . ucfirst($name);
-		if (!class_exists($className)) {
-			$className = $name;
-			if (!class_exists($className)) {
-				require_once 'Atomik/Model/Behaviour/Exception.php';
-				throw new Atomik_Model_Behaviour_Exception('No model behaviour named ' . $name . ' were found');
-			}
-		}
-		
-		return new $className();
+		$this->_builder->addField(new Atomik_Model_Field_Bool('published'));
 	}
 }

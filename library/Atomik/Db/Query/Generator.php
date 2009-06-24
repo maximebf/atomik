@@ -110,14 +110,14 @@ class Atomik_Db_Query_Generator implements Atomik_Db_Query_Generator_Interface
 		
 		if (!is_array($data)) {
 			return sprintf('INSERT INTO %s %s',
-				$this->_info['table'],
+				$this->_adapter->quoteIdentifier($this->_info['table']),
 				(string) $data
 			);
 			
 		} else {
 			return sprintf('INSERT INTO %s (%s) VALUES (%s)',
-				$this->_info['table'],
-				implode(', ', array_keys($data)),
+				$this->_adapter->quoteIdentifier($this->_info['table']),
+				implode(', ', array_map(array($this->_adapter, 'quoteIdentifier'), array_keys($data))),
 				implode(', ', array_values($data))
 			);
 		}
@@ -132,11 +132,11 @@ class Atomik_Db_Query_Generator implements Atomik_Db_Query_Generator_Interface
 	{
 		$sets = array();
 		foreach ($this->_info['data'] as $field => $value) {
-			$sets[] = "$field = $value";
+			$sets[] = $this->_adapter->quoteIdentifier($field) . ' = ' .$value;
 		}
 		
 		return sprintf('UPDATE %s SET %s',
-			$this->_info['table'],
+			$this->_adapter->quoteIdentifier($this->_info['table']),
 			implode(', ', $sets) .
 			$this->_buildWherePart() .
 			$this->_buildOrderByPart() .
@@ -170,7 +170,7 @@ class Atomik_Db_Query_Generator implements Atomik_Db_Query_Generator_Interface
 		if (count($this->_info['from'])) {
 			$tables = array();
 			foreach ($this->_info['from'] as $fromInfo) {
-				$fromSql = $fromInfo['table'];
+				$fromSql = $this->_adapter->quoteIdentifier($fromInfo['table']);
 				if (!empty($fromInfo['alias'])) {
 					$fromSql .= ' AS ' . $fromInfo['alias'];
 				}
@@ -195,7 +195,7 @@ class Atomik_Db_Query_Generator implements Atomik_Db_Query_Generator_Interface
 			foreach ($this->_info['join'] as $joinInfo) {
 				$sql .= ' ' . trim(strtoupper($joinInfo['type'])) 
 					  . ' JOIN ' 
-					  . $joinInfo['table']
+					  . $this->_adapter->quoteIdentifier($joinInfo['table'])
 					  . (!empty($joinInfo['alias']) ? ' AS ' . $joinInfo['alias'] : '')
 					  . ' ON '
 					  . $joinInfo['on'];

@@ -36,7 +36,7 @@ class FormPlugin
     public static $config = array (
     
     	// directories where forms are stored
-    	'form_dirs' 			=> './app/forms'
+    	'form_dirs' => './app/forms'
     	
     );
     

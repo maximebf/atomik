@@ -211,16 +211,6 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	}
 	
 	/**
-	 * Returns the id attribute
-	 * 
-	 * @return string
-	 */
-	public function getId()
-	{
-		return $this->getAttribute('id');
-	}
-	
-	/**
 	 * Sets the action attribute
 	 * 
 	 * @param	string	$value
@@ -279,19 +269,7 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	{
 		return $this->_attributes['enctype'];
 	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see library/Atomik/Atomik_Options#setOption()
-	 */
-	public function setOption($name, $value)
-	{
-		if (substr($name, 0, 5) == 'html-') {
-			return $this->setAttribute(substr($name, 5), $value);
-		}
-		parent::setOption($name, $value);
-	}
-	
+
 	/**
 	 * Resets the form attributes
 	 *
@@ -308,56 +286,6 @@ class Atomik_Form extends Atomik_Form_Fieldset
 		foreach ($attributes as $name => $value) {
 			$this->setAttribute($name, $value);
 		}
-	}
-	
-	/**
-	 * Sets a form attribute
-	 *
-	 * @param string $name
-	 * @param string $value
-	 */
-	public function setAttribute($name, $value)
-	{
-		$this->_attributes[$name] = $value;
-	}
-	
-	/**
-	 * Returns an attribute value
-	 *
-	 * @param string $name
-	 * @param string $de
-	 * @return string
-	 */
-	public function getAttribute($name, $default = null)
-	{
-		if (!isset($this->_attributes[$name])) {
-			return $default;
-		}
-		return $this->_attributes[$name];
-	}
-	
-	/**
-	 * Returns all the attributes
-	 *
-	 * @return array
-	 */
-	public function getAttributes()
-	{
-		return $this->_attributes;
-	}
-	
-	/**
-	 * Returns all the attributes as an html attributes formatted string
-	 *
-	 * @return string
-	 */
-	public function getAttributesAsString()
-	{
-		$string = '';
-		foreach ($this->_attributes as $name => $value) {
-			$string .= ' ' . $name . '="' . $value . '"';
-		}
-		return trim($string);
 	}
 	
 	/**

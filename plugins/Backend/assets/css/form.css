@@ -62,7 +62,7 @@ a.form-link-button:hover {
 	[ Atomik_Form_Fields ]
 */
 
-.form input.datetime.date {
+.form input.timestamp.date {
 	width: 100px;
 }
 
