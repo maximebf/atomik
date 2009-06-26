@@ -35,6 +35,16 @@ class Atomik_Backend
 	 */
 	protected static $_menu = array();
 	
+	public static function pluginAction($plugin, $action)
+	{
+		return Atomik::get('backend/base_action') . '/' . $plugin . '/' . $action;
+	}
+	
+	public static function pluginUrl($plugin, $action, $params = array(), $useIndex = true)
+	{
+		return Atomik::url(self::pluginAction($plugin, $action), $params, $useIndex);
+	}
+	
 	/**
 	 * Adds a new top menu item
 	 * 
@@ -100,23 +110,23 @@ class Atomik_Backend
 	 */
 	public static function getCurrentMenu()
 	{
+		$url = Atomik::get('backend/full_request_uri');
+		$currentMenu = null;
+		
 		foreach (self::$_menu as $name => $item) {
-			if (self::isCurrentMenu($name)) {
+			if ($item['action'] == $url) {
 				return $item;
+			} else if (Atomik::uriMatch($item['action'] . '/*', $url)) {
+				$currentMenu = $item;
+			} else {
+				foreach ($item['submenu'] as $subLabel => $subAction) {
+					if (Atomik::uriMatch($subAction . '/*', $url)) {
+						return $item;
+					}
+				}
 			}
 		}
-		return null;
-	}
-	
-	/**
-	 * Checks if a tag is the current active one
-	 *
-	 * @param array $tab
-	 * @return bool
-	 */
-	public static function isCurrentMenu($name)
-	{
-		$pattern = self::$_menu[$name]['action'] . '/*';
-		return Atomik::uriMatch($pattern, Atomik::get('backend/full_request_uri'));
+		
+		return $currentMenu;
 	}
 }

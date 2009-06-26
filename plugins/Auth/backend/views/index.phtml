@@ -1,0 +1,31 @@
+<div id="content-wrapper">
+	<div class="panel">
+		<h2 class="panel-title"><?php echo __('Users') ?></h2>
+		<div class="panel-content" id="content">
+			<?php echo $this->modelDataTable('users', $users, array(
+						'url' => Atomik_Backend::pluginUrl('db', 'models/edit', 
+							array('name' => $builder->name, 'returnUrl' => Atomik::pluginUrl('index'))),
+						'columns' => $columns,
+						'actions' => array(
+							array('label' => __('Delete'), 'url' => Atomik_Backend::pluginUrl('db', 'models/delete', 
+								array('returnUrl' => Atomik::pluginUrl('index'))))
+						)
+			))->render() ?>
+		</div>
+	</div>
+</div>
+<div id="sidebar-wrapper">
+	<div id="sidebar">
+		<?php echo $this->sidebarButton(
+			__('Create a new user'), 
+			Atomik_Backend::pluginUrl('db', 'models/edit', array('name' => 'User', 'returnUrl' => Atomik::pluginUrl('index'))),
+			Atomik::pluginAsset('images/user.png')
+		) ?>
+		<?php echo $this->sidebarButton(
+			__('Manage permissions'), 
+			Atomik::pluginUrl('permissions'),
+			Atomik::pluginAsset('images/permission.png')
+		) ?>
+		<?php echo $this->modelFilters($builder, $columns) ?>
+	</div>
+</div>

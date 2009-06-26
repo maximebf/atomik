@@ -81,6 +81,11 @@ class Atomik_Model_Builder extends Atomik_Options
 	protected $_fields = array();
 	
 	/**
+	 * @var bool
+	 */
+	protected $_autoPrimaryKey = true;
+	
+	/**
 	 * @var Atomik_Model_Field_Abstract
 	 */
 	protected $_primaryKeyField;
@@ -112,6 +117,7 @@ class Atomik_Model_Builder extends Atomik_Options
 		$this->className = $className;
 		$this->tableName = $tableName === null ? $name : $tableName;
 		$this->_behaviourBroker = new Atomik_Model_Behaviour_Broker($this);
+		$this->setPrimaryKeyField();
 	}
 	
 	/**
@@ -296,6 +302,8 @@ class Atomik_Model_Builder extends Atomik_Options
 	 */
 	public function setPrimaryKeyField(Atomik_Model_Field_Abstract $field = null)
 	{
+		$removeAutoKey = true;
+		
 		if ($field === null) {
 			if ($this->_primaryKeyField !== null) {
 				// primary key already defined
@@ -304,11 +312,17 @@ class Atomik_Model_Builder extends Atomik_Options
 			
 			// checks if there is a field named id
 			if (($field = $this->getField('id')) === false) {
-				// creates a new id field
 				require_once 'Atomik/Model/Field.php';
 				$field = new Atomik_Model_Field('id', 'int', array('form-ignore' => true));
 				$this->addField($field);
+				$this->_autoPrimaryKey = true;
+				$removeAutoKey = false;
 			}
+		}
+		
+		if ($removeAutoKey && $this->_autoPrimaryKey) {
+			unset($this->_fields['id']);
+			$this->_autoPrimaryKey = false;
 		}
 		
 		$this->_primaryKeyField = $field;
@@ -451,7 +465,7 @@ class Atomik_Model_Builder extends Atomik_Options
 	public function isModelRelated(Atomik_Model_Builder $builder)
 	{
 		foreach ($this->_references as $reference) {
-			if ($reference->target == $builder) {
+			if ($reference->isTarget($builder)) {
 				return true;
 			}
 		}
@@ -467,7 +481,7 @@ class Atomik_Model_Builder extends Atomik_Options
 	public function isChildModel(Atomik_Model_Builder $builder)
 	{
 		foreach ($this->_references as $reference) {
-			if ($reference->target == $builder && $reference->type != Atomik_Model_Builder_Reference::HAS_PARENT) {
+			if ($reference->isTarget($builder) && $reference->type != Atomik_Model_Builder_Reference::HAS_PARENT) {
 				return true;
 			}
 		}
@@ -483,7 +497,7 @@ class Atomik_Model_Builder extends Atomik_Options
 	public function isParentModel(Atomik_Model_Builder $builder)
 	{
 		foreach ($this->_references as $reference) {
-			if ($reference->target == $builder && $reference->type == Atomik_Model_Builder_Reference::HAS_PARENT) {
+			if ($reference->isTarget($builder) && $reference->type == Atomik_Model_Builder_Reference::HAS_PARENT) {
 				return true;
 			}
 		}

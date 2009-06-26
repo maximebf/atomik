@@ -62,7 +62,7 @@ class Atomik_Model_Builder_Reference
 	public $sourceField;
 	
 	/**
-	 * @var Atomik_Model_Builder
+	 * @var string
 	 */
 	public $target;
 	
@@ -127,13 +127,23 @@ class Atomik_Model_Builder_Reference
 	public function isTarget($target)
 	{
 		if (is_string($target)) {
-			return $target == $this->target->name;
+			return $target == $this->target;
 		}
 		if (!($target instanceof Atomik_Model_Builder)) {
-			return get_class($target) == $this->target->className;
+			$target = Atomik_Model_Builder_Factory::get($target);
 		}
 		
-		return $target == $this->target;
+		return $target->name == $this->target;
+	}
+	
+	/**
+	 * Returns the builder of the target
+	 * 
+	 * @return Atomik_Model_Builder
+	 */
+	public function getTargetBuilder()
+	{
+		return Atomik_Model_Builder_Factory::get($this->target);
 	}
 	
 	/**
@@ -145,7 +155,7 @@ class Atomik_Model_Builder_Reference
 	public function getQuery(Atomik_Model $sourceModel)
 	{
 		$query = clone $this->query;
-		$query->from($this->target)->where(array($this->targetField => $sourceModel->{$this->sourceField}));
+		$query->from($this->getTargetBuilder())->where(array($this->targetField => $sourceModel->{$this->sourceField}));
 		return $query;
 	}
 }

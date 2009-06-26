@@ -26,6 +26,8 @@
 	Atomik::set('atomik/base_action', $baseAction . '/' . $plugin);
 	
 	Atomik_Backend::addMenu('dashboard', 'Dashboard', 'backend');
+	Atomik_Backend::addMenu('settings', 'Settings', 'backend/settings', array(), 'right');
+	
 	include dirname(__FILE__) . '/Assets.php';
 	Atomik::fireEvent('Backend::Start', array($plugin));
 	

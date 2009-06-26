@@ -34,6 +34,7 @@
  ! The starting point is now Atomik::run()
  * Added Atomik::reset()
  * Added Atomik::loadHelper()
+ * Added Atomik::helper()
  * Added Atomik::_render()
  * Added Atomik::__call()
  ! Atomik::loadPlugin() only gets a plugin name as parameter and uses the configuration from the plugins/PluginName key

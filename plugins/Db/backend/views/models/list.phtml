@@ -14,6 +14,11 @@
 </div>
 <div id="sidebar-wrapper">
 	<div id="sidebar">
-		<?php echo $this->sidebarButton(__('Create a new %s', $modelName), Atomik::pluginUrl('models/edit', array('name' => $modelName))) ?>
+		<?php echo $this->sidebarButton(
+			__('Create a new %s', $modelName), 
+			Atomik::pluginUrl('models/edit', array('name' => $modelName)),
+			Atomik::pluginAsset('images/new.png')
+		) ?>
+		<?php echo $this->modelFilters($builder, $columns) ?>
 	</div>
 </div>

@@ -375,7 +375,7 @@ class Atomik
     		        $key = $value;
     		        $value = array();
     		    }
-    		    $plugins[ucfirst($key)] = $value;
+    		    $plugins[ucfirst($key)] = (array) $value;
     		}
     		self::set('plugins', $plugins, false);
     		
@@ -1014,13 +1014,19 @@ class Atomik
 	 * 
 	 * @param string $helperName
 	 */
-	public static function loadHelper($helperName)
+	public static function loadHelper($helperName, $dirs = null)
 	{
 		if (isset(self::$_loadedHelpers[$helperName])) {
 			return;
 		}
 		
-		if (($filename = self::path($helperName . '.php', self::get('atomik/dirs/helpers'))) === false) {
+		if ($dirs === null) {
+			$dirs = self::get('atomik/dirs/helpers');
+		}
+		
+		self::fireEvent('Atomik::Loadhelper::Before', array(&$helperName, &$dirs));
+		
+		if (($filename = self::path($helperName . '.php', $dirs)) === false) {
 			throw new Atomik_Exception('Helper ' . $helperName . ' not found');
 		}
 		
@@ -1042,6 +1048,21 @@ class Atomik
 			// helper defined as a function
 			self::$_loadedHelpers[$helperName] = $helperName;
 		}
+		
+		self::fireEvent('Atomik::Loadhelper::After', array($helperName, $dirs));
+	}
+	
+	/**
+	 * Executes an helper
+	 * 
+	 * @param 	string	$helperName
+	 * @param 	array	$args
+	 * @return 	mixed
+	 */
+	public static function helper($helperName, $args = array(), $dirs = null)
+	{
+		self::loadHelper($helperName, $dirs);
+		return call_user_func_array(self::$_loadedHelpers[$helperName], $args);
 	}
 	
 	/**
@@ -1053,8 +1074,7 @@ class Atomik
 	 */
 	public function __call($helperName, $args)
 	{
-		self::loadHelper($helperName);
-		return call_user_func_array(self::$_loadedHelpers[$helperName], $args);
+		return self::helper($helperName, $args);
 	}
 	
 	/**
@@ -2058,7 +2078,7 @@ class Atomik
 			}
 			
 			// checks if url rewriting is used
-			if (!$useIndex || self::get('atomik/url_rewriting', false) === true) {
+			if (!$useIndex || self::get('atomik/url_rewriting', false) == true) {
 				$useIndex = false;
 				$url .= $action;
 			} else {

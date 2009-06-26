@@ -28,7 +28,6 @@ require_once 'Atomik/Model.php';
  * @package Atomik
  * @subpackage Auth
  * 
- * @adapter Db
  * @table auth_user_roles
  * @has parent Atomik_Auth_User as user using Atomik_Auth_User.id = Atomik_Auth_User_Role.user_id
  */

@@ -84,7 +84,7 @@ class AuthPlugin
     	// extracting uris from resources
     	foreach (Atomik_Auth::getAcl() as $resource => $roles) {
     		if ($resource{0} == '/') {
-    			self::$_privateUris[$resource] = $roles;
+    			self::addRestrictedUri($resource, $roles);
     		}
     	}
     }
@@ -97,7 +97,12 @@ class AuthPlugin
      */
     public static function addRestrictedUri($uri, $roles = array())
     {
-    	self::$_privateUris[$uri] = (array) $roles;
+    	self::$_privateUris[ltrim($uri, '/')] = (array) $roles;
+    }
+    
+    public static function getRestrictedUris()
+    {
+    	return self::$_privateUris;
     }
     
 	/**
@@ -143,6 +148,17 @@ class AuthPlugin
     	}
     }
     
+    /**
+     * 
+     */
+    public static function onBackendStart()
+    {
+    	Atomik_Backend::addMenu('users', 'Users', 'auth', array(), 'right');
+    }
+    
+    /**
+     * 
+     */
     public static function onDbScript($script)
     {
     	if (self::$config['model'] !== null) {

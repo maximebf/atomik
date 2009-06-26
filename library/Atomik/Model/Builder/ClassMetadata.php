@@ -237,7 +237,7 @@ class Atomik_Model_Builder_ClassMetadata
 			$reference->query->limit($matches['limit']);
 		}
 		
-		$reference->target = Atomik_Model_Builder_Factory::get($target);
+		$reference->target = $target;
 		$builder->addReference($reference);
 		return $reference;
 	}
@@ -269,9 +269,9 @@ class Atomik_Model_Builder_ClassMetadata
 			
 			// HAS_MANY
 			// searching through the target model references for one pointing back to this model
-			$parentsRef = $targetBuilder->getReferences();
+			$parentRefs = $targetBuilder->getReferences();
 			$found = false;
-			foreach ($parentsRef as $parentRef) {
+			foreach ($parentRefs as $parentRef) {
 				if ($parentRef->isHasParent() && $parentRef->isTarget($builder->name)) {
 					$sourceField = $parentRef->targetField;
 					$targetField = $parentRef->sourceField;

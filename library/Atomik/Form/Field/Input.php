@@ -31,7 +31,7 @@ class Atomik_Form_Field_Input extends Atomik_Form_Field_Abstract
 	public function render()
 	{
 		return sprintf('<input type="%s" name="%s" value="%s" %s/>',
-			$this->getOption('type', 'text'),
+			$this->getAttribute('type', 'text'),
 			$this->getFullname(),
 			$this->getValue(),
 			$this->getAttributesAsString(array('type', 'value'))

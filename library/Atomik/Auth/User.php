@@ -34,23 +34,24 @@ require_once 'Atomik/Auth/User/Role.php';
  * @package Atomik
  * @subpackage Auth
  * 
- * @adapter Db
  * @table auth_users
  * @has many Atomik_Auth_User_Role as roles
+ * @admin-ignore
  * @inheritance abstract
  */
 class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interface
 {
 	/**
 	 * @var string
-	 * @sql-type varchar(100)
+	 * @length 100
 	 * @title-field
 	 */
 	public $username;
 	
 	/**
+	 * @form-attr-type password
 	 * @var string
-	 * @sql-type varchar(50)
+	 * @length 50
 	 */
 	public $password;
 	

@@ -36,7 +36,7 @@ Atomik::set(array(
 ));
 
 Atomik::set('plugins/Auth', array(
-	//'model' => 'User',
+	'model' => 'User',
 	'users' => array(
 		'admin' => array('password' => 'admin', 'roles' => array('backend', 'member'))
 	),

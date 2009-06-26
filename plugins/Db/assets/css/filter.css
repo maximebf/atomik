@@ -1,0 +1,25 @@
+
+#sidebar .model-filters > ul {
+	font-weight: bold;
+	list-style-type: none;
+}
+
+	#sidebar .model-filters > ul ul {
+		font-weight: normal;
+		list-style-type: none;
+		margin: 5px 0 0 2px;
+		padding: 0;
+	}
+
+		#sidebar .model-filters > ul ul a {
+			display: block;
+			margin-top: 3px;
+			padding-left: 8px;
+		}
+
+		#sidebar .model-filters > ul ul a.current,
+		#sidebar .model-filters > ul ul a:hover {
+			border-left: 4px solid #dae0aa;
+			padding-left: 4px;
+			text-decoration: none;
+		}

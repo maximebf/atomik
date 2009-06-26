@@ -5,6 +5,7 @@ if (!Atomik::has('request/name')) {
 }
 
 $modelName = Atomik::get('request/name');
+$returnUrl = Atomik::get('request/returnUrl', Atomik::pluginUrl('models/list', array('name' => $modelName)));
 $builder = Atomik_Backend_Models::getModelBuilder($modelName);
 
 $actionString = 'created';
@@ -20,13 +21,14 @@ if (Atomik::has('request/id')) {
 }
 
 $form = new Atomik_Model_Form($model, array('form-', 'admin-form-'));
+$form->setOption('cancel-url', $returnUrl);
 
 if ($form->hasData()) {
 	if ($form->isValid()) {
 		$model = $form->getModel();
 		$model->save();
 		Backend_Activity::create('Models', $message, __(ucfirst($actionString) . ' by') . ' %s');
-		Atomik::pluginRedirect(Atomik::pluginUrl('models/list', array('name' => $modelName)), false);
+		Atomik::pluginRedirect($returnUrl, false);
 	}
 	Atomik::flash($form->getValidationMessages(), 'error');
 }

@@ -139,8 +139,8 @@ class DbPlugin
     {
     	Atomik_Backend::addMenu('model', 'Models', 'db/models', array(), 'right');
     	
-    	// helpers should be accessible from all backend plugins
-    	Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/backend/helpers');
+    	// shared helpers should be accessible from all backend plugins
+    	Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/backend/helpers/shared');
     }
 	
 	/**

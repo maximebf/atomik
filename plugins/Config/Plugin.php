@@ -70,6 +70,7 @@ class ConfigPlugin
 		Atomik_Backend::addSubMenu('settings', 'General', 'config/index');
 		Atomik_Backend::addSubMenu('settings', 'Plugins', 'config/plugins');
 		Atomik_Backend::addSubMenu('settings', 'Configuration', 'config/editor');
+		Atomik_Backend::addSubMenu('settings', 'Backend', 'backend/settings');
 	}
 	
 	/**

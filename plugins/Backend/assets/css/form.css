@@ -23,6 +23,7 @@
 */
 	
 .form input[type="text"],
+.form input[type="password"],
 .form textarea {
 	border: 3px solid #e5ecc4;
 	padding: 2px;

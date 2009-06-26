@@ -1,0 +1,22 @@
+<div id="content-wrapper">
+	<div class="panel">
+		<h2 class="panel-title"><?php echo __('Permissions') ?></h2>
+		<div class="panel-content" id="content">
+			<?php echo $this->dataTable('permissions', $permissions, array(
+						'url' => Atomik::pluginUrl('permissions/edit'),
+						'actions' => array(
+							array('label' => __('Delete'), 'url' => Atomik::pluginUrl('permissions/delete'))
+						)
+			)) ?>
+		</div>
+	</div>
+</div>
+<div id="sidebar-wrapper">
+	<div id="sidebar">
+		<?php echo $this->sidebarButton(
+			__('Create a new permission'), 
+			Atomik::pluginUrl('permissions/edit'),
+			Atomik::pluginAsset('images/permission.png')
+		) ?>
+	</div>
+</div>

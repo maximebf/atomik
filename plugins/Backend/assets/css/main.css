@@ -204,7 +204,7 @@ img {
 			color: #50580e;
 			display: block;
 			font-size: 1.2em;
-			line-height: 37px;
+			line-height: 35px;
 			margin: 0px;
 			margin-bottom: 10px;
 			padding: 0px;
@@ -217,19 +217,21 @@ img {
 	
 			#sidebar .sidebar-action img {
 				background: #afb76a;
+				height: 32px;
 				padding: 3px;
 				vertical-align: middle;
+				zidth: 32px;
 			}
 	
 			#sidebar .sidebar-action span {
-				margin-left: 5px;
+				margin-left: 8px;
 			}
 			
-		#sidebar .sidebar-block {
+		#sidebar .sidebar-box {
 			margin-bottom: 30px;
 		}
 	
-			#sidebar .sidebar-block h2 {
+			#sidebar .sidebar-box-title {
 				background: #dae0aa;
 				color: #71773b;
 				cursor: pointer;
@@ -239,18 +241,22 @@ img {
 				padding: 3px;
 			}
 	
-			#sidebar .sidebar-block ul {
-				color: #dadeb8;
+			#sidebar .sidebar-box > ul {
 				list-style-position: inside;
 				list-style-type: square;
 				margin: 0px;
 				padding: 0px;
 			}
 	
-				#sidebar .sidebar-block ul li {
+				#sidebar .sidebar-box > ul > li {
 					margin: 4px;
+					margin-bottom: 8px;
 					padding: 0px;
 				}
+				
+					#sidebar .sidebar-box > ul ul {
+						padding-left: 15px;
+					}
 
 /* ----------------------------------------------------------------
 	[ Footer ]

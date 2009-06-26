@@ -25,7 +25,7 @@
 					<?php echo Atomik_Backend_Layout::renderPlaceholder('before_menu') ?>
 					
 					<?php foreach (Atomik_Backend::getMenu() as $name => $item): ?>
-						<li class="<?php if (Atomik_Backend::isCurrentMenu($name)) echo 'selected '; echo $item['position']; ?>">
+						<li class="<?php if ($name == $currentMenuItem['name']) echo 'selected '; echo $item['position']; ?>">
 							<a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $item['action']) ?>">
 								<?php echo __(ucfirst($item['label'])); ?>
 							</a>
