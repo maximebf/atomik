@@ -72,7 +72,7 @@ include 'page_html.php';]]>
 		<para>
 			Actions are stored in the <filename>app/actions</filename> directory. Both the action and the 
 			view filename must have the same name. Action files must have the <quote>php</quote> extension.
-			If the action's filename starts with an underscore, the action won't be accessible using an url.
+			If the action or view filename starts with an underscore, the action won't be accessible using an url.
 		</para>
 		<para>
 			The content of an action file is free. It can be anything you want. So you just do your

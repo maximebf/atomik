@@ -3,8 +3,8 @@
 	<title>Events</title>
 	<para>
 		Events are one of the most important concept in Atomik.
-		Callback can be registered to listen to any events. When an event
-		is fired (or triggered), all listening callbacks are called. 
+		Callbacks can be registered to listen to any events. When an event
+		is fired, all listening callbacks are called. 
 	</para>
 	<note>
 		Events are implicitely declared when they're fired.
@@ -49,7 +49,7 @@ Atomik::listenEvent('myArgEvent', function($arg1, $arg2) {
 			</programlisting>
 		</note>
 		<para>
-			Listeners also have priorities. The priority is a number, smaller number have a higher priority.
+			Listeners also have priorities. The priority is a number, smaller numbers have a higher priority.
 			The priority is specified when registering the listener.
 		</para>
 		<example>

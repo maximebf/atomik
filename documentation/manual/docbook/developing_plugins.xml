@@ -79,6 +79,10 @@ class DbPlugin
 }]]>
 			</programlisting>
 		</example>
+		<note>
+		    It is a good thing to always provide a default configuration. This can be done by merging
+		    a default configuration array with the user's configuration.
+		</note>
 		<para>
 			The class can contain static methods that will be automatically registered as callback
 			on events. These methods have to start by "on" followed by the event name without

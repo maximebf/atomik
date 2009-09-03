@@ -26,8 +26,8 @@ $messages = A('flash:label');]]>
 			</programlisting>
 		</example>
 		<para>
-			Plugins can provide their own selector namespace. For example, the Db plugin brings with
-			it the <quote>db</quote> namespace which allow you to do sql queries.
+			Plugins can provide their own selector namespace. For example, the Db plugin brings
+			the <quote>db</quote> namespace which allow you to do sql queries.
 		</para>
 		<example>
 			<title>Using the selector provided by the Db plugin</title>
@@ -49,7 +49,7 @@ $firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));]]>
 		<para>
 			To register a namespace use <methodname>Atomik::registerSelector()</methodname> which takes
 			as first parameter the namespace prefix and as second a callback. When used, the callback will
-			be called with as parameters the same one used with <methodname>Atomik::get()</methodname>.
+			be called with as arguments the same one used with <methodname>Atomik::get()</methodname>.
 			However, the namespace prefix will be stripped off the first parameter, which is the "query" string.
 		</para>
 		<example>
@@ -86,7 +86,7 @@ function my_callback() {
 Atomik::registerMethod('myMethod', 'my_callback');]]>
 			</programlisting>
 			<para>
-				If you have PHP 5.3 you can use anonmous functions:
+				If you have PHP 5.3 you can use anonymous functions:
 			</para>
 			<programlisting>
 				<![CDATA[

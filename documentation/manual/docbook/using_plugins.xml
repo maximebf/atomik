@@ -23,8 +23,8 @@
 			<programlisting>
 				<![CDATA[
 Atomik::set('plugins', array(
-	'Db',
-	'Cache'
+    'Db',
+    'Cache'
 ));]]>
 			</programlisting>
 		</example>
@@ -84,9 +84,9 @@ Atomik::set('plugins', array(
 				<title>Setting the trigger for the Blog plugin</title>
 				<programlisting>
 					<![CDATA[
-	Atomik::set('plugins/Blog', array(
-		'route' => '/my-blog/*'
-	));]]>
+Atomik::set('plugins/Blog', array(
+    'route' => '/my-blog/*'
+));]]>
 				</programlisting>
 			</example>
 			<para>
@@ -98,14 +98,14 @@ Atomik::set('plugins', array(
 				<title>Manually setting the trigger</title>
 				<programlisting>
 					<![CDATA[
-	Atomik::registerPluggableApplication('MyPluggableApp', '/my-app/*')]]>
+Atomik::registerPluggableApplication('MyPluggableApp', '/my-app/*')]]>
 				</programlisting>
 			</example>
 			<note>
 				When available, use the plugin configuration as it could override any predefined pattern.
 			</note>
 			<note>
-				You can connect any application to the root of your application by using <quote>/*</quote>.
+				You can connect any application to the root of your application using <quote>/*</quote>.
 			</note>
 		</sect2>
 		<sect2 id="overrides">

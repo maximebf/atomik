@@ -24,11 +24,14 @@
 		<title>Example</title>
 	</head>
 	<body>
-		<?php echo $myPublicVariable; ?>
+		<?= $myPublicVariable; ?>
 	</body>
 </html>]]>
 			</programlisting>
 		</example>
+		<tip>
+		    If your configuration allows it, it is better to use php's short tags in views for better readibility.
+		</tip>
 		<figure>
 			<title>A little schema to sum up!</title>
 			<mediaobject>
@@ -97,6 +100,9 @@ class FormatDateHelper
 				file rendered using <methodname>Atomik::renderFile</methodname>. They are accessible as methods of 
 				<varname>$this</varname>. Helpers are automatically loaded.
 			</para>
+		    <note>
+		        Helpers are also available in the same way from actions, but there are meant to be use from views.
+		    </note>
 			<example>
 				<title>Calling an helper</title>
 				<programlisting>
@@ -143,7 +149,7 @@ class FormatDateHelper
 	<body>
 		<h1>My website</h1>
 		<div id="content">
-			<?php echo $contentForLayout; ?>
+			<?= $contentForLayout; ?>
 		</div>
 	</body>
 </html>]]>
@@ -193,9 +199,9 @@ Atomik::set('app/layout', '_layout');]]>
 			<programlisting>
 				<![CDATA[
 Atomik::set('app/views/contexts/rdf', array(
-	'prefix' 		=> 'rdf',					// the view's file prefix (set to false for no prefix)
-	'layout' 		=> false,					// whether to enable the layout
-	'content-type' 		=> 'application/xml+rdf'	// the response content type
+	'prefix'        => 'rdf',                   // the view's file prefix (set to false for no prefix)
+	'layout'        => false,                   // whether to enable the layout
+	'content-type'  => 'application/xml+rdf'    // the response content type
 ));]]>
 			</programlisting>
 			<para>
@@ -281,8 +287,6 @@ Atomik::set('app/views/engine', 'myCustomRenderingEngine');]]>
 		<para>
 			It takes as first argument the view name and optionally as second argument
 			an array of key/value pairs representing variables. 
-		</para>
-		<para>
 			The method returns the view output.
 		</para>
 		<example>

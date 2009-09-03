@@ -29,13 +29,13 @@
 		<para>
 			Atomik is not an MVC framework according to the definition of MVC (it can 
 			however become one with plugins...). Still  it follows the same idea.
-			The application logic, called action, and the presentation layer, called 
-			view, are divided into two different files. The action is executed
-			and then the view is rendered. Both of them is what makes a web page.
+			The application logic, called actions, and the presentation layer, called 
+			views, are divided into two different files. The action is executed
+			and then the view is rendered. Both of them is what make a web page.
 		</para>
 		<para>
 			How you code actions and views is your business! Atomik only provides the
-			dispatch mechanism. The only other thing it does is pass variables defined
+			dispatch mechanism. The only other thing it does is forward variables defined
 			in the action to the view.
 		</para>
 	</sect1>
@@ -47,6 +47,10 @@
 			is made possible through an event system. Before and after each methods, 
 			and sometimes during, events are fired. Multiple callbacks can be registered for
 			each events which allow to modify the way Atomik acts.
+		</para>
+		<para>
+		    Since version 2.2, plugins can also become full standalone applications! This allows
+		    you to quickly build on top of existing features and thus don't repeating yourself.
 		</para>
 		<para>
 			Atomik respects the convention over configuration principle. However it hasn't forget

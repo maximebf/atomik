@@ -6,7 +6,7 @@
 		<para>
 			To redirect the user to another page you can use the <methodname>Atomik::redirect()</methodname> method.
 			It takes as argument the url to redirect to. By default, this url will first be process using 
-			<methodname>Atomik::url()</methodname>. This behaviour can be disable by passing false as the second argument.
+			<methodname>Atomik::url()</methodname>. This behaviour can be disabled by passing false as the second argument.
 			The response HTTP code can also be specified as the third argument.
 		</para>
 		<example>
@@ -47,7 +47,7 @@ echo Atomik::escape('my text');]]>
 			You can for example, execute the <function>htmlspecialchars()</function> function followed by <function>nl2br()</function>.
 		</para>
 		<para>
-			The functions to execute are regroup under profiles. Thus, you can create multiple escaping profile depending on the data you 
+			The functions to execute are grouped under profiles. Thus, you can create multiple escaping profiles depending on the data you 
 			need to escape. Profiles are defined in the <quote>app/escaping</quote> configuration key. To specify which functions to execute
 			in a profile, you can use a string or an array of strings. Functions will be executed in the order they appear in the array.
 			The default profile is called <quote>default</quote>.
@@ -74,7 +74,7 @@ echo Atomik::escape('my url param', 'url');]]>
 		</example>
 	</sect1>
 	<sect1 id="utilities-friendlify">
-		<title>Make friendly urls</title>
+		<title>Friendly urls</title>
 		<para>
 			Having a router without a way to make friendly urls woudln't be a complete feature. <methodname>Atomik::friendlify()</methodname>
 			transforms string to a url friendly version.
@@ -96,8 +96,14 @@ echo Atomik::friendlify('My text in the url');
 			PHP's filter extension.
 		</para>
 		<note>
-			PHP's filter extension is built-in since version 5.2. Prior to that, you must use PECL. More information
-			is available in the extension documentation at <link xlink:href="http://php.net/filter">http://php.net/filter</link>.
+		    <para>
+			    PHP's filter extension is built-in since version 5.2. Prior to that, you must use PECL. More information
+			    is available in the extension documentation at <link xlink:href="http://php.net/filter">http://php.net/filter</link>.
+			</para>
+			<para>
+			    You can find a good documentation (better than the official one) about available filters on the w3schools
+			    website at <link xlink:href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</link>
+			</para>
 		</note>
 		<para>
 			To understand and use <methodname>Atomik::filter()</methodname> you must know how to use PHP's filter
@@ -201,7 +207,7 @@ $rule = array(
 
 if (($filteredData = Atomik::filter($dataToFilter, $rule)) === false) {
 	// failed validation, showing messages
-	Atomik::flash(A('filters/messages'), 'error');
+	Atomik::flash(A('app/filters/messages'), 'error');
 	return;
 }
 
@@ -209,10 +215,6 @@ if (($filteredData = Atomik::filter($dataToFilter, $rule)) === false) {
 // do something with $filteredData]]>
 			</programlisting>
 		</example>
-		<note>
-			You can find a good documentation (better than the official one) about available filters on the w3schools
-			website at <link xlink:href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</link>
-		</note>
 	</sect1>
 	<sect1 id="utilities-path">
 		<title>Managing paths</title>

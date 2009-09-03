@@ -16,7 +16,7 @@
 			the <quote>atomik/display_errors</quote> configuration key.
 		</para>
 		<para>
-			A custom error page can be used as explain in the configuration chapter.
+			A custom error page can be used as explained in the configuration chapter.
 		</para>
 		<note>
 			<para>
@@ -32,8 +32,8 @@
 		<title>Logging</title>
 		<para>
 			Logging should be an important part of any application. To provide a unified way of logging, Atomik provide since
-			version 2.2 an <methodname>Atomik::log()</methodname> method. It takes two argument, the second one being optional:
-			the message and the level (default is LOG_ERR - 3).
+			version 2.2 an <methodname>Atomik::log()</methodname> method. It takes two arguments, the second one being optional:
+			the message and the level (default is LOG_ERR = 3).
 		</para>
 		<example>
 			<title>Using <methodname>Atomik::log()</methodname></title>

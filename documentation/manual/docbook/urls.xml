@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="urls" xmlns="http://docbook.org/ns/docbook">
+<chapter id="urls" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>URLs</title>
 	<sect1 id="url-calling-action">
 		<title>Calling an action</title>
@@ -15,8 +15,8 @@
 		<para>
 			The value of the parameter must only contain the action name
 			without any extension. So for example if you have an <filename>home.php</filename>
-			file in the <filename>app/actions</filename> directory or/and an 
-			<filename>home.php</filename> file in the <filename>app/views</filename>
+			file in the <filename>app/actions</filename> directory and/or an 
+			<filename>home.phtml</filename> file in the <filename>app/views</filename>
 			directory, you must use <quote>home</quote> as parameter to call this action.
 			Thus, the url should look like <link>http://example.com/index.php?action=home</link>.
 		</para>
@@ -56,6 +56,11 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 			The base url of the website (ie. the path before the root of the site) can be found in the 
 			<quote>atomik/base_url</quote> key.
 		</para>
+		<note>
+		    When using pluggable applications (see the plugins chapter), the <quote>request_uri</quote> key will
+		    become relative to the pluggable application root url. To retrieve the full uri you can use
+		    <quote>full_request_uri</quote>.
+		</note>
 	</sect1>
 	<sect1 id="url-router">
 		<title>Routing urls</title>
@@ -87,7 +92,7 @@ Atomik::set('app/routes', array(
 			</example>
 			<para>
 				As you see, the route is defined as the array key and its parameters are defined in
-				the sub array. You can add an unlimited numbers of parameters to the route. There
+				the sub array. You can add an unlimited number of parameters to the route. There
 				must be at least the action parameter for the route to be valid.
 			</para>
 			<para>
@@ -122,6 +127,50 @@ Atomik::set('app/routes', array(
 					Routes are matched in reverse order.
 				</para>
 			</note>
+			<para>
+			    Since Atomik 2.2, there is two new kind of routes: named and regexp.
+			</para>
+			<para>
+			    Named routes are defined nearly the same way as classical ones, however the route definition goes
+			    into the route parameter and is replaced by the route name in the key. Route names always start
+			    with @.
+			</para>
+			<example>
+				<title>A named route</title>
+				<programlisting>
+					<![CDATA[
+Atomik::set('app/routes', array(
+   '@archives' => array(
+       'route' => 'archives/:year/:month',
+       'action' => 'archives',
+       'month' => 'all'
+   )
+));]]>
+				</programlisting>
+			</example>
+			<para>
+			    Regexp routes allows you to use regular expressions to match an uri to a route. A regexp route is
+			    defined the same way as classical ones but the route is replaced by the regexp which must use
+			    the pound sign # as its delimiter.
+			</para>
+			<para>
+			    The uri to match will always be relative (so do not use a slashes at the start). To specify parameters
+			    inside the route, you must use named sub patterns (see 
+			    <link xlink:href="http://php.net/manual/en/regexp.reference.subpatterns.php">
+			    http://php.net/manual/en/regexp.reference.subpatterns.php</link>).
+			</para>
+			<example>
+				<title>A route with some parameters</title>
+				<programlisting>
+					<![CDATA[
+Atomik::set('app/routes', array(
+   '#archives/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})#' => array(
+       'action' => 'archives',
+       'month' => 'all'
+   )
+));]]>
+				</programlisting>
+			</example>
 		</sect2>
 		<sect2 id="routes-parameters">
 			<title>Retrieving route parameters</title>
@@ -154,10 +203,10 @@ $year = Atomik::get('request/year');]]>
 			<title>URLs with extension example</title>
 			<programlisting>
 				<![CDATA[
-http://example.com/home			=>	action=home format=html (won't work if app/force_uri_extension is set to true)
-http://example.com/home.html		=>	action=home format=html
-http://example.com/home.xml		=>	action=home format=xml
-http://example.com/home.foo		=>	action=home format=foo]]>
+http://example.com/home         =>	action=home format=html (won't work if app/force_uri_extension is set to true)
+http://example.com/home.html    =>	action=home format=html
+http://example.com/home.xml     =>	action=home format=xml
+http://example.com/home.foo     =>	action=home format=foo]]>
 			</programlisting>
 		</example>
 		<para>
@@ -171,11 +220,11 @@ http://example.com/home.foo		=>	action=home format=foo]]>
 					<![CDATA[
 Atomik::set('app/routes', array(
    ':category/:article.:format' => array(
-   		'action' => 'article'
+   	    'action' => 'article'
    ),
    'home.html' => array(
-   		'action' => 'home',
-   		'format' => 'html'
+        'action' => 'home',
+        'format' => 'html'
    )
 ));]]>
 			</programlisting>
@@ -189,7 +238,7 @@ Atomik::set('app/routes', array(
 		<title>Building urls with <methodname>Atomik::url()</methodname></title>
 		<para>
 			Directly writing url into your code can lead to problems. When using a layout for example, it is hard to know the
-			relative location of the current view to include stylesheets for example. Some urls also needs lots of concatanation
+			relative location of the current view, to include stylesheets for example. Some urls also needs lots of concatanation
 			when using parameters and this can make the code less readable.
 		</para>
 		<para>
@@ -214,7 +263,10 @@ $url = Atomik::url('http://example.com'); // http://example.com]]>
 			</programlisting>
 		</example>
 		<para>
-			You can add GET parameters to the url using an array as the second argument.
+			You can add GET parameters to the url using an array as the second argument. You can
+			re-use the current request parameters by using true instead of an array. If you want 
+			the current parameters as well as new ones, use an array and add <quote>__merge_GET</quote>
+			as value.
 		</para>
 		<example>
 			<title>Building urls with parameters</title>
@@ -234,6 +286,17 @@ $url = Atomik::url('archives?year=2008', array('month' => 02)); // /archives?yea
 				<![CDATA[
 $url = Atomik::url('archives/:year', array('year' => 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
 $url = Atomik::url('archives/:year', array('year' => 2008, 'month' => 02)); // /archives/2008?month=02]]>
+			</programlisting>
+		</example>
+		<para>
+		    You can also use a named route instead of a an uri. Simply specify the name of the route prefixed with its @.
+		</para>
+		<example>
+			<title>Building urls using named routes</title>
+			<programlisting>
+				<![CDATA[
+$url = Atomik::url('@archives', array('year' => 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
+$url = Atomik::url('@archives', array('year' => 2008, 'month' => 02)); // /archives/2008?month=02]]>
 			</programlisting>
 		</example>
 		<para>

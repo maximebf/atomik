@@ -10,8 +10,8 @@
 		<title>Accessing the store</title>
 		<para>
 			Accessors are methods provided by the Atomik class that allow you to 
-			access the global store. They are five of them: <methodname>get</methodname>, 
-			<methodname>set</methodname>, <methodname>add</methodname>, 
+			access the global store. They are six of them: <methodname>get</methodname>, 
+			<methodname>set</methodname>, <methodname>add</methodname>, <methodname>prepend</methodname>,
 			<methodname>has</methodname> and <methodname>delete</methodname>.
 		</para>
 		<para>
@@ -40,7 +40,7 @@ echo A('key');]]>
 		</note>
 		<para>
 			The <methodname>set</methodname> method allows you to define a key and its
-			associated value. It will overwrite an existing value.
+			associated value. It will overwrite any existing value.
 		</para>
 		<para>
 			This accessor can also take an array as argument to set multiple key/value pairs
@@ -72,6 +72,10 @@ Atomik::set(array(
 			example if the key points to an array, the value will be added to this array as a new
 			item. If the key points to a value which is not an array, it will be transformed to
 			one.
+		</para>
+		<para>
+		    <methodname>prepend</methodname> is exactly the same but adds the value at the beginning
+		    of the array.
 		</para>
 		<example>
 			<title>Using the <methodname>add</methodname> method</title>
@@ -158,12 +162,19 @@ array(
 			</programlisting>
 		</example>
 		<note>
-			If the value of a key is an array with slashes in it (eg: routes) you can't use an array
-			as first parameter. You must set the value by specifying the key as first parameter. Indeed,
-			when doing that, the value is not dimensionized, so it can be anything.
+			<methodname>Atomik::_dimensionizeArray()</methodname> can be used to <quote>dimensionize</quote> any array.
 		</note>
 		<note>
-			<methodname>Atomik::_dimensionizeArray()</methodname> can be used to <quote>dimensionize</quote> any array.
+		    <para>
+		        When using an array, be aware that it will be <quote>dimensionized</quote> before being
+		        merged. This is done using <methodname>Atomik::_dimensionizeArray()</methodname>. It can be avoided
+		        using false as the third argument of <methodname>set</methodname>.
+		    </para>
+		    <para>
+			    If the value of a key is an array with slashes in it (eg: routes) you can't use an array
+			    as first parameter. You must set the value by specifying the key as first parameter. Indeed,
+			    when doing that, the value is not dimensionized, so it can be anything.
+		    </para>
 		</note>
 	</sect1>
 	<sect1 id="accessors-with-any-arrays">

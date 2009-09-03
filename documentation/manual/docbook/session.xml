@@ -11,8 +11,8 @@
 			<methodname>Atomik::flash()</methodname> will not work if the session is not started.
 		</note>
 		<para>
-			The session is available as the <quote>session</quote> key in the global store. It of course
-			still remains available as the <varname>$_SESSION</varname> super-global variable.
+			The session is available as the <quote>session</quote> key in the global store. Of course,
+			it still remains available as the <varname>$_SESSION</varname> super-global variable.
 		</para>
 		<example>
 			<title>Accessing the session from the global store</title>
@@ -26,7 +26,7 @@ echo Atomik::get('session/username');]]>
 		<title>Flash messages</title>
 		<para>
 			Flash messages are messages which are stored in the session and are available only once.
-			This allows to pass error or success messages for example. 
+			This allows to pass error or success messages from one page to another. 
 		</para>
 		<para>
 			To create a flash message call the <methodname>Atomik::flash()</methodname> method. It takes as
