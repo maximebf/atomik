@@ -40,7 +40,7 @@ class Atomik_Form_Field_List extends Atomik_Form_Field_Abstract
 	 */
 	public function setData($data)
 	{
-		$this->_data = array();
+		$this->_data = $data;
 	}
 	
 	/**

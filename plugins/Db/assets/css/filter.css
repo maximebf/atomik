@@ -4,6 +4,18 @@
 	list-style-type: none;
 }
 
+	#sidebar .model-filters > ul span.by {
+		background-image: url(../images/hidden.gif);
+		background-repeat: no-repeat;
+		background-position: center left;
+		cursor: pointer;
+		padding-left: 20px;
+	}
+	
+	#sidebar .model-filters > ul span.by.visible {
+		background-image: url(../images/visible.gif);
+	}
+
 	#sidebar .model-filters > ul ul {
 		font-weight: normal;
 		list-style-type: none;
@@ -15,6 +27,7 @@
 			display: block;
 			margin-top: 3px;
 			padding-left: 8px;
+			margin-left: 20px;
 		}
 
 		#sidebar .model-filters > ul ul a.current,

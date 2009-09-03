@@ -31,8 +31,8 @@ require_once 'Atomik/Model/Field/Bool.php';
  */
 class Atomik_Model_Behaviour_Publishable extends  Atomik_Model_Behaviour_Abstract
 {
-	public function init()
+	public function init(Atomik_Model_Builder $builder)
 	{
-		$this->_builder->addField(new Atomik_Model_Field_Bool('published'));
+		$builder->addField(new Atomik_Model_Field_Bool('published'));
 	}
 }

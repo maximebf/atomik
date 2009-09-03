@@ -1,12 +1,15 @@
+<?php Atomik_Backend_Assets::addStyle('css/filter.css', 'db'); ?>
+
 <div id="content-wrapper">
 	<div class="panel">
 		<h2 class="panel-title"><?php echo $modelName ?></h2>
 		<div class="panel-content" id="content">
+			<?php echo $this->modelSearch($builder) ?>
 			<?php echo $this->modelDataTable($modelName, $models, array(
-						'url' => Atomik::pluginUrl('models/edit', array('name' => $modelName)),
+						'url' => $editUrl,
 						'columns' => $columns,
 						'actions' => array(
-							array('label' => __('Delete'), 'url' => Atomik::pluginUrl('models/delete', array('name' => $modelName)))
+							array('label' => __('Delete'), 'url' => $deleteUrl)
 						)
 			))->render() ?>
 		</div>
@@ -16,9 +19,9 @@
 	<div id="sidebar">
 		<?php echo $this->sidebarButton(
 			__('Create a new %s', $modelName), 
-			Atomik::pluginUrl('models/edit', array('name' => $modelName)),
+			$editUrl,
 			Atomik::pluginAsset('images/new.png')
 		) ?>
-		<?php echo $this->modelFilters($builder, $columns) ?>
+		<?php echo $this->modelFilters($builder) ?>
 	</div>
 </div>

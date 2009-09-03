@@ -475,7 +475,8 @@ class Atomik_Db_Instance
 		if (!($table instanceof Atomik_Db_Query)) {
 			$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
 		} else {
-			$query = $table;
+			$query = clone $table;
+			$query->count();
 		}
 		
 		if (($result = $this->_executeQuery($query)) === false) {

@@ -5,7 +5,7 @@
 			<?php echo $this->dataTable('models', $models, array(
 						'columns' => array('name'),
 						'idColumn' => 'name',
-						'url' => Atomik::pluginUrl('models/list'),
+						'url' => Atomik::url('models/list'),
 						'urlParam' => 'name'
 			))->render() ?>
 		</div>

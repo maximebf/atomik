@@ -281,8 +281,8 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		if (!is_array($fields)) {
 			$fields = func_get_args();
-			if (count($fields) == 0) {
-				$fields[] = '*';
+			if (count($fields) == 0 || $fields[0] === null) {
+				$fields = array('*');
 			}
 		}
 		
@@ -290,6 +290,12 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		$this->_info['statement'] = 'SELECT';
 		$this->_info['fields'] = array_merge($this->_info['fields'], $fields);
 		
+		return $this;
+	}
+	
+	public function clearSelect()
+	{
+		$this->_info['fields'] = array();
 		return $this;
 	}
 	
@@ -377,6 +383,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		return $this;
 	}
 	
+	public function clearFrom()
+	{
+		$this->_info['from'] = array();
+		$this->emptyCache();
+		return $this;
+	}
+	
 	/**
 	 * Specifies the JOIN part of a SELECT statement
 	 * 
@@ -386,6 +399,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function join($table, $on, $alias = null, $type = 'INNER')
 	{
 		$this->_info['join'][] = array('table' => $this->_formatTableName($table), 'on' => $on, 'alias' => $alias, 'type' => $type);
+		$this->emptyCache();
+		return $this;
+	}
+	
+	public function clearJoin()
+	{
+		$this->_info['join'] = array();
 		$this->emptyCache();
 		return $this;
 	}
@@ -455,6 +475,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		return $this;
 	}
 	
+	public function clearWhere()
+	{
+		$this->_info['where'] = array();
+		$this->emptyCache();
+		return $this;
+	}
+	
 	/**
 	 * Specifies the GROUP BY part
 	 * 
@@ -470,6 +497,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			$fields = func_get_args();
 		}
 		$this->_info['groupBy'] = array_merge($this->_info['groupBy'], $fields);
+		$this->emptyCache();
+		return $this;
+	}
+	
+	public function clearGroupBy()
+	{
+		$this->_info['groupBy'] = array();
 		$this->emptyCache();
 		return $this;
 	}
@@ -501,6 +535,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		$args = func_get_args();
 		$this->_info['having'][] = $this->_computeCondition($args, 'or');
+		$this->emptyCache();
+		return $this;
+	}
+	
+	public function clearHaving()
+	{
+		$this->_info['having'] = array();
 		$this->emptyCache();
 		return $this;
 	}
@@ -541,6 +582,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		return $this;
 	}
 	
+	public function clearOrderBy()
+	{
+		$this->_info['orderBy'] = array();
+		$this->emptyCache();
+		return $this;
+	}
+	
 	/**
 	 * Specifies the LIMIT part
 	 * 
@@ -555,6 +603,12 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function limit($limit)
 	{
+		if ($limit === false) {
+			$this->_info['limit'] = null;
+			$this->emptyCache();
+			return $this;
+		}
+		
 		if (is_string($limit)) {
 			$args = explode(',', $limit);
 		} else if (is_array($limit)) {
@@ -581,15 +635,30 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
+	 * Resets params
+	 * 
+	 * @param 	array $params
+	 * @return	Atomik_Db_Query
+	 */
+	public function setParams($params)
+	{
+		$this->_info['params'] = (array) $params;
+		$this->_cachedResult = null;
+		return $this;
+	}
+	
+	/**
 	 * Sets a param value
 	 * 
 	 * @param	string|int	$index
 	 * @param 	string		$value
+	 * @return	Atomik_Db_Query
 	 */
 	public function setParam($index, $value)
 	{
 		$this->_info['params'][$index] = $value;
 		$this->_cachedResult = null;
+		return $this;
 	}
 	
 	/**
@@ -662,7 +731,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	/**
 	 * Executes the request against a PDO object
 	 * 
-	 * @return 	bool|PDOStatement			False if fail or the PDOStatement object
+	 * @return 	bool|Atomik_Db_Query_Result		False if fail or the Atomik_Db_Query_Result object
 	 */
 	public function execute($reCache = false, Atomik_Db_Query_Result $resultObject = null)
 	{

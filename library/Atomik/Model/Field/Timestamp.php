@@ -43,4 +43,10 @@ class Atomik_Model_Field_Timestamp extends Atomik_Model_Field_Abstract
 	{
 		return Atomik_Form_Field_Factory::factory('Timestamp', $this->name, $this->getOptions('form-'));
 	}
+	
+	public function render($value)
+	{
+		$date = new DateTime($value);
+		return $date->format('m/d/Y');
+	}
 }

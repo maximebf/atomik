@@ -203,11 +203,11 @@ class DbPlugin
 		$script->setOutputHandler(new Atomik_Db_Script_Output_Text($echo));
 		
 		foreach ($paths as $path) {
-			if (@is_dir($path . '/sql')) {
-				$script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
-			}
 			if (@is_dir($path . '/models')) {
 				$script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
+			}
+			if (@is_dir($path . '/sql')) {
+				$script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
 			}
 		}
 		

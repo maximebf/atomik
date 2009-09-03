@@ -35,14 +35,9 @@ class Atomik_Backend
 	 */
 	protected static $_menu = array();
 	
-	public static function pluginAction($plugin, $action)
-	{
-		return Atomik::get('backend/base_action') . '/' . $plugin . '/' . $action;
-	}
-	
 	public static function pluginUrl($plugin, $action, $params = array(), $useIndex = true)
 	{
-		return Atomik::url(self::pluginAction($plugin, $action), $params, $useIndex);
+		return Atomik::pluginUrl('Backend', $plugin . '/' . ltrim($action, '/'), $params, $useIndex);
 	}
 	
 	/**
@@ -64,7 +59,7 @@ class Atomik_Backend
 			'submenu' => isset(self::$_menu[$name]) ? self::$_menu[$name]['submenu'] : array()
 		);
 		
-		foreach ($submenus as $submenuLabel => $submenuAction) {
+		foreach ((array) $submenus as $submenuLabel => $submenuAction) {
 			self::addSubMenu($name, $submenuLabel, $submenuAction);
 		}
 	}
@@ -125,6 +120,16 @@ class Atomik_Backend
 					}
 				}
 			}
+		}
+		
+		if ($currentMenu === null) {
+			return array(
+				'label' => '',
+				'name' => '',
+				'action' => '',
+				'position' => 'left',
+				'submenu' => array()
+			);
 		}
 		
 		return $currentMenu;

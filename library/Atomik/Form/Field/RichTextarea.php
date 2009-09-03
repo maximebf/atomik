@@ -44,7 +44,7 @@ class Atomik_Form_Field_RichTextarea extends Atomik_Form_Field_Textarea
 	public function render()
 	{
 		$html = parent::render();
-		$html .= sprintf('<script type="text/javascript">jQuery(function($) { $("#%s").wysiwyg(); });</script>', $this->getId());
+		$html .= sprintf('<script type="text/javascript">jQuery(function($) { $("textarea#%s").wysiwyg(); });</script>', $this->getId());
 		return $html;
 	}
 }

@@ -87,7 +87,7 @@ class Atomik_Backend_Assets
 	public static function assetUrl($url, $plugin = null)
 	{
 		if ($plugin == 'app') {
-			return Atomik::asset($url);
+			return Atomik::appAsset($url);
 		}
 		return Atomik::pluginAsset($url, empty($plugin) ? 'backend' : $plugin);
 	}

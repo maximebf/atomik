@@ -19,7 +19,7 @@ if ($data === false) {
 // tries to authentify the user
 if (Atomik_Auth::login($data['username'], $data['password'])) {
 	// success, redirecting
-	Atomik::redirect(Atomik::get('request/from', '/'));
+	Atomik::redirect(Atomik::get('request/from', Atomik::appUrl('/')), false);
 }
 
 // failed

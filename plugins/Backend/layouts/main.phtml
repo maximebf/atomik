@@ -16,8 +16,8 @@
 			<div id="header">
 				<div id="header-info">
 					Logged in as <?php echo Atomik_Auth::getCurrentUsername() ?> | 
-					<a href="<?php echo Atomik::url('auth/logout') ?>">Log out</a> | 
-					<a href="<?php echo Atomik::url('/') ?>">View site</a>
+					<a href="<?php echo Atomik::pluginUrl('Auth', 'logout') ?>">Log out</a> | 
+					<a href="<?php echo Atomik::appUrl('/') ?>">View site</a>
 				</div>
 				<h1><?php echo Atomik::get('backend/title'); ?></h1>
 				
@@ -26,7 +26,7 @@
 					
 					<?php foreach (Atomik_Backend::getMenu() as $name => $item): ?>
 						<li class="<?php if ($name == $currentMenuItem['name']) echo 'selected '; echo $item['position']; ?>">
-							<a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $item['action']) ?>">
+							<a href="<?php echo Atomik::pluginUrl('Backend', $item['action']) ?>">
 								<?php echo __(ucfirst($item['label'])); ?>
 							</a>
 						</li>
@@ -38,7 +38,7 @@
 					<?php echo Atomik_Backend_Layout::renderPlaceholder('before_submenu') ?>
 					
 					<?php foreach ($currentMenuItem['submenu'] as $label => $action): ?>
-						<li><a href="<?php echo Atomik::url(Atomik::get('backend/base_action') . '/' . $action) ?>">
+						<li><a href="<?php echo Atomik::pluginUrl('Backend', $action) ?>">
 							<?php echo __($label) ?>
 						</a></li>
 					<?php endforeach; ?>

@@ -233,12 +233,13 @@ img {
 	
 			#sidebar .sidebar-box-title {
 				background: #dae0aa;
+				border-bottom: 1px solid #c8cf8d;
 				color: #71773b;
-				cursor: pointer;
 				font-size: 1em;
+				font-weight: bold;
 				margin: 0px;
 				margin-bottom: 7px;
-				padding: 3px;
+				padding: 4px;
 			}
 	
 			#sidebar .sidebar-box > ul {

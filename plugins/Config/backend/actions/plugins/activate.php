@@ -1,7 +1,7 @@
 <?php
 
 if (!Atomik::has('request/name')) {
-	Atomik::pluginRedirect('plugins');
+	Atomik::redirect('plugins');
 }
 
 $name = Atomik::get('request/name');
@@ -15,4 +15,4 @@ if ($enable == 'false' || !$enable) {
 	Atomik::flash(__('%s has been enabled', $name), 'success');
 }
 
-Atomik::pluginRedirect('plugins');
+Atomik::redirect('plugins');

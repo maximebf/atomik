@@ -71,7 +71,7 @@ class Atomik_Db_Script_Output_Text implements Atomik_Db_Script_Output_Interface
 				$this->_println('Executing some SQL commands');
 				break;
 			case 'Atomik_Db_Script_File':
-				$this->_println('Executing SQL commqnds from the file ' . $script->filename);
+				$this->_println('Executing SQL commands from the file ' . $script->filename);
 				break;
 			case 'Atomik_Db_Script_Model':
 				$this->_println('Creating table for model ' . $script->getModelBuilder()->name);

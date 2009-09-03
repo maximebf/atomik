@@ -28,11 +28,50 @@ require_once 'Atomik/Form/Field/Abstract.php';
  */
 class Atomik_Form_Field_File extends Atomik_Form_Field_Abstract
 {
+	public function setParent(Atomik_Form_Field_Interface $parent)
+	{
+		$parent->setEnctype(Atomik_Form::FORM_DATA);
+		parent::setParent($parent);
+	}
+	
+	public function setValue($value)
+	{
+		if (is_array($value)) {
+			if ($value['error'] == UPLOAD_ERR_NO_FILE) {
+				return;
+			}
+			$value = $this->_uploadFile($value);
+		}
+		
+		parent::setValue($value);
+	}
+	
+	protected function _uploadFile($info)
+	{
+		$targetDir = rtrim($this->getOption('upload-dir', '.'), '/') . '/';
+		$targetName = uniqid() . substr($info['name'], strrpos($info['name'], '.'));
+		$target = $targetDir . $targetName;
+		
+		if (move_uploaded_file($info['tmp_name'], $target)) {
+			return $target;
+		}
+		
+		return null;
+	}
+	
 	public function render()
 	{
-		return sprintf('<input type="file" name="%s" %s/>',
+		$html = '';
+		
+		if (!empty($this->_value)) {
+			$html = 'Currently: ' . $this->_value . '<br />';
+		}
+		
+		$html .= sprintf('<input type="file" name="%s" %s/>',
 			$this->getFullname(),
 			$this->getAttributesAsString('type')
 		);
+		
+		return $html;
 	}
 }

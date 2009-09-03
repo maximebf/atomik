@@ -148,6 +148,16 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	}
 	
 	/**
+	 * Returns the value of the field
+	 * 
+	 * @return string
+	 */
+	public function getValue()
+	{
+		return $this->_value;
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see library/Atomik/Atomik_Options#setOption()
 	 */
@@ -253,16 +263,6 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	}
 	
 	/**
-	 * Returns the value of the field
-	 * 
-	 * @return string
-	 */
-	public function getValue()
-	{
-		return $this->_value;
-	}
-	
-	/**
 	 * Sets the id attribute
 	 * 
 	 * @param string $id
@@ -285,6 +285,9 @@ abstract class Atomik_Form_Field_Abstract extends Atomik_Options implements Atom
 	 */
 	public function getId()
 	{
+		if (!array_key_exists('id', $this->_attributes)) {
+			return null;
+		}
 		return $this->_attributes['id'];
 	}
 	

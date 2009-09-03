@@ -102,6 +102,11 @@ class Atomik_Model_Builder_ClassMetadata
 			return self::$_cache[$className];
 		}
 		
+		if (!class_exists($className)) {
+			require_once 'Atomik/Model/Builder/Exception.php';
+			throw new Atomik_Model_Builder_Exception('Class ' . $className . ' not found');
+		}
+		
 		$class = new ReflectionClass($className);
 		$builder = new Atomik_Model_Builder($className, $className);
 		
@@ -117,6 +122,8 @@ class Atomik_Model_Builder_ClassMetadata
 			if (isset($propData['var'])) {
 				$type = $propData['var'];
 				unset($propData['var']);
+			} else if (!isset($propData['length'])) {
+				$propData['length'] = 255;
 			}
 			
 			$field = Atomik_Model_Field_Factory::factory($type, $prop->getName(), $propData);
@@ -193,7 +200,7 @@ class Atomik_Model_Builder_ClassMetadata
 	 */
 	public static function addReferenceFromString(Atomik_Model_Builder $builder, $string)
 	{
-		$regexp = '/(?P<type>one|many|parent)\s+(?P<target>.+)((\sas\s(?P<as>.+))|)((\svia\s(?P<via>.+))|)'
+		$regexp = '/(?P<type>one|many|parent)\s+(?P<target>.+)((\sas\s(?P<as>.+))|)((\svia\s(?P<viatype>table|model|)\s(?P<via>.+))|)'
 				. '((\susing\s(?P<using>.+))|)((\sorder by\s(?P<order>.+))|)((\slimit\s(?P<limit>.+))|)$/U';
 				
 		if (!preg_match($regexp, $string, $matches)) {

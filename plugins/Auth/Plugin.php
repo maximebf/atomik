@@ -30,8 +30,9 @@ class AuthPlugin
 	 */
     public static $config = array(
     	'route'				=> 'auth/*',
-    	'model' 			=> 'Atomik_Auth_User',
-    	'users'				=> null,
+    	'model' 			=> null,
+    	'users'				=> array(),
+    	'user_locator'		=> null,
     	'roles' 			=> array(),
     	'resources' 		=> array(),
     	'guest_roles' 		=> array(),
@@ -57,18 +58,23 @@ class AuthPlugin
     		Atomik::registerPluggableApplication('Auth', self::$config['route'], array('overwriteDirs' => false));
     	}
     	
-    	if (self::$config['users'] !== null) {
-    		// the users array backend
-    		Atomik_Auth_User_Array::setUsers(self::$config['users']);
-    		Atomik_Auth::setUserLocator('Atomik_Auth_User_Array');
-    		Atomik_Auth::addBackend(Atomik_Auth_User_Array::getBackend());
-    		
-    	} else {
+    	if (self::$config['model'] !== null) {
     		// using a model
     		Atomik::loadPlugin('Db');
     		Atomik_Auth_User_Locator_Model::setModelName(self::$config['model']);
-    		Atomik_Auth::setUserLocator('Atomik_Auth_User_Locator_Model');
     		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model']));
+    		if (self::$config['user_locator'] == 'model' || self::$config['user_locator'] == null) {
+    			Atomik_Auth::setUserLocator('Atomik_Auth_User_Locator_Model');
+    		}
+    	}
+    	
+    	if (self::$config['users'] !== null) {
+    		// the users array backend
+    		Atomik_Auth_User_Array::setUsers(self::$config['users']);
+    		Atomik_Auth::addBackend(Atomik_Auth_User_Array::getBackend());
+    		if (self::$config['user_locator'] == 'array'  || self::$config['model'] === null) {
+    			Atomik_Auth::setUserLocator('Atomik_Auth_User_Array');
+    		}
     	}
     	
     	// backends
@@ -141,7 +147,7 @@ class AuthPlugin
     			if (Atomik_Auth::isLoggedIn()) {
     				Atomik::flash('Your roles do not allow you to access this section of the site', 'error');
     			}
-    			Atomik::redirect(Atomik::url(self::$config['forbidden_action'], array('from' => Atomik::get('full_request_uri'))), false);
+    			Atomik::appRedirect(Atomik::appUrl(self::$config['forbidden_action'], array('from' => Atomik::appUrl(Atomik::get('full_request_uri')))), false);
     		} else {
     			Atomik::trigger404();
     		}
@@ -166,8 +172,6 @@ class AuthPlugin
     			$script->addScript(new Atomik_Db_Script_Model(
     				Atomik_Model_Builder_Factory::get('Atomik_Auth_User')));
     		}
-    		$script->addScript(new Atomik_Db_Script_Model(
-    			Atomik_Model_Builder_Factory::get('Atomik_Auth_User_Role')));
     	}
     }
 }

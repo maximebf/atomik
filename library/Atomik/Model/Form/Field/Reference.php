@@ -33,7 +33,7 @@ class Atomik_Model_Form_Field_Reference extends Atomik_Form_Field_List
 		$reference = $this->getOption('reference');
 		
 		$rows = Atomik_Model::findAll($reference->target);
-		$this->_data = array();
+		$this->_data = array(0 => '--');
 		foreach ($rows as $row) {
 			$this->_data[$row->getPrimaryKey()] = (string) $row;
 		}

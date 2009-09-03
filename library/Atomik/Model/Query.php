@@ -28,6 +28,21 @@ require_once 'Atomik/Db/Query.php';
  */
 class Atomik_Model_Query extends Atomik_Db_Query
 {
+	protected $_builder;
+	
+	public static function getAvailableFilters(Atomik_Model_Builder $builder)
+	{
+		$filters = array();
+		foreach ($builder->getFields() as $field) {
+			$fieldClass = get_class($field);
+			$fieldType = substr($fieldClass, strrpos($fieldClass, '_') + 1);
+			if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $builder, $field)) {
+				$filters[$field->name] = $filter;
+			}
+		}
+		return $filters;
+	}
+	
 	/**
 	 * Creates a new query
 	 * 
@@ -47,6 +62,16 @@ class Atomik_Model_Query extends Atomik_Db_Query
 	}
 	
 	/**
+	 * Returns the associated builder
+	 * 
+	 * @return Atomik_Model_Builder
+	 */
+	public function getBuilder()
+	{
+		return $this->_builder;
+	}
+	
+	/**
 	 * Sets which model to query 
 	 * 
 	 * @param	string|Atomik_Model_Builder $model
@@ -54,8 +79,34 @@ class Atomik_Model_Query extends Atomik_Db_Query
 	 */
 	public function from($model)
 	{
-		$builder = Atomik_Model_Builder_Factory::get($model);
-		$this->setInstance($builder->getManager()->getDbInstance());
-		return parent::from($builder->tableName);
+		$this->_builder = Atomik_Model_Builder_Factory::get($model);
+		$this->setInstance($this->_builder->getManager()->getDbInstance());
+		return parent::from($this->_builder->tableName);
+	}
+	
+	public function filter($fieldName, $value = null)
+	{
+		if (is_array($fieldName)) {
+			foreach ($fieldName as $key => $value) {
+				$this->filter($key, $value);
+			}
+			return $this;
+		}
+		
+		if (empty($value)) {
+			return $this;
+		}
+		
+		$field = $this->_builder->getField($fieldName);
+		$fieldClass = get_class($field);
+		$fieldType = substr($fieldClass, strrpos($fieldClass, '_') + 1);
+		if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $this->_builder, $field)) {
+			$filter->setValue($value);
+			$condition = $filter->getQueryCondition();
+			if (!empty($condition)) {
+				$this->where($condition);
+			}
+		}
+		return $this;
 	}
 }

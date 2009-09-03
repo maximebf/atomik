@@ -25,22 +25,22 @@
  */
 interface Atomik_Model_Behaviour_Interface
 {
-	function setBuilder(Atomik_Model_Builder $builder);
+	function init(Atomik_Model_Builder $builder);
 	
-	function beforeQuery(Atomik_Db_Query $query);
-	function afterQuery(Atomik_Model_Modelset $modelSet);
+	function beforeQuery(Atomik_Model_Builder $builder, Atomik_Db_Query $query);
+	function afterQuery(Atomik_Model_Builder $builder, Atomik_Model_Modelset $modelSet);
 	
-	function beforeCreateInstance(&$data, $isNew);
-	function afterCreateInstance(Atomik_Model $model);
+	function beforeCreateInstance(Atomik_Model_Builder $builder, &$data, $isNew);
+	function afterCreateInstance(Atomik_Model_Builder $builder, Atomik_Model $model);
 	
-	function beforeSave(Atomik_Model $model);
-	function failSave(Atomik_Model $model);
-	function afterSave(Atomik_Model $model);
+	function beforeSave(Atomik_Model_Builder $builder, Atomik_Model $model);
+	function failSave(Atomik_Model_Builder $builder, Atomik_Model $model);
+	function afterSave(Atomik_Model_Builder $builder, Atomik_Model $model);
 	
-	function beforeDelete(Atomik_Model $model);
-	function failDelete(Atomik_Model $model);
-	function afterDelete(Atomik_Model $model);
+	function beforeDelete(Atomik_Model_Builder $builder, Atomik_Model $model);
+	function failDelete(Atomik_Model_Builder $builder, Atomik_Model $model);
+	function afterDelete(Atomik_Model_Builder $builder, Atomik_Model $model);
 	
-	function beforeExport(Atomik_Db_Definition $definition);
-	function afterExport(&$sql);
+	function beforeExport(Atomik_Model_Builder $builder, Atomik_Db_Definition $definition);
+	function afterExport(Atomik_Model_Builder $builder, &$sql);
 }

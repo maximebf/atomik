@@ -70,6 +70,12 @@ class LangPlugin
     {
     	@session_start();
     	
+    	/* override from the url */
+    	if (isset($_GET['lang']) && self::exists($_GET['lang'])) {
+    		self::set($_GET['lang']);
+    		return;
+    	}
+    	
     	/* language already discovered */
     	if (isset($_SESSION['__LANG']) && self::exists($_SESSION['__LANG'])) {
     		self::set($_SESSION['__LANG']);
@@ -78,7 +84,7 @@ class LangPlugin
     	
     	/* autodetects language using HTTP_ACCEPT_LANGUAGE 
     	 * Language tag: primaryLang-subLang;q=? */
-    	if (self::$config['autodetect'] === true) {
+    	if (self::$config['autodetect'] === true && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
     		$acceptLanguages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
     		foreach ($acceptLanguages as $language) {
     			/* checks if sublang is supported */

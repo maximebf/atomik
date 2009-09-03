@@ -25,9 +25,6 @@ require_once 'Atomik/Model.php';
 /** Atomik_Auth_User_Interface */
 require_once 'Atomik/Auth/User/Interface.php';
 
-/** Atomik_Auth_User_Role */
-require_once 'Atomik/Auth/User/Role.php';
-
 /**
  * The default user object. Store users in an array.
  * 
@@ -35,7 +32,6 @@ require_once 'Atomik/Auth/User/Role.php';
  * @subpackage Auth
  * 
  * @table auth_users
- * @has many Atomik_Auth_User_Role as roles
  * @admin-ignore
  * @inheritance abstract
  */
@@ -56,6 +52,13 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	public $password;
 	
 	/**
+	 * @var string
+	 * @length 255
+	 * @label Roles (comma-separated):
+	 */
+	public $roles;
+	
+	/**
 	 * Checks if the user has access to the specified resource
 	 * 
 	 * @param string $resource
@@ -74,7 +77,7 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	 */
 	public function isAllowed($roles)
 	{
-		return Atomik_Auth::isAllowed($resource, $this->getRoles());
+		return Atomik_Auth::isAllowed($roles, $this->getRoles());
 	}
 	
 	/**
@@ -84,10 +87,6 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	 */
 	public function getRoles()
 	{
-		$roles = array();
-		foreach ($this->roles as $role) {
-			$roles[] = $role->name;
-		}
-		return $roles;
+		return array_map('trim', explode(',', $this->roles));
 	}
 }

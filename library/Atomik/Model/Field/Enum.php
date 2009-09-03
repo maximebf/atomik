@@ -28,11 +28,32 @@ require_once 'Atomik/Model/Field/Abstract.php';
  */
 class Atomik_Model_Field_Enum extends Atomik_Model_Field_Abstract
 {
+	protected function _getDataMap()
+	{
+		return array_map('trim', explode(',', $this->getOption('options')));
+	}
+	
 	/**
 	 * @return array
 	 */
 	public function getSqlType()
 	{
 		return array('int', 2);
+	}
+	
+	/**
+	 * @return Atomik_Form_Field_Interface
+	 */
+	public function getDefaultFormField()
+	{
+		$options = $this->getOptions('form-');
+		$options['values'] = http_build_query($this->_getDataMap());
+		return Atomik_Form_Field_Factory::factory('List', $this->name, $options);
+	}
+	
+	public function render($value)
+	{
+		$map = $this->_getDataMap();
+		return $map[$value];
 	}
 }

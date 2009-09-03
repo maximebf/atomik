@@ -36,6 +36,12 @@ Atomik_Assets::registerNamedAsset('dataTable', array(
 	Atomik_Backend_Assets::createAsset('js/dataTable.js', null, null, array('jquery'))
 ));
 
+// auto complete
+Atomik_Assets::registerNamedAsset('autoComplete', array(
+	Atomik_Backend_Assets::createAsset('externals/jquery.autocomplete.js', null, null, array('jquery')),
+	Atomik_Backend_Assets::createAsset('externals/jquery.autocomplete.css'),
+));
+
 // ----------------------------------------------------------------------------
 // Themes
 // ----------------------------------------------------------------------------

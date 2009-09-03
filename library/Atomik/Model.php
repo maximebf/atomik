@@ -195,12 +195,18 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 			return;
 		}
 		
-		if (isset($this->_references[$name])) {
-			$this->_references[$name]->{$reference->targetField} = null;
-			$this->_references[$name]->save();
+		if ($reference->isHasOne()) {
+			if (isset($this->_references[$name])) {
+				$this->_references[$name]->{$reference->targetField} = null;
+				$this->_references[$name]->save();
+			}
+			$value->{$reference->targetField} = $this->{$reference->sourceField};
 		}
 		
-		$value->{$reference->targetField} = $this->{$reference->sourceField};
+		if ($reference->isHasParent()) {
+			$this->{$reference->sourceField} = $value->{$reference->targetField};
+		}
+		
 		$this->_references[$name] = $value;
 	}
 	
@@ -271,10 +277,6 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		
 		if ($this->getBuilder()->hasLink($name)) {
 			return $this->getLink($name);
-		}
-		
-		if (property_exists($this, $name)) {
-			return $this->{$name};
 		}
 	}
 	
@@ -386,7 +388,9 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	
 	public function offsetExists($index)
 	{
-		return isset($this->{$index});
+		return $this->_builder->hasField($index) 
+			|| $this->_builder->hasReference($index) 
+			|| $this->_builder->hasLink($index);
 	}
 	
 	public function offsetGet($index)

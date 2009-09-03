@@ -83,21 +83,21 @@ class Atomik_Model_Form extends Atomik_Form
 		$this->setOptions($options->getOptions());
 		
 		foreach ($builder->getFields() as $modelField) {
-			if ($modelField->getOption('form-ignore', false)) {
+			if ($modelField->getOption('ignore', false, $this->_optionPrefix)) {
 				continue;
 			}
 			
 			$formField = null;
 			$defaultLabel = $modelField->name;
 			
-			if ($builder->isFieldPartOfReference($modelField) && !$modelField->getOption('form-no-reference', false)) {
+			if ($builder->isFieldPartOfReference($modelField) && !$modelField->getOption('no-reference', false, $this->_optionPrefix)) {
 				$reference = $builder->getReferenceFromSourceField($modelField);
 				if ($reference->isHasMany()) {
 					continue;
 				}
 				
 				$defaultLabel = $reference->name;
-				$options = $modelField->getOptions('form-');
+				$options = $modelField->getOptions($this->_optionPrefix);
 				$options['reference'] = $reference;
 				
 				require_once 'Atomik/Model/Form/Field/Reference.php';
@@ -109,7 +109,8 @@ class Atomik_Model_Form extends Atomik_Form
 			}
 			
 			$this->_fields[$modelField->name] = $formField;
-			$this->_labels[$modelField->name] = $modelField->getOption('form-label', $defaultLabel);
+			$this->_labels[$modelField->name] = $modelField->getLabel();
+			$formField->setParent($this);
 		}
 	}
 	
@@ -127,10 +128,11 @@ class Atomik_Model_Form extends Atomik_Form
 	 * Adds a new field
 	 * 
 	 * @param	Atomik_Form_Field_Abstract	$field
+	 * @param	string						$label
 	 */
-	public function addField(Atomik_Form_Field_Abstract $field)
+	public function addField(Atomik_Form_Field_Abstract $field, $label = null)
 	{
-		parent::addField($field);
+		parent::addField($field, $label);
 		$this->populateModel();
 	}
 	

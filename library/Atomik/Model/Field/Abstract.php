@@ -46,6 +46,28 @@ abstract class Atomik_Model_Field_Abstract extends Atomik_Options
 	}
 	
 	/**
+	 * Filters the data from the model to the database
+	 * 
+	 * @param mixed $input
+	 * @return mixed
+	 */
+	public function filterOutput($output) 
+	{
+		return $output;
+	}
+	
+	/**
+	 * Filters the data from the database to the model
+	 * 
+	 * @param mixed $output
+	 * @return mixed
+	 */
+	public function filterInput($input)
+	{
+		return $input;
+	}
+	
+	/**
 	 * Returns an array where the first item is the sql type name and the second the length
 	 * 
 	 * @return array
@@ -74,6 +96,28 @@ abstract class Atomik_Model_Field_Abstract extends Atomik_Options
 	public function getDefaultFormField()
 	{
 		return Atomik_Form_Field_Factory::factory('Input', $this->name, $this->getOptions('form-'));
+	}
+	
+	/**
+	 * Returns the field label
+	 * 
+	 * @return string
+	 */
+	public function getLabel()
+	{
+		$default = strtolower(str_replace('_', ' ', preg_replace('/(?<=\\w)([A-Z])/', ' \1', $this->name)));
+		return $this->getOption('label', $default);
+	}
+	
+	/**
+	 * Returns a displayable string representing the value
+	 * 
+	 * @param 	mixed $value
+	 * @return	string
+	 */
+	public function render($value)
+	{
+		return $value;
 	}
 	
 	/**

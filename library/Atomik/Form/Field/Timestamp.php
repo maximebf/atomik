@@ -82,7 +82,7 @@ class Atomik_Form_Field_Timestamp extends Atomik_Form_Field_Abstract
 			$this->_getCssClasses('timestamp date'),
 			$this->getAttributesAsString(array('type', 'id', 'class'))
 		);
-		$html .= sprintf('<script type="text/javascript">$(function() { $("#%s_date").datepicker() });</script>', $this->getId());
+		$html .= sprintf('<script type="text/javascript">jQuery(function($) { $("#%s_date").datepicker() });</script>', $this->getId());
 		return $html;
 	}
 	

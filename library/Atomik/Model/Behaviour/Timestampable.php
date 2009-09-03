@@ -31,18 +31,18 @@ require_once 'Atomik/Model/Field/Timestamp.php';
  */
 class Atomik_Model_Behaviour_Timestampable extends  Atomik_Model_Behaviour_Abstract
 {
-	public function init()
+	public function init(Atomik_Model_Builder $builder)
 	{
-		if (!$this->_builder->hasField('created')) {
-			$this->_builder->addField(new Atomik_Model_Field_Timestamp('created', array('form-ignore' => true)));
+		if (!$builder->hasField('created')) {
+			$builder->addField(new Atomik_Model_Field_Timestamp('created', array('form-ignore' => true)));
 		}
 		
-		if (!$this->_builder->hasField('updated')) {
-			$this->_builder->addField(new Atomik_Model_Field_Timestamp('updated', array('form-ignore' => true)));
+		if (!$builder->hasField('updated')) {
+			$builder->addField(new Atomik_Model_Field_Timestamp('updated', array('form-ignore' => true)));
 		}
 	}
 	
-	public function beforeSave(Atomik_Model $model)
+	public function beforeSave(Atomik_Model_Builder $builder, Atomik_Model $model)
 	{
 		$now = date('Y-m-d H:i:s');
 		if ($model->isNew()) {

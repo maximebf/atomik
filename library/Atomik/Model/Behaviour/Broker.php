@@ -46,7 +46,7 @@ class Atomik_Model_Behaviour_Broker
 	 * 
 	 * @param Atomik_Model_Builder $builder
 	 */
-	public function __construct(Atomik_Model_Builder $builder)
+	public function __construct(Atomik_Model_Builder $builder = null)
 	{
 		$this->_builder = $builder;
 	}
@@ -71,8 +71,10 @@ class Atomik_Model_Behaviour_Broker
 	 */
 	public function addBehaviour(Atomik_Model_Behaviour_Interface $behaviour)
 	{
-		$behaviour->setBuilder($this->_builder);
 		$this->_behaviours[get_class($behaviour)] = $behaviour;
+		if ($this->_builder !== null) {
+			$behaviour->init($this->_builder);
+		}
 	}
 	
 	/**

@@ -189,28 +189,6 @@ class Atomik_Form extends Atomik_Form_Fieldset
 	}
 	
 	/**
-	 * Sets the form id
-	 * 
-	 * @see Atomik_Form::setId()
-	 * @param	string	$name
-	 */
-	public function setName($name)
-	{
-		$this->setId($name);
-	}
-	
-	/**
-	 * Sets the id attribute
-	 * 
-	 * @param string $id
-	 */
-	public function setId($id)
-	{
-		$this->_attributes['id'] = $id;
-		parent::setName($id);
-	}
-	
-	/**
 	 * Sets the action attribute
 	 * 
 	 * @param	string	$value

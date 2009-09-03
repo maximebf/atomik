@@ -43,4 +43,9 @@ class Atomik_Model_Field_Bool extends Atomik_Model_Field_Abstract
 	{
 		return Atomik_Form_Field_Factory::factory('Checkbox', $this->name, $this->getOptions('form-'));
 	}
+	
+	public function render($value)
+	{
+		return $value ? 'Yes' : 'No';
+	}
 }

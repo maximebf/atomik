@@ -163,7 +163,9 @@ class Atomik_Model_Builder extends Atomik_Options
 			case 'abstract':
 				$this->_fields = array_merge($parent->getFields(), $this->_fields);
 				$this->_options = array_merge($parent->getOptions(), $this->_options);
-				$this->_behaviourBroker = clone $parent->getBehaviourBroker();
+				foreach ($parent->getBehaviourBroker()->getBehaviours() as $behaviour) {
+					$this->_behaviourBroker->addBehaviour(clone $behaviour);
+				}
 				foreach ($parent->getReferences() as $ref) {
 					$this->addReference(clone $ref);
 				}
@@ -587,9 +589,15 @@ class Atomik_Model_Builder extends Atomik_Options
 			$className = 'Atomik_Model';
 		}
 		
-		$this->_behaviourBroker->notifyBeforeCreateInstance($values, $new);
-		$instance = new $className($values, $new, $this);
-		$this->_behaviourBroker->notifyAfterCreateInstance($instance);
+		$dataToFilter = array_intersect_key($values, $this->_fields);
+		$data = array_diff_key($values, $this->_fields);
+		foreach ($dataToFilter as $key => $value) {
+			$data[$key] = $this->_fields[$key]->filterInput($value);
+		}
+		
+		$this->_behaviourBroker->notifyBeforeCreateInstance($this, $data, $new);
+		$instance = new $className($data, $new, $this);
+		$this->_behaviourBroker->notifyAfterCreateInstance($this, $instance);
 		
 		return $instance;
 	}

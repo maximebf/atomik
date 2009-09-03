@@ -4,11 +4,11 @@
 		<div class="panel-content" id="content">
 			<?php echo $this->modelDataTable('users', $users, array(
 						'url' => Atomik_Backend::pluginUrl('db', 'models/edit', 
-							array('name' => $builder->name, 'returnUrl' => Atomik::pluginUrl('index'))),
+							array('name' => 'User', 'returnUrl' => Atomik::url('index'))),
 						'columns' => $columns,
 						'actions' => array(
 							array('label' => __('Delete'), 'url' => Atomik_Backend::pluginUrl('db', 'models/delete', 
-								array('returnUrl' => Atomik::pluginUrl('index'))))
+								array('name' => 'User', 'returnUrl' => Atomik::url('index'))))
 						)
 			))->render() ?>
 		</div>
@@ -18,14 +18,14 @@
 	<div id="sidebar">
 		<?php echo $this->sidebarButton(
 			__('Create a new user'), 
-			Atomik_Backend::pluginUrl('db', 'models/edit', array('name' => 'User', 'returnUrl' => Atomik::pluginUrl('index'))),
+			Atomik_Backend::pluginUrl('db', 'models/edit', array('name' => 'User', 'returnUrl' => Atomik::url('index'))),
 			Atomik::pluginAsset('images/user.png')
 		) ?>
 		<?php echo $this->sidebarButton(
 			__('Manage permissions'), 
-			Atomik::pluginUrl('permissions'),
+			Atomik::url('permissions'),
 			Atomik::pluginAsset('images/permission.png')
 		) ?>
-		<?php echo $this->modelFilters($builder, $columns) ?>
+		<?php echo $this->modelFilters($builder) ?>
 	</div>
 </div>

@@ -26,6 +26,16 @@
 class Atomik_Model_Locator
 {
 	/**
+	 * Returns a new query
+	 * 
+	 * @return Atomik_Model_Query
+	 */
+	public static function createQuery()
+	{
+		return new Atomik_Model_Query();
+	}
+	
+	/**
 	 * Query the adapter
 	 *
 	 * @param 	string|Atomik_Model_Builder $builder

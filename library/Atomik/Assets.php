@@ -92,6 +92,9 @@ class Atomik_Assets
 	public static function registerNamedAsset($name, $url, $type = null, $dependencies = array())
 	{
 		if (is_array($url)) {
+			foreach ($url as &$asset) {
+				$asset['name'] = $name;
+			}
 			$url['name'] = $name;
 			self::$_namedAssets[$name] = $url;
 		} else {

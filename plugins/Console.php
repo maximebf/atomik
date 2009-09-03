@@ -74,6 +74,20 @@ class ConsolePlugin
     	self::register('generate', array('ConsolePlugin', 'generate'));
     }
     
+    /**
+     * Returns script directories
+     * 
+     * @return array
+     */
+    public static function getScriptDirs()
+    {
+		$paths = (array) self::$config['scripts_dir'];
+		foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
+			$paths[] = $path;
+		}
+		return $paths;
+    }
+    
 	/**
 	 * Display the console and execute callbacks associated
 	 * to the command
@@ -99,7 +113,7 @@ class ConsolePlugin
 			Atomik::fireEvent('Console::Start', array(&$command, &$arguments));
 			
 			/* checks if a script file exists */
-			if (($scriptFilename = Atomik::path($command . '.php', self::$config['scripts_dir'])) !== false) {
+			if (($scriptFilename = Atomik::path($command . '.php', self::getScriptDirs())) !== false) {
 				/* run the script */
 				require $scriptFilename;
 			} else {

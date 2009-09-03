@@ -12,38 +12,27 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Auth
+ * @subpackage Model
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
+/** Atomik_Model_Behaviour_Abstract */
+require_once 'Atomik/Model/Behaviour/Abstract.php';
+
+/** Atomik_Model_Field */
+require_once 'Atomik/Model/Field.php';
 
 /**
- * The default user object. Store users in an array.
- * 
  * @package Atomik
- * @subpackage Auth
- * 
- * @table auth_user_roles
- * @has parent Atomik_Auth_User as user using Atomik_Auth_User.id = Atomik_Auth_User_Role.user_id
+ * @subpackage Model
  */
-class Atomik_Auth_User_Role extends Atomik_Model
+class Atomik_Model_Behaviour_Orderable extends  Atomik_Model_Behaviour_Abstract
 {
-	/**
-	 * @var string
-	 * @sql-type varchar(50)
-	 */
-	public $name;
-	
-	/**
-	 * @return string
-	 */
-	public function __toString()
+	public function init(Atomik_Model_Builder $builder)
 	{
-		return $this->name;
+		$builder->addField(new Atomik_Model_Field('position', 'int'));
 	}
 }

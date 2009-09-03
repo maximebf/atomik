@@ -142,6 +142,18 @@ class Atomik_Auth
 			return false;
 		}
 		
+		self::setLoggedInUser($username, $remember);
+		return true;
+	}
+	
+	/**
+	 * Sets the currently logged in user
+	 * 
+	 * @param string 	$username
+	 * @param bool		$remember
+	 */
+	public static function setLoggedInUser($username, $remember = false)
+	{
 		self::$_currentUsername = $_SESSION['__USER'] = $username;
 		
 		if ($remember !== false) {
@@ -152,8 +164,6 @@ class Atomik_Auth
 		} else {
 			session_set_cookie_params(time() + 3600);
 		}
-		
-		return true;
 	}
 	
 	/*
@@ -175,7 +185,7 @@ class Atomik_Auth
 	 */
 	public static function isLoggedIn()
 	{
-		return self::$_currentUsername !== null;
+		return self::getCurrentUsername() !== null;
 	}
 	
 	/**

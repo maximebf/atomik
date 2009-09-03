@@ -75,8 +75,8 @@ class DataTableHelper
 		$this->options = array_merge(self::$defaultOptions, $options);
 		
 		// options
-		$this->options['remote'] = Atomik::pluginUrl(null, array('dataTableRemote' => $id));
-		$this->options['url'] = Atomik::get('url', Atomik::pluginUrl('edit'), $options);
+		$this->options['remote'] = Atomik::url(null, array('dataTableRemote' => $id));
+		$this->options['url'] = Atomik::get('url', Atomik::url('edit'), $options);
 		
 		$this->_setupSorting();
 		$this->setData($data);
@@ -302,6 +302,7 @@ class DataTableHelper
 		$clickableColumns = Atomik::get('clickableCols', null, $this->options);
 		$idColumn = Atomik::get('idColumn', 'id', $this->options);
 		$actions = Atomik::get('actions', array(), $this->options);
+		$classes = Atomik::get('classes', array(), $this->options);
 		
 		$actionsHtml = '';
 		if (count($actions)) {
@@ -315,23 +316,39 @@ class DataTableHelper
 		$tbody = '<tbody>';
 		foreach ($this->getDataToDisplay() as $row) {
 			$rel = isset($row[$idColumn]) ? $row[$idColumn] : '';
-			$tbody .= sprintf("\t<tr rel=\"%s\">\n", $rel);
+			$tr = '';
+			$rowClasses = '';
 			foreach ($this->columns as $key => $value) {
-				$classes = '';
-				if (!isset($row[$key])) {
-					$row[$key] = '';
+				$colClasses = '';
+				$value = '';
+				if (isset($row[$key])) {
+					$value = (string) $this->renderValue($row, $key);
 				}
 				if ($clickableColumns !== false || (is_array($clickableColumns) && in_array($key, $clickableColumns))) {
-					$classes = 'clickable';
+					$colClasses = 'clickable';
 				}
-				$tbody .= sprintf("\t\t<td class=\"%s\">%s</td>\n", $classes, $row[$key]);
+				if (isset($classes[$key]) && isset($classes[$key][$value])) {
+					$rowClasses = ' ' . $classes[$key][$value];
+				}
+				$tr .= sprintf("\t\t<td class=\"%s\">%s</td>\n", $colClasses, $value);
 			}
-			$tbody .= $actionsHtml;
-			$tbody .= "\t</tr>\n";
+			$tbody .=  sprintf("\t<tr class=\"%s\" rel=\"%s\">%s\n%s\t</tr>\n", $rowClasses, $rel, $tr, $actionsHtml);
 		}
 		
 		$tbody .= '</tbody>';
 		return $tbody;
+	}
+	
+	/**
+	 * Returns a string representing the value
+	 * 
+	 * @param 	array 	$row
+	 * @param 	string	$column
+	 * @return 	string
+	 */
+	public function renderValue($row, $column)
+	{
+		return $row[$column];
 	}
 	
 	/**
@@ -376,7 +393,7 @@ class DataTableHelper
 		$button = "<li><a href=\"#\" class=\"%s\">%s</a></li>\n";
 		$html = "<ul class=\"dataTablePager\">\n" . sprintf($button, 'previous', 'Previous');
 		
-		for ($i = 1; $i <= $numberOfPages; $i++) {
+		for ($i = 1; $i <= min($numberOfPages, 10); $i++) {
 			$html .= sprintf("<li><a href=\"#%s\" class=\"page%s\">%s</a></li>\n",
 				$i, $this->options['currentPage'] == $i ? ' current' : '', $i);
 		}

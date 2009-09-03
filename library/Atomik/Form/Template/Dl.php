@@ -5,7 +5,7 @@
 		
 		<dt class="buttons"></dt>
 		<dd class="buttons">
-			<input type="submit" />
+			<input type="submit" value="<?php echo $this->getOption('button-label', 'Submit') ?>" />
 		</dd>
 	</dl>
 	

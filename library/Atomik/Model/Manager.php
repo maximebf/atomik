@@ -11,6 +11,11 @@ class Atomik_Model_Manager
 	protected $_dbInstance;
 	
 	/**
+	 * @var Atomik_Model_Behaviour_Broker
+	 */
+	protected $_globalBehaviourBroker;
+	
+	/**
 	 * @var Atomik_Db_Instance
 	 */
 	protected static $_default;
@@ -67,6 +72,7 @@ class Atomik_Model_Manager
 	public function __construct(Atomik_Db_Instance $instance)
 	{
 		$this->_dbInstance = $instance;
+		$this->_globalBehaviourBroker = new Atomik_Model_Behaviour_Broker();
 	}
 	
 	/**
@@ -90,6 +96,30 @@ class Atomik_Model_Manager
 	}
 	
 	/**
+	 * Returns the global behaviour broker
+	 * 
+	 * @return Atomik_Model_Behaviour_Broker
+	 */
+	public function getGlobalBehaviourBroker()
+	{
+		return $this->_globalBehaviourBroker;
+	}
+	
+	/**
+	 * Notify behaviour brokers
+	 * 
+	 * @param Atomik_Model_Builder $builder
+	 * @param string $event
+	 * @param array $args
+	 */
+	protected function _notify(Atomik_Model_Builder $builder, $event, $args)
+	{
+		array_unshift($args, $builder);
+		$this->_globalBehaviourBroker->notify($event, $args);
+		$builder->getBehaviourBroker()->notify($event, $args);
+	}
+	
+	/**
 	 * Query the adapter
 	 * 
 	 * @param	Atomik_Db_Query	$query
@@ -103,7 +133,7 @@ class Atomik_Model_Manager
 		}
 		$builder = self::getBuilderFromQuery($query);
 		
-		$builder->getBehaviourBroker()->notifyBeforeQuery($query);
+		$this->_notify($builder, 'BeforeQuery', array($query));
 		
 		if (($result = $this->_dbInstance->query($query)) === false) {
 			return new Atomik_Model_Modelset($builder, array());
@@ -112,7 +142,7 @@ class Atomik_Model_Manager
 		$result->setFetchMode(PDO::FETCH_ASSOC);
 		$modelSet = new Atomik_Model_Modelset($builder, $result);
 		
-		$builder->getBehaviourBroker()->notifyAfterQuery($modelSet);
+		$this->_notify($builder, 'AfterQuery', array($modelSet));
 		
 		return $modelSet;
 	}
@@ -141,8 +171,12 @@ class Atomik_Model_Manager
 		$builder = $model->getBuilder();
 		$success = true;
 		
-		$builder->getBehaviourBroker()->notifyBeforeSave($model);
-		$data = $model->toArray();
+		$this->_notify($builder, 'BeforeSave', array($model));
+		
+		$data = array();
+		foreach ($builder->getFields() as $field) {
+			$data[$field->name] = $field->filterOutput($model->{$field->name});
+		}
 		
 		if ($model->isNew()) {
 			// insert
@@ -158,10 +192,10 @@ class Atomik_Model_Manager
 		}
 		
 		if (!$success) {
-			$builder->getBehaviourBroker()->notifyFailSave($model);
+			$this->_notify($builder, 'FailSave', array($model));
 			return false;
 		}
-		$builder->getBehaviourBroker()->notifyAfterSave($model);
+		$this->_notify($builder, 'AfterSave', array($model));
 		return true;
 	}
 	
@@ -178,14 +212,14 @@ class Atomik_Model_Manager
 		}
 		
 		$builder = $model->getBuilder();
-		$builder->getBehaviourBroker()->notifyBeforeDelete($model);
+		$this->_notify($builder, 'BeforeDelete', array($model));
 		
 		$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
 		if ($this->_dbInstance->delete($builder->tableName, $where) === false) {
-			$builder->getBehaviourBroker()->notifyFailDelete($model);
+			$this->_notify($builder, 'FailDelete', array($model));
 			return false;
 		}
-		$builder->getBehaviourBroker()->notifyAfterDelete($model);
+		$this->_notify($builder, 'AfterDelete', array($model));
 		return true;
 	}
 }

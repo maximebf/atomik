@@ -3,9 +3,10 @@
 		<h2 class="panel-title"><?php echo __('Permissions') ?></h2>
 		<div class="panel-content" id="content">
 			<?php echo $this->dataTable('permissions', $permissions, array(
-						'url' => Atomik::pluginUrl('permissions/edit'),
+						'url' => Atomik::url('permissions/edit'),
+						'idColumn' => 'uri',
 						'actions' => array(
-							array('label' => __('Delete'), 'url' => Atomik::pluginUrl('permissions/delete'))
+							array('label' => __('Delete'), 'url' => Atomik::url('permissions/delete'))
 						)
 			)) ?>
 		</div>
@@ -15,7 +16,7 @@
 	<div id="sidebar">
 		<?php echo $this->sidebarButton(
 			__('Create a new permission'), 
-			Atomik::pluginUrl('permissions/edit'),
+			Atomik::url('permissions/edit'),
 			Atomik::pluginAsset('images/permission.png')
 		) ?>
 	</div>
