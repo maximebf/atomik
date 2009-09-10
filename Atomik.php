@@ -2180,7 +2180,7 @@ final class Atomik
      * @param bool $useBaseAction    Whether to prepend the action with atomik/base_action
      * @return string
      */
-    public static function url($action = null, $params = array(), $useIndex = true, $useBaseAction = true)
+    public static function url($action = null, $params = true, $useIndex = true, $useBaseAction = true)
     {
         $trigger = self::get('atomik/trigger', 'action');
         
@@ -2375,9 +2375,9 @@ final class Atomik
             if (($filename = self::path($include, $dirs)) === false) {
                 return false;
             }
-            return include_once($filename);
+            return @include_once($filename);
         } else {
-            return include_once($include);
+            return @include_once($include);
         }
     }
     

@@ -1,6 +1,6 @@
 RELEASE_DIR = release
 
-all: atomik plugins doc
+all: atomik library plugins doc
 
 atomik:
 	mkdir -p $(RELEASE_DIR)

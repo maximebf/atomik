@@ -24,9 +24,9 @@ class Atomik_Model_Export
 			}
 		}
 		
-		$builder->getBehaviourBroker()->notifyBeforeExport($definition);
+		$builder->getBehaviourBroker()->notifyBeforeExport($builder, $definition);
 		$sql = $definition->toSql();
-		$builder->getBehaviourBroker()->notifyAfterExport($sql);
+		$builder->getBehaviourBroker()->notifyAfterExport($builder, $sql);
 		
 		return $sql;
 	}
