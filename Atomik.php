@@ -2211,7 +2211,7 @@ final class Atomik
         }
         
         // checks if it's a named route
-        if ($action{0} == '@') {
+        if (substr($action, 0, 1) == '@') {
             if (($action = self::get('app/routes/' . $action . '/route')) === null) {
                 throw new Atomik_Exception('Missing route ' . $action);
             }
@@ -2454,22 +2454,29 @@ final class Atomik
      * 
      * @internal 
      * @param string $label     Whether to only retreives messages from this label. When null or 'all', returns all messages
+     * @param bool $delete      Whether to delete messages once retrieved
      * @return array            An array of messages if the label is specified or an array of array message
      */
-    public static function _getFlashMessages($label = 'all') {
+    public static function _getFlashMessages($label = 'all', $delete = true) {
         if (!isset($_SESSION['__FLASH'])) {
             return array();
         }
         
         if (empty($label) || $label == 'all') {
-            return self::delete('session/__FLASH');
+        	if ($delete) {
+            	return self::delete('session/__FLASH');
+        	}
+        	return self::get('session/__FLASH');
         }
         
         if (!isset($_SESSION['__FLASH'][$label])) {
             return array();
         }
         
-        return self::delete('session/__FLASH/' . $label);
+        if ($delete) {
+        	return self::delete('session/__FLASH/' . $label);
+        }
+        return self::get('session/__FLASH/' . $label);
     }
     
     /**

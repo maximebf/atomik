@@ -90,6 +90,8 @@ class AjaxPlugin
 	 */
 	public static function onAtomikExecuteAfter($action, &$context, &$vars, &$triggerError)
 	{
+        self::addFlashMessagesHeader();
+        
 		/* checks if ajax is enabled for this action */
 		if (self::$config['allow_all']) {
 			if (in_array($action, self::$config['restricted'])) {
@@ -103,6 +105,23 @@ class AjaxPlugin
 		
 		self::endWithJson($vars);
 	}
+    
+    /**
+     * Prevents from redirections
+     */
+    public static function onAtomikRedirect()
+    {
+        self::addFlashMessagesHeader();
+        Atomik::end(true);
+    }
+    
+    /**
+     * Sends flash messages as an http header so they can be used in javascript
+     */
+    public static function addFlashMessagesHeader()
+    {
+        header('Flash-messages: ' . json_encode(Atomik::get('flash:all')));
+    }
 	
 	/**
 	 * Output vars as json and exits

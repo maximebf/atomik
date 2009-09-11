@@ -899,6 +899,11 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		$conditions = array();
 		
 		foreach ($fields as $field => $value) {
+			if (is_numeric($field)) {
+				$conditions[] = (string) $value;
+				continue;
+			}
+			
 			if ($value instanceof Atomik_Db_Query_Expr) {
 				$value = $value->__toString();
 			} else {
