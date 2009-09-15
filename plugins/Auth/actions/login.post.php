@@ -17,7 +17,7 @@ if ($data === false) {
 }
 
 // tries to authentify the user
-if (Atomik_Auth::login($data['username'], $data['password'])) {
+if (Atomik_Auth::login($data['username'], md5($data['password']))) {
 	// success, redirecting
 	Atomik::redirect(Atomik::get('request/from', Atomik::appUrl('/')), false);
 }

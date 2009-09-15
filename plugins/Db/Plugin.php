@@ -56,7 +56,10 @@ class DbPlugin
     	'result_cache'	=> false,
     
     	// where to find models
-    	'model_dirs'	=> array('./app/models')
+    	'model_dirs'	=> array('./app/models'),
+    
+        // where to find sql scripts
+        'sql_dirs'      => array('./app/sql')
     	
     );
     
@@ -184,17 +187,6 @@ class DbPlugin
 	{
 		$filter = array_map('ucfirst', $filter);
 		
-		$paths = array();
-		foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
-			if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
-				$paths[] = $path;
-			}
-		}
-		
-		if ((count($filter) && in_array('App', $filter)) || !count($filter)) {
-			$paths[] = Atomik::get('atomik/dirs/app');
-		}
-		
 		require_once 'Atomik/Db/Script.php';
 		require_once 'Atomik/Db/Script/Output/Text.php';
 		require_once 'Atomik/Db/Script/File.php';
@@ -202,14 +194,31 @@ class DbPlugin
 		$script = new Atomik_Db_Script();
 		$script->setOutputHandler(new Atomik_Db_Script_Output_Text($echo));
 		
-		foreach ($paths as $path) {
-			if (@is_dir($path . '/models')) {
-				$script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
-			}
-			if (@is_dir($path . '/sql')) {
-				$script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
-			}
-		}
+		// plugins
+        foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
+            if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
+	            if (@is_dir($path . '/models')) {
+	                $script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
+	            }
+	            if (@is_dir($path . '/sql')) {
+	                $script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
+	            }
+            }
+        }
+        
+        // app
+        if ((count($filter) && in_array('App', $filter)) || !count($filter)) {
+            foreach (Atomik::path(self::$config['model_dirs'], true) as $path) {
+                if (@is_dir($path)) {
+                    $script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path));
+                }
+            }
+            foreach (Atomik::path(self::$config['sql_dirs'], true) as $path) {
+                if (@is_dir($path)) {
+                    $script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path));
+                }
+            }
+        }
 		
 		Atomik::fireEvent('Db::Script', array($script, $paths));
 		return $script;
