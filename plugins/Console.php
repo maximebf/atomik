@@ -131,14 +131,35 @@ class ConsolePlugin
 			Atomik::fireEvent('Console::End', array($command, $arguments));
 			
 		} catch (Exception $e) {
-			self::println('AN ERROR OCCURED at line ' . $e->getLine() . ' in ' . $e->getFile() . "\n");
-			self::println($e->getMessage() . "\n", 1);
-			self::println($e->getTraceAsString());
+	        self::_displayError($e);
 			$success = false;
 		}
 		
 		echo "\n\nDone\n";
 		Atomik::end($success);
+	}
+	
+	/**
+	 * Display an error message
+	 *
+	 * @param Exception $e
+	 */
+	public static function onAtomikError($e)
+	{
+	    self::_displayError($e);
+	    Atomik::end(false);
+	}
+	
+	/**
+	 * Display an exception
+	 *
+	 * @param Exception $e
+	 */
+	private static function _displayError(Exception $e)
+	{
+		self::println('AN ERROR OCCURED at line ' . $e->getLine() . ' in ' . $e->getFile() . "\n");
+		self::println($e->getMessage() . "\n", 1);
+		self::println($e->getTraceAsString());
 	}
 	
 	/**
