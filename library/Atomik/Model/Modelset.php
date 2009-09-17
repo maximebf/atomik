@@ -116,7 +116,7 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	 * @param	array 	$fieldsToInclude Name of the fields to include
 	 * @return 	array
 	 */
-	public function toArray($fieldsToInclude = null)
+	public function toDataArray($fieldsToInclude = null)
 	{
 		if ($fieldsToInclude === null) {
 			return $this->_data;
@@ -128,6 +128,15 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 			$data[] = array_intersect_key($item, $fieldsToInclude);
 		}
 		return $data;
+	}
+	
+	public function toArray()
+	{
+        $this->current();
+		while ($this->next()) {
+			$this->current();
+		}
+		return $this->_models;
 	}
 	
 	/* -------------------------------------------------------------------------------------------
