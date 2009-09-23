@@ -1880,6 +1880,7 @@ final class Atomik
             $layout = self::get('app/layout');
             self::reset();
             self::set('app/layout', $layout);
+            self::set('app/routes', array());
         }
         self::set('app/running_plugin', $plugin); 
         
@@ -2375,9 +2376,9 @@ final class Atomik
             if (($filename = self::path($include, $dirs)) === false) {
                 return false;
             }
-            return @include_once($filename);
+            return include_once($filename);
         } else {
-            return @include_once($include);
+            return include_once($include);
         }
     }
     
