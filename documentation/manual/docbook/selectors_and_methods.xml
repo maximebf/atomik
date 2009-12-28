@@ -3,7 +3,7 @@
 	<title>Selectors and methods</title>
 	<sect1 id="selectors">
 		<para>
-			Selectors are  inspired from Javascript frameworks which uses CSS selectors to 
+			Selectors are inspired from Javascript frameworks which uses CSS selectors to 
 			select object in the DOM.
 		</para>
 		<para>

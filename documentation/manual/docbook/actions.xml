@@ -71,7 +71,7 @@ include 'page_html.php';]]>
 		<title>Action files</title>
 		<para>
 			Actions are stored in the <filename>app/actions</filename> directory. Both the action and the 
-			view filename must have the same name. Action files must have the <quote>php</quote> extension.
+			view filename must be the same. Action files must have the <quote>php</quote> extension.
 			If the action or view filename starts with an underscore, the action won't be accessible using an url.
 		</para>
 		<para>
@@ -120,7 +120,7 @@ $_myPrivateVariable = 'secret';]]>
 		<sect2 id="actions-rest-targeting">
 			<title>Targeting HTTP methods</title>
 			<para>
-				Method specific action files must be prefixed with the method name. So for example, if you have
+				Method specific action files must be suffixed with the method name. So for example, if you have
 				a <quote>user</quote> action and you would like to target the POST method, you would create a
 				file named <filename>user.post.php</filename>. With the PUT method it would have been
 				<filename>user.put.php</filename>. These files must be located in the actions folder.
@@ -249,12 +249,13 @@ $variables = Atomik::execute('myAction', false);]]>
 		<note>
 			<para>
 				Calling an action using <methodname>Atomik::execute()</methodname> does not mean an action file
-				must exist. However, in this case, a view file with the same name must exists.
+				must exist. However, in this case, a view file with the same name must exists. Otherwise,
+				false is returned.
 			</para>
 		</note>
 		<para>
-			Actions executed this way will also be influence by the HTTP method. You specify a specific method
-			by prefixing the action name. The global action will also be executed.
+			Actions executed this way will also be influenced by the HTTP method. You can specify a specific method
+			by appendinf it to the action name. The global action will also be executed.
 		</para>
 		<example>
 			<title>Calling an action for a specific method programmatically</title>

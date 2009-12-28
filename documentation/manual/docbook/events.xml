@@ -62,8 +62,7 @@ Atomik::listenEvent('myEvent', 'myEventCallback2', 5); // will be called first]]
 		</example>
 		<para>
 			Multiple listeners can have the same priority. If you dim your listener more important and want it 
-			to be called before other listeners of the same priority, you can. This is done by passing true as
-			the fourth parameter.
+			to be called before other listeners of the same priority, you can use true as the fourth parameter.
 		</para>
 		<example>
 			<title>Listeners with priorities and importance</title>

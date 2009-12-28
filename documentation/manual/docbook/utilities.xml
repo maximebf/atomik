@@ -43,13 +43,15 @@ echo Atomik::escape('my text');]]>
 			</programlisting>
 		</example>
 		<para>
-			This method relies on other functions to escape data. It simply executes them one after an other and returns the result.
-			You can for example, execute the <function>htmlspecialchars()</function> function followed by <function>nl2br()</function>.
+			This method relies on other functions to escape data. It simply executes them one after an other 
+			and returns the result. You can for example, execute the <function>htmlspecialchars()</function> 
+			function followed by <function>nl2br()</function>.
 		</para>
 		<para>
-			The functions to execute are grouped under profiles. Thus, you can create multiple escaping profiles depending on the data you 
-			need to escape. Profiles are defined in the <quote>app/escaping</quote> configuration key. To specify which functions to execute
-			in a profile, you can use a string or an array of strings. Functions will be executed in the order they appear in the array.
+			The functions to execute are grouped under profiles. Thus, you can create multiple escaping profiles 
+			depending on the data you need to escape. Profiles are defined in the <quote>app/escaping</quote> 
+			configuration key. To specify which functions to execute in a profile, you can use a string or an 
+			array of strings. Functions will be executed in the order they appear in the array.
 			The default profile is called <quote>default</quote>.
 		</para>
 		<para>
@@ -60,7 +62,7 @@ echo Atomik::escape('my text');]]>
 			<programlisting>
 				<![CDATA[			
 // creating profiles
-Atomik::add('app/escaping', array(
+Atomik::set('app/escaping', array(
 	'default' => array('htmlspecialchars', 'nl2br'),
 	'url' => 'urlencode'
 ));
@@ -76,8 +78,8 @@ echo Atomik::escape('my url param', 'url');]]>
 	<sect1 id="utilities-friendlify">
 		<title>Friendly urls</title>
 		<para>
-			Having a router without a way to make friendly urls woudln't be a complete feature. <methodname>Atomik::friendlify()</methodname>
-			transforms string to a url friendly version.
+			Having a router without a way to make friendly urls woudln't be a complete feature. 
+			<methodname>Atomik::friendlify()</methodname> transforms string to a url friendly version.
 		</para>
 		<example>
 			<title>Make an url friendly string</title>
@@ -144,40 +146,42 @@ $result = Atomik::filter($data, 'my_custom_filter');]]>
 			false as the fourth argument.
 		</para>
 		<para>
-			While the second argument is named a definition in the PHP's extension, Atomik called it a rule. Rules are arrays where
-			keys are field's name and their value a filter or an array (like with <function>filter_var_array()</function>).
-			You can pass a rule as the second argument. Rules can also be defined in the <quote>app/filters/rules</quote> configuration
-			key. You can then use their name instead of an array as the second argument.
+			While the second argument is named a definition in the PHP's extension, Atomik called it a rule. 
+			Rules are arrays where keys are field's name and their value a filter or an array 
+			(like with <function>filter_var_array()</function>). You can pass a rule as the second argument. 
+			Rules can also be defined in the <quote>app/filters/rules</quote> configuration key. 
+			You can then use their name instead of an array as the second argument.
 		</para>
 		<para>
-			The method also adds the notion of required fields. If you set the <quote>required</quote> key to true in the field's 
-			array, the validation will fail if the field is missing or empty. 
+			The method also adds the notion of required fields. If you set the <quote>required</quote> key to true in 
+			the field's array, the validation will fail if the field is missing or empty. 
 		</para>
 		<para>
-			When a field is empty but not required, its value will be null. This can be changed by setting the <quote>default</quote>
-			key in the field's array.
+			When a field is empty but not required, its value will be null. This can be changed by setting 
+			the <quote>default</quote> key in the field's array.
 		</para>
 		<para>
-			The filter key in the field's array follows the same rule as the filter parameter described previously. Thus it can be
-			a filter's id or name, a regexp or a custom filter's name.
+			The filter key in the field's array follows the same rule as the filter parameter described previously. 
+			Thus it can be a filter's id or name, a regexp or a custom filter's name.
 		</para>
 		<para>
 			The method also support multi-dimension array as input.
 		</para>
 		<para>
-			Finally, support for validation messages has also been added. When filtering the array, if any values failed validating,
-			a message will be created. Messages can then be retreived in the <quote>app/filters/messages</quote> configuration key.
-			There is two default messages configured in <quote>app/filters/default_message</quote> and <quote>app/filters/required_message</quote>.
+			Finally, support for validation messages has also been added. When filtering the array, if any values 
+			failed validating, a message will be created. Messages can then be retreived in the 
+			<quote>app/filters/messages</quote> configuration key. There is two default messages configured in 
+			<quote>app/filters/default_message</quote> and <quote>app/filters/required_message</quote>.
 			The former will be used when a field failed to validate while the later when the required condition has not been met.
 		</para>
 		<note>
-			When setting the two message keys, you can use <quote>%s</quote> which will be replaced with the field's name. As field's name
-			aren't usually pretty, you can use the <quote>label</quote> key in the field's array to define the text which will be used to 
-			replace <quote>%s</quote>.
+			When setting the two message keys, you can use <quote>%s</quote> which will be replaced with the field's name. 
+			As field names aren't usually pretty, you can use the <quote>label</quote> key in the field's array to define 
+			the text which will be used to replace <quote>%s</quote>.
 		</note>
 		<para>
-			You can override the failed to validate message for each field by setting the <quote>message</quote> key in the field's
-			array.
+			You can override the failed to validate message for each field by setting the <quote>message</quote> 
+			key in the field's array.
 		</para>
 		<example>
 			<title>Filtering arrays</title>

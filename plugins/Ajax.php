@@ -90,6 +90,7 @@ class AjaxPlugin
 	 */
 	public static function onAtomikExecuteAfter($action, &$context, &$vars, &$triggerError)
 	{
+        header('Content-type: text/html; charset=utf-8');
         self::addFlashMessagesHeader();
         
 		/* checks if ajax is enabled for this action */
@@ -134,7 +135,7 @@ class AjaxPlugin
 		$json = json_encode($vars);
 		
 		/* echo's output */
-		header('Content-type: application/json');
+		header('Content-type: application/json; charset=utf-8');
 		echo $json;
 		
 		/* ends successfuly */

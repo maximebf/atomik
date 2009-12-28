@@ -19,7 +19,6 @@
 			<listitem>Application logic separated from the presentation layer</listitem>
 			<listitem>Plugins</listitem>
 			<listitem>Highly extensible</listitem>
-			<listitem>Atomik Selectors</listitem>
 		</itemizedlist>
 	</para>
 	<para>

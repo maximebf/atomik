@@ -8,7 +8,7 @@
 			<filename>Db.php</filename>. Plugin's file must always start with an uppercase letter.
 		</para>
 		<para>
-			Plugins are loaded at the beginning of a request, just after the bootstrap. 
+			Plugins are loaded at the beginning of a request, just after the configuration. 
 			The content of the file is free or it can be a class.
 		</para>
 		<para>
@@ -112,7 +112,8 @@ class DbPlugin
 			<filename>Plugin.php</filename> file. Call <methodname>Atomik::registerPluggableApplication()</methodname> when
 			the plugin starts using the plugin name as first parameter (and eventually the pattern to trigger the application
 			as the second). Create standards Atomik folders inside your plugin folder: <filename>actions</filename>, 
-			<filename>views</filename>, <filename>helpers</filename> and <filename>layouts</filename> and code your application normally.
+			<filename>views</filename>, <filename>helpers</filename> and <filename>layouts</filename> 
+			and code your application normally.
 		</para>
 		<figure>
 			<title>A pluggable application directory structure</title>
@@ -197,21 +198,6 @@ echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
 		<note>
 			It is not adviced to change the plugin's assets folder name as some plugins may not work with your installation.
 		</note>
-		<para>
-			When creating a pluggable application you can use <methodname>Atomik::pluginUrl()</methodname>. It has the exact same
-			arguments as <methodname>Atomik::url()</methodname> but will prepend actions with the pluggable application route.
-		</para>
-		<example>
-			<title>Using <methodname>Atomik::pluginUrl()</methodname></title>
-			<para>
-				From a pluggable application named Blog and available at /blog.
-				In the index action
-			</para>
-			<programlisting>
-				<![CDATA[
-echo Atomik::pluginUrl('my-action'); // will echo /blog/my-action]]>
-			</programlisting>
-		</example>
 	</sect1>
 	<sect1 id="plugin-manifest">
 		<title>Manifest.xml</title>
@@ -303,13 +289,13 @@ Atomik::loadCustomPlugin('Db', array('dbname' => 'test'));]]>
 			<programlisting>
 				<![CDATA[
 // load plugins from a custom directory
-Atomik::loadCustomPlugin('MyPlugin', array(), '/custom/plugins/directory');
+Atomik::loadCustomPlugin('MyPlugin', array(), array('dirs' => '/custom/plugins/directory'));
 
 // using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
-Atomik::loadCustomPlugin('MyPlugin', array(), null, '%CustomPlugin');
+Atomik::loadCustomPlugin('MyPlugin', array(), array('classNameTemplate' => '%CustomPlugin'));
 
 // do not call the start() method when loading plugins
-Atomik::loadCustomPlugin('MyPlugin', array(), null, '%Plugin', false);]]>
+Atomik::loadCustomPlugin('MyPlugin', array(), array('callStart' => false));]]>
 			</programlisting>
 		</example>
 		<para>

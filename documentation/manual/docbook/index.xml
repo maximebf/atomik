@@ -5,7 +5,7 @@
 		The manual is licensed under the Creative Commons Attribution 3.0 License.
 	</para>
 	<para>
-		The manual is targeted to Atomik 2.2.
+		The manual targets Atomik 2.2.
 	</para>
 	<xi:include href="introduction.xml" />
 	<xi:include href="principles.xml" />
@@ -15,8 +15,8 @@
 	<xi:include href="urls.xml" />
 	<xi:include href="actions.xml" />
 	<xi:include href="views.xml" />
-	<xi:include href="session.xml" />
 	<xi:include href="selectors_and_methods.xml" />
+	<xi:include href="session.xml" />
 	<xi:include href="includes.xml" />
 	<xi:include href="utilities.xml" />
 	<xi:include href="error_log_debug.xml" />

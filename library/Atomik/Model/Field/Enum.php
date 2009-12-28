@@ -30,7 +30,7 @@ class Atomik_Model_Field_Enum extends Atomik_Model_Field_Abstract
 {
 	protected function _getDataMap()
 	{
-		return array_map('trim', explode(',', $this->getOption('options')));
+		return array_flip(array_map('trim', explode(',', $this->getOption('options'))));
 	}
 	
 	/**
@@ -54,6 +54,13 @@ class Atomik_Model_Field_Enum extends Atomik_Model_Field_Abstract
 	public function render($value)
 	{
 		$map = $this->_getDataMap();
-		return $map[$value];
+		$intValue = (int) $value;
+		
+	    if (((string) $intValue) == $value) {
+	        $map = array_flip($map);
+		    return $map[$value];
+	    }
+	    
+	    return $value;
 	}
 }

@@ -389,7 +389,7 @@ final class Atomik
             }
             
             // adds includes dirs to php include path
-            $includePaths = self::get('atomik/dirs/includes', array());
+            $includePaths = self::path(self::get('atomik/dirs/includes', array()), true);
             $includePaths[] = get_include_path();
             set_include_path(implode(PATH_SEPARATOR, $includePaths));
             
@@ -747,7 +747,7 @@ final class Atomik
             
             // regexp
             if ($route{0} == '#') {
-                if (!preg_match($route, $uri, $matches) || !isset($matches['action'])) {
+                if (!preg_match($route, $uri, $matches)) {
                     continue;
                 }
                 unset($matches[0]);
@@ -2185,6 +2185,10 @@ final class Atomik
     {
         $trigger = self::get('atomik/trigger', 'action');
         
+        if ($params === false) {
+            $params = array();
+        }
+        
         if ($action === null || $params === true || in_array('__merge_GET', $params)) {
             if (!is_array($params)) {
                 $params = array();
@@ -2221,7 +2225,7 @@ final class Atomik
         // injects parameters into the url
         if (preg_match_all('/(:([a-zA-Z0-9_]+))/', $action, $matches)) {
             for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
-                if (isset($params[$matches[2][$i]])) {
+                if (array_key_exists($matches[2][$i], $params)) {
                     $action = str_replace($matches[1][$i], $params[$matches[2][$i]], $action);
                     unset($params[$matches[2][$i]]);
                 }

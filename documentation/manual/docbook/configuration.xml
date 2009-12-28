@@ -3,7 +3,7 @@
 	<title>Configuration</title>
 	<note>
 		There is a serious compatibility break in the configuration between Atomik 2.1 and 2.2.
-		Many keys have changed, check the appendix A for more information. The wat the bootstrap
+		Many keys have changed, check the appendix A for more information. The way the bootstrap
 		file is included as also been changed. The old bootstrap file has now been replaced with
 		the configuration file.
 	</note>
@@ -142,7 +142,7 @@ post_dispatch = post.php]]>
 	<sect1 id="custom-error-page">
 		<title>Custom error pages</title>
 		<para>
-			Whem an error occures, Atomik will display an error report. You can instead display a custom error page.
+			When an error occures, Atomik will display an error report. You can instead display a custom error page.
 			Create a file named <filename>error.php</filename> in the <filename>app</filename> directory.
 		</para>
 		<para>

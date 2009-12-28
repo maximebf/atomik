@@ -211,7 +211,7 @@ http://example.com/home.foo     =>	action=home format=foo]]>
 		</example>
 		<para>
 			Routes also support file extensions. You can specify a specific extension in your route. The extension
-			can also be a parameter as any segment. In this case, if you specify a default value for it, the extension
+			can also be a parameter. In this case, if you specify a default value for it, the extension
 			won't be mandatory in the url.
 		</para>
 		<example>
@@ -250,8 +250,11 @@ Atomik::set('app/routes', array(
 			</itemizedlist>
 		</para>
 		<para>
-			The method works best with relative or absolute urls. It can however also works with full urls. In this case, the two first 
-			points won't be applied.
+			The method works best with relative or absolute urls. It can however also works with full urls. 
+			In this case, the two first points won't be applied.
+		</para>
+		<para>
+			If null is used as the url, the current action will be used.
 		</para>
 		<example>
 			<title>Building simple urls</title>
@@ -273,12 +276,17 @@ $url = Atomik::url('http://example.com'); // http://example.com]]>
 			<programlisting>
 				<![CDATA[
 $url = Atomik::url('archives', array('year' => 2008)); // /index.php?action=archives&year=2008 if no url rewriting or /archives?year=2008 otherwise
-$url = Atomik::url('archives?year=2008', array('month' => 02)); // /archives?year=2008&month=02]]>
+$url = Atomik::url('archives?year=2008', array('month' => 02)); // /archives?year=2008&month=02
+
+// if the page has been called with ?year=2008
+
+$url = Atomik::url('archives', true); // /archives?year=2008
+$url = Atomik::url('archives', array('__merge_GET', 'month' => 02)); // /archives?year=2008&month=02]]>
 			</programlisting>
 		</example>
 		<para>
-			The method also allows you to use embedded parameters. These are parameters in the uri. The name of the parameter must be prepended
-			with <quote>:</quote>.
+			The method also allows you to use embedded parameters. These are parameters in the uri. 
+			The name of the parameter must be prepended with <quote>:</quote>.
 		</para>
 		<example>
 			<title>Building urls with embedded parameters</title>
@@ -300,8 +308,9 @@ $url = Atomik::url('@archives', array('year' => 2008, 'month' => 02)); // /archi
 			</programlisting>
 		</example>
 		<para>
-			Finally, when creating urls that point to resources you'll never want them to have the <filename>index.php</filename> part in them.
-			To prevent that you can use the <methodname>Atomik::asset()</methodname> method. It works exactly the same as 
+			Finally, when creating urls that point to resources you'll never want them to have the 
+			<filename>index.php</filename> part in them. To prevent that you can use the 
+			<methodname>Atomik::asset()</methodname> method. It works exactly the same as 
 			<methodname>Atomik::url()</methodname> but will never use <filename>index.php</filename> in the url.
 		</para>
 	</sect1>

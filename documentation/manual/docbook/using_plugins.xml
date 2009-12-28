@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="using-plugins" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Using plugins</title>
-	<para>
-		Plugins are a simple way to extend Atomik. As said before, the framework doesn't
-		come with a lot of features. However it provides a nice and powerful plugin system.
-	</para>
 	<sect1 id="installing-plugins">
 		<title>Installing a plugin</title>
 		<para>
@@ -50,7 +46,7 @@ Atomik::set('plugins', array(
 	<sect1 id="pluggable-applications">
 		<title>Pluggable applications</title>
 		<para>
-			Pluggable applications are a great new thing introduce in version 2.2. It allows any
+			Pluggable applications are a great new thing introduced in version 2.2. It allows any
 			plugin to act as a complete application. It can have its own actions, views, layouts,
 			configuration... Let's say you need a blog, just drop in the Blog plugin and you're done!
 		</para>
@@ -70,7 +66,7 @@ Atomik::set('plugins', array(
 			</para>
 			<para>
 				Most pluggable applications should provide a configuration key to modify the default uri. 
-				In the case of the Blog plugin, it's <quote>route</quote>.
+				In the case of the Blog plugin, let say it's <quote>route</quote>.
 			</para>
 			<para>
 				While the key is named route, the way to specify an uri here is not the same as with routes: it's simply

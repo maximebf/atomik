@@ -56,12 +56,14 @@
 				<quote>atomik/dirs/helpers</quote>.
 			</para>
 			<para>
-				You can then define your helper in two ways: as a function or a class. If you're using a function, just create one
-				with the same name as the helper. For our <quote>format_date</quote> helper, the function would be <function>format_date()</function>.
-				But we can also use a class which can be pretty useful for more complex ones. The class name is a camel case version
-				(ie. without any underscore or spaces, all words starting with an upper case) of the helper name suffixed with 
-				<quote>Helper</quote>. In our example, it would be <classname>FormatDateHelper</classname>. This class also needs to have
-				a method named like the helper name but in camel case and starting with a lower case. Here, it would be 
+				You can then define your helper in two ways: as a function or a class. If you're using a function, 
+				just create one with the same name as the helper. For our <quote>format_date</quote> helper, the 
+				function would be <function>format_date()</function>.
+				But you can also use a class which can be pretty useful for more complex ones. The class name is a 
+				camel case version (ie. without any underscores or spaces, all words starting with an upper case) 
+				of the helper name suffixed with <quote>Helper</quote>. In our example, it would be 
+				<classname>FormatDateHelper</classname>. This class also needs to have a method named like the 
+				helper name but in camel case and starting with a lower case. Here, it would be 
 				<methodname>formatDate()</methodname>.
 			</para>
 			<example>
@@ -96,9 +98,9 @@ class FormatDateHelper
 		<sect2 id="using-helpers">
 			<title>Using helpers</title>
 			<para>
-				Helpers are callable from any file that is being rendered. That is to say views, layouts or any
-				file rendered using <methodname>Atomik::renderFile</methodname>. They are accessible as methods of 
-				<varname>$this</varname>. Helpers are automatically loaded.
+				Helpers are callable from any file that is being rendered. That is to say views, 
+				layouts or any file rendered using <methodname>Atomik::renderFile</methodname>.
+				They are accessible as methods of <varname>$this</varname>. Helpers are automatically loaded.
 			</para>
 		    <note>
 		        Helpers are also available in the same way from actions, but there are meant to be use from views.
@@ -183,7 +185,7 @@ Atomik::set('app/layout', '_layout');]]>
 			The default view context is <quote>html</quote> but it can be changed in <quote>atomik/views/default_context</quote>.
 		</para>
 		<para>
-			To create a view for a context just prefix the view name with the context name like an extension. For example, let's
+			To create a view for a context just suffix the view name with the context name like an extension. For example, let's
 			say we have an <quote>article</quote> view. The filename for the xml context would be <filename>article.xml.phtml</filename>.
 			Some context may not need any prefix like the <quote>html</quote> one.
 		</para>
@@ -198,8 +200,8 @@ Atomik::set('app/layout', '_layout');]]>
 			</para>
 			<programlisting>
 				<![CDATA[
-Atomik::set('app/views/contexts/rdf', array(
-	'prefix'        => 'rdf',                   // the view's file prefix (set to false for no prefix)
+Atomik::set('app/views/contexts/rdf', array(    // the context name, ie. the file extension in the url
+	'prefix'        => 'rdf',                   // the view's file extension prefix (set to false for no prefix)
 	'layout'        => false,                   // whether to enable the layout
 	'content-type'  => 'application/xml+rdf'    // the response content type
 ));]]>
@@ -302,7 +304,7 @@ $viewOutput = Atomik::render('myView', array('var' => 'value'));]]>
 			as first parameter a filename. Variables can also be passed like with <methodname>Atomik::render()</methodname>.
 		</para>
 		<note>
-			You can also render contextual views by prefixing the file prefix to the view name.
+			You can also render contextual views by adding the file extension prefix to the view name.
 		</note>
 	</sect1>
 </chapter>

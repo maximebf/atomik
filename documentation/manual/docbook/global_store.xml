@@ -90,7 +90,8 @@ $array = Atomik::get('key1'); // array('item1', 'item2', 'item3', 'item4')]]>
 		<para>
 			The <methodname>has</methodname> and <methodname>delete</methodname>
 			methods only take a key as argument. The first one checks if the key exists
-			and the second delete the key and its value.
+			and the second deletes the key and its value. The method also returns the value
+			which had the deleted key or false if the key didn't exist.
 		</para>
 		<example>
 			<title>Using the <methodname>has</methodname> and <methodname>delete</methodname> methods</title>

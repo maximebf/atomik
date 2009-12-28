@@ -59,12 +59,4 @@
 			(however highly discourage) and do everything in a single file, you can.
 		</para>
 	</sect1>
-	<sect1 id="selectors">
-		<title>Selectors</title>
-		<para>
-			Like in modern javascript frameworks, Atomik offer selectors, or at least the same idea.
-			Selectors are a way to quickly access some features or some data of Atomik or plugins.
-			Their simpler to learn than a complicated API and offer a uniform way of doing things. 
-		</para>
-	</sect1>
 </chapter>
