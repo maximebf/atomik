@@ -73,7 +73,7 @@ CREATE TABLE comments (
 		<para>
 			Will now need to configure the Db plugin so it can access the database.
 			We'll use the <methodname>Atomik::set()</methodname> method. It allows you to define keys in the global store.
-			In the <filename>app/bootstrap.php</filename> file, add the following lines:
+			In the <filename>app/config.php</filename> file, add the following lines:
 		</para>
 		<programlisting>
 			<![CDATA[
@@ -83,23 +83,6 @@ Atomik::set('plugins/Db', array(
 	'password' 	=> ''
 ));]]>
 		</programlisting>
-		<note>
-			<para>
-				Check that the Db plugin is not already listed in the plugins key. If it is, it won't work. 
-			</para>
-			<para>
-				The thing is that the plugin can be listed in the plugins array as a value, thus having a numeric index. 
-				Then when setting the configuration using the previous code, the plugin is added as a key with the configuration 
-				as value, thus not overriding the previous entry. 
-			</para>
-			<para>
-				When iterating over the plugins array, Atomik will first find the plugin listed as value and won't
-				consider the second entry.
-			</para>
-			<para>
-				Always check if the plugin is not already listed.
-			</para>
-		</note>
 		<para>
 			You can see that we define the <quote>plugins/Db</quote> key as an array containing connection information.
 			Modify the host, dbname, username and password parameters according to your setup.

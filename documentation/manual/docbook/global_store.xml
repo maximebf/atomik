@@ -2,7 +2,7 @@
 <chapter id="global-store" xmlns="http://docbook.org/ns/docbook">
 	<title>The global store</title>
 	<para>
-		Atomik offers a global store where anything can be saved for the time of a request.
+		Atomik provides a global store where anything can be saved for the time of a request.
 		This global store acts like an associative array with key/value pairs.
 		It's mainly use to store the configuration.
 	</para>

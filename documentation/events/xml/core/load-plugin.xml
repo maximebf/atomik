@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<group name="load-plugin" title="Atomik::loadPlugin()" xmlns="http://www.atomikframework.com/events">
+<group name="load-plugin" title="Atomik::loadCustomPlugin()" xmlns="http://www.atomikframework.com/events">
 	<event name="Atomik::Plugin::Before">
 		<description>
 			Fired before a plugin is loaded
 		</description>
 		<refparam name="$plugin" type="string">Plugin's name</refparam>
 		<refparam name="$config" type="array">Plugin's configuration</refparam>
-		<refparam name="$dirs" type="array">Directories where to search for the plugin</refparam>
-		<refparam name="$classNameTemplate" type="string">Plugin's class name template</refparam>
-		<refparam name="$callStart" type="boolean">Whether to call the plugin's start method</refparam>
+		<refparam name="$options" type="array">Options for the plugin loader</refparam>
 	</event>
 	<event name="Atomik::Plugin::After">
 		<description>

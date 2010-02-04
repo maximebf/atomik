@@ -86,7 +86,7 @@ function my_callback() {
 Atomik::registerMethod('myMethod', 'my_callback');]]>
 			</programlisting>
 			<para>
-				If you have PHP 5.3 you can use anonymous functions:
+				If you use PHP 5.3 you can use anonymous functions:
 			</para>
 			<programlisting>
 				<![CDATA[

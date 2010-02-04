@@ -18,7 +18,7 @@ Atomik::set(array(
 
 	'plugins' => array(
 
-        'Console',
+        /*'Console',
 
         'Db' => array(
             'dsn'         => 'mysql:host=localhost;dbname=atomik_sandbox',
@@ -30,7 +30,8 @@ Atomik::set(array(
         'Ajax',
         'Lang',
         'Auth',
-        'Backend'
+        'Backend'*/
+        'Lang'
 	)
     
 ));

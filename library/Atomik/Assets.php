@@ -175,7 +175,6 @@ class Atomik_Assets
 	/**
 	 * Adds a new asset file
 	 * 
-	 * @see Atomik::pluginAsset()
 	 * @param	string	$url
 	 * @param	string	$type
 	 * @param	array	$dependencies

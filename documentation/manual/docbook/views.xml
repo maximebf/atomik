@@ -63,7 +63,7 @@
 				camel case version (ie. without any underscores or spaces, all words starting with an upper case) 
 				of the helper name suffixed with <quote>Helper</quote>. In our example, it would be 
 				<classname>FormatDateHelper</classname>. This class also needs to have a method named like the 
-				helper name but in camel case and starting with a lower case. Here, it would be 
+				helper name but in camel case and starting with a lower case. In this case, it would be 
 				<methodname>formatDate()</methodname>.
 			</para>
 			<example>

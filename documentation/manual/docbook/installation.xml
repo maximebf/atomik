@@ -86,7 +86,7 @@
 		<note>
 			<para>
 				In a production environment, it is always better to remove the application files from the webroot. This is not the default way
-				of doing things with Atomik as it can be a bit more difficult. However it is very easy to do. Atomik allows you to edit
+				of doing things with Atomik as it can be a bit more difficult. However it is very easy to configure. Atomik allows you to edit
 				the path for each directory. This will be covered in the configuration chapter.
 			</para>
 		</note>

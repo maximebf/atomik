@@ -29,6 +29,8 @@
  * Added Atomik::__callStatic()
  * Added Atomik::registerPluggableApplication()
  * Added Atomik::dispatchPluggableApplication()
+ ! Atomik::url() is now relative to the application context
+ ! Modification to Atomik::pluginAsset(): the two first args have been inverted
  * Added Atomik::pluginRedirect()
  * Added Atomik::appRedirect()
  * Added Atomik::pluginUrl()
@@ -57,24 +59,26 @@
  * Added support for configuration files in php, ini or json formats
  * Added Atomik::autoload()
  # multiple declarations of a plugin in the plugins config could lead to error
- * Added support for named and regexp routes
+ * Added support regexp routes
+ * Routes can now be named
+ * Added support for index files in views and actions subfolders
  
 [Atomik_Db]
- * Added support for models
+ * Added support for models (beta)
  * Added Atomik_Db::findValue()
  * Added Atomik_Db::has()
  * Added Atomik_Db::set()
  
-[Atomik_Auth]
+[Atomik_Auth (beta)]
  * New Plugin
  
-[Atomik_Backend]
+[Atomik_Backend (beta)]
  * New Plugin
  
-[Atomik_Config]
+[Atomik_Config (beta)]
  * New Plugin
  
-[Atomik_Form]
+[Atomik_Form (beta)]
  * New Plugin
 
 ----------- Atomik 2.1 --------------

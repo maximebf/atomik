@@ -144,6 +144,10 @@ Atomik::set(array(
 
     /* @var array */
     'atomik' => array(
+
+        /* Atomik's filename
+         * @var string */
+        'scriptname'			 => __FILE__,
     
         /* Base url, set to null for auto detection
          * @var string */
@@ -365,6 +369,7 @@ final class Atomik
     {
         // wrap the whole app inside a try/catch block to catch all errors
         try {
+            chdir(dirname(A('atomik/scriptname')));
              
             // loads the config file
             if (file_exists($filename = self::get('atomik/files/config') . '.php')) {
@@ -679,17 +684,12 @@ final class Atomik
      * 
      * Routes defines how to extract parameters from an uri. They can
      * have additional default parameters.
-     * There are three kind of routes:
+     * There are two kind of routes:
      *
      *  - segments: 
      *    the uri is divided into path segments. Each segment can be
      *    either static or a parameter (indicated by :).
      *    eg: /archives/:year/:month
-     *
-     *  - named:
-     *    same as segments but the route is specified in the array of default
-     *    values as the "route" key. The name must be prefixed with @.
-     *    eg: '@archives' => array('route' => '/archives/:year/:month')
      *
      *  - regexp:
      *    uses a regexp against the uri. Must be enclosed using # instead of
@@ -699,6 +699,9 @@ final class Atomik
      * If no route matches, the default route (ie :action) will automatically be used.
      * Unless you're using regexps, any additional segments will be added as parameters
      * eg: /archives/2009/01/id/1, will also have the id=1 parameter
+     * 
+     * You can also name your routes using the @name parameter (which won't be included
+     * in the returned params). Named route can then be use with Atomik::url()
      *
      * @param string $uri
      * @param array $params    Additional parameters which are not in the uri
@@ -711,7 +714,7 @@ final class Atomik
             $routes = self::get('app/routes');
         }
         
-        Atomik::fireEvent('Atomik::Router::Start', array(&$uri, &$routes, &$params));
+        self::fireEvent('Atomik::Router::Start', array(&$uri, &$routes, &$params));
         
         // extracts uri information
         $components = parse_url($uri);
@@ -745,6 +748,11 @@ final class Atomik
                 $default = array();
             }
             
+            // removes the route name from the default params
+            if (isset($default['@name'])) {
+            	unset($default['@name']);
+            }
+            
             // regexp
             if ($route{0} == '#') {
                 if (!preg_match($route, $uri, $matches)) {
@@ -754,15 +762,6 @@ final class Atomik
                 $found = true;
                 $request = array_merge($default, $matches);
                 break;
-            }
-            
-            // named route
-            if ($route{0} == '@') {
-                if (!isset($default['route'])) {
-                    throw new Atomik_Exception('Missing "route" parameter for named route ' . $route);
-                }
-                $route = $default['route'];
-                unset($default['route']);
             }
             
             $valid = true;
@@ -839,7 +838,7 @@ final class Atomik
         }
         
         $request = array_merge($params, $request);
-        Atomik::fireEvent('Atomik::Router::End', array($uri, &$request));
+        self::fireEvent('Atomik::Router::End', array($uri, &$request));
         
         return $request;
     }
@@ -2140,7 +2139,11 @@ final class Atomik
         if ($dirs === null) {
             $dirs = self::get('atomik/dirs/actions');
         }
-        return self::path($action . '.php', $dirs);
+        
+        if (($filename = self::path($action . '.php', $dirs)) === false) {
+            return self::path($action . '/index.php', $dirs);
+        }
+        return $filename;
     }
     
     /**
@@ -2161,7 +2164,10 @@ final class Atomik
             $extension = ltrim(self::get('app/views/file_extension'), '.');
         }
         
-        return self::path($view . '.' . $extension, $dirs);
+        if (($filename = self::path($view . '.' . $extension, $dirs)) === false) {
+            return self::path($view . '/index.' . $extension, $dirs);
+        }
+        return $filename;
     }
     
     /**
@@ -2216,9 +2222,23 @@ final class Atomik
         }
         
         // checks if it's a named route
-        if (substr($action, 0, 1) == '@') {
-            if (($action = self::get('app/routes/' . $action . '/route')) === null) {
-                throw new Atomik_Exception('Missing route ' . $action);
+        if ($action{0} == '@') {
+        	$routeName = substr($action, 1);
+        	$action = null;
+        	foreach (self::get('app/routes') as $route => $default) {
+        		if (!is_array($default) || !isset($default['@name']) || 
+        			$default['@name'] != $routeName) {
+        			    continue;
+        		}
+			    if ($route{0} == '#') {
+			        throw new Atomik_Exception('Named route (' . $routeName . 
+			        	') cannot use regular expressions');
+			    }
+    			$action = $route;
+    			break;
+        	}
+            if ($action === null) {
+                throw new Atomik_Exception('Missing route named ' . $routeName);
             }
         }
         
@@ -2314,9 +2334,12 @@ final class Atomik
     public static function asset($filename, $params = array())
     {
         if (Atomik::has('app/running_plugin')) {
-            return self::pluginAsset($filename, null, $params);
+            if (($plugin = self::get('app/running_plugin')) === null) {
+                throw new Atomik_Exception('Invalid running plugin name');
+            }
+            return self::pluginAsset($plugin, $filename, $params);
         }
-        return self::appAsset($filename, $params, false);
+        return self::appAsset($filename, $params);
     }
     
     /**
@@ -2337,19 +2360,13 @@ final class Atomik
      * defined in the configuration.
      * 
      * @see Atomik::url()
-     * @param string $filename
      * @param string $plugin    Plugin's name (default is the currently running pluggable app)
+     * @param string $filename
      * @param array $params
      * @return string
      */
-    public static function pluginAsset($filename, $plugin = null, $params = array())
+    public static function pluginAsset($plugin, $filename, $params = array())
     {
-        if ($plugin === null) {
-            if (($plugin = self::get('app/running_plugin')) === null) {
-                throw new Atomik_Exception('Missing second parameter in Atomik::pluginAsset()');
-            }
-        }
-        
         $template = self::get('atomik/plugin_assets_tpl', 'app/plugins/%s/assets');
         $dirname = rtrim(sprintf($template, ucfirst($plugin)), '/');
         $filename = '/' . ltrim($filename, '/');
@@ -2371,19 +2388,19 @@ final class Atomik
             return;
         }
         
+        if ($dirs === null) {
+        	$dirs = explode(PATH_SEPARATOR, get_include_path());
+        }
+        
         if ($className && strpos($include, '_') !== false) {
             $include = str_replace('_', DIRECTORY_SEPARATOR, $include);
         }
         $include .= '.php';
         
-        if ($dirs !== null) {
-            if (($filename = self::path($include, $dirs)) === false) {
-                return false;
-            }
-            return include_once($filename);
-        } else {
-            return include_once($include);
+        if (($filename = self::path($include, $dirs)) === false) {
+            return false;
         }
+        return include_once($filename);
     }
     
     /**

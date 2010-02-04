@@ -15,6 +15,7 @@
 		<xi:include href="core/render-file.xml" />
 		<xi:include href="core/render-layout.xml" />
 		<xi:include href="core/end.xml" />
+		<xi:include href="core/load-helper.xml" />
 		<xi:include href="core/load-plugin.xml" />
 		<xi:include href="core/register-pluggable-app.xml" />
 		<xi:include href="core/dispatch-pluggable-app.xml" />

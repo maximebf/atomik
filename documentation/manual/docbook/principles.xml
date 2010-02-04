@@ -43,7 +43,7 @@
 		<title>Extensibility and Plugins</title>
 		<para>
 			As said before, one of the main point of Atomik is being highly extensible. Nearly
-			all actions (execute an action, render a view...) can be overrided. This
+			all actions (execute an action, render a view...) can be overridden. This
 			is made possible through an event system. Before and after each methods, 
 			and sometimes during, events are fired. Multiple callbacks can be registered for
 			each events which allow to modify the way Atomik acts.

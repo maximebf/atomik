@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <group name="render-layout" title="Atomik::renderLayout()" xmlns="http://www.atomikframework.com/events">
-	<event name="Atomik::RenderLayout">
+	<event name="Atomik::Renderlayout">
 		<description>
 			Fired at the beginning of a call to <code>Atomik::renderLayout()</code>.
 		</description>

@@ -8,7 +8,7 @@
 			must always point to Atomik script, i.e. <filename>index.php</filename>
 		</para>
 		<para>
-			The url should contain a parameter which specify which action to trigger.
+			The url should contain an HTTP GET parameter which specify which action to trigger.
 			This parameter can be modified in the configuration (using the <quote>atomik/trigger</quote> key) 
 			but its default name is <quote>action</quote>.
 		</para>
@@ -58,7 +58,7 @@ RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
 		</para>
 		<note>
 		    When using pluggable applications (see the plugins chapter), the <quote>request_uri</quote> key will
-		    become relative to the pluggable application root url. To retrieve the full uri you can use
+		    become relative to the pluggable application's root url. To retrieve the full uri you can use
 		    <quote>full_request_uri</quote>.
 		</note>
 	</sect1>
@@ -128,20 +128,21 @@ Atomik::set('app/routes', array(
 				</para>
 			</note>
 			<para>
-			    Since Atomik 2.2, there is two new kind of routes: named and regexp.
+			    Since Atomik 2.2, routes can be named and regular expression can be used instead of 
+			    the classical notation.
 			</para>
 			<para>
-			    Named routes are defined nearly the same way as classical ones, however the route definition goes
-			    into the route parameter and is replaced by the route name in the key. Route names always start
-			    with @.
+			    To provide a name to a route, simply define the <quote>@name</quote> parameter. Both route
+			    types (classical and regexp) can be named. Route naming will be useful when 
+			    using <methodname>Atomik::url()</methodname>.
 			</para>
 			<example>
 				<title>A named route</title>
 				<programlisting>
 					<![CDATA[
 Atomik::set('app/routes', array(
-   '@archives' => array(
-       'route' => 'archives/:year/:month',
+   'archives/:year/:month' => array(
+       '@name' => 'archives',
        'action' => 'archives',
        'month' => 'all'
    )
@@ -154,7 +155,7 @@ Atomik::set('app/routes', array(
 			    the pound sign # as its delimiter.
 			</para>
 			<para>
-			    The uri to match will always be relative (so do not use a slashes at the start). To specify parameters
+			    The uri to match will always be relative (so do not use a slash at the start). To specify parameters
 			    inside the route, you must use named sub patterns (see 
 			    <link xlink:href="http://php.net/manual/en/regexp.reference.subpatterns.php">
 			    http://php.net/manual/en/regexp.reference.subpatterns.php</link>).
@@ -165,6 +166,7 @@ Atomik::set('app/routes', array(
 					<![CDATA[
 Atomik::set('app/routes', array(
    '#archives/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})#' => array(
+       '@name' => 'archives',
        'action' => 'archives',
        'month' => 'all'
    )
@@ -254,7 +256,8 @@ Atomik::set('app/routes', array(
 			In this case, the two first points won't be applied.
 		</para>
 		<para>
-			If null is used as the url, the current action will be used.
+			If null is used as the url, the current action will be used. Named routes can be used using the route
+			name prepended with the @ sign.
 		</para>
 		<example>
 			<title>Building simple urls</title>
@@ -262,7 +265,8 @@ Atomik::set('app/routes', array(
 				<![CDATA[
 $url = Atomik::url('home'); // /index.php?action=home if no url rewriting or /home otherwise
 $url = Atomik::url('/user/dashboard'); // /user/dashboard
-$url = Atomik::url('http://example.com'); // http://example.com]]>
+$url = Atomik::url('http://example.com'); // http://example.com
+$url = Atomik::url('@my_route'); // will use the route named my_route]]>
 			</programlisting>
 		</example>
 		<para>
@@ -285,7 +289,7 @@ $url = Atomik::url('archives', array('__merge_GET', 'month' => 02)); // /archive
 			</programlisting>
 		</example>
 		<para>
-			The method also allows you to use embedded parameters. These are parameters in the uri. 
+			The method also allows you to use embedded parameters. These are parameters in the uri (like in classical routes). 
 			The name of the parameter must be prepended with <quote>:</quote>.
 		</para>
 		<example>
@@ -296,9 +300,6 @@ $url = Atomik::url('archives/:year', array('year' => 2008)); // /index.php?actio
 $url = Atomik::url('archives/:year', array('year' => 2008, 'month' => 02)); // /archives/2008?month=02]]>
 			</programlisting>
 		</example>
-		<para>
-		    You can also use a named route instead of a an uri. Simply specify the name of the route prefixed with its @.
-		</para>
 		<example>
 			<title>Building urls using named routes</title>
 			<programlisting>
@@ -308,10 +309,34 @@ $url = Atomik::url('@archives', array('year' => 2008, 'month' => 02)); // /archi
 			</programlisting>
 		</example>
 		<para>
-			Finally, when creating urls that point to resources you'll never want them to have the 
+			When creating urls that point to resources you'll never want them to have the 
 			<filename>index.php</filename> part in them. To prevent that you can use the 
 			<methodname>Atomik::asset()</methodname> method. It works exactly the same as 
 			<methodname>Atomik::url()</methodname> but will never use <filename>index.php</filename> in the url.
+		</para>
+		<para>
+			<methodname>Atomik::url()</methodname> is relative to the application context. For example, if this method is used 
+			inside views from your application, generated urls will be relative to your application base url. However, if it is 
+			used inside a pluggable application (or plugin) it will be relative to the plugin base url. These allow this method
+			to be used everywhere while ensuring that the urls are relative to the correct base url.
+		</para>
+		<para>
+			It is however possible to use <methodname>Atomik::appUrl()</methodname> to always generate urls relative to your application
+			base url and <methodname>Atomik::pluginUrl()</methodname> to always generate urls relative to a specific plugin. The plugin
+			name must be provided as the first argument of the later, remaining arguments being the same as with <methodname>Atomik::url()</methodname>.
+		</para>
+		<example>
+			<title>Urls relativity</title>
+			<programlisting>
+				<![CDATA[
+$url = Atomik::appUrl('home'); // always /home
+$url = Atomik::pluginUrl('my_plugin', 'home'); // /my_plugin_base_url/home
+$url = Atomik::url('home'); // either /home or /my_plugin_base_url/home depending on the context]]>
+			</programlisting>
+		</example>
+		<para>
+			For assets, it also exists <methodname>Atomik::appAsset()</methodname> and <methodname>Atomik::pluginAsset()</methodname>.
+			The later, like <methodname>Atomik::pluginUrl()</methodname>, needs a plugin name as the first argument.
 		</para>
 	</sect1>
 </chapter>

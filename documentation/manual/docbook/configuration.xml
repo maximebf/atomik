@@ -4,7 +4,7 @@
 	<note>
 		There is a serious compatibility break in the configuration between Atomik 2.1 and 2.2.
 		Many keys have changed, check the appendix A for more information. The way the bootstrap
-		file is included as also been changed. The old bootstrap file has now been replaced with
+		file is included has also been changed. The old bootstrap file has now been replaced with
 		the configuration file.
 	</note>
 	<sect1 id="configuration-file">
@@ -37,7 +37,7 @@
 			When using JSON, the data must be wrapped in a object.
 		</para>
 		<example>
-			<title>PHP configuration</title>
+			<title>PHP configuration (<filename>app/config.php</filename>)</title>
 			<programlisting>
 				<![CDATA[
 return array(
@@ -56,7 +56,7 @@ return array(
 			</programlisting>
 		</example>
 		<example>
-			<title>INI configuration</title>
+			<title>INI configuration (<filename>app/config.ini</filename>)</title>
 			<programlisting>
 				<![CDATA[
 my_key = my value
@@ -71,7 +71,7 @@ post_dispatch = post.php]]>
 			</programlisting>
 		</example>
 		<example>
-			<title>JSON configuration</title>
+			<title>JSON configuration (<filename>app/config.json</filename>)</title>
 			<programlisting>
 				<![CDATA[
 {

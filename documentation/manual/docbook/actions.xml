@@ -75,8 +75,8 @@ include 'page_html.php';]]>
 			If the action or view filename starts with an underscore, the action won't be accessible using an url.
 		</para>
 		<para>
-			The content of an action file is free. It can be anything you want. So you just do your
-			logic as you used to.
+			There are no requirements for the content of an action file. It can be anything you want. 
+			So you just do your logic as you used to.
 		</para>
 		<note>
 			Be aware that actions run in their own scope and not in the global scope as you
@@ -102,14 +102,24 @@ $_myPrivateVariable = 'secret';]]>
 				As said before, the goal of an action is to separate the logic from the presentation.
 			</para>
 			<para>
-				You can use folders to organize your actions. In this case, views must follow the same
-				directory structure.
-			</para>
-			<para>
 				If you would like to exit the application, avoid using <function>exit()</function> and prefer
 				<methodname>Atomik::end()</methodname> so Atomik can smoothly exit your application.
 			</para>
 		</note>
+		<para>
+			You can use folders to organize your actions. In this case, views must follow the same
+			directory structure. You can create an <quote>index</quote> action (<filename>index.php</filename>)
+			inside a folder and it will be use as the folder's default page. Views follow the same principle.
+		</para>
+		<example>
+			<title>Actions and folders</title>
+			<programlisting>
+				<![CDATA[
+app/actions/users.php           <- will be used if url = /users
+app/actions/users/index.php     <- will be used if url = /users AND if app/actions/users.php does not exist
+app/actions/users/messages.php  <- will be used if url = /users/messages whatever the default page is]]>
+			</programlisting>
+		</example>
 	</sect1>
 	<sect1 id="actions-rest">
 		<title>Actions and HTTP methods</title>

@@ -19,12 +19,12 @@
 		<?php echo $this->sidebarButton(
 			__('Create a new user'), 
 			Atomik_Backend::pluginUrl('db', 'models/edit', array('name' => 'User', 'returnUrl' => Atomik::url('index'))),
-			Atomik::pluginAsset('images/user.png')
+			Atomik::asset('images/user.png')
 		) ?>
 		<?php echo $this->sidebarButton(
 			__('Manage permissions'), 
 			Atomik::url('permissions'),
-			Atomik::pluginAsset('images/permission.png')
+			Atomik::asset('images/permission.png')
 		) ?>
 		<?php echo $this->modelFilters($builder) ?>
 	</div>

@@ -172,29 +172,24 @@ class PluggAppPlugin
 			is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.
 		</para>
 		<para>
-			Atomik also provides a method to obtain the url to asset files: <methodname>Atomik::pluginAsset()</methodname>. This method
-			works using a template defined in <quote>atomik/plugin_assets_tpl</quote>. The default is <quote>app/plugins/%s/assets</quote>.
-			The <quote>%s</quote> sign will be replaced with the plugin name.
-		</para>
-		<para>
-			The method takes as first argument the filename relative to the plugin's assets folder and as second the plugin name.
+			You can use <methodname>Atomik::asset()</methodname> like with a normal application. However in the case of plugins, asset's
+			filename will be prepended with a template defined in <quote>atomik/plugin_assets_tpl</quote>. 
+			The default is <quote>app/plugins/%s/assets</quote>. The <quote>%s</quote> sign will be replaced with the plugin name.
 		</para>
 		<example>
-			<title>Using <methodname>Atomik::pluginAsset()</methodname></title>
+			<title>Using <methodname>Atomik::asset()</methodname></title>
 			<programlisting>
 				<![CDATA[
-echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
+echo Atomik::asset('css/styles.css');
+echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
 // will output app/plugins/MyPlugin/assets/css/styles.css
 
 Atomik::set('atomik/plugin_assets_tpl', 'plugins/%s/assets');
-echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
+echo Atomik::asset('css/styles.css');
+echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
 // will output plugins/MyPlugin/assets/css/styles.css]]>
 			</programlisting>
 		</example>
-		<para>
-			When using this method from a pluggable application, the plugin name can be avoided. In this case, the name of
-			the running plugin will be used.
-		</para>
 		<note>
 			It is not adviced to change the plugin's assets folder name as some plugins may not work with your installation.
 		</note>
@@ -215,31 +210,28 @@ echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
 		<programlisting>
 <![CDATA[
 <manifest xmlns="http://www.atomikframework.com/manifest">
-	<author>
-		<name></name>
-		<email></email>
-		<website></website>
-	</author>
-	<name></name>
-	<displayName></displayName>
-	<version></version>
-	<categoryId></categoryId>
-	<description></description>
-	<longDescription></longDescription>
-	<link></link>
-	<directory></directory>
-	<license></license>
+	<author-id><!-- your atomik author it (get it from your user account) --></author-id>
+	<name><!-- plugin name withour spaces or special characters (eg. MyPlugin) --></name>
+	<displayName><!-- plugin name that will be displayed (eg. My Plugin) --></displayName>
+	<version><!-- version (same format as php version number) --></version>
+	<category><!-- the category name --></category>
+	<description><-- plugin's short description (in list pages) --></description>
+	<longDescription><!-- plugin's long description --></longDescription>
+	<link><!-- link to the plugin website --></link>
+	<directory><!-- directory inside the archive where the plugin's source code is located --></directory>
+	<license><!-- license name --></license>
+	<dependencies>
+		<!-- list of dependencies (these plugin should also be registered in the atomik plugins browser -->
+		<dependency name="pluginName" />
+	</dependencies>
 </manifest>]]>
 		</programlisting>
-		<para>
-			Most of them are pretty obvious. The categoryId is a bit tricky and we'll come back to it later. All other are string values.
-		</para>
 		<note>
 			The <quote>name</quote> and <quote>description</quote> tags are mandatory.
 		</note>
 		<para>
 			The <quote>directory</quote> tag is special and used by the distribution builder. When you're creating a package for your 
-			plugin, you could put the source files into a specific folder. So, for the distribution builder to work, it's needed to know
+			plugin, you could put the source files into a specific folder. For the distribution builder to work, it's needed to know
 			where the sources are. This is the purpose of the <quote>directory</quote> tag. It must be relative to the root of your
 			archive and specify which folder contains the files to be extracted to the plugins directory.
 			Leave it blank for the root, which is the default value.
@@ -247,7 +239,7 @@ echo Atomik::pluginAsset('css/styles.css', 'MyPlugin');
 		<para>
 			You can create a plugin file and the associated manifest online at 
 			<link xlink:href="http://www.atomikframework.com/plugins/create">http://www.atomikframework.com/plugins/create</link>. 
-			You can get a category id using this tool. To submit your plugin, browse to
+			To submit your plugin, browse to
 			<link xlink:href="http://www.atomikframework.com/plugins/submit">http://www.atomikframework.com/plugins/submit</link>
 		</para>
 	</sect1>
