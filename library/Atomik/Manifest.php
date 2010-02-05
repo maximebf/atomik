@@ -70,7 +70,7 @@ class Atomik_Manifest
 	 * 
 	 * @var string
 	 */
-	public $schemaLocation = 'manifest/manifest.xsd';
+	public $schemaLocation = 'http://www.atomikframework.com/docs/manifest/manifest.xsd';
 	
 	/**
 	 * Loads and validates a Manifest.xml file

@@ -65,7 +65,7 @@ class Atomik_Builder
 	 * 
 	 * @var array
 	 */
-	public $javacripts = array();
+	public $javascripts = array();
 	
 	/**
 	 * Whether to include a .htaccess file
@@ -99,7 +99,9 @@ class Atomik_Builder
 		
 		// extract the release to the build path
 		$release = new ZipArchive();
-		$release->open($this->releaseArchiveFilename);
+		if ($release->open($this->releaseArchiveFilename) !== true) {
+			throw new Atomik_Builder_Exception('Atomik release archive not found');
+		}
 		$release->extractTo($this->buildPath);
 		$release->close();
 		
@@ -114,8 +116,10 @@ class Atomik_Builder
 		
 		// create a zip from the build path
 		$zip = new ZipArchive();
-		$zip->open($zipFilename, ZipArchive::CREATE);
-		$this->_addDirectoryToZip($zip, $zipFilename, $this->buildPath, 'atomik/');
+		if ($zip->open($zipFilename, ZipArchive::CREATE) !== true) {
+			throw new Atomik_Builder_Exception('Could not write custom archive');
+		}
+		$this->_addDirectoryToZip($zip, $zipFilename, $buildPath, 'atomik/');
 		$zip->close();
 		
 		$this->_deleteDir($this->buildPath);
@@ -130,24 +134,30 @@ class Atomik_Builder
 	protected function _buildPlugins($buildPath)
 	{
 		$this->config['plugins'] = array();
-		$tmpDir = realpath($buildPath . '/tmp');
+		$tmpDir = realpath($buildPath) . '/tmp';
 		
-		foreach ($this->plugins as $pluginArchiveFilename => $pluginManifestFilename) {
+		foreach ($this->plugins as $name => $pluginArchiveFilename) {
 			mkdir($tmpDir);
+			$pluginManifestFilename = $tmpDir . '/Manifest.xml';
 			
-			if (!file_exists($pluginArchiveFilename) || !file_exists($pluginManifestFilename)) {
-				throw new Atomik_Builder_Exception('The archive or manifest does not exist for the plugin ' . $pluginArchiveFilename);
+			if (!file_exists($pluginArchiveFilename)) {
+				throw new Atomik_Builder_Exception('The archive does not exist for the plugin ' . $pluginArchiveFilename);
 			}
 			
 			// extract the plugin archive
 			$zip = new ZipArchive();
-			$zip->open($pluginArchiveFilename);
+			if ($zip->open($pluginArchiveFilename) !== true) {
+				throw new Atomik_Builder_Exception('Could not open the plugin archive');
+			}
 			$zip->extractTo($tmpDir);
 			$zip->close();
 			
-			// loads the manifest
-			$manifest = new Atomik_Manifest();
-			$manifest->load($pluginManifestFilename);
+			$directory = '';
+			if (file_exists($pluginManifestFilename)) {
+				$manifest = new Atomik_Manifest();
+				$manifest->load($pluginManifestFilename);
+				$directory = $manifest->directory;
+			}
 			
 			// manifest files are not bundle with distributions
 			if (file_exists($tmpDir . '/Manifest.xml')) {
@@ -155,7 +165,7 @@ class Atomik_Builder
 			}
 			
 			// checks the plugin directory
-			$dir = '/' . ltrim(str_replace('\\', '/', $manifest->directory), '/');
+			$dir = '/' . ltrim(str_replace('\\', '/', $directory), '/');
 			if (($dir = realpath($tmpDir . $dir)) === false) {
 				throw new Atomik_Builder_Exception('The plugin\'s directory for ' . $pluginArchiveFilename . ' cannot be found');
 			}
@@ -165,14 +175,14 @@ class Atomik_Builder
 			
 			// moving all files from temp dir to app/plugins
 			foreach (new DirectoryIterator($tmpDir) as $file) {
-				if ($file->isDot() || $file->getFilename() == '..') {
+				if (substr($file->getFilename(), 0, 1) == '.') {
 					continue;
 				}
 				rename($file->getPathname(), $buildPath . '/app/plugins/' . $file->getFilename());
 			}
 			
-			$this->config['plugins'][] = ucfirst($manifest->name);
-			$this->deleteDir($tmpDir);
+			$this->config['plugins'][] = ucfirst($name);
+			$this->_deleteDir($tmpDir);
 		}
 	}
 	
@@ -189,13 +199,14 @@ class Atomik_Builder
 			$this->config['scripts'] = array($this->config['scripts']);
 		}
 		
-		foreach ($this->javacripts as $filename => $includeScript) {
+		foreach ($this->javascripts as $filename => $includeScript) {
 			
 			if ($includeScript) {
-				$filename = '/assets/js/libs/' . basename($filename);
-				$realPath = $buildPath . $filename;
-				mkdir(dirname($realPath));
-				file_put_contents($realPath, file_get_contents($filename));
+				$realFilename = $filename;
+				$filename = 'assets/js/libs/' . basename($filename);
+				$filepath = $buildPath . '/' . $filename;
+				mkdir(dirname($filepath));
+				file_put_contents($filepath, file_get_contents($realFilename));
 			}
 			
 			$this->config['scripts'][] = $filename;
@@ -238,7 +249,7 @@ class Atomik_Builder
 		
 		// bootstrap
 		$bootstrap = "<?php\n\nAtomik::set(" . var_export($this->config, true) . ");\n";
-		file_put_contents($buildPath . '/app/bootstrap.php', $bootstrap);
+		file_put_contents($buildPath . '/app/config.php', $bootstrap);
 	}
 	
 	/**
@@ -254,7 +265,7 @@ class Atomik_Builder
 	{
 		foreach (new DirectoryIterator($directory) as $file) {
 			if ($file->isDir()) {
-				if ($file->isDot() || $file->getFilename() == '..') {
+				if (substr($file->getFilename(), 0, 1) == '.') {
 					continue;
 				}
 				$zip->addEmptyDir($base . $file->getFilename());

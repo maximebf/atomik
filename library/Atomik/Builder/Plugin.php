@@ -62,7 +62,7 @@ class Atomik_Builder_Plugin
 	 * 
 	 * @var SimpleXMLElement
 	 */
-	public $eventsXml = 'http://www.atomikframework.com/events/events-api.xml';
+	public $eventsXml = 'http://www.atomikframework.com/docs/events/events-api.xml';
 	
 	/**
 	 * Events (will be automatically loaded using the eventsXml)

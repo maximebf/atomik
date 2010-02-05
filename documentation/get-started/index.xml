@@ -319,7 +319,7 @@ $post = Atomik_Db::find('posts', array('id' => A('request/id')));]]>
 		<title>End</title>
 		<para>
 			Well done! This tutorial is now finished. You can learn much more in the 
-			<link xlink:href="http://www.atomikframework.com/manual">manual</link>.
+			<link xlink:href="http://www.atomikframework.com/docs/manual">manual</link>.
 		</para>
 		<para>
 			You can download the source of this tutorial by 

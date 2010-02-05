@@ -123,7 +123,7 @@ $string = Atomik::fireEvent('myStringEvent', array(), true); // string]]>
 		<title>Overview of available Atomik events</title>
 		<note>
 			You can find a complete documentation of all events in the 
-			<link xlink:href="http://www.atomikframework.com/doc/events">Event Browser on the website</link>.
+			<link xlink:href="http://www.atomikframework.com/docs/events">Event Browser on the website</link>.
 		</note>
 		<figure>
 			<title>Simple schema illustrating Atomik events flow</title>

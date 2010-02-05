@@ -52,7 +52,7 @@
 				</a>
 			</p>
 			<p>
-				Atomik Framework © 2008 - 2009 <a href="http://www.pimpmycode.fr">Maxime Bouroumeau-Fuseau</a> - 
+				Atomik Framework © 2008 - 2010 <a href="http://www.pimpmycode.fr">Maxime Bouroumeau-Fuseau</a> - 
 				<a href="http://www.atomikframework.com">
 					<img alt="powered by Atomik">
 						<xsl:attribute name="src"><xsl:value-of select="concat($atomik.base, '/assets/images/atomik-powered.png')" /></xsl:attribute>

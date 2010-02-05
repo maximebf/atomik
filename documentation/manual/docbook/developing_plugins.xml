@@ -204,18 +204,18 @@ echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
 		</para>
 		<para>
 			The file is very simple. You can get the XMLSchema at 
-			<link xlink:href="http://www.atomikframework.com/manifest/manifest.xsd">http://www.atomikframework.com/manifest/manifest.xsd</link>.
+			<link xlink:href="http://www.atomikframework.com/docs/manifest/manifest.xsd">http://www.atomikframework.com/docs/manifest/manifest.xsd</link>.
 			The file's xml namespace is <link>http://www.atomikframework.com/manifest</link>. Below are all available tags:
 		</para>
 		<programlisting>
 <![CDATA[
 <manifest xmlns="http://www.atomikframework.com/manifest">
 	<author-id><!-- your atomik author it (get it from your user account) --></author-id>
-	<name><!-- plugin name withour spaces or special characters (eg. MyPlugin) --></name>
+	<name><!-- plugin name without spaces or special characters (eg. MyPlugin) --></name>
 	<displayName><!-- plugin name that will be displayed (eg. My Plugin) --></displayName>
 	<version><!-- version (same format as php version number) --></version>
 	<category><!-- the category name --></category>
-	<description><-- plugin's short description (in list pages) --></description>
+	<description><!-- plugin's short description (in list pages) --></description>
 	<longDescription><!-- plugin's long description --></longDescription>
 	<link><!-- link to the plugin website --></link>
 	<directory><!-- directory inside the archive where the plugin's source code is located --></directory>
