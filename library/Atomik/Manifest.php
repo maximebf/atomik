@@ -41,9 +41,9 @@ class Atomik_Manifest
 	public $version = '1.0';
 	
 	/**
-	 * @var int
+	 * @var string
 	 */
-	public $categoryId = 0;
+	public $category = 'Miscellaneous';
 	
 	/**
 	 * @var string
@@ -153,7 +153,7 @@ class Atomik_Manifest
 		$root->appendChild($dom->createElementNS($ns, 'm:name', $this->name));
 		$root->appendChild($dom->createElementNS($ns, 'm:displayName', $this->displayName));
 		$root->appendChild($dom->createElementNS($ns, 'm:version', $this->version));
-		$root->appendChild($dom->createElementNS($ns, 'm:categoryId', $this->categoryId));
+		$root->appendChild($dom->createElementNS($ns, 'm:category', $this->category));
 		$root->appendChild($dom->createElementNS($ns, 'm:description', $this->description));
 		$root->appendChild($dom->createElementNS($ns, 'm:longDescription', $this->longDescription));
 		$root->appendChild($dom->createElementNS($ns, 'm:link', $this->link));
@@ -173,7 +173,7 @@ class Atomik_Manifest
 			'name' 				=> $this->name,
 			'displayName' 		=> $this->displayName,
 			'version' 			=> $this->version,
-			'categoryId' 		=> $this->categoryId,
+			'category' 			=> $this->category,
 			'description' 		=> $this->description,
 			'longDescription' 	=> $this->longDescription,
 			'link' 				=> $this->link,

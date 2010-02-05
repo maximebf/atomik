@@ -36,4 +36,8 @@ Atomik::set('plugins/Ajax', array(
 	<para>
 		You can check if the current request is using AJAX by calling <methodname>AjaxPlugin::isEnabled()</methodname>.
 	</para>
+	<para>
+		Flash messages are also returned as an HTTP header. It is named <quote>Flash-messages</quote> and contains
+		an array encoded in javascript.
+	</para>
 </chapter>

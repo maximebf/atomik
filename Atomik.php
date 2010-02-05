@@ -295,7 +295,7 @@ final class Atomik
      * 
      * @var array
      */
-    private static $_reset = array();
+    private static $reset = array();
     
     /**
      * Loaded plugins
@@ -305,7 +305,7 @@ final class Atomik
      *
      * @var array
      */
-    private static $_plugins = array();
+    private static $plugins = array();
     
     /**
      * Registered events
@@ -315,7 +315,7 @@ final class Atomik
      *
      * @var array
      */
-    private static $_events = array();
+    private static $events = array();
     
     /**
      * Selectors namespaces
@@ -325,7 +325,7 @@ final class Atomik
      *
      * @var array
      */
-    private static $_namespaces = array('flash' => 'Atomik::_getFlashMessages');
+    private static $namespaces = array('flash' => 'Atomik::_getFlashMessages');
     
     /**
      * Execution contexts
@@ -334,28 +334,28 @@ final class Atomik
      * 
      * @var array
      */
-    private static $_execContexts = array();
+    private static $execContexts = array();
     
     /**
      * Pluggable applications
      * 
      * @var array
      */
-    private static $_pluggableApplications = array();
+    private static $pluggableApplications = array();
     
     /**
      * Registered methods
      * 
      * @var array
      */
-    private static $_methods = array();
+    private static $methods = array();
     
     /**
      * Already loaded helpers
      * 
      * @var array
      */
-    private static $_loadedHelpers = array();
+    private static $loadedHelpers = array();
     
     /**
      * Starts Atomik
@@ -567,7 +567,7 @@ final class Atomik
         
         // checks if the uri triggers a pluggable application
         if ($allowPluggableApplication) {
-            foreach (self::$_pluggableApplications as $plugin => $pluggAppConfig) {
+            foreach (self::$pluggableApplications as $plugin => $pluggAppConfig) {
                 if (!self::uriMatch($pluggAppConfig['route'], $uri)) {
                     continue;
                 }
@@ -874,7 +874,7 @@ final class Atomik
         
         // creates the execution context
         $context = array('action' => &$action, 'view' => &$view, 'render' => &$render);
-        self::$_execContexts[] =& $context;
+        self::$execContexts[] =& $context;
     
         self::fireEvent('Atomik::Execute::Start', array(&$action, &$context, &$triggerError));
         if ($action === false) {
@@ -931,7 +931,7 @@ final class Atomik
         self::fireEvent('Atomik::Execute::After', array($action, &$context, &$vars, &$triggerError));
         
         // deletes the execution context
-        array_pop(self::$_execContexts);
+        array_pop(self::$execContexts);
         
         // returns $vars if the view should not be rendered
         if ($render === false) {
@@ -1006,8 +1006,8 @@ final class Atomik
      */
     public static function noRender()
     {
-        if (count(self::$_execContexts)) {
-            self::$_execContexts[count(self::$_execContexts) - 1]['view'] = false;
+        if (count(self::$execContexts)) {
+            self::$execContexts[count(self::$execContexts) - 1]['view'] = false;
         }
     }
     
@@ -1018,8 +1018,8 @@ final class Atomik
      */
     public static function setView($view)
     {
-        if (count(self::$_execContexts)) {
-            self::$_execContexts[count(self::$_execContexts) - 1]['view'] = $view;
+        if (count(self::$execContexts)) {
+            self::$execContexts[count(self::$execContexts) - 1]['view'] = $view;
         }
     }
     
@@ -1135,7 +1135,7 @@ final class Atomik
      */
     public static function loadHelper($helperName, $dirs = null)
     {
-        if (isset(self::$_loadedHelpers[$helperName])) {
+        if (isset(self::$loadedHelpers[$helperName])) {
             return;
         }
         
@@ -1161,11 +1161,11 @@ final class Atomik
                 throw new Exception('Helper ' . $helperName . ' file found but no function or class matching the helper name');
             }
             // helper defined as a class
-            self::$_loadedHelpers[$helperName] = array(new $className(), $camelizedHelperName);
+            self::$loadedHelpers[$helperName] = array(new $className(), $camelizedHelperName);
             
         } else {
             // helper defined as a function
-            self::$_loadedHelpers[$helperName] = $helperName;
+            self::$loadedHelpers[$helperName] = $helperName;
         }
         
         self::fireEvent('Atomik::Loadhelper::After', array($helperName, $dirs));
@@ -1182,7 +1182,7 @@ final class Atomik
     public static function helper($helperName, $args = array(), $dirs = null)
     {
         self::loadHelper($helperName, $dirs);
-        return call_user_func_array(self::$_loadedHelpers[$helperName], $args);
+        return call_user_func_array(self::$loadedHelpers[$helperName], $args);
     }
     
     /**
@@ -1197,8 +1197,8 @@ final class Atomik
         if (method_exists('Atomik', $helperName)) {
             return call_user_func_array(array('Atomik', $helperName), $args);
         }
-        if (isset(self::$_methods[$helperName])) {
-            return call_user_func_array(self::$_methods[$helperName], $args);
+        if (isset(self::$methods[$helperName])) {
+            return call_user_func_array(self::$methods[$helperName], $args);
         }
         return self::helper($helperName, $args);
     }
@@ -1440,11 +1440,11 @@ final class Atomik
         // checks if a namespace is used
         if (is_string($key) && preg_match('/^([a-z]+):(.*)/', $key, $match)) {
             // checks if the namespace exists */
-            if (isset(self::$_namespaces[$match[1]])) {
+            if (isset(self::$namespaces[$match[1]])) {
                 // calls the namespace callback and returns
                 $args = func_get_args();
                 $args[0] = $match[2];
-                return call_user_func_array(self::$_namespaces[$match[1]], $args);
+                return call_user_func_array(self::$namespaces[$match[1]], $args);
             }
         }
         
@@ -1570,13 +1570,13 @@ final class Atomik
     public static function reset($key = null, $value = null, $dimensionize = true)
     {
         if ($key !== null) {
-            self::set($key, $value, $dimensionize, self::$_reset);
+            self::set($key, $value, $dimensionize, self::$reset);
             self::set($key, $value, $dimensionize);
             return;
         }
         
         // reset
-        self::$store = self::_mergeRecursive(self::$store, self::$_reset);
+        self::$store = self::_mergeRecursive(self::$store, self::$reset);
     }
     
     /**
@@ -1590,7 +1590,7 @@ final class Atomik
      */
     public static function registerSelector($namespace, $callback)
     {
-        self::$_namespaces[$namespace] = $callback;
+        self::$namespaces[$namespace] = $callback;
     }
     
     
@@ -1672,7 +1672,7 @@ final class Atomik
             }
             
             // registers the plugin as an application if Application.php exists
-            if ($isPluggApp && !isset(self::$_pluggableApplications[$plugin])) {
+            if ($isPluggApp && !isset(self::$pluggableApplications[$plugin])) {
                 self::registerPluggableApplication($plugin);
             }
             
@@ -1712,7 +1712,7 @@ final class Atomik
         
         // stores the plugin name so we won't load it twice 
         // also stores the directory from where it was loaded
-        self::$_plugins[$plugin] = isset($pluginDir) ? rtrim($pluginDir, DIRECTORY_SEPARATOR) : true;
+        self::$plugins[$plugin] = isset($pluginDir) ? rtrim($pluginDir, DIRECTORY_SEPARATOR) : true;
         
         return true;
     }
@@ -1724,8 +1724,8 @@ final class Atomik
      */
     public static function loadPluginIfAvailable($plugin)
     {
-        if (!Atomik::isPluginLoaded($plugin) && Atomik::isPluginAvailable($plugin)) {
-            Atomik::loadPlugin($plugin);
+        if (!self::isPluginLoaded($plugin) && self::isPluginAvailable($plugin)) {
+            self::loadPlugin($plugin);
         }
     }
     
@@ -1736,8 +1736,8 @@ final class Atomik
      */
     public static function loadCustomPluginIfAvailable($plugin, $config = array(), $options = array())
     {
-        if (!Atomik::isPluginLoaded($plugin) && Atomik::isPluginAvailable($plugin)) {
-            Atomik::loadCustomPlugin($plugin, $config, $options);
+        if (!self::isPluginLoaded($plugin) && self::isPluginAvailable($plugin)) {
+            self::loadCustomPlugin($plugin, $config, $options);
         }
     }
     
@@ -1749,7 +1749,7 @@ final class Atomik
      */
     public static function isPluginLoaded($plugin)
     {
-        return isset(self::$_plugins[ucfirst($plugin)]);
+        return isset(self::$plugins[ucfirst($plugin)]);
     }
     
     /**
@@ -1775,9 +1775,9 @@ final class Atomik
     public static function getLoadedPlugins($withDir = false)
     {
         if ($withDir) {
-            return self::$_plugins;
+            return self::$plugins;
         }
-        return array_keys(self::$_plugins);
+        return array_keys(self::$plugins);
     }
     
     /**
@@ -1808,7 +1808,7 @@ final class Atomik
             $route = strtolower($plugin) . '/*';
         }
         
-        self::$_pluggableApplications[$plugin] = array(
+        self::$pluggableApplications[$plugin] = array(
             'plugin'   => $plugin,
             'route'    => trim($route, '/'),
             'config'   => $config
@@ -1850,7 +1850,7 @@ final class Atomik
         
         // plugin dir
         if ($config['pluginDir'] === null) {
-            $pluginDir = self::$_plugins[$plugin];
+            $pluginDir = self::$plugins[$plugin];
         } else {
             $pluginDir = rtrim($config['pluginDir'], '/');
         }
@@ -1947,7 +1947,7 @@ final class Atomik
         if (!is_callable($callback)) {
             throw new Atomik_Exception('The specified callback for the method ' . $method . ' is not callable');
         }
-        self::$_methods[$method] = $callback;
+        self::$methods[$method] = $callback;
     }
     
     /**
@@ -1959,14 +1959,14 @@ final class Atomik
      */
     public static function call($method)
     {
-        if (!isset(self::$_methods[$method])) {
+        if (!isset(self::$methods[$method])) {
             throw new Atomik_Exception('Atomik::' . $method . '() not found');
         }
         
         $args = func_get_args();
         array_shift($args);
         
-        return call_user_func_array(self::$_methods[$method], $args);
+        return call_user_func_array(self::$methods[$method], $args);
     }
     
     /**
@@ -1995,18 +1995,18 @@ final class Atomik
     public static function listenEvent($event, $callback, $priority = 50, $important = false)
     {
         // initialize the current event array */
-        if (!isset(self::$_events[$event])) {
-            self::$_events[$event] = array();
+        if (!isset(self::$events[$event])) {
+            self::$events[$event] = array();
         }
         
         // while there is an event with the same priority, checks
         // with an higher or lower priority
-        while (isset(self::$_events[$event][$priority])) {
+        while (isset(self::$events[$event][$priority])) {
             $priority += $important ? -1 : 1;
         }
         
         // stores the callback
-        self::$_events[$event][$priority] = $callback;
+        self::$events[$event][$priority] = $callback;
     }
     
     /**
@@ -2022,11 +2022,11 @@ final class Atomik
         $results = array();
         
         // executes all callback
-        if (isset(self::$_events[$event])) {
-            $keys = array_keys(self::$_events[$event]); 
+        if (isset(self::$events[$event])) {
+            $keys = array_keys(self::$events[$event]); 
             sort($keys);
             foreach ($keys as $key) {
-                $callback = self::$_events[$event][$key];
+                $callback = self::$events[$event][$key];
                 $results[$key] = call_user_func_array($callback, $args);
             }
         }
@@ -2314,11 +2314,11 @@ final class Atomik
     public static function pluginUrl($plugin, $action, $params = array(), $useIndex = true)
     {
     	$plugin = ucfirst($plugin);
-        if (!isset(self::$_pluggableApplications[$plugin])) {
+        if (!isset(self::$pluggableApplications[$plugin])) {
             throw new Atomik_Exception('Plugin ' . $plugin . ' is not registered as a pluggable application');
         }
         
-        $route = rtrim(self::$_pluggableApplications[$plugin]['route'], '/*');
+        $route = rtrim(self::$pluggableApplications[$plugin]['route'], '/*');
         return self::url($route . '/' . ltrim($action, '/'), $params, $useIndex, false);
     }
     
@@ -2333,7 +2333,7 @@ final class Atomik
      */
     public static function asset($filename, $params = array())
     {
-        if (Atomik::has('app/running_plugin')) {
+        if (self::has('app/running_plugin')) {
             if (($plugin = self::get('app/running_plugin')) === null) {
                 throw new Atomik_Exception('Invalid running plugin name');
             }
@@ -2538,7 +2538,7 @@ final class Atomik
                 }
                 
                 $filter = FILTER_SANITIZE_STRING;
-                $message = Atomik::get('app/filters/default_message', 'The %s field failed to validate');
+                $message = self::get('app/filters/default_message', 'The %s field failed to validate');
                 $required = false;
                 $default = null;
                 $label = $field;

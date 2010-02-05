@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="form" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<title>Form</title>
+	<note>
+		This component is still in development. The API can change in the futur.
+	</note>
 	<para>
 		The Atomik_Form component provide facilities to create and handle forms.
 	</para>
