@@ -136,9 +136,8 @@ class Atomik_Builder
 		$this->config['plugins'] = array();
 		$tmpDir = realpath($buildPath) . '/tmp';
 		
-		foreach ($this->plugins as $name => $pluginArchiveFilename) {
+		foreach ($this->plugins as $pluginArchiveFilename => $manifest) {
 			mkdir($tmpDir);
-			$pluginManifestFilename = $tmpDir . '/Manifest.xml';
 			
 			if (!file_exists($pluginArchiveFilename)) {
 				throw new Atomik_Builder_Exception('The archive does not exist for the plugin ' . $pluginArchiveFilename);
@@ -152,12 +151,7 @@ class Atomik_Builder
 			$zip->extractTo($tmpDir);
 			$zip->close();
 			
-			$directory = '';
-			if (file_exists($pluginManifestFilename)) {
-				$manifest = new Atomik_Manifest();
-				$manifest->load($pluginManifestFilename);
-				$directory = $manifest->directory;
-			}
+			$directory = $manifest->directory;
 			
 			// manifest files are not bundle with distributions
 			if (file_exists($tmpDir . '/Manifest.xml')) {
@@ -181,7 +175,7 @@ class Atomik_Builder
 				rename($file->getPathname(), $buildPath . '/app/plugins/' . $file->getFilename());
 			}
 			
-			$this->config['plugins'][] = ucfirst($name);
+			$this->config['plugins'][] = ucfirst($manifest->name);
 			$this->_deleteDir($tmpDir);
 		}
 	}

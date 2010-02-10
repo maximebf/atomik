@@ -210,18 +210,23 @@ echo Atomik::pluginAsset('MyPlugin', 'css/styles.css');
 		<programlisting>
 <![CDATA[
 <manifest xmlns="http://www.atomikframework.com/manifest">
-	<author-id><!-- your atomik author it (get it from your user account) --></author-id>
+	<author>
+		<name></name>
+		<email></email>
+		<website></website>
+	</author>
 	<name><!-- plugin name without spaces or special characters (eg. MyPlugin) --></name>
 	<displayName><!-- plugin name that will be displayed (eg. My Plugin) --></displayName>
 	<version><!-- version (same format as php version number) --></version>
 	<category><!-- the category name --></category>
+	<minAtomikVersion><!-- the minimum Atomik version that is needed --></minAtomikVersion>
 	<description><!-- plugin's short description (in list pages) --></description>
 	<longDescription><!-- plugin's long description --></longDescription>
 	<link><!-- link to the plugin website --></link>
 	<directory><!-- directory inside the archive where the plugin's source code is located --></directory>
 	<license><!-- license name --></license>
 	<dependencies>
-		<!-- list of dependencies (these plugin should also be registered in the atomik plugins browser -->
+		<!-- list of dependencies (these plugin should also be registered in the atomik plugins repository -->
 		<dependency name="pluginName" />
 	</dependencies>
 </manifest>]]>

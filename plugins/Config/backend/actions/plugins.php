@@ -12,6 +12,9 @@ foreach (Atomik::get('plugins') as $key => $value) {
 }
 
 foreach ($pluginDirs as $dir) {
+    if (!is_dir($dir)) {
+        continue;
+    }
 	foreach (new DirectoryIterator($dir) as $file) {
 		if ($file->isDot() || substr($file->getFilename(), 0, 1) == '.') {
 			continue;

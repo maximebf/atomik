@@ -4,6 +4,8 @@ ATOMIK_BASE = ../..
 
 all: manual getstarted events manifest
 
+manuals: manual manual-framework manual-lib manual-plugins
+
 manual:
 	-mkdir -p $(OUTPUT)/manual
 	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual/manual.css
@@ -24,6 +26,33 @@ manual:
 		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
 		-o $(OUTPUT)/manual/backend/ docbook-xsl/$(XSL).xsl manual/docbook/backend/index.xml
+
+manual-framework:
+	-mkdir -p $(OUTPUT)/manual-framework
+	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual-framework/manual.css
+	cat docbook-xsl/common.css >> $(OUTPUT)/manual-framework/manual.css
+	svn export manual/images $(OUTPUT)/manual-framework/images
+	xsltproc --xinclude \
+		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		-o $(OUTPUT)/manual-framework/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
+		
+manual-lib:
+	-mkdir -p $(OUTPUT)/manual-lib
+	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual-lib/manual.css
+	cat docbook-xsl/common.css >> $(OUTPUT)/manual-lib/manual.css
+	svn export manual/images $(OUTPUT)/manual-lib/images
+	xsltproc --xinclude \
+		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		-o $(OUTPUT)/manual-lib/ docbook-xsl/$(XSL).xsl manual/docbook/library/index.xml
+		
+manual-plugins:
+	-mkdir -p $(OUTPUT)/manual-plugins
+	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual-plugins/manual.css
+	cat docbook-xsl/common.css >> $(OUTPUT)/manual-plugins/manual.css
+	svn export manual/images $(OUTPUT)/manual-plugins/images
+	xsltproc --xinclude \
+		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		-o $(OUTPUT)/manual-plugins/ docbook-xsl/$(XSL).xsl manual/docbook/plugins/index.xml
 		
 getstarted:
 	-mkdir -p $(OUTPUT)/get-started
@@ -33,6 +62,7 @@ getstarted:
 	cat docbook-xsl/common.css >> $(OUTPUT)/get-started/manual.css
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
+		--stringparam atomik.menu "get-started" \
 		-o $(OUTPUT)/get-started/ docbook-xsl/$(XSL).xsl get-started/index.xml
 	
 	svn export get-started/source $(OUTPUT)/get-started/atomik-get-started

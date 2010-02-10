@@ -3,6 +3,7 @@
 
 	<xsl:param name="atomik.base" select="'../..'" />
 	<xsl:param name="atomik.stylesheet" select="'manual.css'" />
+	<xsl:param name="atomik.menu" select="'doc'" />
 	
 	<xsl:template name="atomik.header">
 		<div id="header-wrapper">
@@ -12,25 +13,34 @@
 				</h1>
 				<ul id="menu">
 					<li>
-						<a href="http://code.google.com/p/atomikframework">Code</a>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/index')" /></xsl:attribute>Home</a>
 					</li>
 					<li>
-						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/whats-next')" /></xsl:attribute>What's next?</a>
-					</li>
-					<li>
-						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/plugins')" /></xsl:attribute>Plugins</a>
-					</li>
-					<li>
-						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/community')" /></xsl:attribute>Community</a>
-					</li>
-					<li class="selected">
-						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/docs')" /></xsl:attribute>Documentation</a>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/news')" /></xsl:attribute>News</a>
 					</li>
 					<li>
 						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/download')" /></xsl:attribute>Download</a>
 					</li>
 					<li>
-						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/index')" /></xsl:attribute>Home</a>
+						<xsl:if test="$atomik.menu = 'get-started'">
+							<xsl:attribute name="class">selected</xsl:attribute>
+						</xsl:if>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/get-started')" /></xsl:attribute>Get started</a>
+					</li>
+					<li>
+						<xsl:if test="$atomik.menu = 'doc'">
+							<xsl:attribute name="class">selected</xsl:attribute>
+						</xsl:if>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/docs')" /></xsl:attribute>Documentation</a>
+					</li>
+					<li>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/community')" /></xsl:attribute>Community</a>
+					</li>
+					<li>
+						<a><xsl:attribute name="href"><xsl:value-of select="concat($atomik.base, '/plugins')" /></xsl:attribute>Plugins</a>
+					</li>
+					<li>
+						<a href="http://code.google.com/p/atomikframework">Code</a>
 					</li>
 				</ul>
 				<div class="clear"></div>
@@ -64,6 +74,9 @@
 				</a>
 			</p>
 		</div>
+		<script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shCore.js"></script>
+		<script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/2.1.364/scripts/shBrushPhp.js"></script>
+		<script type="text/javascript">SyntaxHighlighter.all()</script>
 	</xsl:template>
 
 </xsl:stylesheet>

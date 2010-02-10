@@ -126,7 +126,7 @@ $string = Atomik::fireEvent('myStringEvent', array(), true); // string]]>
 			<link xlink:href="http://www.atomikframework.com/docs/events">Event Browser on the website</link>.
 		</note>
 		<figure>
-			<title>Simple schema illustrating Atomik events flow</title>
+			<title>Simple schema illustrating Atomik events flow (simplified)</title>
 			<mediaobject>
 				<imageobject role="html">
 					<imagedata format="PNG" fileref="images/events.png" />

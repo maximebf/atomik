@@ -94,10 +94,31 @@ plugin-config:
 	cd $(RELEASE_DIR)/plugins && zip -r atomik-plugin-config.zip Config
 	rm -r $(RELEASE_DIR)/plugins/Config
 	
-doc:
-	cd documentation && make -B OUTPUT=../$(RELEASE_DIR)/atomik-manual manual
-	cd $(RELEASE_DIR) && zip -r atomik-manual.zip atomik-manual
-	rm -r $(RELEASE_DIR)/atomik-manual
+doc: doc-complete doc-framework doc-lib doc-plugins
+
+doc-complete:
+	mkdir -p $(RELEASE_DIR)/doc
+	cd documentation && make -B OUTPUT=../$(RELEASE_DIR)/doc manual
+	cd $(RELEASE_DIR)/doc && mv manual atomik-manual && zip -r atomik-manual.zip atomik-manual
+	rm -r $(RELEASE_DIR)/doc/atomik-manual
+	
+doc-framework:
+	mkdir -p $(RELEASE_DIR)/doc
+	cd documentation && make -B OUTPUT=../$(RELEASE_DIR)/doc manual-framework
+	cd $(RELEASE_DIR)/doc && mv manual-framework atomik-framework-manual && zip -r atomik-framework-manual.zip atomik-framework-manual
+	rm -r $(RELEASE_DIR)/doc/atomik-framework-manual
+
+doc-lib:
+	mkdir -p $(RELEASE_DIR)/doc
+	cd documentation && make -B OUTPUT=../$(RELEASE_DIR)/doc manual-lib
+	cd $(RELEASE_DIR)/doc && mv manual-lib atomik-lib-manual && zip -r atomik-lib-manual.zip atomik-lib-manual
+	rm -r $(RELEASE_DIR)/doc/atomik-lib-manual
+	
+doc-plugins:
+	mkdir -p $(RELEASE_DIR)/doc
+	cd documentation && make -B OUTPUT=../$(RELEASE_DIR)/doc manual-plugins
+	cd $(RELEASE_DIR)/doc && mv manual-plugins atomik-plugins-manual && zip -r atomik-plugins-manual.zip atomik-plugins-manual
+	rm -r $(RELEASE_DIR)/doc/atomik-plugins-manual
 	
 clean:
 	rm -r $(RELEASE_DIR)

@@ -100,10 +100,12 @@ class Atomik_Options
 	 */
 	public function getOption($name, $default = null, $prefix = '')
 	{
-		if (!array_key_exists($prefix . $name, $this->_options)) {
-			return $default;
-		}
-		return $this->_options[$prefix . $name];
+	    foreach ((array) $prefix as $pfx) {
+    		if (array_key_exists($pfx . $name, $this->_options)) {
+    		    return $this->_options[$pfx . $name];
+    		}
+	    }
+		return $default;
 	}
 	
 	/**

@@ -13,7 +13,7 @@
  *
  * @package     Atomik
  * @author      Maxime Bouroumeau-Fuseau
- * @copyright   2008-2009 (c) Maxime Bouroumeau-Fuseau
+ * @copyright   2008-2010 (c) Maxime Bouroumeau-Fuseau
  * @license     http://www.opensource.org/licenses/mit-license.php
  * @link        http://www.atomikframework.com
  */
@@ -742,7 +742,7 @@ final class Atomik
         // searches for a route matching the uri
         $found = false;
         $request = array();
-        foreach ($routes as $route => $default) {
+        foreach (array_reverse($routes) as $route => $default) {
             if (!is_string($route)) {
                 $route = $default;
                 $default = array();
@@ -2296,7 +2296,7 @@ final class Atomik
      * @param bool $useIndex
      * @return string
      */
-    public static function appUrl($action, $params = array(), $useIndex = true)
+    public static function appUrl($action = null, $params = array(), $useIndex = true)
     {
         return self::url($action, $params, $useIndex, false);
     }

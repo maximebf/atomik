@@ -28,6 +28,21 @@ class Atomik_Manifest
 	/**
 	 * @var string
 	 */
+	public $authorName = '';
+	
+	/**
+	 * @var string
+	 */
+	public $authorEmail = '';
+	
+	/**
+	 * @var string
+	 */
+	public $authorWebsite = '';
+	
+	/**
+	 * @var string
+	 */
 	public $name = '';
 	
 	/**
@@ -66,6 +81,11 @@ class Atomik_Manifest
 	public $directory = '/';
 	
 	/**
+	 * @var string
+	 */
+	public $minAtomikVersion = '2.2';
+	
+	/**
 	 * Filename of the XSchema to validate Manifest.xml files
 	 * 
 	 * @var string
@@ -95,8 +115,8 @@ class Atomik_Manifest
 		$dom = new DOMDocument();
 		
 		try {
-			$dom->loadXml($string);
-			if (!empty($this->schemaLocation) && !$dom->schemaValidate($this->schemaLocation)) {
+			@$dom->loadXml($string);
+			if (!empty($this->schemaLocation) && !@$dom->schemaValidate($this->schemaLocation)) {
 				return false;
 			}
 		} catch (Exception $e) {
@@ -105,7 +125,13 @@ class Atomik_Manifest
 		
 		foreach ($dom->documentElement->childNodes as $child) {
 			if ($child->nodeType == XML_ELEMENT_NODE) {
-				$this->{$child->localName} = html_entity_decode($child->nodeValue);
+			    if ($child->localName == 'author') {
+			        
+			    } else if ($child->localName == 'dependencies') {
+			        
+			    } else {
+				    $this->{$child->localName} = strip_tags(html_entity_decode($child->nodeValue));
+			    }
 			}
 		}
 		
@@ -150,8 +176,14 @@ class Atomik_Manifest
 		$root = $dom->appendChild($dom->createElementNS($ns, 'm:manifest'));
 		$root->setAttribute('xmlns:m', $ns);
 		
+		$author = $root->appendChild($dom->createElementNS($ns, 'm:author'));
+		$author->appendChild($dom->createElementNS($ns, 'm:name', $this->authorName));
+		$author->appendChild($dom->createElementNS($ns, 'm:email', $this->authorEmail));
+		$author->appendChild($dom->createElementNS($ns, 'm:website', $this->authorWebsite));
+		
 		$root->appendChild($dom->createElementNS($ns, 'm:name', $this->name));
 		$root->appendChild($dom->createElementNS($ns, 'm:displayName', $this->displayName));
+		$root->appendChild($dom->createElementNS($ns, 'm:minAtomikVersion', $this->minAtomikVersion));
 		$root->appendChild($dom->createElementNS($ns, 'm:version', $this->version));
 		$root->appendChild($dom->createElementNS($ns, 'm:category', $this->category));
 		$root->appendChild($dom->createElementNS($ns, 'm:description', $this->description));
@@ -170,6 +202,9 @@ class Atomik_Manifest
 	public function toArray()
 	{
 		return array(
+			'authorName'		=> $this->authorName,
+			'authorEmail'		=> $this->authorEmail,
+			'authorWebsite'		=> $this->authorWebsite,
 			'name' 				=> $this->name,
 			'displayName' 		=> $this->displayName,
 			'version' 			=> $this->version,
@@ -177,7 +212,8 @@ class Atomik_Manifest
 			'description' 		=> $this->description,
 			'longDescription' 	=> $this->longDescription,
 			'link' 				=> $this->link,
-			'directory' 		=> $this->directory
+			'directory' 		=> $this->directory,
+		    'minAtomikVersion'  => $this->minAtomikVersion
 		);
 	}
 	

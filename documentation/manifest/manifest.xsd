@@ -9,8 +9,18 @@
     <xs:element name="manifest">
     	<xs:complexType>
     		<xs:all>
-    			<xs:element name="author-id" type="xs:int" maxOccurs="1"
-    				minOccurs="1">
+    			<xs:element name="author" maxOccurs="1" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="name" type="xs:string">
+    						</xs:element>
+    						<xs:element name="email" type="xs:string">
+    						</xs:element>
+    						<xs:element name="website"
+    							type="xs:string">
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
     			</xs:element>
     			<xs:element name="name" type="xs:string" maxOccurs="1"
     				minOccurs="1">
@@ -22,7 +32,7 @@
     				maxOccurs="1" minOccurs="0">
     			</xs:element>
     			<xs:element name="category" type="xs:string"
-    				maxOccurs="1" minOccurs="0">
+    				maxOccurs="1" minOccurs="1">
     			</xs:element>
     			<xs:element name="description" type="xs:string"
     				maxOccurs="1" minOccurs="1">
@@ -39,10 +49,12 @@
     			<xs:element name="license" type="xs:string"
     				maxOccurs="1" minOccurs="0">
     			</xs:element>
-    			<xs:element name="dependencies" maxOccurs="1" minOccurs="0">
+    			<xs:element name="dependencies" maxOccurs="1"
+    				minOccurs="0">
     				<xs:complexType>
     					<xs:sequence>
-    						<xs:element name="depency" maxOccurs="unbounded" minOccurs="0">
+    						<xs:element name="depency"
+    							maxOccurs="unbounded" minOccurs="0">
     							<xs:complexType>
     								<xs:attribute name="name"
     									type="xs:string">
@@ -52,6 +64,7 @@
     					</xs:sequence>
     				</xs:complexType>
     			</xs:element>
+    			<xs:element name="minAtomikVersion" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
     		</xs:all>
     	</xs:complexType>
     </xs:element>

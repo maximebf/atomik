@@ -220,6 +220,7 @@ class Atomik_Db_Instance
 	 */
 	public function getPdo()
 	{
+		$this->connect();
 		return $this->pdo;
 	}
 	

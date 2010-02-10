@@ -290,6 +290,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		if (!$this->getManager()->save($this)) {
 			return false;
 		}
+		$this->_new = false;
 		
 		// checks if cascade is enabled
 		if ($this->getBuilder()->getOption('cascade-save', false)) {
