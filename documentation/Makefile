@@ -1,6 +1,8 @@
-OUTPUT = output
-XSL = standalone
+STYLESHEET = standalone
 ATOMIK_BASE = ../..
+LANG = en
+OUTPUT = output/$(LANG)
+XSL= xsl
 
 all: manual getstarted events manifest
 
@@ -8,64 +10,63 @@ manuals: manual manual-framework manual-lib manual-plugins
 
 manual:
 	-mkdir -p $(OUTPUT)/manual
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/manual/manual.css
-	svn export manual/images $(OUTPUT)/manual/images
+	cp $(XSL)/docbook/$(STYLESHEET).css $(OUTPUT)/manual/manual.css
+	cat $(XSL)/docbook/common.css >> $(OUTPUT)/manual/manual.css
+	svn export $(LANG)/manual/images $(OUTPUT)/manual/images
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
-		-o $(OUTPUT)/manual/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
+		-o $(OUTPUT)/manual/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/index.xml
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
-		-o $(OUTPUT)/manual/plugins/ docbook-xsl/$(XSL).xsl manual/docbook/plugins/index.xml
+		-o $(OUTPUT)/manual/plugins/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/plugins/index.xml
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
-		-o $(OUTPUT)/manual/library/ docbook-xsl/$(XSL).xsl manual/docbook/library/index.xml
+		-o $(OUTPUT)/manual/library/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/library/index.xml
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)/.." \
 		--stringparam atomik.stylesheet "../manual.css" \
-		-o $(OUTPUT)/manual/backend/ docbook-xsl/$(XSL).xsl manual/docbook/backend/index.xml
+		-o $(OUTPUT)/manual/backend/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/backend/index.xml
 
 manual-framework:
 	-mkdir -p $(OUTPUT)/manual-framework
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual-framework/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/manual-framework/manual.css
-	svn export manual/images $(OUTPUT)/manual-framework/images
+	cp $(XSL)/docbook/$(STYLESHEET).css $(OUTPUT)/manual-framework/manual.css
+	cat $(XSL)/docbook/common.css >> $(OUTPUT)/manual-framework/manual.css
+	svn export $(LANG)/manual/images $(OUTPUT)/manual-framework/images
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
-		-o $(OUTPUT)/manual-framework/ docbook-xsl/$(XSL).xsl manual/docbook/index.xml
+		-o $(OUTPUT)/manual-framework/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/index.xml
 		
 manual-lib:
 	-mkdir -p $(OUTPUT)/manual-lib
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual-lib/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/manual-lib/manual.css
-	svn export manual/images $(OUTPUT)/manual-lib/images
+	cp $(XSL)/docbook/$(STYLESHEET).css $(OUTPUT)/manual-lib/manual.css
+	cat $(XSL)/docbook/common.css >> $(OUTPUT)/manual-lib/manual.css
+	svn export $(LANG)/manual/images $(OUTPUT)/manual-lib/images
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
-		-o $(OUTPUT)/manual-lib/ docbook-xsl/$(XSL).xsl manual/docbook/library/index.xml
+		-o $(OUTPUT)/manual-lib/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/library/index.xml
 		
 manual-plugins:
 	-mkdir -p $(OUTPUT)/manual-plugins
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/manual-plugins/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/manual-plugins/manual.css
-	svn export manual/images $(OUTPUT)/manual-plugins/images
+	cp $(XSL)/docbook/$(STYLESHEET).css $(OUTPUT)/manual-plugins/manual.css
+	cat $(XSL)/docbook/common.css >> $(OUTPUT)/manual-plugins/manual.css
+	svn export $(LANG)/manual/images $(OUTPUT)/manual-plugins/images
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
-		-o $(OUTPUT)/manual-plugins/ docbook-xsl/$(XSL).xsl manual/docbook/plugins/index.xml
+		-o $(OUTPUT)/manual-plugins/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/manual/docbook/plugins/index.xml
 		
 getstarted:
 	-mkdir -p $(OUTPUT)/get-started
 	mkdir $(OUTPUT)/get-started/images
-	cp manual/images/logo.png $(OUTPUT)/get-started/images
-	cp docbook-xsl/$(XSL).css $(OUTPUT)/get-started/manual.css
-	cat docbook-xsl/common.css >> $(OUTPUT)/get-started/manual.css
+	cp $(LANG)/manual/images/logo.png $(OUTPUT)/get-started/images
+	cp $(XSL)/docbook/$(STYLESHEET).css $(OUTPUT)/get-started/manual.css
+	cat $(XSL)/docbook/common.css >> $(OUTPUT)/get-started/manual.css
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
 		--stringparam atomik.menu "get-started" \
-		-o $(OUTPUT)/get-started/ docbook-xsl/$(XSL).xsl get-started/index.xml
-	
-	svn export get-started/source $(OUTPUT)/get-started/atomik-get-started
+		-o $(OUTPUT)/get-started/ $(XSL)/docbook/$(STYLESHEET).xsl $(LANG)/get-started/index.xml
+	svn export $(LANG)/get-started/source $(OUTPUT)/get-started/atomik-get-started
 	svn export ../plugins/Db $(OUTPUT)/get-started/atomik-get-started/app/plugins/Db
 	cp ../Atomik.php $(OUTPUT)/get-started/atomik-get-started/index.php
 	cp ../CHANGELOG.txt $(OUTPUT)/get-started/atomik-get-started
@@ -75,18 +76,18 @@ getstarted:
 	
 events: events-api
 	-mkdir -p $(OUTPUT)/events
-	cp events/events.css $(OUTPUT)/events/events.css
+	cp $(XSL)/events/events.css $(OUTPUT)/events/events.css
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
-		-o $(OUTPUT)/events/ events/events.xsl events/xml/index.xml
+		-o $(OUTPUT)/events/ $(XSL)/events/events.xsl $(LANG)/events/index.xml
 	
 events-api:
 	-mkdir -p $(OUTPUT)/events
-	xsltproc --xinclude -o $(OUTPUT)/events/events-api.xml events/events-api.xsl events/xml/index.xml
+	xsltproc --xinclude -o $(OUTPUT)/events/events-api.xml $(XSL)/events/events-api.xsl $(LANG)/events/index.xml
 	
 manifest:
 	-mkdir -p $(OUTPUT)/manifest
-	cp manifest/manifest.xsd $(OUTPUT)/manifest
+	cp manifest.xsd $(OUTPUT)/manifest
 		
 clean:
 	-rm -r $(OUTPUT)
