@@ -76,6 +76,7 @@ getstarted:
 	
 events: events-api
 	-mkdir -p $(OUTPUT)/events
+	cp events.xsd $(OUTPUT)/events
 	cp $(XSL)/events/events.css $(OUTPUT)/events/events.css
 	xsltproc --xinclude \
 		--stringparam atomik.base "$(ATOMIK_BASE)" \
@@ -86,8 +87,7 @@ events-api:
 	xsltproc --xinclude -o $(OUTPUT)/events/events-api.xml $(XSL)/events/events-api.xsl $(LANG)/events/index.xml
 	
 manifest:
-	-mkdir -p $(OUTPUT)/manifest
-	cp manifest.xsd $(OUTPUT)/manifest
+	cp manifest.xsd $(OUTPUT)
 		
 clean:
 	-rm -r $(OUTPUT)

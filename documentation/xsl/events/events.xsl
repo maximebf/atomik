@@ -6,7 +6,7 @@
 	xmlns:str="http://exslt.org/strings"
 	extension-element-prefixes="exsl str">
 
-	<xsl:import href="../docbook-xsl/templates.xsl"/>
+	<xsl:import href="../docbook/templates.xsl"/>
 	
 	<xsl:template match="/e:events">
 		<xsl:call-template name="file.write">
