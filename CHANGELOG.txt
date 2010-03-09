@@ -4,6 +4,30 @@
 ! = Modification to existing feature
 # = Fixed bug
 
+----------- Atomik 2.3 --------------
+
+[Atomik]
+
+ WARNING: The 2.2 class style actions are deprecated
+
+ ! Change in the execution process: new modular execution process
+ ! Two execution profiles: file or class
+ ! Atomik::executeFile() has completely changed: is now the file executor
+ * Added Atomik::executeClass() : class executor
+ * Added Atomik::instance()
+ ! Removed Atomik::_execute()
+ ! Removed Atomik::_render()
+ * Added Atomik::scoped() which replaces _execute() and _render()
+ ! removed the key atomik/display_errors
+ * Added key atomik/throw_errors
+ ! Atomik::trigger404() is deprecated
+ * Atomik::dispatch() now catch Atomik_Exception and display 404 errors
+ ! Change in Atomik::execute*(), Atomik::render*() and Atomik::route() to
+   throw exception instead of returning false
+ ! Arguments of Atomik::run() have changed
+ * Added support for config environment (first arg of Atomik::run())
+ 
+
 ----------- Atomik 2.2 --------------
 
 [Atomik]

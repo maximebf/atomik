@@ -4,7 +4,8 @@
 Atomik::set(array(
 
 	'app' => array(
-		'layout' => '_layout'
+		'layout' => '_layout',
+		'executor' => 'Atomik::executeClass'
 	),
 
 	'atomik' => array(
