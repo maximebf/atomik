@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="db" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>Db</title>
+	<para>
+		The Db plugin provides database features over PDO. Thus, it is advice to know
+		how to use PDO before using this plugin. Check out <link xlink:href="http://php.net/pdo">http://php.net/pdo</link> 
+		for more information.
+	</para>
+	<sect1 id="db-connection">
+		<title>Connecting to a database</title>
+		<para>
+			You can connect to a database either automatically or manually. The first
+			method can be achieved by setting some configuration.
+		</para>
+		<para>
+			You need to specify a dsn, a username and a password as shown below. You also
+			need to define the <quote>autoconnect</quote> configuration key to true.
+		</para>
+		<example>
+			<title>Automatically connecting to a database</title>
+			<programlisting>
+				<![CDATA[
+Atomik::set('plugins/Db', array(
+	'dsn' => 'mysql:host=localhost;dbname=mydb',
+	'username' => 'root',
+	'password' => '',
+	'autoconnect' => true
+));]]>
+			</programlisting>
+		</example>
+		<para>
+			To connect manually, use the <methodname>Atomik_Db::connect()</methodname> method.
+		</para>
+		<example>
+			<title>Connecting to a database manually</title>
+			<programlisting>
+				<![CDATA[
+Atomik_Db::connect('mysql:host=localhost;dbname=mydb', 'root', '');]]>
+			</programlisting>
+		</example>
+		<para>
+			The plugin then manages a PDO instance. The instance is stored in <varname>Atomik_Db::$pdo</varname>.
+		</para>
+	</sect1>
+	<sect1 id="db-query">
+		<title>Querying the database</title>
+		<sect2 id="db-query-pdo">
+			<title>Using PDO-like methods</title>
+			<para>
+				The <classname>Atomik_Db</classname> class provides three alias methods to PDO methods:
+				<methodname>query()</methodname>, <methodname>exec()</methodname> and <methodname>prepare()</methodname>.
+				The two last one behave exactly the same. However <methodname>Atomik_Db::query()</methodname> is a little
+				different.
+			</para>
+			<para>
+				Under the hood it creates a PDO statement using prepare and executes it. Thus, the method also allows
+				an additional argument which can contains an array to pass to the execute call of the statement.
+			</para>
+			<example>
+				<title>Using <methodname>Atomik_Db::query()</methodname></title>
+				<programlisting>
+					<![CDATA[
+$results = Atomik_Db::query('select * from posts');
+$results = Atomik_Db::query('select * from posts where id=?', array(1));]]>
+				</programlisting>
+			</example>
+			<example>
+				<title>Using other PDO methods with <classname>Atomik_Db</classname></title>
+				<programlisting>
+					<![CDATA[
+$statement = Atomik_Db::prepare('select * from posts');
+$statement->execute();
+
+$results = Atomik_Db::exec("insert into posts (content) values ('my new post')");]]>
+				</programlisting>
+			</example>
+		</sect2>
+		<sect2 id="db-query-find">
+			<title>Using <quote>find</quote> methods</title>
+			<para>
+				The <classname>Atomik_Db</classname> class also provides two powerful methods to query the database:
+				<methodname>Atomik_Db::find()</methodname> and <methodname>Atomik_Db::findAll()</methodname>. They are
+				exactly the same but the first one will return only one record whereas the second all of them.
+			</para>
+			<para>
+				Conditions are specified as an associative array. The keys are database's fields. You can specify conditions
+				in two different ways.
+			</para>
+			<para>
+				The first way only allows you to query one table at once. The first argument of the method should be
+				a table name and the second one the fields array. An sql string can also be used instead of the array.
+			</para>
+			<example>
+				<title>Finding records from one table</title>
+				<programlisting>
+					<![CDATA[
+// all records from the posts table
+$results = Atomik_Db::findAll('posts');
+
+// only records from the author 3
+$results = Atomik_Db::findAll('posts', array('author' => 3));
+// or
+$results = Atomik_Db::findAll('posts', 'author = 3');]]>
+				</programlisting>
+			</example>
+			<para>
+				The second way allows you to query multiple tables (but without using joins). Instead of specifying the table
+				name as a string, you must provide an array as the first argument where keys are table names and values the
+				fields array.
+			</para>
+			<example>
+				<title>Finding records from multiple tables</title>
+				<programlisting>
+					<![CDATA[
+// all records from the posts and users tables
+$results = Atomik_Db::findAll(array('posts', 'users'));
+
+// only records from the author 3
+$results = Atomik_Db::findAll(array('posts', 'users' => array('id' => 'posts.user_id')));
+// will generate select * from posts, users where users.id = posts.user_id]]>
+				</programlisting>
+			</example>
+			<para>
+				You can also specify an order by and a limit clause. Respectively as the third and fourth arguments.
+			</para>
+			<example>
+				<title>Finding records with order by and limit clauses</title>
+				<programlisting>
+					<![CDATA[
+// all records from the posts table ordered by creation_date
+$results = Atomik_Db::findAll('posts', null, 'creation_date ASC');
+
+// the first 10 records from the posts table
+$results = Atomik_Db::findAll('posts', null, '', '10');
+
+// the first 10 records from the posts table ordered by creation_date
+$results = Atomik_Db::findAll('posts', null, 'creation_date' , '10');
+
+// records 10 to 20 from the posts table
+$results = Atomik_Db::findAll('posts', null, '', '10, 10');]]>
+				</programlisting>
+			</example>
+			<example>
+				<title>Working with the result of find methods</title>
+				<programlisting>
+					<![CDATA[
+$posts = Atomik_Db::findAll('posts');
+foreach ($posts as $post) {
+	echo $post['title'];
+	echo $post['content'];
+}]]>
+				</programlisting>
+			</example>
+		</sect2>
+	</sect1>
+	<sect1 id="db-dml">
+		<title>Manipulating data</title>
+		<sect2 id="insert">
+			<title>Insert</title>
+			<para>
+				The <methodname>Atomik_Db::insert()</methodname> method can be use to insert data into the database. It takes
+				as first argument the table name and as second an associative array where keys are fields name.
+			</para>
+			<example>
+				<title>Inserting data into the database</title>
+				<programlisting>
+					<![CDATA[
+Atomik_Db::insert('posts', array('title' => 'my first posts', 'content' => 'hello world'));
+// will execute: insert into posts (title, content) values('my first post', 'hello world')]]>
+				</programlisting>
+			</example>
+			<para>
+				All values are automatically escaped.
+			</para>
+		</sect2>
+		<sect2 id="update">
+			<title>Update</title>
+			<para>
+				<methodname>Atomik_Db::update()</methodname> works pretty much the same. However it takes as the last argument
+				an array of conditions (the same way as in find methods) or an sql string.
+			</para>
+			<example>
+				<title>Updating data</title>
+				<programlisting>
+					<![CDATA[
+Atomik_Db::update('posts', array('content' => 'updated hello world'), array('id' => 1));
+// will execute: update posts set content = 'updated hello world' where posts.id = 1]]>
+				</programlisting>
+			</example>
+		</sect2>
+		<sect2 id="delete">
+			<title>Delete</title>
+			<para>
+				Finally, the <methodname>Atomik_Db::delete()</methodname> works the same as find methods (without the order by and
+				limit arguments).
+			</para>
+			<example>
+				<title>Deleting data</title>
+				<programlisting>
+					<![CDATA[
+Atomik_Db::delete('posts', array('id' => 1));
+// will execute: delete from posts where posts.id = 1
+
+Atomik_Db::delete(array('posts', array('id' => 1)));
+// will execute: delete from posts where posts.id = 1
+
+Atomik_Db::delete('posts', 'id = 1');
+// will execute: delete from posts where id = 1]]>
+				</programlisting>
+			</example>
+		</sect2>
+	</sect1>
+	<sect1 id="db-advanced">
+		<title>Advanced use of the plugin</title>
+		<para>
+			The static class <classname>Atomik_Db</classname> manages an instance of <classname>Atomik_Db_Instance</classname>. It's
+			this last class which actually handles all the work. As most applications will only have one database connection, the first class
+			allows to quickly access the only instance of the later class.
+		</para>
+		<para>
+			You can access the instance of <classname>Atomik_Db_Instance</classname> used by <classname>Atomik_Db</classname> by calling
+			<methodname>Atomik_Db::getInstance()</methodname>. You can also set the instance using <methodname>Atomik_Db::setInstance()</methodname>.
+		</para>
+		<para>
+			You can creates multiple database connections by creating instances of <classname>Atomik_Db_Instance</classname>. This class works
+			exactly the same as described in this chapter, only all calls should not be static.
+		</para>
+		<example>
+			<title>Using <classname>Atomik_Db_Instance</classname></title>
+			<programlisting>
+				<![CDATA[
+$db = new Atomik_Db_Instance();
+$db->connect($dsn, $username, $password);
+$posts = $db->findAll('posts');]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>

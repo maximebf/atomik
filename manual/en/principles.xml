@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="principles" xmlns="http://docbook.org/ns/docbook">
+	<title>Core principles</title>
+	<para>
+		Atomik alone does not provide a lot of features. It basically provides a simple
+		directory structure and a dispatch mechanism. The whole point of Atomik is to
+		extend it through plugins. You build the framework you want with the features
+		you need.
+	</para>
+	<sect1 id="simplicity-and-kiss">
+		<title>Simplicity and the KISS principle</title>
+		<para>
+			KISS (Keep It Simple Stupid) is a principle which goal is to keep things the
+			simplest possible. Atomik has been build from the beginning with this idea in 
+			mind. It simply works and is nearly bug free. Just unzip your downloaded package
+			and start working!
+		</para>
+	</sect1>
+	<sect1 id="actions-and-views">
+		<title>Actions and Views</title>
+		<para>
+			Atomik is not an MVC framework according to the definition of MVC (it can 
+			however become one with plugins...). Still  it follows the same idea.
+			The application logic, called action, and the presentation layer, called 
+			view, are divided into two different files. The action is executed
+			and then the view is rendered. Both of them is what makes a web page.
+		</para>
+		<para>
+			How you code actions and views is your business! Atomik only provides the
+			dispatch mechanism. The only other thing it does is pass variables defined
+			in the action to the view.
+		</para>
+	</sect1>
+	<sect1 id="extensivity-and-plugins">
+		<title>Extensibility and Plugins</title>
+		<para>
+			As said before, the whole point of Atomik is being highly extensible. Nearly
+			all actions (execute an action, render a view...) can be overrided. This
+			is made possible through an event system. Before and after each methods, 
+			and sometimes during, events are fired. Multiple callbacks can be registered for
+			each events which allow to modify the way Atomik acts.
+		</para>
+		<para>
+			Atomik respects the convention over configuration principle. However it hasn't forget
+			the configuration aspect and even its core features can be modified. 
+			For example, if you want to drop the logic and presentation separation 
+			(however highly discourage) and do everything in a single file, you can.
+		</para>
+	</sect1>
+	<sect1 id="selectors">
+		<title>Selectors</title>
+		<para>
+			Like in modern javascript frameworks, Atomik offer selectors, or at least the same idea.
+			Selectors are a way to quickly access some features or some data of Atomik or plugins.
+			Their simpler to learn than a complicated API and offer a uniform way of doing things. 
+		</para>
+	</sect1>
+</chapter>

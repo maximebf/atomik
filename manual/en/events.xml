@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="events" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>Events</title>
+	<para>
+		Events are one of the most important concept in Atomik.
+		Callback can be registered to listen on any events. When an event
+		is fired (or triggered), all listening callbacks are called. 
+	</para>
+	<note>
+		Events are implicitely declared when they're fired.
+	</note>
+	<sect1 id="listening-events">
+		<title>Listening to events</title>
+		<para>
+			Atomik provides the <methodname>listenEvent</methodname> method.
+			It takes as first argument an event name and as second a callback.
+			See <link xlink:href="http://php.net/callback">http://php.net/callback</link> 
+			for more information on callbacks.
+		</para>
+		<example>
+			<title>Listening to an event</title>
+			<programlisting>
+				<![CDATA[
+function myEventCallback()
+{
+	// ...
+}
+
+function myArgEventCallback($arg1, $arg2)
+{
+	// ...
+}
+
+Atomik::listenEvent('myEvent', 'myEventCallback');
+Atomik::listenEvent('myArgEvent', 'myArgEventCallback');]]>
+			</programlisting>
+		</example>
+		<para>
+			Listeners also have priorities. The priority is a number, smaller number have a higher priority.
+			The priority is specified when registering the listener.
+		</para>
+		<example>
+			<title>Listeners with priorities</title>
+			<programlisting>
+				<![CDATA[
+Atomik::listenEvent('myEvent', 'myEventCallback', 10);
+Atomik::listenEvent('myEvent', 'myEventCallback2', 5); // will be called first]]>
+			</programlisting>
+		</example>
+		<para>
+			Multiple listeners can have the same priority. If you dim your listener more important and want it 
+			to be called before other listeners of the same priority, you can. This is done by passing true as
+			the fourth parameter.
+		</para>
+		<example>
+			<title>Listeners with priorities and importance</title>
+			<programlisting>
+				<![CDATA[
+Atomik::listenEvent('myEvent', 'myEventCallback', 10);
+Atomik::listenEvent('myEvent', 'myEventCallback2', 10, true); // will be called first]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="firing-events">
+		<title>Firing events</title>
+		<para>
+			Events are fired using the <methodname>fireEvent</methodname> method
+			provided by Atomik. It takes as first argument the event name and
+			optionally as second an array of arguments for callbacks.
+		</para>
+		<example>
+			<title>Firing events</title>
+			<programlisting>
+				<![CDATA[
+Atomik::fireEvent('myEvent');
+Atomik::fireEvent('myArgEvent', array('arg1Value', 'arg2Value'));]]>
+			</programlisting>
+		</example>
+		<para>
+			This method returns an array with results from each callbacks. A string can also be returned
+			when passing true as the third parameter. The string will be the concatanation of all results.
+		</para>
+		<example>
+			<title>Callback results after firing events</title>
+			<programlisting>
+				<![CDATA[
+$results = Atomik::fireEvent('myEvent'); // array
+$string = Atomik::fireEvent('myStringEvent', array(), true); // string]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="events-naming-convention">
+		<title>Events naming convention</title>
+		<para>
+			While events name can be anything you want, Atomik uses a naming convention for its own events.
+		</para>
+		<para>
+			Events are composed using <quote>Atomik</quote> or a plugin name, followed by the method from which the
+			event was fired and optionnally the event name. Each part is separated using ":" twice and should
+			start with an upper case.
+		</para>
+		<example>
+			<title>Example of event naming</title>
+			<para>
+				The method <methodname>Atomik::dispatch()</methodname>
+				fires an event named <quote>Atomik::Dispatch::Start</quote>.
+			</para>
+		</example>
+	</sect1>
+	<sect1 id="events-schema">
+		<title>Overview of available Atomik events</title>
+		<figure>
+			<title>Simple schema illustrating Atomik events flow</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/events.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</sect1>
+</chapter>

@@ -1,0 +1,13 @@
+<html>
+	<head>
+		<title>Atomik</title>
+	</head>
+	<body>
+	
+		<?php foreach (Atomik_Session::getMessages() as $message): ?>
+			<h2><?php echo $message ?></h2>
+		<?php endforeach; ?>
+	
+		<?php echo $contentForLayout; ?>
+	</body>
+</html>

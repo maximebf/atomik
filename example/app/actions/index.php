@@ -1,0 +1,3 @@
+<?php
+
+	$text = 'hello world!';

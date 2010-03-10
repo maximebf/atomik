@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="utilities" xmlns="http://docbook.org/ns/docbook">
+	<title>Utilities</title>
+	<sect1 id="utilities-path">
+		<title>Managing paths</title>
+		<para>
+			Atomik provides a single powerful method to manage paths: <methodname>Atomik::path()</methodname>.
+		</para>
+		<para>
+			The method can be use in two differente ways. First to retreive a path or an array of path.
+			In this case the first argument should be a set of paths (a string or an array containing paths). 
+			If only the first argument is given, the result will be a string containing the first path of the set.
+			If the second argument is set to true, an array of paths will be returned.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::path()</methodname> with paths</title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::path('/tmp/data'); // /tmp/data
+echo Atomik::path(array('/tmp/data', /tmp/data2')); // /tmp/data
+
+paths = Atomik::path('/tmp/data', true); // array('/tmp/data')
+$paths = Atomik::path(array('/tmp/data', /tmp/data2'), true); // array('/tmp/data', /tmp/data2')]]>
+			</programlisting>
+		</example>
+		<para>
+			The same method can also be use to find the pathname of a file. In this case, the first argument
+			must be a string containing the file's name. The second argument must be a set of paths (a string
+			or an array).
+		</para>
+		<para>
+			The method will search in paths from the set of paths and return the first found file with the
+			file name provided as the first argument. If no file is found, false is returned.
+		</para>
+		<para>
+			It is possible to avoid checking for the file existence by passing false as the third argument.
+			This will however always return the file as if it was in the first path of the set of paths.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::path()</methodname> to find files</title>
+			<programlisting>
+				<![CDATA[
+$pathname = Atomik::path('my-file.txt', array('/path1', '/path2')); // /path1/my-file.txt if the file is located in /path1 (/path2 otherwise)
+$pathname = Atomik::path('my-file.txt', '/path1'); // /path1/my-file.txt
+]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="utilities-redirect-404">
+		<title>Redirections and 404 errors</title>
+		<para>
+			To redirect the user to another page you can use the <methodname>Atomik::redirect()</methodname> method.
+			It takes as argument the url to redirect to. By default, this url will first be process using 
+			<methodname>Atomik::url()</methodname>. This behaviour can be disable by passing false as the second argument.
+		</para>
+		<example>
+			<title>Redirecting</title>
+			<programlisting>
+				<![CDATA[
+Atomik::redirect('home');]]>
+			</programlisting>
+		</example>
+		<para>
+			Triggering 404 errors is even simpler. Just call the <methodname>Atomik::trigger404()</methodname> method.
+			Customization of the 404 error page has been discussed in the configuration chapter.
+		</para>
+		<example>
+			<title>Trigerring a 404 error</title>
+			<programlisting>
+				<![CDATA[
+Atomik::trigger404();]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>

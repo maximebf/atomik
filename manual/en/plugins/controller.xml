@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="controller" xmlns="http://docbook.org/ns/docbook">
+	<title>Controller</title>
+	<para>
+		Atomik action files do not follow any conventions. However, some of you may have used MVC frameworks
+		where the business logic is coded in controllers. Controllers are classes where their methods are
+		actions.
+	</para>
+	<para>
+		This plugin adds support for controllers to Atomik. Once activated you must use controllers in your
+		actions. There is not possible mix between the classic way and the controller way.
+	</para>
+	<sect1 id="controller-differences">
+		<title>Differences with the classic Atomik way</title>
+		<para>
+			There is two major differences which are views and the router.
+		</para>
+		<para>
+			Each controller have multiple actions (methods) and each action has its own view. While having
+			for example one file named <filename>user.php</filename> in the <filename>actions</filename> directory which
+			contains the <classname>UserController</classname> class (will come to that later), you'll need many view
+			files. Thus, instead of saving your views in the <filename>views</filename> directory you will have to save
+			them in a folder named after your action.
+		</para>
+		<para>
+			When using the router, the <quote>action</quote> parameter is mandatory. This plugin adds another mandatory
+			parameter named <quote>controller</quote>. This parameter refers to the controller name whereas the <quote>action</quote>
+			parameter refers to a method of the controller class.
+		</para>
+		<para>
+			The default route is <quote>:controller/:action</quote>.
+		</para>
+		<example>
+			<title>Creating routes</title>
+			<programlisting>
+				<![CDATA[
+// ArchivesController::view()
+Atomik::set('routes', array(
+	'archives/:year/:month' => array(
+		'controller' => 'archives',
+		'action' => 'view'
+	)
+));]]>
+			</programlisting>
+		</example>
+		<para>
+			The default controller name is <quote>index</quote> and the default action name is <quote>index</quote>.
+		</para>
+	</sect1>
+	<sect1 id="creating-controllers">
+		<title>Creating controllers</title>
+		<sect2 id="controller-simple">
+			<title>Creating simple controllers</title>
+			<para>
+				As said before, a controller is a class. The only condition is in the naming convention. Your class has to be named
+				using the controller name starting by an upper case letter suffixed with <quote>Controller</quote>. So for example,
+				with a controller named <quote>user</quote> (saved in <filename>app/actions/user.php</filename>), the class name
+				will be <classname>UserController</classname>. 
+			</para>
+			<para>
+				Then add public method to your class. All public method which does not start with am underscore will be callable as an
+				action.
+			</para>
+			<para>
+				Don't forget to also create the view associated to each action.
+			</para>
+			<example>
+				<title>Creating a simple controller</title>
+				<programlisting>
+					<![CDATA[
+class UserController
+{
+	public function index()
+	{
+	}
+	
+	public function login()
+	{
+	}
+}]]>
+				</programlisting>
+				<para>
+					Also create two view files: <filename>app/views/user/index.phtml</filename> and <filename>app/views/user/login.phtml</filename>.
+					Note that they are saved under the <filename>app/views/user</filename> directory where the last folder is the controller name.
+				</para>
+				<para>
+					You can then use the following urls: <link>http://example.com/user</link> or <link>http://example.com/user/login</link>.
+				</para>
+			</example>
+			<para>
+				In classic actions, all defined variables where accessible from the view. This is not possible anymore when using methods for
+				evident reasons. To forward method to the view, simply define class properties.
+			</para>
+			<example>
+				<title>Creating a simple controller with view variables</title>
+				<programlisting>
+					<![CDATA[
+class UserController
+{
+	public function index()
+	{
+		$this->username = 'peter';
+	}
+}]]>
+				</programlisting>
+				<para>
+					In your view (<filename>app/views/user/index.phtml</filename>):
+				</para>
+				<programlisting>
+					<![CDATA[
+hello <php echo $username ?>]]>
+				</programlisting>
+			</example>
+		</sect2>
+		<sect2 id="controller-subclassing-atomik_controller">
+			<title>Creating controllers by subclassing <classname>Atomik_Controller</classname></title>
+			<para>
+				Subclassing Atomik_Controller when creating a controller class brings some nice features.
+			</para>
+			<para>
+				First of all, you can define two methods <methodname>_before()</methodname> and <methodname>_after()</methodname>
+				that will be called before and after each action.
+			</para>
+			<para>
+				Secondly, route parameters will be automatically mapped to method arguments.
+			</para>
+			<example>
+				<title>Mapping route parameters to method arguments</title>
+				<para>
+					Let's define the following route:
+				</para>
+				<programlisting>
+					<![CDATA[
+Atomik::set('routes', array(
+	'archives/:year/:month' => array(
+		'controller' => 'archives',
+		'action' => 'view'
+	)
+));]]>
+				</programlisting>
+				<para>
+					And our controller:
+				</para>
+				<programlisting>
+					<![CDATA[
+class ArchivesController
+{
+	public function view($year, $month)
+	{
+	}
+}]]>
+				</programlisting>
+				<para>
+					The <varname>$year</varname> and <varname>$month</varname> argument will be taken from the route parameters.
+				</para>
+			</example>
+			<para>
+				Finally, it allows you to define routes parameters in the doc comment of your method. To do so, use the
+				<quote>@route</quote> tag followed by the route definition.
+			</para>
+			<para>
+				Route define this way will have <quote>:controller/:action/</quote> automatically prepended.
+			</para>
+			<para>
+				When an argument is declared optional in the method, it will be declared optional in the route.
+			</para>
+			<example>
+				<title>Defining route parameters inside controllers</title>
+				<programlisting>
+					<![CDATA[
+class ArchivesController
+{
+	/**
+	 * @route :year/:month
+	 */
+	public function view($year, $month)
+	{
+	}
+}]]>
+				</programlisting>
+				<para>
+					This is the equivalent of the route defined in the previous example. 
+				</para>
+			</example>
+		</sect2>
+	</sect1>
+</chapter>

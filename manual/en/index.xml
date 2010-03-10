@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<title>Atomik Framework Manual</title>
+	<xi:include href="introduction.xml" />
+	<xi:include href="principles.xml" />
+	<xi:include href="installation.xml" />
+	<xi:include href="global_store.xml" />
+	<xi:include href="configuration.xml" />
+	<xi:include href="urls.xml" />
+	<xi:include href="actions_views.xml" />
+	<xi:include href="selectors.xml" />
+	<xi:include href="includes.xml" />
+	<xi:include href="utilities.xml" />
+	<xi:include href="error_debug.xml" />
+	<xi:include href="events.xml" />
+	<xi:include href="plugins.xml" />
+</book>

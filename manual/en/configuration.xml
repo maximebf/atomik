@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="accessors-configuration" xmlns="http://docbook.org/ns/docbook">
+	<title>Configuration</title>
+	<sect1 id="bootstrapping">
+		<title>Bootsrapping</title>
+		<para>
+			Atomik provides a default configuration for everything (to fullfill the convention
+			over configuration principle). However, you can override it and provide plugin's
+			configuration or even your own.
+		</para>
+		<para>
+			To do so, there is two possibilities: 
+			<itemizedlist>
+				<listitem>
+					modify Atomik's core file (<filename>index.php</filename>)
+				</listitem>
+				<listitem>
+					create a <filename>bootstrap.php</filename> file in the 
+					<filename>app</filename> directory.
+				</listitem>
+			</itemizedlist>
+		</para>
+		<para>
+			The first method is greatly discourage. It can however be useful if you want to
+			create your own Atomik distribution (this should be the only reason to use this
+			method).
+		</para>
+		<para>
+			The second method is of course the prefered one. It allows clearer configuration
+			in a unique place, perfect for maintenance. Just create a <filename>bootstrap.php</filename>
+			file in the <filename>app</filename> directory.
+			In this file, you can use accessors (the <methodname>set</methodname> method of course)
+			to define configuration keys.
+		</para>
+		<example>
+			<title>Exemple <filename>bootstrap.php</filename> file</title>
+			<programlisting>
+				<![CDATA[
+<?php
+
+/* configuration */
+Atomik::set(array(
+
+	'key1' => 'value1',
+	
+	'key2' => value2',
+	
+	'key3' => array(
+	
+		'key3.1' => 'value3.1'
+	
+	)
+
+));]]>
+			</programlisting>
+		</example>
+		<para>
+			The name of this file can be changed using the <quote>atomik/files/bootstrap</quote> configuration key.
+		</para>
+	</sect1>
+	<sect1 id="custom-directory-structure">
+		<title>Custom directory structure</title>
+		<para>
+			As said in the installation chapter, the directory structure can be customized.
+			This can be done by modifying entries in the <quote>atomik/dirs</quote> configuration key.
+		</para>
+		<figure>
+			<title>The default configuration for directories</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata format="PNG" fileref="images/config_dirs.png" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<para>
+			Each keys in the dirs array represent a type of directory. Their value can be a string for
+			a single path or an array for mutliple paths.
+		</para>
+	</sect1>
+	<sect1 id="pre-post-dispatch-file">
+		<title>Pre and post dispatch files</title>
+		<para>
+			Atomik allows you to create to files: <filename>pre_dispatch.php</filename> and 
+			<filename>post_dispatch.php</filename> in the <filename>app</filename> directory. These files
+			will be called respectively before and after the dispatch process.
+		</para>
+		<para>
+			Their filename can be changed using the <quote>atomik/files/pre_dispatch</quote> and
+			<quote>atomik/files/post_dispatch</quote> configuration keys.
+		</para>
+	</sect1>
+	<sect1 id="custom-error-page">
+		<title>Custom error pages</title>
+		<para>
+			Whem an error occures, Atomik will display an error report. You can instead display a custom error page.
+			Create a file named <filename>error.php</filename> in the <filename>app</filename> directory.
+		</para>
+		<para>
+			The content can be anything you want. Beware that the layout won't be applied on this page. You also have
+			access to a variable named <quote>$exception</quote> which contains the thrown exception.
+		</para>
+		<para>
+			It is also possible to customize 404 error pages. Just create a <filename>404.php</filename> file in the
+			<filename>app</filename> directory. Like the error page, the layout won't be applied.
+		</para>
+		<para>
+			The filename of these files can be changed using the <quote>atomik/files/error</quote> and
+			<quote>atomik/files/404</quote> configuration keys.
+		</para>
+	</sect1>
+</chapter>

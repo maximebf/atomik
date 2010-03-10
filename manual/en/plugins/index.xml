@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<title>Atomik Plugins Manual</title>
+	<xi:include href="ajax.xml" />
+	<xi:include href="cache.xml" />
+	<xi:include href="console.xml" />
+	<xi:include href="controller.xml" />
+	<xi:include href="db.xml" />
+	<xi:include href="lang.xml" />
+	<xi:include href="session.xml" />
+</book>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="error-debug" xmlns="http://docbook.org/ns/docbook">
+	<title>Error handling and debugging</title>
+	<sect1 id="handling-errors">
+		<title>Handling errors</title>
+		<para>
+			By default, Atomik won't catch any exceptions or errors, PHP's normal behavior preval. However it is possible
+			to enable error catching so you can display an error page to the user or error reports while developing.
+		</para>
+		<para>
+			The <quote>atomik/catch_errors</quote> configuration key must be set to true for Atomik to catch errors. Errors
+			and exceptions are treated the same way.
+		</para>
+		<para>
+			By default, an error report will be displayed. The report can be hidden for security purpose by setting false to
+			the <quote>atomik/display_errors</quote> configuration key.
+		</para>
+		<para>
+			A custom error page can be used as explain in the configuration chapter.
+		</para>
+		<note>
+			While disabled by default, it is advice to use Atomik's error catching mechanism coupled with a custom error page.
+			This avoid critical information to be displayed to any visitor of your website.
+		</note>
+	</sect1>
+	<sect1 id="debugging">
+		<title>Debugging</title>
+		<para>
+			Atomik's only provides a simple method named <methodname>Atomik::debug()</methodname> which 
+			is an alias for <function>var_dump()</function>. However the method output can be hidden
+			by modifying the <quote>debug</quote> configuration key.
+		</para>
+		<example>
+			<title>Using <methodname>Atomik::debug()</methodname></title>
+			<programlisting>
+				<![CDATA[
+Atomik::debug($myVar);
+Atomik::set('debug', false);
+Atomik::debug($myVar2); // no output
+Atomik::debug($myVar2, true); // use true to force the output even if debug set to false]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>
