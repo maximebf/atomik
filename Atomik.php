@@ -19,6 +19,7 @@
  */
 
 define('ATOMIK_VERSION', '2.3');
+!defined('ATOMIK_APP_ROOT') && define('ATOMIK_APP_ROOT', './app');
 
 /* -------------------------------------------------------------------------------------------
  *  APPLICATION CONFIGURATION
@@ -200,26 +201,26 @@ Atomik::set(array(
     
         /* @var array */
         'dirs' => array(
-            'app'                => './app',
-            'plugins'            => array('./app/modules', './app/plugins/'),
-            'actions'            => './app/actions/',
-            'views'              => './app/views/',
-            'layouts'            => array('./app/layouts', './app/views'),
-            'helpers'            => './app/helpers/',
-            'includes'           => array('./app/includes/', './app/libraries/'),
-            'overrides'          => './app/overrides/'
+            'app'                => ATOMIK_APP_ROOT,
+            'plugins'            => array(ATOMIK_APP_ROOT . '/modules', ATOMIK_APP_ROOT . '/plugins'),
+            'actions'            => ATOMIK_APP_ROOT . '/actions',
+            'views'              => ATOMIK_APP_ROOT . '/views',
+            'layouts'            => array(ATOMIK_APP_ROOT . '/layouts', ATOMIK_APP_ROOT . '/views'),
+            'helpers'            => ATOMIK_APP_ROOT . '/helpers',
+            'includes'           => array(ATOMIK_APP_ROOT . '/includes', ATOMIK_APP_ROOT . '/libraries'),
+            'overrides'          => ATOMIK_APP_ROOT . '/overrides'
         ),
     
         /* @var array */
         'files' => array(
             'index'              => 'index.php',
-            'config'             => './app/config', // without extension
-            'bootstrap'          => './app/bootstrap.php',
-            'pre_dispatch'       => './app/pre_dispatch.php',
-            'post_dispatch'      => './app/post_dispatch.php',
-            '404'                => './app/404.php',
-            'error'              => './app/error.php',
-            'log'                => './app/log.txt'
+            'config'             => ATOMIK_APP_ROOT . '/config', // without extension
+            'bootstrap'          => ATOMIK_APP_ROOT . '/bootstrap.php',
+            'pre_dispatch'       => ATOMIK_APP_ROOT . '/pre_dispatch.php',
+            'post_dispatch'      => ATOMIK_APP_ROOT . '/post_dispatch.php',
+            '404'                => ATOMIK_APP_ROOT . '/404.php',
+            'error'              => ATOMIK_APP_ROOT . '/error.php',
+            'log'                => ATOMIK_APP_ROOT . '/log.txt'
         ),
         
         /* @var bool */

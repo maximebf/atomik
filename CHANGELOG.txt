@@ -26,6 +26,9 @@
    throw exception instead of returning false
  ! Arguments of Atomik::run() have changed
  * Added support for config environment (first arg of Atomik::run())
+ * ATOMIK_ENV constant
+ * Dirs and files (atomik/dirs, atomik/files) are now all prefixed using the
+   constant ATOMIK_APP_ROOT
  
 
 ----------- Atomik 2.2 --------------
