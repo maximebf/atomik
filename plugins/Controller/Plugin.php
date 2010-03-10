@@ -75,7 +75,7 @@ class ControllerPlugin
 	/**
 	 * Changes the action name for atomik to find the file
 	 */
-	public static function onAtomikExecuteStart(&$action, &$context, &$triggerError)
+	public static function onAtomikExecuteStart(&$action, &$context)
 	{
 		if (self::$disable) {
 			return;
@@ -111,7 +111,7 @@ class ControllerPlugin
 	/**
 	 * Dispatch the request to the controller action
 	 */
-	public static function onAtomikExecuteAfter($action, &$context, &$vars, &$triggerError)
+	public static function onAtomikExecuteAfter($action, &$context, &$vars)
 	{
 		if (self::$disable) {
 			return;

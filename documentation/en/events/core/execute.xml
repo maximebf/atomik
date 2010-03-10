@@ -6,7 +6,7 @@
 		</description>
 		<refparam name="$action" type="string">The action name</refparam>
 		<refparam name="$context" type="array">The context associated to the action</refparam>
-		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
+		<refparam name="$vars" type="array">Variables that will be fowarded to the action</refparam>
 	</event>
 	<event name="Atomik::Execute::Before">
 		<description>
@@ -14,9 +14,7 @@
 		</description>
 		<refparam name="$action" type="string">The action name</refparam>
 		<refparam name="$context" type="array">The context associated to the action</refparam>
-		<refparam name="$actionFilename" type="string">The action file's name</refparam>
-		<refparam name="$methodActionFilename" type="string">The method action file's name</refparam>
-		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
+		<refparam name="$vars" type="array">Variables that will be fowarded to the action</refparam>
 	</event>
 	<event name="Atomik::Execute::After">
 		<description>
@@ -25,6 +23,5 @@
 		<param name="$action" type="string">The action name</param>
 		<refparam name="$context" type="array">The context associated to the action</refparam>
 		<refparam name="$vars" type="array">Variables defined in the action file</refparam>
-		<refparam name="$triggerError" type="boolean">Whether to throw an exception when the action and the view files are missing</refparam>
 	</event>
 </group>

@@ -4,7 +4,8 @@
 		<description>
 			Fired at the beginning of a call to the <code>Atomik::executeFile()</code> method.
 		</description>
-		<refparam name="$filename" type="string">The filename that will be included</refparam>
-		<refparam name="$vars" type="array">Variables to extract in the included file scope</refparam>
+		<refparam name="$actionFilename" type="string">The filename of the global action file</refparam>
+		<refparam name="$actionFilename" type="string">The filename of the http-method specific action file</refparam>
+		<refparam name="$context" type="array">The execution context</refparam>
 	</event>
 </group>

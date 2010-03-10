@@ -931,11 +931,11 @@ final class Atomik
         }
         
         // creates the execution context
-        $context = array('action' => &$action, 'view' => &$view, 
+        $context = array('action' => &$action, 'view' => &$view, 'vars' => &$vars,
                             'render' => &$render, 'executor' => &$executor);
         self::$execContexts[] =& $context;
     
-        self::fireEvent('Atomik::Execute::Start', array(&$action, &$context));
+        self::fireEvent('Atomik::Execute::Start', array(&$action, &$context, &$vars));
         if ($action === false) {
             throw new Exception("Action $action not found", 404);
         }
@@ -958,7 +958,7 @@ final class Atomik
             $view = false;
         }
     
-        self::fireEvent('Atomik::Execute::Before', array(&$action, &$context));
+        self::fireEvent('Atomik::Execute::Before', array(&$action, &$context, &$vars));
         
         try {
             $vars = call_user_func($executor, $action, $method, $vars, $context);
@@ -1064,6 +1064,8 @@ final class Atomik
             throw new Atomik_Exception("Action file not found for $action", 404);
         }
         $className = str_replace(' ', '_', ucwords(str_replace('/', ' ', $action))) . 'Action';
+        
+        self::fireEvent('Atomik::Executeclass', array(&$filename, &$className, &$context));
         
         require_once $filename;
         if (!class_exists($className)) {

@@ -68,9 +68,7 @@
 	Atomik::fireEvent('Backend::Ready', array($plugin, &$uri, &$pluggAppConfig));
     
     // dispatches the plugin application
-    if (!Atomik::dispatchPluggableApplication($plugin, $uri, $pluggAppConfig)) {
-    	Atomik::trigger404();
-    }
+    Atomik::dispatchPluggableApplication($plugin, $uri, $pluggAppConfig);
 
     // to avoid dispatching the current application
 	return false;

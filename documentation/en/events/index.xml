@@ -11,6 +11,7 @@
 		<xi:include href="core/route.xml" />
 		<xi:include href="core/execute.xml" />
 		<xi:include href="core/execute-file.xml" />
+		<xi:include href="core/execute-class.xml" />
 		<xi:include href="core/render.xml" />
 		<xi:include href="core/render-file.xml" />
 		<xi:include href="core/render-layout.xml" />
@@ -23,7 +24,6 @@
 		<xi:include href="core/flash.xml" />
 		<xi:include href="core/needed.xml" />
 		<xi:include href="core/redirect.xml" />
-		<xi:include href="core/trigger-404.xml" />
 		<xi:include href="core/log.xml" />
 		<xi:include href="core/debug.xml" />
 	</category>

@@ -39,4 +39,10 @@
 			Fired after the view (and the layout) has been rendered and before the call to <pre>pre_dispatch.php</pre>.
 		</description>
 	</event>
+	<event name="Atomik::404">
+		<description>
+			Fired when an exception of type Atomik_Exception with code 404 is catched.
+		</description>
+		<param name="$e" type="Atomik_Exception">The exception</param>
+	</event>
 </group>

@@ -88,7 +88,7 @@ class AjaxPlugin
 	 *
 	 * @see Atomik::execute()
 	 */
-	public static function onAtomikExecuteAfter($action, &$context, &$vars, &$triggerError)
+	public static function onAtomikExecuteAfter($action, &$context, &$vars)
 	{
         header('Content-type: text/html; charset=utf-8');
         self::addFlashMessagesHeader();

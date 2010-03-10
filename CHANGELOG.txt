@@ -14,6 +14,8 @@
  ! Two execution profiles: file or class
  ! Atomik::executeFile() has completely changed: is now the file executor
  * Added Atomik::executeClass() : class executor
+ ! Events from Atomik::execute() and Atomik::executeFile() have changed
+ * Removed the $triggerError argument in Atomik::execute() and Atomik::render()
  * Added Atomik::instance()
  ! Removed Atomik::_execute()
  ! Removed Atomik::_render()
@@ -21,6 +23,7 @@
  ! removed the key atomik/display_errors
  * Added key atomik/throw_errors
  ! Atomik::trigger404() is deprecated
+ ! Event Atomik::404 has changed
  * Atomik::dispatch() now catch Atomik_Exception and display 404 errors
  ! Change in Atomik::execute*(), Atomik::render*() and Atomik::route() to
    throw exception instead of returning false
