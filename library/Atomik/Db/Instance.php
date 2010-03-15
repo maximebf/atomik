@@ -199,7 +199,7 @@ class Atomik_Db_Instance
 		    $this->pdo = new PDO($info['dsn'], $info['username'], $info['password']);
 		} catch (Exception $e) {
 			require_once 'Atomik/Db/Exception.php';
-			throw new Atomik_Db_Exception('Database connection failed');
+			throw new Atomik_Db_Exception('Database connection failed: ' . $e->getMessage());
 		}
 	}
 	

@@ -32,7 +32,13 @@
  * ATOMIK_ENV constant
  * Dirs and files (atomik/dirs, atomik/files) are now all prefixed using the
    constant ATOMIK_APP_ROOT
+ * Added Atomik::registerModule()
+ * Added Atomik::getRegisteredModules()
+ * Added Atomik::loadConfig()
  
+[Lib:Db]
+
+ * Connection errors are now part of the exception message
 
 ----------- Atomik 2.2 --------------
 

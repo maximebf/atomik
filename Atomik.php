@@ -202,7 +202,8 @@ Atomik::set(array(
         /* @var array */
         'dirs' => array(
             'app'                => ATOMIK_APP_ROOT,
-            'plugins'            => array(ATOMIK_APP_ROOT . '/modules', ATOMIK_APP_ROOT . '/plugins'),
+            'modules'            => ATOMIK_APP_ROOT . '/modules',
+            'plugins'            => ATOMIK_APP_ROOT . '/plugins',
             'actions'            => ATOMIK_APP_ROOT . '/actions',
             'views'              => ATOMIK_APP_ROOT . '/views',
             'layouts'            => array(ATOMIK_APP_ROOT . '/layouts', ATOMIK_APP_ROOT . '/views'),
@@ -331,6 +332,13 @@ final class Atomik
     private static $plugins = array();
     
     /**
+     * Registered modules
+     *
+     * @var array
+     */
+    private static $modules = array();
+    
+    /**
      * Registered events
      * 
      * The array keys are event names and their value is an array with 
@@ -406,33 +414,12 @@ final class Atomik
     {
         // wrap the whole app inside a try/catch block to catch all errors
         try {
-            chdir(dirname(A('atomik/scriptname')));
+            chdir(dirname(self::get('atomik/scriptname')));
              
-            // loads the config file
-            if (file_exists($filename = self::get('atomik/files/config') . '.php')) {
-                // PHP
-                if (is_array($config = include($filename))) {
-                    self::set($config);
-                }
-                
-            } else if (file_exists($filename = self::get('atomik/files/config') . '.ini')) {
-                // INI
-                if (($data = parse_ini_file($filename, true)) === false) {
-                    throw new Atomik_Exception('INI configuration malformed');
-                }
-                self::set(self::_dimensionizeArray($data, '.'), null, false);
-                
-            } else if (file_exists($filename = self::get('atomik/files/config') . '.json')) {
-                // JSON
-                if (($config = json_decode(file_get_contents($filename), true)) === null) {
-                    throw new Atomik_Exception('JSON configuration malformed');
-                }
-                self::set($config);
-            }
-            
-            // sets the environment variables
-            if ($env !== null) {
-                self::set(self::get($env, array()));
+            // config & environment
+            self::loadConfig(self::get('atomik/files/config'), false);
+            if ($env !== null && self::has($env)) {
+                self::set(self::get($env));
             }
             
             // adds includes dirs to php include path
@@ -471,6 +458,20 @@ final class Atomik
                     throw new Atomik_Exception('Missing spl_autoload_register function');
                 }
                 spl_autoload_register('Atomik::autoload');
+            }
+            
+            // register modules
+            $moduleDirs = self::path(self::get('atomik/dirs/modules', array()), true);
+            foreach ($moduleDirs as $moduleDir) {
+                if (!file_exists($moduleDir) || !is_dir($moduleDir)) {
+                    continue;
+                }
+                foreach (new DirectoryIterator($moduleDir) as $file) {
+                    if (!$file->isDir() || substr($file->getFilename(), 0, 1) === '.') {
+                        continue;
+                    }
+                    self::registerModule($file->getFilename());
+                }
             }
         
             // cleans the plugins array
@@ -533,6 +534,56 @@ final class Atomik
             
             header('Location: ', false, 500); // set the http response code
             self::end(false);
+        }
+    }
+    
+    /**
+     * Loads a configuration file
+     *
+     * Supported format are php, ini and json
+     * If the file's extension is not specified, the method will
+     * search for a file with one of the supported extensions.
+     *
+     * @param string $filename
+     * @param bool   $triggerError Whether to throw an exception if the file does not exist
+     */
+    public static function loadConfig($filename, $triggerError = true)
+    {
+        // config file format
+        if (!preg_match('/.+\.(php|ini|json)$/', $filename)) {
+            $found = false;
+            foreach (array('php', 'ini', 'json') as $format) {
+                if (file_exists($filename . '.' . $format)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                if ($triggerError) {
+                    throw new Atomik_Exception("Configuration file $filename not found");
+                }
+                return;
+            }
+            $filename .= '.' . $format;
+        } else {
+            $format = substr($filename, strrpos($filename, '.') + 1);
+        }
+        
+        // loads the config file
+        if ($format === 'php') {
+            if (is_array($config = include($filename))) {
+                self::set($config);
+            }
+        } else if ($format === 'ini') {
+            if (($data = parse_ini_file($filename, true)) === false) {
+                throw new Atomik_Exception('INI configuration malformed');
+            }
+            self::set(self::_dimensionizeArray($data, '.'), null, false);
+        } else if ($format === 'json') {
+            if (($config = json_decode(file_get_contents($filename), true)) === null) {
+                throw new Atomik_Exception('JSON configuration malformed');
+            }
+            self::set($config);
         }
     }
     
@@ -1681,8 +1732,60 @@ final class Atomik
     
     
     /* -------------------------------------------------------------------------------------------
+     *  Modules
+     * ------------------------------------------------------------------------------------------ */
+    
+    
+    /**
+     * Registers a module
+     *
+     * @param string $module
+     * @param array  $dirs
+     */
+    public static function registerModule($module, $dirs = null)
+    {
+        if (isset(self::$modules[$module])) {
+            return;
+        }
+        
+        if ($dirs === null) {
+            $dirs = self::get('atomik/dirs/modules', array());
+        }
+        
+        $name = '_' . $module;
+        $route = strtolower($module) . '/*';
+        $pluginDir = self::path($module, $dirs);
+        $config = array(
+            'pluginDir'           => $pluginDir,
+            'resetConfig'         => false, 
+            'overwriteDirs'       => false, 
+            'overwriteFiles'      => false, 
+            'checkPluginIsLoaded' => false,
+            'bootstrapFile'       => 'module.php'
+        );
+        
+        self::fireEvent('Atomik::Registermodule', array($module, &$route, &$config));
+        
+        self::$modules[$module] = $pluginDir;
+        self::loadConfig($pluginDir . '/config', false);
+        self::registerPluggableApplication($name, $route, $config);
+    }
+    
+    /**
+     * Returns registered modules
+     *
+     * @return array
+     */
+    public static function getRegisteredModules($withDirs = false)
+    {
+        return $withDirs ? self::$modules : array_keys(self::$modules);
+    }
+    
+    
+    /* -------------------------------------------------------------------------------------------
      *  Plugins
      * ------------------------------------------------------------------------------------------ */
+    
     
     /**
      * Loads a plugin using the configuration specified under plugins
@@ -1920,7 +2023,9 @@ final class Atomik
             'pluginDir'           => null,
             'resetConfig'         => true, 
             'overwriteDirs'       => true, 
-            'checkPluginIsLoaded' => true
+            'overwriteFiles'      => true, 
+            'checkPluginIsLoaded' => true,
+            'bootstrapFile'       => 'Application.php'
         );
         $config = array_merge($defaultConfig, $config);
         
@@ -1986,10 +2091,12 @@ final class Atomik
         self::set('atomik/dirs', $dirs);
         
         // rewrite files
-        $files = self::get('atomik/files');
-        $files['pre_dispatch'] = $appDir . '/pre_dispatch.php';
-        $files['post_dispatch'] = $appDir . '/post_dispatch.php';
-        self::set('atomik/files', $files);
+        if ($config['overwriteFiles']) {
+            $files = self::get('atomik/files');
+            $files['pre_dispatch'] = $appDir . '/pre_dispatch.php';
+            $files['post_dispatch'] = $appDir . '/post_dispatch.php';
+            self::set('atomik/files', $files);
+        }
         
         $cancel = false;
         self::fireEvent('Atomik::Dispatchpluginapplication::Ready', array($plugin, &$uri, $config, &$cancel));
@@ -1997,13 +2104,13 @@ final class Atomik
             return true;
         }
         
-        // set the uri before including Application.php
+        // set the uri before including the bootstrap file
         self::set('request_uri', $uri);
         
-        // includes the Application.php file, equivalent to bootstrap.php for pluggable applications
-        $applicationFile = $appDir . '/Application.php';
-        if (file_exists($applicationFile)) {
-            $continue = include $applicationFile;
+        // includes the bootstrap file
+        $bootstrapFile = $appDir . '/' . $config['bootstrapFile'];
+        if (file_exists($bootstrapFile)) {
+            $continue = include $bootstrapFile;
             if ($continue === false) {
                 return true;
             }
@@ -2020,6 +2127,12 @@ final class Atomik
         // re-dispatches the application
         return self::dispatch($uri, false);
     }
+    
+    
+    /* -------------------------------------------------------------------------------------------
+     *  Methods
+     * ------------------------------------------------------------------------------------------ */
+    
     
     /**
      * Registers a method that will be available on the Atomik class when using PHP5.3
@@ -2409,6 +2522,14 @@ final class Atomik
     }
     
     /**
+     * Alias for {@see Atomik::pluginUrl()}
+     */
+    public static function moduleUrl($module, $action, $params = array(), $useIndex = true)
+    {
+        return self::pluginUrl($module, $action, $params, $useIndex);
+    }
+    
+    /**
      * Returns the url of an asset file (ie. an url without index.php) relative
      * to the current application scope
      * 
@@ -2419,11 +2540,10 @@ final class Atomik
      */
     public static function asset($filename, $params = array())
     {
-        if (self::has('app/running_plugin')) {
-            if (($plugin = self::get('app/running_plugin')) === null) {
-                throw new Atomik_Exception('Invalid running plugin name');
+        if ($plugin = self::get('app/running_plugin')) {
+            if ($plugin{0} !== '_') {
+                return self::pluginAsset($plugin, $filename, $params);
             }
-            return self::pluginAsset($plugin, $filename, $params);
         }
         return self::appAsset($filename, $params);
     }
@@ -2897,8 +3017,8 @@ final class Atomik
         $attributes = self::get('atomik/error_report_attrs');
     
         $html = '<div ' . $attributes['atomik-error'] . '>'
-           . '<span ' . $attributes['atomik-error-title'] . '>'
-           . 'An error has occured!</span>'
+           . '<span ' . $attributes['atomik-error-title'] . '>' 
+           . $exception->getMessage() . '</span>'
            . '<br />An error of type <strong>' . get_class($exception) . '</strong> '
            . 'was caught at <strong>line ' . $exception->getLine() . '</strong><br />'
            . 'in file <strong>' . $exception->getFile() . '</strong>'
