@@ -91,12 +91,6 @@ class DbPlugin
 				array_unshift($includes, $dir);
 			}
 		}
-		// add module's models folder to php's include path 
-		foreach (Atomik::getRegisteredModules(true) as $module => $dir) {
-			if (!in_array($dir . '/models', $includes)) {
-				array_unshift($includes, $dir . '/models');
-			}
-		}
 		set_include_path(implode(PATH_SEPARATOR, $includes));
 		
 		// registers the db selector namespace
@@ -133,13 +127,6 @@ class DbPlugin
 		
 		// add plugin's models folder to php's include path 
 		foreach (Atomik::getLoadedPlugins(true) as $plugin => $dir) {
-			if (!in_array($dir . '/models', $includes)) {
-				array_unshift($includes, $dir . '/models');
-			}
-		}
-		
-		// add module's models folder to php's include path 
-		foreach (Atomik::getRegisteredModules(true) as $module => $dir) {
 			if (!in_array($dir . '/models', $includes)) {
 				array_unshift($includes, $dir . '/models');
 			}
@@ -210,18 +197,6 @@ class DbPlugin
 		// plugins
         foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
             if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
-	            if (@is_dir($path . '/models')) {
-	                $script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
-	            }
-	            if (@is_dir($path . '/sql')) {
-	                $script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
-	            }
-            }
-        }
-		
-		// modules
-        foreach (Atomik::getRegisteredModules(true) as $module => $path) {
-            if ((count($filter) && in_array('_' . $module, $filter)) || !count($filter)) {
 	            if (@is_dir($path . '/models')) {
 	                $script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
 	            }

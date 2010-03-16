@@ -40,55 +40,43 @@ class Atomik_Controller
 	protected $_data;
 	
 	/**
+	 * @var Atomik
+	 */
+	protected $_helpers;
+	
+	public function __construct()
+	{
+	    $this->_helpers = Atomik::instance();
+	    $this->init();
+	}
+	
+	public function init()
+	{
+	
+	}
+	
+	/**
 	 * Dispatches a request to a controller action
 	 *
 	 * @param array $request
 	 */
-	public function _dispatch($request)
+	public function _dispatch($action, $method, $vars)
 	{
-		$this->_data = $_POST;
+		$this->_data = array_merge($_POST, $vars);
+		$this->_params = Atomik::get('request');
 		$args = array();
 		
 		try {
-			$method = new ReflectionMethod($this, $request['action']);
+		    $methodName = $action . 'Action';
+			$method = new ReflectionMethod($this, $methodName);
 			if (!$method->isPublic()) {
 				Atomik::trigger404();
-			}
-			
-			$docBlock = $method->getDocComment();
-			if (preg_match_all('/@route (.+)$/m', $docBlock, $matches)) {
-				/* default route parameters */
-				$default = array(
-					'controller' => $request['controller'], 
-					'action' => $request['action']
-				);
-				/* fetching optional parameters to the method to add them to
-				 * the default array */
-				foreach ($method->getParameters() as $param) {
-					if ($param->isOptional()) {
-						$default[$param->getName()] = $param->getDefaultValue();
-					}
-				}
-				
-				/* route base */
-				$base = $request['controller'] . '/' . $request['action'] . '/';
-				
-				/* building routes */
-				$routes = array();
-				for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
-					$routes[$base . $matches[1][$i]] = $default;
-				}
-				
-				/* re-routing request */
-				if (($request = Atomik::route(Atomik::get('request_uri'), $_GET, $routes)) === false) {
-					Atomik::trigger404();
-				}
 			}
 		
 			/* building method parameters using request params */
 			foreach ($method->getParameters() as $param) {
-				if (array_key_exists($param->getName(), $request)) {
-					$args[] = $request[$param->getName()];
+				if (array_key_exists($param->getName(), $this->_params)) {
+					$args[] = $this->_params[$param->getName()];
 				} else if (!$param->isOptional()) {
 					throw new Exception('Missing parameter ' . $param->getName());
 				}
@@ -97,15 +85,13 @@ class Atomik_Controller
 		} catch (Exception $e) {
 			/* do not stop if __call() exist, so it allows us to trap method calls */
 			if (!method_exists($this, '__call')) {
-				Atomik::trigger404();
+				throw new Atomik_Exception('Missing action method in ' . get_class($this));
 			}
 		}
 		
-		$this->_params = $request;
-		
-		$this->_before();
-		call_user_func_array(array($this, $request['action']), $args);
-		$this->_after();
+		$this->preDispatch();
+		call_user_func_array(array($this, $methodName), $args);
+		$this->postDispatch();
 		
 		/* gets the instance properties and sets them in the global scope for the view */
 		$vars = array();
@@ -120,7 +106,7 @@ class Atomik_Controller
 	/**
 	 * Called before an action
 	 */
-	protected function _before()
+	public function preDispatch()
 	{
 		
 	}
@@ -128,8 +114,33 @@ class Atomik_Controller
 	/**
 	 * Called after an action
 	 */
-	protected function _after()
+	public function postDispatch()
 	{
 		
+	}
+	
+	protected function _setView($view)
+	{
+	    Atomik::setView($view);
+	}
+	
+	protected function _noRender()
+	{
+	    Atomik::noRender();
+	}
+	
+	protected function _setLayout($layout)
+	{
+	    Atomik::set('app/layout', $layout);
+	}
+	
+	protected function _addLayout($layout)
+	{
+	    Atomik::add('app/layout', $layout);
+	}
+	
+	protected function _redirect($url)
+	{
+	    Atomik::redirect($url);
 	}
 }

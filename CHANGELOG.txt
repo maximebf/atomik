@@ -13,7 +13,6 @@
  ! Change in the execution process: new modular execution process
  ! Two execution profiles: file or class
  ! Atomik::executeFile() has completely changed: is now the file executor
- * Added Atomik::executeClass() : class executor
  ! Events from Atomik::execute() and Atomik::executeFile() have changed
  * Removed the $triggerError argument in Atomik::execute() and Atomik::render()
  * Added Atomik::instance()
@@ -32,9 +31,16 @@
  * ATOMIK_ENV constant
  * Dirs and files (atomik/dirs, atomik/files) are now all prefixed using the
    constant ATOMIK_APP_ROOT
- * Added Atomik::registerModule()
- * Added Atomik::getRegisteredModules()
  * Added Atomik::loadConfig()
+ * Added Atomik::registerHelper()
+ 
+[Plugin:SimpleClassExecutor]
+
+ * New plugin to define actions as classes
+ 
+[Plugin:Controller]
+
+ * The plugin now acts as an executor
  
 [Lib:Db]
 

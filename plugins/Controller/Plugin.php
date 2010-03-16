@@ -34,10 +34,7 @@ class ControllerPlugin
 	 */
     public static $config = array(
     
-    	/* default controller name */
-    	'default_controller' => 'index',
-    
-    	/* default action name */
+    	// default action name
     	'default_action' => 'index',
     
     );
@@ -48,11 +45,6 @@ class ControllerPlugin
     private static $request;
     
     /**
-     * @var bool
-     */
-    public static $disable = false;
-    
-    /**
      * Plugin starts
      *
      * @param array $config
@@ -61,113 +53,44 @@ class ControllerPlugin
     public static function start($config, $doNotRouteIfAlreadyDispatched = false)
     {
         self::$config = array_merge(self::$config, $config);
-        require_once 'Atomik/Controller.php';
+        Atomik::set('app/executor', 'ControllerPlugin::execute');
     }
 	
-    /**
-     * Disable the controller plugin for pluggable applications
-     */
-	public static function onAtomikDispatchpluginapplicationReady()
-	{
-		self::$disable = true;
-	}
-	
 	/**
-	 * Changes the action name for atomik to find the file
+	 * Executor which defines controllers and actions MVC-style
+	 *
+     * @param string $action
+     * @param string $method
+     * @param array  $context
+     * @return array
 	 */
-	public static function onAtomikExecuteStart(&$action, &$context)
-	{
-		if (self::$disable) {
-			return;
-		}
-		
-	    self::$request = Atomik::getRef('request');
+    public static function execute($action, $method, $vars, &$context)
+    {
+	    $controller = trim(dirname($action), './');
+	    $action = basename($action);
 	    
-	    if (!isset(self::$request['controller'])) {
-	    	$segments = explode('/', self::$request['action']);
-	    	
-	    	self::$request['action'] = self::$config['default_action'];
-	    	if (count($segments) > 1) {
-	    		self::$request['action'] = array_pop($segments);
-	    	}
-	    	
-	    	if (count($segments) == 0) {
-	    		self::$request['controller'] = self::$config['default_controller'];
-	    	} else {
-	    		self::$request['controller'] = implode('/', $segments);
-	    	}
-	    	
-	    } else if (!isset(self::$request['action'])) {
-		    self::$request['action'] = self::$config['default_action'];
+	    if (empty($controller)) {
+	        $controller = $action;
+	        $action = self::$config['default_action'];
 	    }
-	    
-	    /* overrides action name */
-		$action = self::$request['controller'];
 		
-		/* overrides template's filename */
-		$context['view'] = self::$request['controller'] . '/' . self::$request['action'];
-	}
-	
-	/**
-	 * Dispatch the request to the controller action
-	 */
-	public static function onAtomikExecuteAfter($action, &$context, &$vars)
-	{
-		if (self::$disable) {
-			return;
-		}
+        if (($filename = Atomik::actionFilename($controller)) === false) {
+            throw new Atomik_Exception("Controller file not found for $controller", 404);
+        }
+        
+        $className = str_replace(' ', '_', ucwords(str_replace('/', ' ', $controller))) . 'Controller';
+        
+        Atomik::fireEvent('Controller::Execute', array(&$filename, &$className, &$context));
+        
+        require_once $filename;
+        if (!class_exists($className)) {
+            throw new Atomik_Exception("Class $className not found in $filename");
+        } else if (!is_subclass_of($className, 'Atomik_Controller')) {
+            throw new Atomik_Exception("Class $className must subclass Atomik_Controller");
+        }
 		
-		$request = self::$request;
-		Atomik::fireEvent('Controller::Dispatch::Before', array(&$context, &$vars));
-		
-		/* controller class name */
-		$classname = str_replace(' ', '_', ucwords(str_replace('/', ' ', $request['controller']))) . 'Controller';
-		
-		/* checks if the controller class exists */
-		if (!class_exists($classname, false)) {
-			throw new Exception('Controller ' . $classname . ' not found');
-		}
-		
-		/* creates the controller instance */
-		$instance = new $classname();
-		
-		Atomik::fireEvent('Controller::Action::Before', array(&$instance));
-		
-		if (!($instance instanceof Atomik_Controller)) {
-			
-			/* call the method named like the action with the request as unique argument */
-			call_user_func(array($instance, $request['action']), $request);
-		
-			/* gets the instance properties and sets them in the global scope for the view */
-			foreach (get_object_vars($instance) as $name => $value) {
-				if (substr($name, 0, 1) != '_') {
-					$vars[$name] = $value;
-				}
-			}
-			
-		} else {
-			/* instance is of type Atomik_Controller */
-			$vars = $instance->_dispatch($request);
-		}
-		
-		Atomik::fireEvent('Controller::Dispatch::After', array($instance, &$context['view'], &$vars));
-	}
-	
-	/**
-	 * Overrides default generator behaviour
-	 */
-	public static function onConsoleGenerate($action)
-	{
-		ConsolePlugin::println('Generating controller structure');
-		
-		/* adds a class definition inside the action file */
-		$filename = Atomik::path($action . '.php', Atomik::get('atomik/dirs/actions'));
-		ConsolePlugin::touch($filename, "<?php\n\nclass " . ucfirst($action) . "Controller extends Atomik_Controller\n{\n}\n", 1);
-		
-		/* removes the presentation file and replaces it with a directory */
-		$templatePath = Atomik::path(Atomik::get('atomik/dirs/views'));
-		@unlink($templatePath . $action . '.php');
-		ConsolePlugin::mkdir($templatePath . $action, 1);
-	}
+		$instance = new $className();
+		return $instance->_dispatch($action, $method, $vars);
+    }
 }
 
