@@ -5,18 +5,18 @@ if (!Atomik::has('request/name')) {
 }
 
 $modelName = Atomik::get('request/name');
-$builder = Atomik_Backend_Models::getModelBuilder($modelName);
+$descriptor = Atomik_Backend_Models::getModelDescriptor($modelName);
 
 $models = new Atomik_Model_Query();
-$models->from($builder)->filter(Atomik::get('request/filters', array()));
+$models->from($descriptor)->filter(Atomik::get('request/filters', array()));
 
 if (isset($_POST['search'])) {
 	$models->where($_POST['searchBy'] . ' LIKE ?', '%' . $_POST['search'] . '%');
 }
 
 $columns = array();
-foreach ($builder->getFields() as $field) {
-	if (($builder->isFieldThePrimaryKey($field) || $builder->isFieldPartOfReference($field) ||
+foreach ($descriptor->getFields() as $field) {
+	if (($descriptor->isFieldThePrimaryKey($field) || $descriptor->isFieldPartOfReference($field) ||
 		$field->hasOption('admin-hide-in-list')) && !$field->hasOption('admin-show-in-list')) {
 			continue;
 	}

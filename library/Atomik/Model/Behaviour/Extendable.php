@@ -30,10 +30,10 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 {
 	public $keyword = 'extfields';
 	
-	public function beforeExport(Atomik_Model_Builder $builder, Atomik_Db_Definition $definition)
+	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Definition $definition)
 	{
-		$tableName = $builder->tableName;
-		$foreignFieldName = $tableName . '_' . $builder->getPrimaryKeyField()->name;
+		$tableName = $descriptor->tableName;
+		$foreignFieldName = $tableName . '_' . $descriptor->getPrimaryKeyField()->name;
 		
 		$definition->table($this->_suffix($tableName))
 			->column($this->_prefix('id'), 'int')
@@ -44,10 +44,10 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 			->index($foreignFieldName);
 	}
 	
-	public function beforeQuery(Atomik_Model_Builder $builder, Atomik_Db_Query $query)
+	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
 	{
-		$tableName = $builder->tableName;
-		$primaryKeyName = $builder->getPrimaryKeyField()->name;
+		$tableName = $descriptor->tableName;
+		$primaryKeyName = $descriptor->getPrimaryKeyField()->name;
 		$foreignFieldName = $this->_prefix($tableName . '_' . $primaryKeyName);
 		$on = sprintf('%s.%s = %s.%s', $this->_suffix($tableName), $foreignFieldName, $tableName, $primaryKeyName);
 		
@@ -55,9 +55,9 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 		$query->join($this->_suffix($tableName), $on, null, 'LEFT');
 	}
 	
-	public function afterQuery(Atomik_Model_Builder $builder, Atomik_Model_Modelset $modelSet)
+	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Modelset $modelSet)
 	{
-		$primaryKeyName = $builder->getPrimaryKeyField()->name;
+		$primaryKeyName = $descriptor->getPrimaryKeyField()->name;
 		$rows = array();
 		
 		// parses the results to rebuild the row with the dynamic fields
@@ -77,18 +77,18 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 		$modelSet->setData(array_values($rows));
 	}
 	
-	public function afterSave(Atomik_Model_Builder $builder, Atomik_Model $model)
+	public function afterSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$db = $builder->getManager()->getDbInstance();
-		$fullDynamic = $builder->getOption('dynamic', false);
+		$db = $descriptor->getManager()->getDbInstance();
+		$fullDynamic = $descriptor->getOption('dynamic', false);
 		
-		$tableName = $builder->tableName;
-		$foreignFieldName = $this->_prefix($tableName) . '_' . $builder->getPrimaryKeyField()->name;
+		$tableName = $descriptor->tableName;
+		$foreignFieldName = $this->_prefix($tableName) . '_' . $descriptor->getPrimaryKeyField()->name;
 		$primaryKey = $model->getPrimaryKey();
 		$tableName = $this->_suffix($tableName);
 		
 		foreach (get_object_vars($model) as $name => $value) {
-			if (!$fullDynamic && ($builder->hasField($name) || $builder->hasReference($name))) {
+			if (!$fullDynamic && ($descriptor->hasField($name) || $descriptor->hasReference($name))) {
 				continue;
 			}
 			
@@ -102,13 +102,13 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
 		}
 	}
 	
-	public function afterDelete(Atomik_Model_Builder $builder, Atomik_Model $model)
+	public function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
 		$primaryKey = $model->getPrimaryKey();
 		
-		$db = $builder->getManager()->getDbInstance();
-		$tableName = $builder->tableName;
-		$foreignFieldName = $this->_prefix($tableName) . '_' . $builder->getPrimaryKeyField()->name;
+		$db = $descriptor->getManager()->getDbInstance();
+		$tableName = $descriptor->tableName;
+		$foreignFieldName = $this->_prefix($tableName) . '_' . $descriptor->getPrimaryKeyField()->name;
 		$tableName = $this->_suffix($tableName);
 		
 		$db->delete($tableName, array($foreignFieldName => $primaryKey));

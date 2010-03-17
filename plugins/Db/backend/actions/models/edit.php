@@ -6,7 +6,7 @@ if (!Atomik::has('request/name')) {
 
 $modelName = Atomik::get('request/name');
 $returnUrl = Atomik::get('request/returnUrl', Atomik::url('models/list', array('name' => $modelName)));
-$builder = Atomik_Backend_Models::getModelBuilder($modelName);
+$descriptor = Atomik_Backend_Models::getModelDescriptor($modelName);
 
 $actionString = 'created';
 $title = __('Create a new') . ' %s';
@@ -14,7 +14,7 @@ $message = __('A %s has been created', strtolower($modelName));
 
 $model = $modelName;
 if (Atomik::has('request/id')) {
-	$model = Atomik_Model::find($builder, Atomik::get('request/id'));
+	$model = Atomik_Model::find($descriptor, Atomik::get('request/id'));
 	$actionString = 'modified';
 	$title = __('Edit') . ' %s: ' . $model;
 	$message = __('%s %s has been modified', $modelName, $model);

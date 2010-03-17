@@ -170,7 +170,7 @@ class AuthPlugin
     	if (self::$config['model'] !== null) {
     		if (self::$config['model'] == 'Atomik_Auth_User') {
     			$script->addScript(new Atomik_Db_Script_Model(
-    				Atomik_Model_Builder_Factory::get('Atomik_Auth_User')));
+    				Atomik_Model_Descriptor_Factory::get('Atomik_Auth_User')));
     		}
     	}
     }

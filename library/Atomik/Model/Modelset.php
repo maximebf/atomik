@@ -19,8 +19,8 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
+/** Atomik_Model_Descriptor */
+require_once 'Atomik/Model/Descriptor.php';
 
 /**
  * @package Atomik
@@ -39,9 +39,9 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	protected $_count;
 	
 	/**
-	 * @var Atomik_Model_Builder
+	 * @var Atomik_Model_Descriptor
 	 */
-	protected $_builder;
+	protected $_descriptor;
 	
 	/**
 	 * @var array
@@ -56,13 +56,25 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 	/**
 	 * Constructor
 	 * 
-	 * @param	Atomik_Model_Builder	$builder
+	 * @param	Atomik_Model_Descriptor	$descriptor
 	 * @param	array					$data
 	 */
-	public function __construct(Atomik_Model_Builder $builder, $data)
+	public function __construct(Atomik_Model_Descriptor $descriptor, $data)
 	{
-		$this->_builder = $builder;
+		$this->_descriptor = $descriptor;
 		$this->setData($data);
+	}
+	
+	public function setDescriptor(Atomik_Model_Descriptor $descriptor)
+	{
+	    $this->_descriptor = $descriptor;
+		$this->_pointer = 0;
+		$this->_models = array();
+	}
+	
+	public function getDescriptor()
+	{
+	    return $this->_descriptor;
 	}
 	
 	/**
@@ -101,7 +113,7 @@ class Atomik_Model_Modelset implements Iterator, ArrayAccess, Countable
 		}
 		
 		if (!isset($this->_models[$index])) {
-			$this->_models[$index] = $this->_builder->createInstance(
+			$this->_models[$index] = $this->_descriptor->createInstance(
 				$this->_data[$index],
 				false
 			);

@@ -19,9 +19,8 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Form */
-require_once 'Atomik/Form.php';
-    	
+Atomik::loadPlugin('Helpers');
+
 /**
  * @package Atomik
  * @subpackage Plugins
@@ -33,12 +32,7 @@ class FormPlugin
 	 * 
 	 * @var array 
 	 */
-    public static $config = array (
-    
-    	// directories where forms are stored
-    	'form_dirs' => './app/forms'
-    	
-    );
+    public static $config = array ();
     
     /**
      * Plugin starts
@@ -48,15 +42,7 @@ class FormPlugin
     public static function start($config)
     {
     	self::$config = array_merge(self::$config, $config);
-		
-		// adds models directories to php's include path
-		$includes = explode(PATH_SEPARATOR, get_include_path());
-		foreach (Atomik::path(self::$config['form_dirs'], true) as $dir) {
-			if (!in_array($dir, $includes)) {
-				array_unshift($includes, $dir);
-			}
-		}
-		set_include_path(implode(PATH_SEPARATOR, $includes));
+		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
     }
 }
 

@@ -58,22 +58,22 @@ class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
 		return $this->_memcache;
 	}
 	
-	public function beforeQuery(Atomik_Model_Builder $builder, Atomik_Db_Query $query)
+	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
 	{
 		// only select the primary key
-		$query->clearSelect()->select($builder->tableName . '.' . $builder->getPrimaryKeyField()->name);
+		$query->clearSelect()->select($descriptor->tableName . '.' . $descriptor->getPrimaryKeyField()->name);
 	}
 	
-	public function afterQuery(Atomik_Model_Builder $builder, Atomik_Model_Modelset $modelSet)
+	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Modelset $modelSet)
 	{
-		$modelName = $builder->name;
-		$primaryKeyName = $builder->getPrimaryKeyField()->name;
-		$manager = $builder->getManager();
+		$modelName = $descriptor->name;
+		$primaryKeyName = $descriptor->getPrimaryKeyField()->name;
+		$manager = $descriptor->getManager();
 		$db = $manager->getDbInstance();
 		$rows = array();
 		
 		$dataQuery = $db->q()->select()
-				->from($builder->tableName)
+				->from($descriptor->tableName)
 				->where(array($primaryKeyName => null));
 		
 		foreach ($modelSet as $row) {
@@ -94,9 +94,9 @@ class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
 		$modelSet->setData($rows);
 	}
 	
-	public function afterSave(Atomik_Model_Builder $builder, Atomik_Model $model)
+	public function afterSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$key = $builder->name . ':' . $model->getPrimaryKey();
+		$key = $descriptor->name . ':' . $model->getPrimaryKey();
 		$data = $model->toArray();
 		
 		if ($this->_memcache->replace($key, $data) === false) {
@@ -104,9 +104,9 @@ class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
 		}
 	}
 	
-	public function afterDelete(Atomik_Model_Builder $builder, Atomik_Model $model)
+	public function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$key = $builder->name . ':' . $model->getPrimaryKey();
+		$key = $descriptor->name . ':' . $model->getPrimaryKey();
 		$this->_memcache->delete($key);
 	}
 }

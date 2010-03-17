@@ -2,31 +2,31 @@
 
 class Atomik_Model_Export
 {
-	public function export(Atomik_Model_Builder $builder)
+	public function export(Atomik_Model_Descriptor $descriptor)
 	{
-		$definition = new Atomik_Db_Definition($builder->getManager()->getDbInstance());
+		$definition = new Atomik_Db_Definition($descriptor->getManager()->getDbInstance());
 		$definition->dropBeforeCreate();
 		
-		$tableName = $builder->tableName;
+		$tableName = $descriptor->tableName;
 		$table = $definition->table($tableName);
 		
-		foreach ($builder->getFields() as $field) {
+		foreach ($descriptor->getFields() as $field) {
 			list($type, $length) = $field->getSqlType();
 			$column = $table->createColumn($field->name, $type, $length, $field->getOptions('sql-'));
 			
-			if ($builder->getPrimaryKeyField() == $field) {
+			if ($descriptor->getPrimaryKeyField() == $field) {
 				$table->primaryKey($field->name);
 				$column->options['auto-increment'] = true;
 			}
 			
-			if ($builder->isFieldPartOfReference($field)) {
+			if ($descriptor->isFieldPartOfReference($field)) {
 				$table->index($field->name, $field->getOption('sql-index', null));
 			}
 		}
 		
-		$builder->getBehaviourBroker()->notifyBeforeExport($builder, $definition);
+		$descriptor->getBehaviourBroker()->notifyBeforeExport($descriptor, $definition);
 		$sql = $definition->toSql();
-		$builder->getBehaviourBroker()->notifyAfterExport($builder, $sql);
+		$descriptor->getBehaviourBroker()->notifyAfterExport($descriptor, $sql);
 		
 		return $sql;
 	}

@@ -21,6 +21,7 @@
 define('ATOMIK_VERSION', '2.3');
 !defined('ATOMIK_APP_ROOT') && define('ATOMIK_APP_ROOT', './app');
 
+
 /* -------------------------------------------------------------------------------------------
  *  APPLICATION CONFIGURATION
  * ------------------------------------------------------------------------------------------ */
@@ -39,6 +40,10 @@ Atomik::reset(array(
     
         /* @var bool */
         'disable_layout'        => false,
+    
+        /* Whether to propagate view vars to the layout
+         * @var bool */
+        'vars_to_layout'        => true,
         
         /* An array where keys are route names and their value is an associative
          * array of default values
@@ -138,6 +143,7 @@ Atomik::reset(array(
         
      )       
 ));
+
 
 /* -------------------------------------------------------------------------------------------
  *  CORE CONFIGURATION
@@ -248,6 +254,7 @@ Atomik::set(array(
     /* @var int */
     'start_time' => time() + microtime()
 ));
+
 
 /* -------------------------------------------------------------------------------------------
  *  CORE
@@ -691,21 +698,26 @@ final class Atomik
             }
             
             self::log('Dispatching action ' . $request['action'], LOG_DEBUG);
+            $vars = array();
         
             // pre dispatch action
             if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
-                require($filename);
+                list($content, $vars) = self::instance()->scoped($filename);
             }
         
             // executes the action
             ob_start();
-            $content = self::execute(self::get('request/action'), $viewContext);
+            list($content, $vars) = self::execute(self::get('request/action'), $viewContext, $vars, true);
             $content = ob_get_clean() . $content;
+            
+            // whether to propagate vars to the layout or not
+            if (!self::get('app/vars_to_layout', true)) {
+                $vars = array();
+            }
             
             // renders the layouts if enable
             if (($layouts = self::get('app/layout', false)) !== false) {
                 if (!empty($layouts) && !self::get('app/disable_layout', false)) {
-                    $vars = new ArrayObject();
                     foreach (array_reverse((array) $layouts) as $layout) {
                         $content = self::renderLayout($layout, $content, $vars);
                     }
@@ -982,7 +994,6 @@ final class Atomik
      *  Actions
      * ------------------------------------------------------------------------------------------ */
     
-    
     /**
      * Executes an action using the executor specified in app/executor
      
@@ -994,7 +1005,7 @@ final class Atomik
      * @param bool|string $viewContext  The view context. Set to false to not render the view and return the variables or to true for the request's context
      * @return mixed                    The output of the view or an array of variables or false if an error occured
      */
-    public static function execute($action, $viewContext = true, $vars = array())
+    public static function execute($action, $viewContext = true, $vars = array(), $returnBoth = false)
     {
         $view = $action;
         $render = $viewContext !== false;
@@ -1055,15 +1066,16 @@ final class Atomik
         
         // returns $vars if the view should not be rendered
         if ($render === false) {
-            return $vars;
+            return $returnBoth ? array('', $vars) : $vars;
         }
         // no view
         if ($view === false) {
-            return '';
+            return $returnBoth ? array('', $vars) : '';
         }
         
         // renders the view associated to the action
-        return self::render($view, $vars);
+        $content =  self::render($view, $vars);
+        return $returnBoth ? array($content, $vars) : $content;
     }
     
     /**
@@ -1139,11 +1151,20 @@ final class Atomik
         }
     }
     
+    /**
+     * Disables the layout
+     * 
+     * @param bool $disable Whether to disable the layout
+     */
+    public static function disableLayout($disable = true)
+    {
+        self::set('app/disable_layout', $disable);
+    }
+    
     
     /* -------------------------------------------------------------------------------------------
      *  Views
      * ------------------------------------------------------------------------------------------ */
-    
     
     /**
      * Renders a view
@@ -1225,6 +1246,11 @@ final class Atomik
         
         return self::render($layout, $vars, $dirs);
     }
+    
+    
+    /* -------------------------------------------------------------------------------------------
+     *  Helpers
+     * ------------------------------------------------------------------------------------------ */
     
     /**
      * Loads an helper file
@@ -1311,16 +1337,6 @@ final class Atomik
             return call_user_func_array(self::$methods[$helperName], $args);
         }
         return self::helper($helperName, $args);
-    }
-    
-    /**
-     * Disables the layout
-     * 
-     * @param bool $disable Whether to disable the layout
-     */
-    public static function disableLayout($disable = true)
-    {
-        self::set('app/disable_layout', $disable);
     }
     
     
@@ -1690,7 +1706,6 @@ final class Atomik
      *  Plugins
      * ------------------------------------------------------------------------------------------ */
     
-    
     /**
      * Loads a plugin using the configuration specified under plugins
      * 
@@ -1772,6 +1787,11 @@ final class Atomik
             // adds the libraries folder from the plugin directory to the include path
             if (@is_dir($dirname . '/libraries')) {
                 set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
+            }
+            
+            // adds the includes folder from the plugin directory to the include path
+            if (@is_dir($dirname . '/includes')) {
+                set_include_path($dirname . '/includes'. PATH_SEPARATOR . get_include_path());
             }
             
         } else {
@@ -2036,7 +2056,6 @@ final class Atomik
      *  Methods
      * ------------------------------------------------------------------------------------------ */
     
-    
     /**
      * Registers a method that will be available on the Atomik class when using PHP5.3
      * or through Atomik::call() for previous versions.
@@ -2084,7 +2103,6 @@ final class Atomik
     /* -------------------------------------------------------------------------------------------
      *  Events
      * ------------------------------------------------------------------------------------------ */
-    
     
     /**
      * Registers a callback to an event

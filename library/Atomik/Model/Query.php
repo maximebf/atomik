@@ -28,15 +28,15 @@ require_once 'Atomik/Db/Query.php';
  */
 class Atomik_Model_Query extends Atomik_Db_Query
 {
-	protected $_builder;
+	protected $_descriptor;
 	
-	public static function getAvailableFilters(Atomik_Model_Builder $builder)
+	public static function getAvailableFilters(Atomik_Model_Descriptor $descriptor)
 	{
 		$filters = array();
-		foreach ($builder->getFields() as $field) {
+		foreach ($descriptor->getFields() as $field) {
 			$fieldClass = get_class($field);
 			$fieldType = substr($fieldClass, strrpos($fieldClass, '_') + 1);
-			if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $builder, $field)) {
+			if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $descriptor, $field)) {
 				$filters[$field->name] = $filter;
 			}
 		}
@@ -62,26 +62,26 @@ class Atomik_Model_Query extends Atomik_Db_Query
 	}
 	
 	/**
-	 * Returns the associated builder
+	 * Returns the associated descriptor
 	 * 
-	 * @return Atomik_Model_Builder
+	 * @return Atomik_Model_Descriptor
 	 */
-	public function getBuilder()
+	public function getDescriptor()
 	{
-		return $this->_builder;
+		return $this->_descriptor;
 	}
 	
 	/**
 	 * Sets which model to query 
 	 * 
-	 * @param	string|Atomik_Model_Builder $model
+	 * @param	string|Atomik_Model_Descriptor $model
 	 * @return 	Atomik_Model_Query
 	 */
 	public function from($model)
 	{
-		$this->_builder = Atomik_Model_Builder_Factory::get($model);
-		$this->setInstance($this->_builder->getManager()->getDbInstance());
-		return parent::from($this->_builder->tableName);
+		$this->_descriptor = Atomik_Model_Descriptor_Factory::get($model);
+		$this->setInstance($this->_descriptor->getManager()->getDbInstance());
+		return parent::from($this->_descriptor->tableName);
 	}
 	
 	public function filter($fieldName, $value = null)
@@ -97,10 +97,10 @@ class Atomik_Model_Query extends Atomik_Db_Query
 			return $this;
 		}
 		
-		$field = $this->_builder->getField($fieldName);
+		$field = $this->_descriptor->getField($fieldName);
 		$fieldClass = get_class($field);
 		$fieldType = substr($fieldClass, strrpos($fieldClass, '_') + 1);
-		if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $this->_builder, $field)) {
+		if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $this->_descriptor, $field)) {
 			$filter->setValue($value);
 			$condition = $filter->getQueryCondition();
 			if (!empty($condition)) {

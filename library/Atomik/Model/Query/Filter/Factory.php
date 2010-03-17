@@ -34,7 +34,7 @@ class Atomik_Model_Query_Filter_Factory
 	 * @param 	string 	$name		The last part of the filter name if it starts with Atomik_Model_Behaviour_ or a class name
 	 * @return 	Atomik_Model_Query_Filter_Abstract
 	 */
-	public static function factory($name, $builder, $field)
+	public static function factory($name, $descriptor, $field)
 	{
 		$className = 'Atomik_Model_Query_Filter_' . ucfirst($name);
 		if (!class_exists($className)) {
@@ -44,6 +44,6 @@ class Atomik_Model_Query_Filter_Factory
 			}
 		}
 		
-		return new $className($builder, $field);
+		return new $className($descriptor, $field);
 	}
 }

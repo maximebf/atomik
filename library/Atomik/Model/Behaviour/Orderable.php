@@ -31,8 +31,8 @@ require_once 'Atomik/Model/Field.php';
  */
 class Atomik_Model_Behaviour_Orderable extends  Atomik_Model_Behaviour_Abstract
 {
-	public function init(Atomik_Model_Builder $builder)
+	public function init(Atomik_Model_Descriptor $descriptor)
 	{
-		$builder->addField(new Atomik_Model_Field('position', 'int'));
+		$descriptor->addField(new Atomik_Model_Field('position', 'int'));
 	}
 }

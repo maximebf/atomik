@@ -32,9 +32,9 @@ require_once 'Atomik/Model/Behaviour/Factory.php';
 class Atomik_Model_Behaviour_Broker
 {
 	/**
-	 * @var Atomik_Model_Builder
+	 * @var Atomik_Model_Descriptor
 	 */
-	protected $_builder;
+	protected $_descriptor;
 	
 	/**
 	 * @var array
@@ -44,11 +44,11 @@ class Atomik_Model_Behaviour_Broker
 	/**
 	 * Constructor
 	 * 
-	 * @param Atomik_Model_Builder $builder
+	 * @param Atomik_Model_Descriptor $descriptor
 	 */
-	public function __construct(Atomik_Model_Builder $builder = null)
+	public function __construct(Atomik_Model_Descriptor $descriptor = null)
 	{
-		$this->_builder = $builder;
+		$this->_descriptor = $descriptor;
 	}
 	
 	/**
@@ -72,8 +72,8 @@ class Atomik_Model_Behaviour_Broker
 	public function addBehaviour(Atomik_Model_Behaviour_Interface $behaviour)
 	{
 		$this->_behaviours[get_class($behaviour)] = $behaviour;
-		if ($this->_builder !== null) {
-			$behaviour->init($this->_builder);
+		if ($this->_descriptor !== null) {
+			$behaviour->init($this->_descriptor);
 		}
 	}
 	

@@ -22,11 +22,11 @@
 /** Atomik_Model_Locator */
 require_once 'Atomik/Model/Locator.php';
 
-/** Atomik_Model_Builder */
-require_once 'Atomik/Model/Builder.php';
+/** Atomik_Model_Descriptor */
+require_once 'Atomik/Model/Descriptor.php';
 
-/** Atomik_Model_Builder_Factory */
-require_once 'Atomik/Model/Builder/Factory.php';
+/** Atomik_Model_Descriptor_Factory */
+require_once 'Atomik/Model/Descriptor/Factory.php';
 
 /**
  * @package Atomik
@@ -35,9 +35,9 @@ require_once 'Atomik/Model/Builder/Factory.php';
 class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 {
 	/**
-	 * @var Atomik_Model_Builder
+	 * @var Atomik_Model_Descriptor
 	 */
-	protected $_builder;
+	protected $_descriptor;
 	
 	/**
 	 * @var bool
@@ -54,48 +54,48 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 *
 	 * @param 	array 					$data
 	 * @param 	bool 					$new	Whether the model is already saved or not
-	 * @param	Atomik_Model_Builder	$builder
+	 * @param	Atomik_Model_Descriptor	$descriptor
 	 */
-	public function __construct($data = array(), $new = true, Atomik_Model_Builder $builder = null)
+	public function __construct($data = array(), $new = true, Atomik_Model_Descriptor $descriptor = null)
 	{
-		$this->_builder = $builder;
+		$this->_descriptor = $descriptor;
 		$this->_new = $new;
 		$this->populate($data);
 		
-		if ($this->getBuilder()->getOption('no-lazy-loading', false)) {
+		if ($this->getDescriptor()->getOption('no-lazy-loading', false)) {
 			$this->initReferences();
 		}
 	}
 	
 	/**
-	 * Returns the builder associated to this model
+	 * Returns the descriptor associated to this model
 	 * 
-	 * @return Atomik_Model_Builder
+	 * @return Atomik_Model_Descriptor
 	 */
-	public function getBuilder()
+	public function getDescriptor()
 	{
-		if ($this->_builder === null) {
-			$this->_initBuilder();
+		if ($this->_descriptor === null) {
+			$this->_initDescriptor();
 		}
-		return $this->_builder;
+		return $this->_descriptor;
 	}
 	
 	/**
-	 * Returns the associated manager through the builder
+	 * Returns the associated manager through the descriptor
 	 * 
 	 * @return Atomik_Model_Manager
 	 */
 	public function getManager()
 	{
-		return $this->getBuilder()->getManager();
+		return $this->getDescriptor()->getManager();
 	}
 	
 	/**
-	 * Inits the builder
+	 * Inits the descriptor
 	 */
-	protected function _initBuilder()
+	protected function _initDescriptor()
 	{
-		$this->_builder = Atomik_Model_Builder_Factory::get($this);
+		$this->_descriptor = Atomik_Model_Descriptor_Factory::get($this);
 	}
 	
 	/**
@@ -115,7 +115,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function setPrimaryKey($value)
 	{
-		$this->{$this->getBuilder()->getPrimaryKeyField()->name} = $value;
+		$this->{$this->getDescriptor()->getPrimaryKeyField()->name} = $value;
 	}
 	
 	/**
@@ -125,7 +125,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function getPrimaryKey()
 	{
-		return $this->{$this->getBuilder()->getPrimaryKeyField()->name};
+		return $this->{$this->getDescriptor()->getPrimaryKeyField()->name};
 	}
 	
 	/**
@@ -145,7 +145,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function initReferences()
 	{
-		foreach ($this->getBuilder()->getReferences() as $ref) {
+		foreach ($this->getDescriptor()->getReferences() as $ref) {
 			$this->initReference($ref->name);
 		}
 	}
@@ -154,11 +154,11 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 * Initializes the specified reference
 	 * 
 	 * @param	string	$name
-	 * @return 	Atomik_Model_Builder_Reference
+	 * @return 	Atomik_Model_Descriptor_Reference
 	 */
 	public function initReference($name)
 	{
-		if (($reference = $this->getBuilder()->getReference($name)) === false) {
+		if (($reference = $this->getDescriptor()->getReference($name)) === false) {
 			throw new Atomik_Model_Exception('Reference ' . $name . ' does not exist');
 		}
 		
@@ -225,30 +225,6 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	}
 	
 	/**
-	 * Returns a linked object
-	 * 
-	 * @param	string	$name
-	 * @return	mixed
-	 */
-	public function getLink($name)
-	{
-		$link = $this->getBuilder()->getLink($name);
-		$className = $link->target;
-		$object = new $className();
-		$object->setBuilder($this->getBuilder());
-		
-		$values = array();
-		foreach ($link->fields as $alias => $field) {
-			$values[$alias] = $this->{$field};
-		}
-		
-		if ($link->type == Atomik_Model_Builder_Link::ONE) {
-			return $object->findOne($values);
-		}
-		return $object->findMany($values);
-	}
-	
-	/**
 	 * Sets a field or a reference
 	 * 
 	 * @param 	string	$name
@@ -256,7 +232,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function __set($name, $value)
 	{
-		if ($this->getBuilder()->hasReference($name)) {
+		if ($this->getDescriptor()->hasReference($name)) {
 			return $this->setReference($name, $value);
 		}
 		
@@ -271,12 +247,8 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function __get($name)
 	{
-		if ($this->getBuilder()->hasReference($name)) {
+		if ($this->getDescriptor()->hasReference($name)) {
 			return $this->getReference($name);
-		}
-		
-		if ($this->getBuilder()->hasLink($name)) {
-			return $this->getLink($name);
 		}
 	}
 	
@@ -293,8 +265,8 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		$this->_new = false;
 		
 		// checks if cascade is enabled
-		if ($this->getBuilder()->getOption('cascade-save', false)) {
-			foreach ($this->getBuilder()->getReferences() as $reference) {
+		if ($this->getDescriptor()->getOption('cascade-save', false)) {
+			foreach ($this->getDescriptor()->getReferences() as $reference) {
 				$this->initReference($reference->name);
 				if (!empty($this->_references[$reference->name])) {
 					$this->_references[$reference->name]->save();
@@ -317,8 +289,8 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 		}
 		
 		// checks if cascade is enabled
-		if ($this->getBuilder()->getOption('cascade-delete', false)) {
-			foreach ($this->getBuilder()->getReferences() as $reference) {
+		if ($this->getDescriptor()->getOption('cascade-delete', false)) {
+			foreach ($this->getDescriptor()->getReferences() as $reference) {
 				$this->initReference($reference->name);
 				$this->_references[$reference->name]->delete();
 			}
@@ -337,24 +309,13 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	public function toArray()
 	{
 		$data = array();
-		$fields = $this->getBuilder()->getFields();
+		$fields = $this->getDescriptor()->getFields();
 		
 		foreach ($fields as $field) {
 			$data[$field->name] = $this->{$field->name};
 		}
 		
 		return $data;
-	}
-	
-	/**
-	 * Returns a form for this model
-	 *
-	 * @return Atomik_Model_Form
-	 */
-	public function getForm()
-	{
-		require_once 'Atomik/Model/Form.php';
-		return new Atomik_Model_Form($this);
 	}
 	
 	/**
@@ -367,7 +328,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	 */
 	public function __toString()
 	{
-		if (($fieldToDisplay = $this->getBuilder()->getFieldWithOption('title-field')) === null) {
+		if (($fieldToDisplay = $this->getDescriptor()->getFieldWithOption('title-field')) === null) {
 			return '#' . $this->getPrimaryKey();
 		}
 		
@@ -389,9 +350,7 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	
 	public function offsetExists($index)
 	{
-		return $this->_builder->hasField($index) 
-			|| $this->_builder->hasReference($index) 
-			|| $this->_builder->hasLink($index);
+		return $this->_descriptor->hasField($index) || $this->_descriptor->hasReference($index);
 	}
 	
 	public function offsetGet($index)

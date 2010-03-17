@@ -71,6 +71,8 @@ class DbPlugin
     public static function start($config)
     {
     	self::$config = array_merge(self::$config, $config);
+    	
+		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
 
 		// automatic connection
 		if (self::$config['dsn'] !== false) {

@@ -28,29 +28,29 @@ require_once 'Atomik/Model/Behaviour/Interface.php';
  */
 abstract class Atomik_Model_Behaviour_Abstract implements Atomik_Model_Behaviour_Interface
 {
-	public function init(Atomik_Model_Builder $builder) {}
+	public function init(Atomik_Model_Descriptor $descriptor) {}
 	
-	public function beforeQuery(Atomik_Model_Builder $builder, Atomik_Db_Query $query) {}
+	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query) {}
 	
-	public function afterQuery(Atomik_Model_Builder $builder, Atomik_Model_Modelset $modelSet) {}
+	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Modelset $modelSet) {}
 	
-	public function beforeCreateInstance(Atomik_Model_Builder $builder, &$data, $isNew) {}
+	public function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data, $isNew) {}
 	
-	public function afterCreateInstance(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function afterCreateInstance(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function beforeSave(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function failSave(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function failSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function afterSave(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function afterSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function beforeDelete(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function beforeDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function failDelete(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function failDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function afterDelete(Atomik_Model_Builder $builder, Atomik_Model $model) {}
+	public function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function beforeExport(Atomik_Model_Builder $builder, Atomik_Db_Definition $definition) {}
+	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Definition $definition) {}
 	
-	public function afterExport(Atomik_Model_Builder $builder, &$sql) {}
+	public function afterExport(Atomik_Model_Descriptor $descriptor, &$sql) {}
 }

@@ -40,13 +40,21 @@ class Atomik_Controller
 	protected $_data;
 	
 	/**
+	 * @var string
+	 */
+	protected $_httpMethod;
+	
+	/**
 	 * @var Atomik
 	 */
 	protected $_helpers;
 	
+	public $view;
+	
 	public function __construct()
 	{
 	    $this->_helpers = Atomik::instance();
+	    $this->view = new stdClass();
 	    $this->init();
 	}
 	
@@ -60,10 +68,11 @@ class Atomik_Controller
 	 *
 	 * @param array $request
 	 */
-	public function _dispatch($action, $method, $vars)
+	public function dispatch($action, $httpMethod, $vars = array())
 	{
-		$this->_data = array_merge($_POST, $vars);
-		$this->_params = Atomik::get('request');
+		$this->_data = $_POST;
+		$this->_params = array_merge($vars, Atomik::get('request'));
+		$this->_httpMethod = $httpMethod;
 		$args = array();
 		
 		try {
@@ -93,14 +102,7 @@ class Atomik_Controller
 		call_user_func_array(array($this, $methodName), $args);
 		$this->postDispatch();
 		
-		/* gets the instance properties and sets them in the global scope for the view */
-		$vars = array();
-		foreach (get_object_vars($this) as $name => $value) {
-			if (substr($name, 0, 1) != '_') {
-				$vars[$name] = $value;
-			}
-		}
-		return $vars;
+		return get_object_vars($this->view);
 	}
 	
 	/**
@@ -142,5 +144,15 @@ class Atomik_Controller
 	protected function _redirect($url)
 	{
 	    Atomik::redirect($url);
+	}
+	
+	protected function _flash($message, $label = 'default')
+	{
+	    Atomik::flash($message, $label);
+	}
+	
+	protected function _isPost()
+	{
+	    return Atomik::get('app/http_method') == 'POST';
 	}
 }

@@ -2,14 +2,14 @@
 
 class Atomik_Backend_Models
 {
-	public static function getModelBuilder($name)
+	public static function getModelDescriptor($name)
 	{
 		if (!class_exists($name, false)) {
 			$modelFile = Atomik::path($name . '.php', DbPlugin::$config['model_dirs']);
 			include $modelFile;
 		}
 		
-		return Atomik_Model_Builder_Factory::get($name);
+		return Atomik_Model_Descriptor_Factory::get($name);
 	}
 	
 	public static function getModels()
@@ -50,8 +50,8 @@ class Atomik_Backend_Models
 			}
 			
 			$name = $prefix . substr($filename, 0, -strlen($extension) - 1);
-			$builder = self::getModelBuilder($name);
-			if ($builder->getOption('admin-ignore', false)) {
+			$descriptor = self::getModelDescriptor($name);
+			if ($descriptor->getOption('admin-ignore', false)) {
 				continue;
 			}
 			

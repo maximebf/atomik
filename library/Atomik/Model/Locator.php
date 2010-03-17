@@ -26,27 +26,17 @@
 class Atomik_Model_Locator
 {
 	/**
-	 * Returns a new query
-	 * 
-	 * @return Atomik_Model_Query
-	 */
-	public static function createQuery()
-	{
-		return new Atomik_Model_Query();
-	}
-	
-	/**
 	 * Query the adapter
 	 *
-	 * @param 	string|Atomik_Model_Builder $builder
+	 * @param 	string|Atomik_Model_Descriptor $descriptor
 	 * @param 	Atomik_Db_Query				$query
 	 * @return 	Atomik_Model_Modelset
 	 */
-	public static function query(Atomik_Db_Query $query, $builder = null)
+	public static function query(Atomik_Db_Query $query, $descriptor = null)
 	{
-		if ($builder !== null) {
-			$builder = Atomik_Model_Builder_Factory::get($builder);
-			$manager = $builder->getManager();
+		if ($descriptor !== null) {
+			$descriptor = Atomik_Model_Descriptor_Factory::get($descriptor);
+			$manager = $descriptor->getManager();
 		} else {
 			$manager = Atomik_Model_Manager::getDefault();
 		}
@@ -57,32 +47,32 @@ class Atomik_Model_Locator
 	/**
 	 * Finds many models
 	 *
-	 * @param 	string|Atomik_Model_Builder 	$builder
+	 * @param 	string|Atomik_Model_Descriptor 	$descriptor
 	 * @param 	array 							$where
 	 * @param 	string 							$orderBy
 	 * @param 	string|array					$limit
 	 * @return 	Atomik_Model_Modelset
 	 */
-	public static function findAll($builder, $where = null, $orderBy = null, $limit = null)
+	public static function findAll($descriptor, $where = null, $orderBy = null, $limit = null)
 	{
-		return self::query(self::buildQuery($builder, $where, $orderBy, $limit), $builder);
+		return self::query(self::buildQuery($descriptor, $where, $orderBy, $limit), $descriptor);
 	}
 	
 	/**
 	 * Finds one model
 	 *
-	 * @param 	string|Atomik_Model_Builder 	$builder
+	 * @param 	string|Atomik_Model_Descriptor 	$descriptor
 	 * @param 	array 							$where
 	 * @param 	string 							$orderBy
 	 * @param 	string|array					$limit
 	 * @return 	Atomik_Model
 	 */
-	public static function findOne($builder, $where, $orderBy = null, $offset = 0)
+	public static function findOne($descriptor, $where, $orderBy = null, $offset = 0)
 	{
-		$query = self::buildQuery($builder, $where, $orderBy);
+		$query = self::buildQuery($descriptor, $where, $orderBy);
 		$query->limit($offset, 1);
 		
-		$modelSet = self::query($query, $builder);
+		$modelSet = self::query($query, $descriptor);
 		if (count($modelSet) == 0) {
 			return null;
 		}
@@ -92,52 +82,56 @@ class Atomik_Model_Locator
 	/**
 	 * Finds one model
 	 *
-	 * @param 	string|Atomik_Model_Builder 	$builder
-	 * @param 	string 							$primaryKey
+	 * @param 	string|Atomik_Model_Descriptor 	$descriptor
+	 * @param 	string|array					$where
 	 * @return 	Atomik_Model
 	 */
-	public static function find($builder, $primaryKey)
+	public static function find($descriptor, $where)
 	{
-		$builder = Atomik_Model_Builder_Factory::get($builder);
-		$where = array($builder->getPrimaryKeyField()->name => $primaryKey);
-		return self::findOne($builder, $where);
+		$descriptor = Atomik_Model_Descriptor_Factory::get($descriptor);
+		
+		if (!is_array($where)) {
+		    $where = array($descriptor->getPrimaryKeyField()->name => $where);
+		}
+		
+		return self::findOne($descriptor, $where);
 	}
 	
 	/**
 	 * Returns the number of rows the query will return
 	 *
-	 * @param 	string|Atomik_Model_Builder|Atomik_Db_Query 	$builder
+	 * @param 	string|Atomik_Model_Descriptor|Atomik_Db_Query 	$descriptor
 	 * @param 	array 											$where
 	 * @param 	string 											$orderBy
 	 * @param 	string|array									$limit
 	 * @return 	Atomik_Model_Modelset
 	 */
-	public static function count($builder, $where = null, $orderBy = null, $limit = null)
+	public static function count($descriptor, $where = null, $orderBy = null, $limit = null)
 	{
-		if ($builder instanceof Atomik_Db_Query) {
-			$query = clone $builder;
+		if ($descriptor instanceof Atomik_Db_Query) {
+			$query = clone $descriptor;
 			$query->count();
-			$builder = Atomik_Model_Manager::getBuilderFromQuery($query);
-			return $builder->getManager()->getDbInstance()->count($query);
+			$descriptor = Atomik_Model_Manager::getDescriptorFromQuery($query);
+			return $descriptor->getManager()->getDbInstance()->count($query);
 		}
 		
-		$query = self::buildQuery($builder, $where, $orderBy, $limit);
-		return self::query($query->count(), $builder);
+		$query = self::buildQuery($descriptor, $where, $orderBy, $limit);
+		return self::query($query->count(), $descriptor);
 	}
 	
 	/**
 	 * Builds a query object from the parameters
 	 *
-	 * @param 	string|Atomik_Model_Builder $builder
+	 * @param 	string|Atomik_Model_Descriptor $descriptor
 	 * @param 	array 						$where
 	 * @param 	string 						$orderBy
 	 * @param 	string|array				$limit
 	 * @return 	Atomik_Db_Query
 	 */
-	public static function buildQuery($builder, $where = null, $orderBy = null, $limit = null)
+	public static function buildQuery($descriptor, $where = null, $orderBy = null, $limit = null)
 	{
-		$query = Atomik_Model_Query::create($builder);
-		$query->select()->from($builder);
+		$query = Atomik_Model_Query::create($descriptor);
+		$query->select()->from($descriptor);
 		
 		if ($where !== null) {
 			$query->where($where);

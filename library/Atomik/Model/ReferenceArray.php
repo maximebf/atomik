@@ -34,7 +34,7 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	public $parent;
 	
 	/**
-	 * @var Atomik_Model_Builder_Reference
+	 * @var Atomik_Model_Descriptor_Reference
 	 */
 	public $reference;
 	
@@ -50,7 +50,7 @@ class Atomik_Model_ReferenceArray implements Iterator, ArrayAccess, Countable
 	 * @param array $reference
 	 * @param array $models
 	 */
-	public function __construct(Atomik_Model $parent, Atomik_Model_Builder_Reference $reference, $models = array())
+	public function __construct(Atomik_Model $parent, Atomik_Model_Descriptor_Reference $reference, $models = array())
 	{
 		$this->parent = $parent;
 		$this->reference = $reference;

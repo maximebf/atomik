@@ -29,28 +29,113 @@ class Atomik_Assets
 	const JS = 'text/javascript';
 	
 	/**
+	 * @var string
+	 */
+	protected $_baseUrl;
+	
+	/**
 	 * @var callback
 	 */
-	private static $_urlCallback;
+	protected $_urlFormater;
 	
 	/**
 	 * @var array
 	 */
-	private static $_namedAssets = array();
+	protected $_namedAssets = array();
 	
 	/**
 	 * @var array
 	 */
-	private static $_assets = array();
+	protected $_assets = array();
+	
+	/**
+	 * @var Atomik_Assets
+	 */
+	private static $_instance;
+	
+	/**
+	 * @var string
+	 */
+	private static $_defaultBaseUrl = '';
+	
+	/**
+	 * @var callback
+	 */
+	private static $_defaultUrlFormater;
+	
+	/**
+	 * @param string $baseUrl
+	 */
+	public static function setDefaultBaseUrl($baseUrl)
+	{
+	    self::$_defaultBaseUrl = $baseUrl;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public static function getDefaultBaseUrl()
+	{
+	    return self::$_defaultBaseUrl;
+	}
+	
+	/**
+	 * @param callback $callback
+	 */
+	public static function setDefaultUrlFormater($callback)
+	{
+	    self::$_defaultUrlFormater = $callback;
+	}
+	
+	/**
+	 * @return callback
+	 */
+	public static function getDefaultUrlFormater()
+	{
+	    return self::$_defaultUrlFormater;
+	}
+	
+	/**
+	 * @return Atomik_Assets
+	 */
+	public static function getInstance()
+	{
+	    if (self::$_instance === null) {
+	        self::$_instance = new Atomik_Assets();
+	    }
+	    return self::$_instance;
+	}
+	
+	public function __construct()
+	{
+	    $this->_baseUrl = self::$_defaultBaseUrl;
+	    $this->_urlFormater = self::$_defaultUrlFormater;
+	}
+	
+	/**
+	 * @param string $baseUrl
+	 */
+	public function setBaseUrl($baseUrl)
+	{
+		$this->_baseUrl = $baseUrl;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getBaseUrl()
+	{
+		return $this->_baseUrl;
+	}
 	
 	/**
 	 * Sets a callback to use to format the url when rendered
 	 * 
 	 * @param callback $callback
 	 */
-	public static function setUrlFormater($callback)
+	public function setUrlFormater($callback)
 	{
-		self::$_urlCallback = $callback;
+		$this->_urlCallback = $callback;
 	}
 	
 	/**
@@ -58,9 +143,9 @@ class Atomik_Assets
 	 * 
 	 * @return callback
 	 */
-	public static function getUrlFormater()
+	public function getUrlFormater()
 	{
-		return self::$_urlCallback;
+		return $this->_urlCallback;
 	}
 	
 	/**
@@ -68,16 +153,13 @@ class Atomik_Assets
 	 * 
 	 * @param array $assets
 	 */
-	public static function setRegisteredNamedAssets($assets)
+	public function registerNamedAssets($assets)
 	{
-		self::$_namedAssets = array();
 		foreach ($assets as $name => $asset) {
 			if (is_int($name)) {
 				$name = $asset['name'];
-			} else {
-				$asset['name'] = $name;
 			}
-			self::$_namedAssets[$name] = $asset;
+			$this->registerNamedAsset($name, $asset);
 		}
 	}
 	
@@ -89,16 +171,22 @@ class Atomik_Assets
 	 * @param 	string			$type
 	 * @param	array			$dependencies
 	 */
-	public static function registerNamedAsset($name, $url, $type = null, $dependencies = array())
+	public function registerNamedAsset($name, $url, $type = null, $dependencies = array())
 	{
 		if (is_array($url)) {
-			foreach ($url as &$asset) {
-				$asset['name'] = $name;
+		    $assets = array();
+			foreach ($url as $asset) {
+			    if (is_array($asset)) {
+			        $asset['name'] = $name;
+			        $assets[] = $asset;
+			    } else {
+			        $assets[] = $this->createAsset($asset);
+			    }
 			}
-			$url['name'] = $name;
-			self::$_namedAssets[$name] = $url;
+			$assets['name'] = $name;
+			$this->_namedAssets[$name] = $assets;
 		} else {
-			self::$_namedAssets[$name] = self::createAsset($url, $type, $dependencies, $name);
+			$this->_namedAssets[$name] = $this->createAsset($url, $type, $dependencies, $name);
 		}
 	}
 	
@@ -108,9 +196,9 @@ class Atomik_Assets
 	 * @param 	string	$name
 	 * @return 	bool
 	 */
-	public static function isNamedAssetRegistered($name)
+	public function isNamedAssetRegistered($name)
 	{
-		return isset(self::$_namedAssets[$name]);
+		return isset($this->_namedAssets[$name]);
 	}
 	
 	/**
@@ -118,9 +206,9 @@ class Atomik_Assets
 	 * 
 	 * @return array
 	 */
-	public static function getRegisteredNamedAssets()
+	public function getRegisteredNamedAssets()
 	{
-		return self::$_namedAssets;
+		return $this->_namedAssets;
 	}
 	
 	/**
@@ -132,12 +220,12 @@ class Atomik_Assets
 	 * @param 	string	$name
 	 * @return 	array
 	 */
-	public static function createAsset($url, $type = null, $dependencies = array(), $name = null)
+	public function createAsset($url, $type = null, $dependencies = array(), $name = null)
 	{
 		return array(
 			'name'	=> $name,
 			'url'	=> $url,
-			'type'	=> self::_getAssetType($url, $type),
+			'type'	=> $this->_getAssetType($url, $type),
 			'dependencies' => $dependencies
 		);
 	}
@@ -148,28 +236,44 @@ class Atomik_Assets
 	 * @param $name
 	 * @param $allowTwice
 	 */
-	public static function addNamedAsset($name)
+	public function addNamedAsset($name)
 	{
-		if (!self::isNamedAssetRegistered($name)) {
+		if (!$this->isNamedAssetRegistered($name)) {
 			return false;
 		}
 		
-		if (self::hasNamedAsset($name)) {
+		if ($this->hasNamedAsset($name)) {
 			return true;
 		}
 		
-		$asset = self::$_namedAssets[$name];
+		$asset = $this->_namedAssets[$name];
 		if (!isset($asset['url'])) {
 			foreach ($asset as $a) {
 				if (is_array($a)) {
-					self::_addAssetWithDependencies($a, $a['dependencies']);
+					$this->_addAssetWithDependencies($a, $a['dependencies']);
 				}
 			}
 		} else {
-			self::_addAssetWithDependencies($asset, $asset['dependencies']);
+			$this->_addAssetWithDependencies($asset, $asset['dependencies']);
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Adds multiple assets at a time
+	 * 
+	 * @param array $assets
+	 */
+	public function addAssets($assets)
+	{
+	    foreach ($assets as $asset) {
+	        if (is_array($asset)) {
+	            $this->addAsset($asset['url'], $asset['type'], $asset['dependencies']);
+	        } else {
+	            $this->addAsset($asset);
+	        }
+	    }
 	}
 	
 	/**
@@ -180,13 +284,13 @@ class Atomik_Assets
 	 * @param	array	$dependencies
 	 * @param 	bool	$allowTwice		Whether the asset can be added twice
 	 */
-	public static function addAsset($url, $type = null, $dependencies = array(), $allowTwice = false)
+	public function addAsset($url, $type = null, $dependencies = array(), $allowTwice = false)
 	{
-		if (!$allowTwice && self::hasAsset($url, $type)) {
+		if (!$allowTwice && $this->hasAsset($url, $type)) {
 			return false;
 		}
 		
-		self::_addAssetWithDependencies(self::createAsset($url, $type), $dependencies);
+		$this->_addAssetWithDependencies($this->createAsset($url, $type), $dependencies);
 		return true;
 	}
 	
@@ -196,18 +300,18 @@ class Atomik_Assets
 	 * @param	array	$asset
 	 * @param 	array	$dependencies
 	 */
-	private static function _addAssetWithDependencies($asset, $dependencies = array())
+	private function _addAssetWithDependencies($asset, $dependencies = array())
 	{
 		if (!empty($dependencies)) {
 			foreach ($dependencies as $dependency) {
-				if (!self::addNamedAsset($dependency)) {
+				if (!$this->addNamedAsset($dependency)) {
 					require_once 'Atomik/Assets/Exception.php';
 					throw new Atomik_Assets_Exception('Asset dependency not found: ' . $dependency);
 				}
 			}
 		}
 		
-		self::$_assets[] = $asset;
+		$this->_assets[] = $asset;
 	}
 	
 	/**
@@ -217,9 +321,9 @@ class Atomik_Assets
 	 * @param	string	$type
 	 * @return	bool
 	 */
-	public static function hasAsset($url, $type = null)
+	public function hasAsset($url, $type = null)
 	{
-		foreach (self::$_assets as $asset) {
+		foreach ($this->_assets as $asset) {
 			if ($asset['url'] == $url && ($type === null || $asset['type'] == $type)) {
 				return true;
 			}
@@ -233,9 +337,9 @@ class Atomik_Assets
 	 * @param	string	$name
 	 * @return	bool
 	 */
-	public static function hasNamedAsset($name)
+	public function hasNamedAsset($name)
 	{
-		foreach (self::$_assets as $asset) {
+		foreach ($this->_assets as $asset) {
 			if (isset($asset['name']) && $asset['name'] == $name) {
 				return true;
 			}
@@ -249,11 +353,11 @@ class Atomik_Assets
 	 * @param	string	$url
 	 * @param	string	$type
 	 */
-	public static function removeAsset($url, $type = null)
+	public function removeAsset($url, $type = null)
 	{
-		for ($i = 0, $c = count(self::$_assets); $i < $c; $i++) {
-			if (self::$_assets[$i]['url'] == $url && ($type === null || self::$_assets[$i]['type'] == $type)) {
-				unset(self::$_assets[$i]);
+		for ($i = 0, $c = count($this->_assets); $i < $c; $i++) {
+			if ($this->_assets[$i]['url'] == $url && ($type === null || $this->_assets[$i]['type'] == $type)) {
+				unset($this->_assets[$i]);
 				return;
 			}
 		}
@@ -265,11 +369,11 @@ class Atomik_Assets
 	 * @param	string	$url
 	 * @param	string	$type
 	 */
-	public static function removeNamedAsset($name)
+	public function removeNamedAsset($name)
 	{
-		for ($i = 0, $c = count(self::$_assets); $i < $c; $i++) {
-			if (self::$_assets[$i]['name'] == $name) {
-				unset(self::$_assets[$i]);
+		for ($i = 0, $c = count($this->_assets); $i < $c; $i++) {
+			if ($this->_assets[$i]['name'] == $name) {
+				unset($this->_assets[$i]);
 			}
 		}
 	}
@@ -280,10 +384,10 @@ class Atomik_Assets
 	 * @param	string	$type	Null for all
 	 * @return 	array
 	 */
-	public static function getAssets($type = null)
+	public function getAssets($type = null)
 	{
 		$assets = array();
-		foreach (self::$_assets as $asset) {
+		foreach ($this->_assets as $asset) {
 			if ($type === null || $asset['type'] == $type) {
 				$assets[] = $asset['url'];
 			}
@@ -298,9 +402,9 @@ class Atomik_Assets
 	 * @param 	string	$url
 	 * @param 	array	$dependencies
 	 */
-	public static function addStyle($url, $dependencies = array())
+	public function addStyle($url, $dependencies = array())
 	{
-		self::addAsset($url, self::CSS, $dependencies);
+		$this->addAsset($url, self::CSS, $dependencies);
 	}
 	
 	/**
@@ -308,9 +412,9 @@ class Atomik_Assets
 	 * 
 	 * @return 	array
 	 */
-	public static function getStyles()
+	public function getStyles()
 	{
-		return self::getAssets(self::CSS);
+		return $this->getAssets(self::CSS);
 	}
 	
 	/**
@@ -318,11 +422,12 @@ class Atomik_Assets
 	 * 
 	 * @return 	string
 	 */
-	public static function renderStyles()
+	public function renderStyles()
 	{
 		$html = '';
-		foreach (self::getStyles() as $url) {
-			$html .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />' . "\n", self::_formatUrl($url));
+		foreach ($this->getStyles() as $url) {
+			$html .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />' 
+			       . "\n", $this->_formatUrl($url, $this->_baseUrl));
 		}
 		return $html;
 	}
@@ -334,9 +439,9 @@ class Atomik_Assets
 	 * @param 	string	$url
 	 * @param 	array	$dependencies
 	 */
-	public static function addScript($url, $dependencies = array())
+	public function addScript($url, $dependencies = array())
 	{
-		self::addAsset($url, self::JS, $dependencies);
+		$this->addAsset($url, self::JS, $dependencies);
 	}
 	
 	/**
@@ -344,9 +449,9 @@ class Atomik_Assets
 	 * 
 	 * @return 	array
 	 */
-	public static function getScripts()
+	public function getScripts()
 	{
-		return self::getAssets(self::JS);
+		return $this->getAssets(self::JS);
 	}
 	
 	/**
@@ -354,11 +459,12 @@ class Atomik_Assets
 	 * 
 	 * @return 	string
 	 */
-	public static function renderScripts()
+	public function renderScripts()
 	{
 		$html = '';
-		foreach (self::getScripts() as $url) {
-			$html .= sprintf('<script type="text/javascript" src="%s"></script>' . "\n", self::_formatUrl($url));
+		foreach ($this->getScripts() as $url) {
+			$html .= sprintf('<script type="text/javascript" src="%s"></script>' 
+			       . "\n", $this->_formatUrl($url, $this->_baseUrl));
 		}
 		return $html;
 	}
@@ -368,9 +474,9 @@ class Atomik_Assets
 	 * 
 	 * @return string
 	 */
-	public static function render()
+	public function render()
 	{
-		return self::renderStyles() . self::renderScripts();
+		return $this->renderStyles() . $this->renderScripts();
 	}
 	
 	/**
@@ -380,7 +486,7 @@ class Atomik_Assets
 	 * @param	string	$userType
 	 * @return	string
 	 */
-	private static function _getAssetType($url, $userType = null)
+	private function _getAssetType($url, $userType = null)
 	{
 		if ($userType !== null) {
 			return $userType;
@@ -407,11 +513,12 @@ class Atomik_Assets
 	 * @param	string	$url
 	 * @return	string
 	 */
-	private static function _formatUrl($url)
+	private function _formatUrl($url, $baseUrl = '')
 	{
-		if (self::$_urlCallback === null) {
+	    $url = rtrim($baseUrl, '/') . '/' . ltrim($url, '/');
+		if ($this->_urlFormater === null) {
 			return $url;
 		}
-		return call_user_func(self::$_urlCallback, $url);
+		return call_user_func($this->_urlFormater, $url);
 	}
 }

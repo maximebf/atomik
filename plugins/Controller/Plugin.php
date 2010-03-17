@@ -36,6 +36,7 @@ class ControllerPlugin
     
     	// default action name
     	'default_action' => 'index',
+    	'controller_dirs' => './app/controllers'
     
     );
     
@@ -54,6 +55,29 @@ class ControllerPlugin
     {
         self::$config = array_merge(self::$config, $config);
         Atomik::set('app/executor', 'ControllerPlugin::execute');
+		
+		// adds controllers directories to php's include path
+		$includes = explode(PATH_SEPARATOR, get_include_path());
+		foreach (Atomik::path(self::$config['controller_dirs'], true) as $dir) {
+			if (!in_array($dir, $includes)) {
+				array_unshift($includes, $dir);
+			}
+		}
+		set_include_path(implode(PATH_SEPARATOR, $includes));
+    }
+    
+    /**
+     * Returns a controller's filename
+     *
+     * @param string $controller
+     * @return string
+     */
+    public static function controllerFilename($controller)
+    {
+        $filename = str_replace(' ', '/', ucwords(str_replace('/', ' ', $controller)))
+                  . 'Controller.php';
+        
+        return Atomik::path($filename, self::$config['controller_dirs']);
     }
 	
 	/**
@@ -68,16 +92,14 @@ class ControllerPlugin
     {
 	    $controller = trim(dirname($action), './');
 	    $action = basename($action);
-	    
 	    if (empty($controller)) {
 	        $controller = $action;
 	        $action = self::$config['default_action'];
 	    }
-		
-        if (($filename = Atomik::actionFilename($controller)) === false) {
+        
+        if (($filename = self::controllerFilename($controller)) === false) {
             throw new Atomik_Exception("Controller file not found for $controller", 404);
         }
-        
         $className = str_replace(' ', '_', ucwords(str_replace('/', ' ', $controller))) . 'Controller';
         
         Atomik::fireEvent('Controller::Execute', array(&$filename, &$className, &$context));
@@ -90,7 +112,7 @@ class ControllerPlugin
         }
 		
 		$instance = new $className();
-		return $instance->_dispatch($action, $method, $vars);
+		return $instance->dispatch($action, $method, $vars);
     }
 }
 

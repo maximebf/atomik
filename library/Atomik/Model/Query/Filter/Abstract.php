@@ -2,26 +2,26 @@
 
 abstract class Atomik_Model_Query_Filter_Abstract
 {
-	protected $_builder;
+	protected $_descriptor;
 	
 	protected $_field;
 	
 	protected $_value;
 	
-	public function __construct(Atomik_Model_Builder $builder, $field, $value = null)
+	public function __construct(Atomik_Model_Descriptor $descriptor, $field, $value = null)
 	{
 		if (is_string($field)) {
-			$field = $builder->getField($field);
+			$field = $descriptor->getField($field);
 		}
 		
-		$this->_builder = $builder;
+		$this->_descriptor = $descriptor;
 		$this->_field = $field;
 		$this->_value = null;
 	}
 	
-	public function getBuilder()
+	public function getDescriptor()
 	{
-		return $this->_builder;
+		return $this->_descriptor;
 	}
 	
 	public function getField()

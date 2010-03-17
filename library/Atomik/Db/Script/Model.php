@@ -22,8 +22,8 @@
 /** Atomik_Db_Script_Interface */
 require_once 'Atomik/Db/Script/Interface.php';
 
-/** Atomik_Model_Builder_Factory */
-require_once 'Atomik/Model/Builder/Factory.php';
+/** Atomik_Model_Descriptor_Factory */
+require_once 'Atomik/Model/Descriptor/Factory.php';
 
 /** Atomik_Model_Export */
 require_once 'Atomik/Model/Export.php';
@@ -35,9 +35,9 @@ require_once 'Atomik/Model/Export.php';
 class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 {
 	/**
-	 * @var Atomik_Model_Builder
+	 * @var Atomik_Model_Descriptor
 	 */
-	protected $_builder;
+	protected $_descriptor;
 	
 	/**
 	 * Returns an array of script obtained from a directory
@@ -71,8 +71,8 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 				continue;
 			}
 			
-			$builder = Atomik_Model_Builder_Factory::get($className);
-			$scripts[] = new Atomik_Db_Script_Model($builder);
+			$descriptor = Atomik_Model_Descriptor_Factory::get($className);
+			$scripts[] = new Atomik_Db_Script_Model($descriptor);
 		}
 		
 		return $scripts;
@@ -81,31 +81,31 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	/**
 	 * Constructor
 	 * 
-	 * @param	Atomik_Model_Builder	$builder
+	 * @param	Atomik_Model_Descriptor	$descriptor
 	 */
-	public function __construct(Atomik_Model_Builder $builder = null)
+	public function __construct(Atomik_Model_Descriptor $descriptor = null)
 	{
-		$this->setModelBuilder($builder);
+		$this->setModelDescriptor($descriptor);
 	}
 	
 	/**
-	 * Sets the model builder
+	 * Sets the model descriptor
 	 * 
-	 * @param	Atomik_Model_Builder	$builder
+	 * @param	Atomik_Model_Descriptor	$descriptor
 	 */
-	public function setModelBuilder(Atomik_Model_Builder $builder)
+	public function setModelDescriptor(Atomik_Model_Descriptor $descriptor)
 	{
-		$this->_builder = $builder;
+		$this->_descriptor = $descriptor;
 	}
 	
 	/**
-	 * Returns the model builder
+	 * Returns the model descriptor
 	 * 
-	 * @return	Atomik_Model_Builder
+	 * @return	Atomik_Model_Descriptor
 	 */
-	public function getModelBuilder()
+	public function getModelDescriptor()
 	{
-		return $this->_builder;
+		return $this->_descriptor;
 	}
 	
 	/**
@@ -114,7 +114,7 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 	public function getSql()
 	{
 		$exporter = new Atomik_Model_Export();
-		return $exporter->export($this->_builder);
+		return $exporter->export($this->_descriptor);
 	}
 	
 	/**

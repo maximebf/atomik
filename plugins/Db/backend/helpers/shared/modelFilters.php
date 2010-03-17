@@ -2,9 +2,9 @@
 
 class ModelFiltersHelper
 {
-	public function modelFilters(Atomik_Model_Builder $builder)
+	public function modelFilters(Atomik_Model_Descriptor $descriptor)
 	{
-		$filters = Atomik_Model_Query::getAvailableFilters($builder);
+		$filters = Atomik_Model_Query::getAvailableFilters($descriptor);
 		if (!count($filters)) {
 			return '';
 		}
@@ -15,7 +15,7 @@ class ModelFiltersHelper
 		$html = '<div class="sidebar-box model-filters"><div class="sidebar-box-title">Filters</div><ul>';
 		
 		foreach ($filters as $name => $filter) {
-			$html .= sprintf('<li><span class="by">By %s</span>%s</li>', $builder->getField($name)->getLabel(), $this->_getList($name, $filter->getPossibleValues()));
+			$html .= sprintf('<li><span class="by">By %s</span>%s</li>', $descriptor->getField($name)->getLabel(), $this->_getList($name, $filter->getPossibleValues()));
 		}
 		
 		$html .= '</ul></div>';

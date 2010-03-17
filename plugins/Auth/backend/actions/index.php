@@ -5,13 +5,13 @@ if (AuthPlugin::$config['model'] === null) {
 	return;
 }
 
-$builder = Atomik_Model_Builder_Factory::get(AuthPlugin::$config['model']);
+$descriptor = Atomik_Model_Descriptor_Factory::get(AuthPlugin::$config['model']);
 $users = new Atomik_Model_Query();
-$users->from($builder)->filter(Atomik::get('request/filters', array()));
+$users->from($descriptor)->filter(Atomik::get('request/filters', array()));
 
 $columns = array();
-foreach ($builder->getFields() as $field) {
-	if ($field->name == 'password' || (($builder->isFieldThePrimaryKey($field) || $builder->isFieldPartOfReference($field) ||
+foreach ($descriptor->getFields() as $field) {
+	if ($field->name == 'password' || (($descriptor->isFieldThePrimaryKey($field) || $descriptor->isFieldPartOfReference($field) ||
 		$field->hasOption('admin-hide-in-list')) && !$field->hasOption('admin-show-in-list'))) {
 			continue;
 	}

@@ -47,12 +47,12 @@ class Atomik_Model_Manager
 	}
 	
 	/**
-	 * Returns the builder from a db query
+	 * Returns the descriptor from a db query
 	 * 
 	 * @param 	Atomik_Db_Query 	$query
-	 * @return 	Atomik_Model_Builder
+	 * @return 	Atomik_Model_Descriptor
 	 */
-	public static function getBuilderFromQuery(Atomik_Db_Query $query)
+	public static function getDescriptorFromQuery(Atomik_Db_Query $query)
 	{
 		$from = $query->getInfo('from');
 		if (count($from) > 1) {
@@ -61,7 +61,7 @@ class Atomik_Model_Manager
 		}
 		
 		$tableName = substr($from[0]['table'], strlen($query->getInstance()->getTablePrefix())); // remove the table prefix
-		return Atomik_Model_Builder_Factory::getFromTableName($tableName);
+		return Atomik_Model_Descriptor_Factory::getFromTableName($tableName);
 	}
 	
 	/**
@@ -108,15 +108,15 @@ class Atomik_Model_Manager
 	/**
 	 * Notify behaviour brokers
 	 * 
-	 * @param Atomik_Model_Builder $builder
+	 * @param Atomik_Model_Descriptor $descriptor
 	 * @param string $event
 	 * @param array $args
 	 */
-	protected function _notify(Atomik_Model_Builder $builder, $event, $args)
+	protected function _notify(Atomik_Model_Descriptor $descriptor, $event, $args)
 	{
-		array_unshift($args, $builder);
+		array_unshift($args, $descriptor);
 		$this->_globalBehaviourBroker->notify($event, $args);
-		$builder->getBehaviourBroker()->notify($event, $args);
+		$descriptor->getBehaviourBroker()->notify($event, $args);
 	}
 	
 	/**
@@ -131,18 +131,18 @@ class Atomik_Model_Manager
 			require_once 'Atomik/Model/Manager/Exception.php';
 			throw new Atomik_Model_Manager_Exception('Only SELECT queries can be used with Atomik_Model_Manager');
 		}
-		$builder = self::getBuilderFromQuery($query);
+		$descriptor = self::getDescriptorFromQuery($query);
 		
-		$this->_notify($builder, 'BeforeQuery', array($query));
+		$this->_notify($descriptor, 'BeforeQuery', array($query));
 		
 		if (($result = $this->_dbInstance->query($query)) === false) {
-			return new Atomik_Model_Modelset($builder, array());
+			return new Atomik_Model_Modelset($descriptor, array());
 		}
 		
 		$result->setFetchMode(PDO::FETCH_ASSOC);
-		$modelSet = new Atomik_Model_Modelset($builder, $result);
+		$modelSet = new Atomik_Model_Modelset($descriptor, $result);
 		
-		$this->_notify($builder, 'AfterQuery', array($modelSet));
+		$this->_notify($descriptor, 'AfterQuery', array($modelSet));
 		
 		return $modelSet;
 	}
@@ -156,8 +156,8 @@ class Atomik_Model_Manager
 	public function wrapResult(Atomik_Db_Query_Result $result)
 	{
 		$query = $result->getQuery();
-		$builder = self::getBuilderFromQuery($query);
-		return new Atomik_Model_Modelset($builder, $result);
+		$descriptor = self::getDescriptorFromQuery($query);
+		return new Atomik_Model_Modelset($descriptor, $result);
 	}
 	
 	/**
@@ -168,34 +168,34 @@ class Atomik_Model_Manager
 	 */
 	public function save(Atomik_Model $model)
 	{
-		$builder = $model->getBuilder();
+		$descriptor = $model->getDescriptor();
 		$success = true;
 		
-		$this->_notify($builder, 'BeforeSave', array($model));
+		$this->_notify($descriptor, 'BeforeSave', array($model));
 		
 		$data = array();
-		foreach ($builder->getFields() as $field) {
+		foreach ($descriptor->getFields() as $field) {
 			$data[$field->name] = $field->filterOutput($model->{$field->name});
 		}
 		
 		if ($model->isNew()) {
 			// insert
-			if (($id = $this->_dbInstance->insert($builder->tableName, $data)) === false) {
+			if (($id = $this->_dbInstance->insert($descriptor->tableName, $data)) === false) {
 				$success = false;
 			} else {
 				$model->setPrimaryKey($id);
 			}
 		} else {
 			// update
-			$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
-			$success = $this->_dbInstance->update($builder->tableName, $data, $where);
+			$where = array($descriptor->getPrimaryKeyField()->name => $model->getPrimaryKey());
+			$success = $this->_dbInstance->update($descriptor->tableName, $data, $where);
 		}
 		
 		if (!$success) {
-			$this->_notify($builder, 'FailSave', array($model));
+			$this->_notify($descriptor, 'FailSave', array($model));
 			return false;
 		}
-		$this->_notify($builder, 'AfterSave', array($model));
+		$this->_notify($descriptor, 'AfterSave', array($model));
 		return true;
 	}
 	
@@ -211,15 +211,15 @@ class Atomik_Model_Manager
 			return false;
 		}
 		
-		$builder = $model->getBuilder();
-		$this->_notify($builder, 'BeforeDelete', array($model));
+		$descriptor = $model->getDescriptor();
+		$this->_notify($descriptor, 'BeforeDelete', array($model));
 		
-		$where = array($builder->getPrimaryKeyField()->name => $model->getPrimaryKey());
-		if ($this->_dbInstance->delete($builder->tableName, $where) === false) {
-			$this->_notify($builder, 'FailDelete', array($model));
+		$where = array($descriptor->getPrimaryKeyField()->name => $model->getPrimaryKey());
+		if ($this->_dbInstance->delete($descriptor->tableName, $where) === false) {
+			$this->_notify($descriptor, 'FailDelete', array($model));
 			return false;
 		}
-		$this->_notify($builder, 'AfterDelete', array($model));
+		$this->_notify($descriptor, 'AfterDelete', array($model));
 		return true;
 	}
 }
