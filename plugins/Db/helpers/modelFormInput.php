@@ -2,7 +2,7 @@
 
 class ModelFormInputHelper extends Atomik_Helper
 {
-    public function modelFormInput($field, $model)
+    public function modelFormInput(Atomik_Model_Field $field, Atomik_Model $model)
     {
         $name = $field->name;
         $value = $model->{$name};

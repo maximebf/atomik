@@ -19,14 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Abstract */
-require_once 'Atomik/Model/Behaviour/Abstract.php';
+/**Atomik_Model_Behaviour */
+require_once 'Atomik/Model/Behaviour.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
+class Atomik_Model_Behaviour_Cacheable extends Atomik_Model_Behaviour
 {
 	/**
 	 * @var Memcache
@@ -61,24 +61,24 @@ class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
 	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
 	{
 		// only select the primary key
-		$query->clearSelect()->select($descriptor->tableName . '.' . $descriptor->getPrimaryKeyField()->name);
+		$query->clearSelect()->select(
+		    $descriptor->getTableName() . '.' . $descriptor->getPrimaryKeyField()->getName());
 	}
 	
-	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Modelset $modelSet)
+	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Collection $collection)
 	{
-		$modelName = $descriptor->name;
-		$primaryKeyName = $descriptor->getPrimaryKeyField()->name;
-		$manager = $descriptor->getManager();
-		$db = $manager->getDbInstance();
+		$modelName = $descriptor->getName();
+		$primaryKeyName = $descriptor->getPrimaryKeyField()->getName();
+		$session = $descriptor->getSession();
+		$db = $session->getDbInstance();
 		$rows = array();
 		
 		$dataQuery = $db->q()->select()
-				->from($descriptor->tableName)
+				->from($descriptor->getTableName())
 				->where(array($primaryKeyName => null));
 		
-		foreach ($modelSet as $row) {
-			$primaryKey = $row[$primaryKeyName];
-			$key = $modelName . ':' . $primaryKey;
+		foreach ($collection as $row) {
+		    $key = $this->getKey($row);
 			
 			if (($cached = $this->_memcache->get($key)) !== false) {
 				// cache hit
@@ -86,17 +86,17 @@ class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
 				continue;
 			}
 			
-			$data = $dataQuery->setParams(array($primaryKey))->execute()->fetch();
+			$data = $dataQuery->setParams(array($row->getPrimaryKey()))->execute()->fetch();
 			$this->_memcache->set($key, $data);
 			$rows[] = $data;
 		}
 		
-		$modelSet->setData($rows);
+		$collection->setData($rows);
 	}
 	
 	public function afterSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$key = $descriptor->name . ':' . $model->getPrimaryKey();
+		$key = $this->getKey($model);
 		$data = $model->toArray();
 		
 		if ($this->_memcache->replace($key, $data) === false) {
@@ -106,7 +106,12 @@ class Atomik_Model_Behaviour_Cacheable extends  Atomik_Model_Behaviour_Abstract
 	
 	public function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$key = $descriptor->name . ':' . $model->getPrimaryKey();
+		$key = $this->getKey($model);
 		$this->_memcache->delete($key);
+	}
+	
+	public function getKey($model)
+	{
+	    return $model->getDescriptor()->getName() . ':' . $model->getPrimaryKey();
 	}
 }

@@ -19,20 +19,17 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Options */
-require_once 'Atomik/Options.php';
+/** Atomik_Model_Descriptor_Builder */
+require_once 'Atomik/Model/Descriptor/Builder.php';
 
-/** Atomik_Model_Manager */
-require_once 'Atomik/Model/Manager.php';
+/** Atomik_Model_Field */
+require_once 'Atomik/Model/Field.php';
 
-/** Atomik_Model_Field_Abstract */
-require_once 'Atomik/Model/Field/Abstract.php';
+/** Atomik_Model_Association */
+require_once 'Atomik/Model/Association.php';
 
-/** Atomik_Model_Descriptor_Reference */
-require_once 'Atomik/Model/Descriptor/Reference.php';
-
-/** Atomik_Model_Behaviour_Broker */
-require_once 'Atomik/Model/Behaviour/Broker.php';
+/** Atomik_Model_Session */
+require_once 'Atomik/Model/Session.php';
 
 /**
  * A model descriptor can be used to programatically build models
@@ -40,145 +37,199 @@ require_once 'Atomik/Model/Behaviour/Broker.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Descriptor extends Atomik_Options
+class Atomik_Model_Descriptor
 {
-	/**
-	 * @var string
-	 */
-	public $name;
+    const INHERITANCE_ABSTRACT = 'abstract';
+    const INHERITANCE_JOINED = 'joined';
+    
+	/** @var string */
+	protected $_name;
 	
-	/**
-	 * @var string
-	 */
-	public $className;
+	/** @var string */
+	protected $_className;
 	
-	/**
-	 * @var string
-	 */
-	public $tableName;
+	/** @var string */
+	protected $_tableName;
 	
-	/**
-	 * @var Atomik_Model_Manager
-	 */
-	protected $_manager;
+	/** @var string */
+	protected $_inheritanceType = 'abstract';
 	
-	/**
-	 * @var Atomik_Model_Descriptor
-	 */
+	/** @var Atomik_Model_Session */
+	protected $_session;
+	
+	/** @var Atomik_Model_Descriptor */
 	protected $_parentModelDescriptor;
 	
-	/**
-	 * @var string
-	 */
-	protected $_inheritanceType;
-	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	protected $_fields = array();
 	
-	/**
-	 * @var bool
-	 */
-	protected $_autoPrimaryKey = true;
-	
-	/**
-	 * @var Atomik_Model_Field_Abstract
-	 */
+	/** @var Atomik_Model_Field_Abstract */
 	protected $_primaryKeyField;
 	
-	/**
-	 * @var array
-	 */
-	protected $_references = array();
+	/** @var bool */
+	protected $_autoPrimaryKey = true;
+	
+	/** @var array */
+	protected $_associations = array();
+	
+	/** @var array */
+	private static $_descriptors = array();
 	
 	/**
-	 * @var Atomik_Model_Behaviour_Broker
+	 * Returns a descriptor instance for to the model of the specified name
+	 * 
+	 * @param string|objet $name
+	 * @return Atomik_Model_Descriptor
 	 */
-	protected $_behaviourBroker = array();
+	public static function factory($name)
+	{
+		if ($name instanceof Atomik_Model_Descriptor) {
+			$name = $name->getName();
+		}
+		
+		if ($name instanceof Atomik_Model) {
+			$name = get_class($name);
+		}
+		
+		if (isset(self::$_descriptors[$name])) {
+			return self::$_descriptors[$name];
+		}
+		
+		if (class_exists($name)) {
+			$builder = new Atomik_Model_Descriptor_Builder();
+			self::$_descriptors[$name] = $builder->build($name);
+			return self::$_descriptors[$name];
+		}
+		
+		require_once 'Atomik/Model/Descriptor/Exception.php';
+		throw new Atomik_Model_Descriptor_Exception("No model descriptor named '$name' were found");
+	}
 	
 	/**
-	 * Constructor
-	 *
-	 * @param 	string 	$name
-	 * @param 	array 	$metadata
+	 * @param string $name
+	 * @param array $metadata
 	 */
 	public function __construct($name, $className = null, $tableName = null)
 	{
-		$this->name = $name;
-		$this->className = $className;
-		$this->tableName = $tableName === null ? $name : $tableName;
-		$this->_behaviourBroker = new Atomik_Model_Behaviour_Broker($this);
+		$this->_name = $name;
+		$this->_className = $className;
+		$this->_tableName = $tableName === null ? strtolower($name) : $tableName;
 		$this->setPrimaryKeyField();
+		$this->setRepresentationField($this->_primaryKeyField);
 	}
 	
 	/**
-	 * Sets the manager associated to this descriptor
-	 * 
-	 * @param Atomik_Model_Manager $manager
+	 * @param string $name
 	 */
-	public function setManager(Atomik_Model_Manager $manager = null)
+	public function setName($name)
 	{
-		if ($manager === null) {
-			$manager = Atomik_Model_Manager::getDefault();
-		}
-		$this->_manager = $manager;
+	    $this->_name = $name;
 	}
 	
 	/**
-	 * Returns the associated model manager
-	 * 
-	 * @return Atomik_Model_Manager
+	 * @return string
 	 */
-	public function getManager()
+	public function getName()
 	{
-		if ($this->_manager === null) {
-			$this->setManager();
-		}
-		return $this->_manager;
+	    return $this->_name;
 	}
 	
 	/**
-	 * Sets the parent model
-	 * 
-	 * @param	string|Atomik_Model_Descriptor	$parentModel
+	 * @param string $name
+	 */
+	public function setClassName($name)
+	{
+	    $this->_className = $name;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getClassName()
+	{
+	    return $this->_className;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function setTableName($name)
+	{
+	    $this->_tableName = $name;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getTableName()
+	{
+	    return $this->_tableName;
+	}
+	
+	/**
+	 * @param string $type
+	 */
+	public function setInheritanceType($type)
+	{
+	    $this->_inheritanceType = $type;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getInheritanceType()
+	{
+		return $this->_inheritanceType;
+	}
+	
+	/**
+	 * @param Atomik_Model_Session $session
+	 */
+	public function setSession(Atomik_Model_Session $session)
+	{
+	    $this->_session = $session;
+	}
+	
+	/**
+	 * @return Atomik_Model_Session
+	 */
+	public function getSession()
+	{
+	    if ($this->_session === null) {
+	        $this->_session = Atomik_Model_Session::getInstance();
+	    }
+	    return $this->_session;
+	}
+	
+	/**
+	 * @param string|Atomik_Model_Descriptor $parentModel
 	 */
 	public function setParentModel($parentModel)
 	{
-		$parent = Atomik_Model_Descriptor_Factory::get($parentModel);
-		$type = $parent->getOption('inheritance', 'abstract');
+		$parent = Atomik_Model_Descriptor::factory($parentModel);
+		$type = $parent->getInheritanceType();
 		
 		switch($type) {
-			case 'none':
-				return;
-				
-			case 'abstract':
+			case self::INHERITANCE_ABSTRACT:
 				$this->_fields = array_merge($parent->getFields(), $this->_fields);
-				$this->_options = array_merge($parent->getOptions(), $this->_options);
 				foreach ($parent->getBehaviourBroker()->getBehaviours() as $behaviour) {
 					$this->_behaviourBroker->addBehaviour(clone $behaviour);
 				}
-				foreach ($parent->getReferences() as $ref) {
-					$this->addReference(clone $ref);
+				foreach ($parent->getAssociations() as $assoc) {
+					$this->addAssociation(clone $assoc);
 				}
 				break;
 				
-			case 'reference':
-				$ref = new Atomik_Model_Descriptor_Reference('parent', Atomik_Model_Descriptor_Reference::HAS_PARENT);
-				$ref->target = $parent;
-				$ref->targetField = $parent->getPrimaryKeyField()->name;
-				$ref->sourceField = $ref->target . '_' . $ref->targetField;
-				$this->addReference($ref);
+			case self::INHERITANCE_JOINED:
+				$assoc = new Atomik_Model_Association_ManyToOne($this, 'parent', $parent);
+				$this->addAssociation($assoc);
 				break;
 		}
 		
 		$this->_parentModelDescriptor = $parent;
-		$this->_inheritanceType = $type;
 	}
 	
 	/**
-	 * Checks if it as a parent
-	 * 
 	 * @return bool
 	 */
 	public function hasParentModel()
@@ -187,23 +238,11 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	}
 	
 	/**
-	 * Returns the parent model descriptor or null
-	 * 
 	 * @return Atomik_Model_Descriptor
 	 */
 	public function getParentModel()
 	{
 		return $this->_parentModelDescriptor;
-	}
-	
-	/**
-	 * Returns the type of inheritance used
-	 * 
-	 * @return string
-	 */
-	public function getInheritanceType()
-	{
-		return $this->_inheritanceType;
 	}
 	
 	/**
@@ -220,24 +259,16 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	}
 	
 	/**
-	 * Adds a new field
-	 *
-	 * @param Atomik_Model_Field_Abstract $field
+	 * @param Atomik_Model_Field $field
 	 */
-	public function addField(Atomik_Model_Field_Abstract $field)
+	public function addField(Atomik_Model_Field $field)
 	{
-		$this->_fields[$field->name] = $field;
-		
-		if ($field->getOption('primary-key', false)) {
-			$this->setPrimaryKeyField($field);
-		}
+		$this->_fields[$field->getName()] = $field;
 	}
 	
 	/**
-	 * Checks if a field exists
-	 *
-	 * @param 	string $name
-	 * @return 	bool
+	 * @param string $name
+	 * @return bool
 	 */
 	public function hasField($name)
 	{
@@ -245,10 +276,8 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	}
 	
 	/**
-	 * Returns a field object
-	 *
-	 * @param 	string 	$name
-	 * @return 	Atomik_Model_Field_Abstract|bool	False if the field does not exist
+	 * @param string $name
+	 * @return Atomik_Model_Field
 	 */
 	public function getField($name)
 	{
@@ -259,25 +288,7 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	}
 	
 	/**
-	 * Returns the field with the specifiec option
-	 * 
-	 * @param	string	 $option
-	 * @return 	Atomik_Model_Field_Abstract
-	 */
-	public function getFieldWithOption($option)
-	{
-		foreach ($this->_fields as $field) {
-			if ($field->hasOption($option)) {
-				return $field;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns all fields
-	 *
-	 * @return array
+	 * @return array of Atomik_Model_Field
 	 */
 	public function getFields()
 	{
@@ -289,9 +300,9 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	 * 
 	 * If $field is null, will use or create a field named id
 	 * 
-	 * @param Atomik_Model_Field_Abstract $field
+	 * @param Atomik_Model_Field $field
 	 */
-	public function setPrimaryKeyField(Atomik_Model_Field_Abstract $field = null)
+	public function setPrimaryKeyField(Atomik_Model_Field $field = null)
 	{
 		$removeAutoKey = true;
 		
@@ -301,14 +312,10 @@ class Atomik_Model_Descriptor extends Atomik_Options
 				return;
 			}
 			
-			// checks if there is a field named id
-			if (($field = $this->getField('id')) === false) {
-				require_once 'Atomik/Model/Field.php';
-				$field = new Atomik_Model_Field('id', 'int', array('form-ignore' => true));
-				$this->addField($field);
-				$this->_autoPrimaryKey = true;
-				$removeAutoKey = false;
-			}
+			$field = Atomik_Model_Field::factory('id', 'int');
+			$this->addField($field);
+			$this->_autoPrimaryKey = true;
+			$removeAutoKey = false;
 		}
 		
 		if ($removeAutoKey && $this->_autoPrimaryKey) {
@@ -320,189 +327,127 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	}
 	
 	/**
-	 * Returns the field used as the primary key.
-	 *
-	 * @return Atomik_Model_Field_Abstract
+	 * @return Atomik_Model_Field
 	 */
 	public function getPrimaryKeyField()
 	{
-		if ($this->_primaryKeyField === null) {
-			$this->setPrimaryKeyField();
-		}
 		return $this->_primaryKeyField;
 	}
 	
 	/**
-	 * Checks if a field is the primary key
-	 * 
-	 * @param Atomik_Model_Field_Abstract $field
+	 * @param Atomik_Model_Field $field
+	 */
+	public function setRepresentationField($field)
+	{
+	    if (is_string($field)) {
+	        $field = $this->getField($field);
+	    }
+	    $this->_representationField = $field;
+	}
+	
+	/**
+	 * @return Atomik_Model_Field
+	 */
+	public function getRepresentationField()
+	{
+	    return $this->_representationField;
+	}
+	
+	/**
+	 * Resets all the associations
+	 *
+	 * @param array $associations
+	 */
+	public function setAssociations($associations = array())
+	{
+		$this->_associations = array();
+		foreach ($associations as $association) {
+			$this->addAssociation($association);
+		}
+	}
+	
+	/**
+	 * @param Atomik_Model_Association $association
+	 */
+	public function addAssociation(Atomik_Model_Association $assoc)
+	{
+		$this->_associations[$assoc->getName()] = $assoc;
+	}
+	
+	/**
+	 * @param string $name
 	 * @return bool
 	 */
-	public function isFieldThePrimaryKey(Atomik_Model_Field_Abstract $field)
+	public function hasAssociation($name)
 	{
-		return $this->_primaryKeyField == $field;
+		return isset($this->_associations[$name]);
 	}
 	
 	/**
-	 * Resets all the references
-	 *
-	 * @param array $references
+	 * @param string $name 
+	 * @return Atomik_Model_Association
 	 */
-	public function setReferences($references = array())
+	public function getAssociation($name)
 	{
-		$this->_references = array();
-		foreach ($references as $reference) {
-			$this->addReference($reference);
-		}
-	}
-	
-	/**
-	 * Adds a new reference
-	 * 
-	 * @param	Atomik_Model_Descriptor_Reference	$reference
-	 */
-	public function addReference(Atomik_Model_Descriptor_Reference $reference)
-	{
-		if (!$this->hasField($reference->sourceField)) {
-			$this->addField(new Atomik_Model_Field($reference->sourceField, 'int'));
-		}
-		$this->_references[$reference->name] = $reference;
-	}
-	
-	/**
-	 * Checks if a reference exists
-	 * 
-	 * @param	string	$name
-	 * @return 	bool
-	 */
-	public function hasReference($name)
-	{
-		return isset($this->_references[$name]);
-	}
-	
-	/**
-	 * Returns a reference object
-	 *
-	 * @param 	string 		$name 
-	 * @return 	Atomik_Model_Descriptor_Reference|bool 	False if not found
-	 */
-	public function getReference($name)
-	{
-		if (!isset($this->_references[$name])) {
+		if (!isset($this->_associations[$name])) {
 			return false;
 		}
-		return $this->_references[$name];
+		return $this->_associations[$name];
 	}
 	
 	/**
-	 * Returns a reference from the source field
-	 * 
-	 * @param 	Atomik_Model_Field_Abstract 		$field
-	 * @return 	Atomik_Model_Descriptor_Reference
+	 * @param string $fieldName
+	 * @return Atomik_Model_Association
 	 */
-	public function getReferenceFromSourceField(Atomik_Model_Field_Abstract $field)
+	public function getAssociationFromSourceField($fieldName)
 	{
-		foreach ($this->_references as $reference) {
-			if ($reference->sourceField == $field->name) {
-				return $reference;
+		foreach ($this->_associations as $association) {
+			if ($association->getSourceFieldName() == (string) $fieldName) {
+				return $association;
 			}
 		}
 	}
 	
 	/**
-	 * Returns all references or only the one associated to a model
-	 *
-	 * @param 	string 	$modelName
-	 * @param 	string 	$type 		Reference type
-	 * @return 	array
+	 * @param string $modelName
+	 * @return array
 	 */
-	public function getReferences($targetModel = null, $type = null)
+	public function getAssociations($targetModel = null)
 	{
 		if ($targetModel === null) {
-			return $this->_references;
+			return $this->_associations;
 		}
 		
-		$references = array();
-		foreach ($this->_references as $reference) {
-			if ($reference->isTarget($targetModel) && ($type === null || $reference->type == $type)) {
-				$references[] = $reference;
+		$associations = array();
+		foreach ($this->_associations as $association) {
+			if ($association->getTarget() == $targetModel) {
+				    $associations[] = $association;
 			}
 		}
-		return $references;
+		return $associations;
 	}
 	
 	/**
-	 * Checks if a field is part of a reference
-	 * 
-	 * @param Atomik_Model_Field_Abstract $field
+	 * @param string $fieldName
 	 * @return bool
 	 */
-	public function isFieldPartOfReference(Atomik_Model_Field_Abstract $field)
+	public function isFieldPartOfAssociation($fieldName)
 	{
-		foreach ($this->_references as $reference) {
-			if ($reference->sourceField == $field->name) {
-				return true;
-			}
-		}
-		return false;
+		return $this->getAssociationFromSourceField($fieldName) !== null;
 	}
 	
 	/**
-	 * Checks if the specified model is related to this one
-	 * 
 	 * @param Atomik_Model_Descriptor $descriptor
 	 * @return bool
 	 */
-	public function isModelRelated(Atomik_Model_Descriptor $descriptor)
+	public function isModelAssociated(Atomik_Model_Descriptor $descriptor)
 	{
-		foreach ($this->_references as $reference) {
-			if ($reference->isTarget($descriptor)) {
+		foreach ($this->_associations as $association) {
+			if ($association->getTarget() == $descriptor) {
 				return true;
 			}
 		}
 		return false;
-	}
-	
-	/**
-	 * Checks if the specified model is a child of this one
-	 * 
-	 * @param Atomik_Model_Descriptor $descriptor
-	 * @return bool
-	 */
-	public function isChildModel(Atomik_Model_Descriptor $descriptor)
-	{
-		foreach ($this->_references as $reference) {
-			if ($reference->isTarget($descriptor) && $reference->type != Atomik_Model_Descriptor_Reference::HAS_PARENT) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Checks if the specified model is the parent of this one
-	 * 
-	 * @param Atomik_Model_Descriptor $descriptor
-	 * @return bool
-	 */
-	public function isParentModel(Atomik_Model_Descriptor $descriptor)
-	{
-		foreach ($this->_references as $reference) {
-			if ($reference->isTarget($descriptor) && $reference->type == Atomik_Model_Descriptor_Reference::HAS_PARENT) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns the behaviour broker
-	 * 
-	 * @return Atomik_Model_Behaviour_Broker
-	 */
-	public function getBehaviourBroker()
-	{
-		return $this->_behaviourBroker;
 	}
 	
 	/**
@@ -515,22 +460,24 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	 */
 	public function createInstance($values = array(), $new = true)
 	{
-		$className = $this->className;
+		$className = $this->_className;
 		if ($className === null) {
 			/** Atomik_Model */
 			require_once 'Atomik/Model.php';
 			$className = 'Atomik_Model';
 		}
 		
-		$dataToFilter = array_intersect_key($values, $this->_fields);
-		$data = array_diff_key($values, $this->_fields);
-		foreach ($dataToFilter as $key => $value) {
-			$data[$key] = $this->_fields[$key]->filterInput($value);
+		$data = array();
+		foreach ($this->_fields as $field) {
+		    if (isset($values[$field->getColumnName()])) {
+		        $data[$field->getName()] = $field->getType()->filterInput(
+		                                        $values[$field->getColumnName()]);
+		    }
 		}
 		
-		$this->_behaviourBroker->notifyBeforeCreateInstance($this, $data, $new);
+		$this->getSession()->notify('BeforeCreateInstance', $this, $data, $new);
 		$instance = new $className($data, $new, $this);
-		$this->_behaviourBroker->notifyAfterCreateInstance($this, $instance);
+		$this->getSession()->notify('AfterCreateInstance', $this, $instance);
 		
 		return $instance;
 	}
@@ -542,6 +489,6 @@ class Atomik_Model_Descriptor extends Atomik_Options
 	 */
 	public function __toString()
 	{
-		return $this->name;
+		return $this->_name;
 	}
 }

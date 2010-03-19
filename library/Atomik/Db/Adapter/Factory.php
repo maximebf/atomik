@@ -40,6 +40,7 @@ class Atomik_Db_Adapter_Factory
 		if (!class_exists($className)) {
 			$className = $name;
 			if (!class_exists($className)) {
+			    require_once 'Atomik/Db/Adapter.php';
 				$className = 'Atomik_Db_Adapter';
 			}
 		}

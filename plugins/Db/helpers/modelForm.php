@@ -19,8 +19,14 @@ class ModelFormHelper extends Atomik_Helper
     
     public function modelForm($model, $buttonLabel = 'Save')
     {
-        $descriptor = Atomik_Model_Descriptor_Factory::get($model);
-        $fields = $descriptor->getFields();
+        $descriptor = Atomik_Model_Descriptor::factory($model);
+        $fields = array();
+        
+        foreach ($descriptor->getFields() as $field) {
+            if (isset($field->form)) {
+                $fields[] = $field;
+            }
+        }
         
         $vars = array(
             'model' => $model,

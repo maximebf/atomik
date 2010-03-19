@@ -19,94 +19,211 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Db_Instance */
+require_once 'Atomik/Db/Instance.php';
+
 /** Atomik_Db_Query */
 require_once 'Atomik/Db/Query.php';
+
+/** Atomik_Model_Query_Filter */
+require_once 'Atomik/Model/Query/Filter.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Query extends Atomik_Db_Query
+class Atomik_Model_Query
 {
-	protected $_descriptor;
-	
-	public static function getAvailableFilters(Atomik_Model_Descriptor $descriptor)
-	{
-		$filters = array();
-		foreach ($descriptor->getFields() as $field) {
-			$fieldClass = get_class($field);
-			$fieldType = substr($fieldClass, strrpos($fieldClass, '_') + 1);
-			if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $descriptor, $field)) {
-				$filters[$field->name] = $filter;
-			}
-		}
-		return $filters;
-	}
-	
-	/**
-	 * Creates a new query
-	 * 
-	 * @return Atomik_Model_Query
-	 */
-	public static function create()
-	{
-		return new self();
-	}
-	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->reset();
-	}
-	
-	/**
-	 * Returns the associated descriptor
-	 * 
-	 * @return Atomik_Model_Descriptor
-	 */
-	public function getDescriptor()
-	{
-		return $this->_descriptor;
-	}
-	
-	/**
-	 * Sets which model to query 
-	 * 
-	 * @param	string|Atomik_Model_Descriptor $model
-	 * @return 	Atomik_Model_Query
-	 */
-	public function from($model)
-	{
-		$this->_descriptor = Atomik_Model_Descriptor_Factory::get($model);
-		$this->setInstance($this->_descriptor->getManager()->getDbInstance());
-		return parent::from($this->_descriptor->tableName);
-	}
-	
-	public function filter($fieldName, $value = null)
-	{
-		if (is_array($fieldName)) {
-			foreach ($fieldName as $key => $value) {
-				$this->filter($key, $value);
-			}
-			return $this;
-		}
-		
-		if (empty($value)) {
-			return $this;
-		}
-		
-		$field = $this->_descriptor->getField($fieldName);
-		$fieldClass = get_class($field);
-		$fieldType = substr($fieldClass, strrpos($fieldClass, '_') + 1);
-		if ($filter = Atomik_Model_Query_Filter_Factory::factory($fieldType, $this->_descriptor, $field)) {
-			$filter->setValue($value);
-			$condition = $filter->getQueryCondition();
-			if (!empty($condition)) {
-				$this->where($condition);
-			}
-		}
-		return $this;
-	}
+    protected $_from;
+    
+    protected $_jointDescriptors = array();
+    
+    protected $_jointAssociations = array();
+    
+    protected $_filters = array();
+    
+    protected $_limit;
+    
+    protected $_orderBy;
+    
+    public static function find($descriptor, $id)
+    {
+        $descriptor = Atomik_Model_Descriptor::factory($descriptor);
+        $where = $id;
+        
+        if (!is_array($where)) {
+            $pk = $descriptor->getPrimaryKeyField()->getName();
+            $where = array($pk => $id);
+        }
+        
+        $query = self::findQuery($descriptor, $where, null, 1);
+        return $query->execute()->getFirst();
+    }
+    
+    public static function findAll($descriptor, $where = array(), $orderBy = null, $limit = null)
+    {
+        $query = self::findQuery($descriptor, $where, $orderBy, $limit);
+        return $query->execute();
+    }
+    
+    public static function findQuery($descriptor, $where = array(), $orderBy = null, $limit = null)
+    {
+        $query = Atomik_Model_Query::from($descriptor);
+        
+        foreach ($where as $key => $value) {
+            if ($value instanceof Atomik_Model_Query_Filter_Abstract) {
+                $query->filter($value);
+                continue;
+            }
+            $query->filterEqual($key, $value);
+        }
+        
+        if ($orderBy !== null) {
+            $query->orderBy($orderBy);
+        }
+        
+        if ($limit !== null) {
+            $query->limit($limit);
+        }
+        
+        return $query;
+    }
+    
+    public static function from($descriptor)
+    {
+        return new Atomik_Model_Query($descriptor);
+    }
+    
+    private function __construct($from)
+    {
+        $this->_from = Atomik_Model_Descriptor::factory($from);
+    }
+    
+    public function join($descriptor, $association = null)
+    {
+        $descriptor = Atomik_Model_Descriptor::factory($descriptor);
+        
+        if (!$this->_from->isModelAssociated($descriptor)) {
+            require_once 'Atomik/Model/Query/Exception.php';
+            throw new Atomik_Model_Query_Exception("Cannot create join with unassociated model '" 
+                . $descriptor->getName() . "'");
+        }
+        
+        if ($association === null) {
+            if (count($associations = $this->_from->getAssociations($descriptor)) > 1) {
+                require_once 'Atomik/Model/Query/Exception.php';
+                throw new Atomik_Model_Query_Exception("Ambiguous join with '" . $descriptor->getName() . "'");
+            }
+            $association = $associations[0];
+        }
+        
+        $this->_jointDescriptors[] = $descriptor;
+        $this->_jointAssociations[] = $association;
+        return $this;
+    }
+    
+    public function filter($filter)
+    {
+        if (is_array($filter)) {
+            array_map(array($this, 'filter'), $filter);
+            return;
+        }
+        
+        if (!($filter instanceof Atomik_Model_Query_Filter_Abstract)) {
+            require_once 'Atomik/Model/Query/Exception.php';
+            throw new Atomik_Model_Query_Exception("Filters must be of type Atomik_Model_Query_Filter_Abstract");
+        }
+        
+        if (($filterDescriptor = $filter->getDescriptor()) === null) {
+            $filterDescriptor = $this->_from;
+        }
+        
+        $descriptors = array_merge(array($this->_from), $this->_jointDescriptors);
+        
+        foreach ($descriptors as $descriptor) {
+            if ($descriptor == $filterDescriptor) {
+                if (!$descriptor->hasField($filter->getField())) {
+                    require_once 'Atomik/Model/Query/Exception.php';
+                    throw new Atomik_Model_Query_Exception("Field '" . $filter->getField() 
+                        . "' not part of descriptor '" . $descriptor->getName . "'");
+                }
+                $this->_filters[] = $filter;
+                return $this;
+            }
+        }
+        
+        require_once 'Atomik/Model/Query/Exception.php';
+        throw new Atomik_Model_Query_Exception("Filter's descriptor '" 
+            . $filterDescriptor->getName() . "' not part of the query");
+    }
+    
+    public function __call($method, $args)
+    {
+        if (substr($method, 0, 6) == 'filter') {
+            $filterName = substr($method, 6);
+            $descriptor = $this->_from;
+            $field = $args[0];
+            if (is_array($field)) {
+                $descriptor = $field[0];
+                $field = $field[1];
+            }
+            
+            $filter = Atomik_Model_Query_Filter::factory($filterName, $descriptor, $field, $args[1]);
+            return $this->filter($filter);
+        }
+    }
+    
+    public function limit($limit, $offset = 0)
+    {
+        $this->_limit = array($limit, $offset);
+        return $this;
+    }
+    
+    public function orderBy($fieldName)
+    {
+        if (!$this->_from->hasField($fieldName)) {
+            require_once 'Atomik/Model/Query/Exception.php';
+            throw new Atomik_Model_Query_Exception("Field '$fieldName' not part of '" 
+                . $this->_from->getName() . "'");
+        }
+        $this->_orderBy = $fieldName;
+        return $this;
+    }
+    
+    public function execute()
+    {
+        return $this->_from->getSession()->executeQuery($this);
+    }
+    
+    public function getDbQuery(Atomik_Db_Instance $dbInstance)
+    {
+        $query = new Atomik_Db_Query($dbInstance);
+        $query->from($this->_from->getTableName());
+        
+        foreach ($this->_jointAssociations as $assoc) {
+            $assoc->apply($query);
+        }
+        
+        foreach ($this->_filters as $filter) {
+            $filter->apply($query);
+        }
+        
+        return $query;
+    }
+    
+    public function toArray()
+    {
+        $joins = array();
+        for ($i = 0, $c = count($this->_jointAssociations); $i < $c; $i++) {
+            $joins[] = array($this->_jointDescriptors[$i], $this->_jointAssociations[$i]);
+        }
+        
+        return array(
+            'from' => $this->_from,
+            'joins' => $joins,
+            'filters' => $this->_filters,
+            'orderBy' => $this->_orderBy,
+            'limit' => $this->_limit
+        );
+    }
 }

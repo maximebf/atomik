@@ -19,20 +19,17 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Abstract */
-require_once 'Atomik/Model/Behaviour/Abstract.php';
-
-/** Atomik_Model_Field_Bool */
-require_once 'Atomik/Model/Field/Bool.php';
+/**Atomik_Model_Behaviour */
+require_once 'Atomik/Model/Behaviour.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Publishable extends  Atomik_Model_Behaviour_Abstract
+class Atomik_Model_Behaviour_Publishable extends Atomik_Model_Behaviour
 {
-	public function init(Atomik_Model_Descriptor $descriptor)
+	public function apply(Atomik_Model_Descriptor $descriptor, $target)
 	{
-		$descriptor->addField(new Atomik_Model_Field_Bool('published'));
+		$descriptor->addField(Atomik_Model_Field::factory('published', 'bool'));
 	}
 }

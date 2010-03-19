@@ -19,88 +19,62 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Locator */
-require_once 'Atomik/Model/Locator.php';
-
 /** Atomik_Model_Descriptor */
 require_once 'Atomik/Model/Descriptor.php';
-
-/** Atomik_Model_Descriptor_Factory */
-require_once 'Atomik/Model/Descriptor/Factory.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
+class Atomik_Model
 {
-	/**
-	 * @var Atomik_Model_Descriptor
-	 */
+	/** @var Atomik_Model_Descriptor */
 	protected $_descriptor;
 	
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	protected $_new = true;
 	
 	/**
-	 * @var array
-	 */
-	protected $_references = array();
-	
-	/**
-	 * Constructor
-	 *
 	 * @param 	array 					$data
 	 * @param 	bool 					$new	Whether the model is already saved or not
 	 * @param	Atomik_Model_Descriptor	$descriptor
 	 */
 	public function __construct($data = array(), $new = true, Atomik_Model_Descriptor $descriptor = null)
 	{
-		$this->_descriptor = $descriptor;
 		$this->_new = $new;
-		$this->populate($data);
+		$this->_descriptor = $descriptor;
 		
-		if ($this->getDescriptor()->getOption('no-lazy-loading', false)) {
-			$this->initReferences();
+		if ($descriptor === null) {
+		    $this->_setupDescriptor();
+		}
+		
+		foreach ($data as $key => $value) {
+		    $this->_set($key, $value);
 		}
 	}
 	
+	protected function _setupDescriptor()
+	{
+		$this->_descriptor = Atomik_Model_Descriptor::factory($this);
+	}
+	
 	/**
-	 * Returns the descriptor associated to this model
-	 * 
 	 * @return Atomik_Model_Descriptor
 	 */
 	public function getDescriptor()
 	{
-		if ($this->_descriptor === null) {
-			$this->_initDescriptor();
-		}
 		return $this->_descriptor;
 	}
 	
 	/**
-	 * Returns the associated manager through the descriptor
-	 * 
-	 * @return Atomik_Model_Manager
+	 * @return Atomik_Model_Session
 	 */
-	public function getManager()
+	public function getSession()
 	{
-		return $this->getDescriptor()->getManager();
+		return $this->_descriptor->getSession();
 	}
 	
 	/**
-	 * Inits the descriptor
-	 */
-	protected function _initDescriptor()
-	{
-		$this->_descriptor = Atomik_Model_Descriptor_Factory::get($this);
-	}
-	
-	/**
-	 * Checks if the model has never been saved
-	 *
 	 * @return bool
 	 */
 	public function isNew()
@@ -109,262 +83,118 @@ class Atomik_Model extends Atomik_Model_Locator implements ArrayAccess
 	}
 	
 	/**
-	 * Sets the primary key value
-	 *
 	 * @param mixed $value
 	 */
 	public function setPrimaryKey($value)
 	{
-		$this->{$this->getDescriptor()->getPrimaryKeyField()->name} = $value;
+		$this->{$this->_descriptor->getPrimaryKeyField()->getName()} = $value;
 	}
 	
 	/**
-	 * Returns the primary key value
-	 * 
 	 * @return mixed
 	 */
 	public function getPrimaryKey()
 	{
-		return $this->{$this->getDescriptor()->getPrimaryKeyField()->name};
+		return $this->{$this->_descriptor->getPrimaryKeyField()->getName()};
 	}
 	
 	/**
-	 * Sets multiple fields value using an array (cannot set references)
-	 *
-	 * @param array $data
+	 * @param string $fieldName
+	 * @param mixed $value
 	 */
-	public function populate($data)
+	public function _set($fieldName, $value)
 	{
-		foreach ($data as $name => $value) {
-			$this->{$name} = $value;
-		}
+	    if (!$this->_descriptor->hasField($fieldName) &&
+	        !$this->_descriptor->hasAssociation($fieldName)) {
+	            return;
+	    }
+		
+		$this->{$fieldName} = $value;
 	}
 	
 	/**
-	 * Initializes all references
+	 * @param string $fieldName
+	 * @return mixed
 	 */
-	public function initReferences()
+	public function _get($fieldName)
 	{
-		foreach ($this->getDescriptor()->getReferences() as $ref) {
-			$this->initReference($ref->name);
-		}
+	    if ($this->_descriptor->hasAssociation($fieldName) && 
+	        $this->{$fieldName} === null) {
+                $this->_descriptor->getAssociation($fieldName)->load($this);
+	    }
+	    
+        return $this->{$fieldName};
 	}
 	
 	/**
-	 * Initializes the specified reference
-	 * 
-	 * @param	string	$name
-	 * @return 	Atomik_Model_Descriptor_Reference
+	 * @param string $method
+	 * @param array $args
 	 */
-	public function initReference($name)
+	public function __call($method, $args)
 	{
-		if (($reference = $this->getDescriptor()->getReference($name)) === false) {
-			throw new Atomik_Model_Exception('Reference ' . $name . ' does not exist');
-		}
-		
-		$query = $reference->getQuery($this);
-		
-		if ($reference->isHasMany()) {
-			$modelSet = $this->getManager()->query($query);
-			$this->_references[$name] = new Atomik_Model_ReferenceArray($this, $reference, $modelSet);
-			return $reference;
-		}
-		
-		$query->limit(1);
-		$modelSet = $this->getManager()->query($query);
-		if (count($modelSet) == 0) {
-			$this->_references[$name] = null;
-		}
-		$this->_references[$name] = $modelSet[0]; 
-		
-		return $reference;
+	    if (!preg_match('/^(get|set)(.+)$/', $method, $matches)) {
+	        return;
+	    }
+	    
+	    $accessor = $matches[1];
+	    $property = $matches[2];
+	    $property = strtolower($property{0}) . substr($property, 1);
+	    
+	    if (!property_exists($this, $property)) {
+	        return;
+	    }
+	    
+	    if ($accessor == 'get') {
+	        return $this->_get($property);
+	    } else if ($accessor == 'set') {
+	        return $this->_set($property, $args[0]);
+	    }
 	}
 	
-	/**
-	 * Sets the value of a reference
-	 * 
-	 * @param	string				$name
-	 * @param 	Atomik_Model|array	$value
-	 */
-	public function setReference($name, $value)
+	public function isValid()
 	{
-		$reference = $this->initReference($name);
-		
-		if ($reference->isHasMany()) {
-			$this->_references[$name]->clear($value);
-			return;
-		}
-		
-		if ($reference->isHasOne()) {
-			if (isset($this->_references[$name])) {
-				$this->_references[$name]->{$reference->targetField} = null;
-				$this->_references[$name]->save();
-			}
-			$value->{$reference->targetField} = $this->{$reference->sourceField};
-		}
-		
-		if ($reference->isHasParent()) {
-			$this->{$reference->sourceField} = $value->{$reference->targetField};
-		}
-		
-		$this->_references[$name] = $value;
+		return $this->getSession()->isValid($this);
 	}
 	
-	/**
-	 * Returns the value of the specified reference
-	 * 
-	 * @param	string	$name	Reference name
-	 * @return 	Atomik_Model|Atomik_Model_Reference
-	 */
-	public function getReference($name)
+	public function save($validate = true)
 	{
-		if (!isset($this->_references[$name])) {
-			$this->initReference($name);
-		}
-		return $this->_references[$name];
-	}
-	
-	/**
-	 * Sets a field or a reference
-	 * 
-	 * @param 	string	$name
-	 * @param	mixed	$value
-	 */
-	public function __set($name, $value)
-	{
-		if ($this->getDescriptor()->hasReference($name)) {
-			return $this->setReference($name, $value);
-		}
-		
-		$this->{$name} = $value;
-	}
-	
-	/**
-	 * Returns a field or a reference
-	 * 
-	 * @param 	string $name
-	 * @return 	mixed
-	 */
-	public function __get($name)
-	{
-		if ($this->getDescriptor()->hasReference($name)) {
-			return $this->getReference($name);
-		}
-	}
-	
-	/**
-	 * Saves the data using the adapter
-	 *
-	 * @return bool Success
-	 */
-	public function save()
-	{
-		if (!$this->getManager()->save($this)) {
-			return false;
-		}
+		$this->getSession()->save($this, $validate);
 		$this->_new = false;
-		
-		// checks if cascade is enabled
-		if ($this->getDescriptor()->getOption('cascade-save', false)) {
-			foreach ($this->getDescriptor()->getReferences() as $reference) {
-				$this->initReference($reference->name);
-				if (!empty($this->_references[$reference->name])) {
-					$this->_references[$reference->name]->save();
-				}
-			}
-		}
-		
-		return true;
 	}
 	
-	/**
-	 * Deletes the model from the data source
-	 *
-	 * @return bool Success
-	 */
 	public function delete()
 	{
-		if (!$this->getManager()->delete($this)) {
-			return false;
-		}
-		
-		// checks if cascade is enabled
-		if ($this->getDescriptor()->getOption('cascade-delete', false)) {
-			foreach ($this->getDescriptor()->getReferences() as $reference) {
-				$this->initReference($reference->name);
-				$this->_references[$reference->name]->delete();
-			}
-			$this->_references = array();
-		}
-		
+		$this->getSession()->delete($this);
 		$this->_new = true;
-		return true;
 	}
 	
 	/**
-	 * Returns the data as an array (references won't be included)
-	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray($includeAssocs = false)
 	{
 		$data = array();
-		$fields = $this->getDescriptor()->getFields();
+		$fields = $this->_descriptor->getFields();
 		
 		foreach ($fields as $field) {
-			$data[$field->name] = $this->{$field->name};
+			$data[$field->getName()] = $this->_get($field->getName());
 		}
 		
 		return $data;
 	}
 	
 	/**
-	 * Returns a string representation of the model
-	 * 
-	 * If a field has the title-field option, it will be used. Otherwise, the first
-	 * primary key will be used 
-	 * 
 	 * @return string
 	 */
 	public function __toString()
 	{
-		if (($fieldToDisplay = $this->getDescriptor()->getFieldWithOption('title-field')) === null) {
-			return '#' . $this->getPrimaryKey();
-		}
-		
-		return $this->{$fieldToDisplay->name};
+		$reprField = $this->_descriptor->getRepresentationField();
+		return $this->_get($reprField->getName());
 	}
 	
-	/**
-	 * Drops the primary key and sets the model as new
-	 */
 	public function __clone()
 	{
 		$this->_new = true;
 		$this->setPrimaryKey(null);
-	}
-	
-	/* -------------------------------------------------------------------------------------------
-	 *  ArrayAccess
-	 * ------------------------------------------------------------------------------------------ */
-	
-	public function offsetExists($index)
-	{
-		return $this->_descriptor->hasField($index) || $this->_descriptor->hasReference($index);
-	}
-	
-	public function offsetGet($index)
-	{
-		return $this->{$index};
-	}
-	
-	public function offsetSet($index, $value)
-	{
-		$this->{$index} = $value;
-	}
-	
-	public function offsetUnset($index)
-	{
-		unset($this->{$index});
 	}
 }

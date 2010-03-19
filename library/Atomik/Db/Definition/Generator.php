@@ -63,10 +63,7 @@ class Atomik_Db_Definition_Generator
 	
 	protected function _buildColumn(Atomik_Db_Definition_Column $column)
 	{
-		$sql = $this->_adapter->quoteIdentifier($column->name) . ' ' . strtoupper($column->type);
-		if ($column->length !== null) {
-			$sql .= '(' . $column->length . ')';
-		}
+		$sql = $this->_adapter->quoteIdentifier($column->name) . ' ' . strtoupper($column->type->getSqlType());
 		
 		if (isset($column->options['default'])) {
 			$sql .= ' DEFAULT ' . $this->_adapter->quote($column->options['default']);

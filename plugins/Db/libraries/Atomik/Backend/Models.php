@@ -9,7 +9,7 @@ class Atomik_Backend_Models
 			include $modelFile;
 		}
 		
-		return Atomik_Model_Descriptor_Factory::get($name);
+		return Atomik_Model_Descriptor::factory($name);
 	}
 	
 	public static function getModels()

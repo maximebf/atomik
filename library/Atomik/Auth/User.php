@@ -31,30 +31,25 @@ require_once 'Atomik/Auth/User/Interface.php';
  * @package Atomik
  * @subpackage Auth
  * 
- * @table auth_users
- * @admin-ignore
- * @inheritance abstract
+ * @Model(table="auth_users", inheritance="abstract")
  */
 class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interface
 {
 	/**
-	 * @var string
-	 * @length 100
-	 * @title-field
+	 * @Field(type="string", length=100, repr=true)
+	 * @Form(label="Username")
 	 */
 	public $username;
 	
 	/**
-	 * @form-attr-type password
-	 * @var string
-	 * @length 50
+	 * @Field(type="string", length=50)
+	 * @Form(label="Password", helper="formPassword")
 	 */
 	public $password;
 	
 	/**
-	 * @var string
-	 * @length 255
-	 * @label Roles (comma-separated):
+	 * @Field(type="string")
+	 * @Form(label="Roles (comma-separated):")
 	 */
 	public $roles;
 	

@@ -1,0 +1,44 @@
+--- annotations.php	2009-07-22 13:31:18.000000000 +0100
++++ annotations.php	2010-03-18 10:27:05.653013472 +0000
+@@ -325,8 +325,9 @@
+ 	class Addendum {
+ 		private static $rawMode;
+ 		private static $ignore;
+-		private static $classnames = array();
++		private static $classnames = array();
+ 		private static $annotations = false;
++		private static $manualyDeclaredAnnotations = array();
+ 		
+ 		public static function getDocComment($reflection) {
+ 			if(self::checkRawDocCommentParsingNeeded()) {
+@@ -389,11 +390,29 @@
+ 			}
+ 			self::$classnames[$class] = $result;
+ 			return $result;
++		}
++		
++		public static function declareAnnotation($class)
++		{
++		    // force creation of self::$annotations
++		    self::getDeclaredAnnotations();
++		    
++			if(!is_subclass_of($class, 'Annotation') && $class != 'Annotation') {
++			    trigger_error("Cannot declare '$class' as annotation because it does not subclass Annotation", E_USER_ERROR);
++			}
++			
++			self::$manualyDeclaredAnnotations[] = $class;
++		    self::$annotations[] = $class;
++		}
++		
++		public static function clearDeclaredAnnotationsCache()
++		{
++		    self::$annotations = false;
+ 		}
+ 
+ 		private static function getDeclaredAnnotations() {
+ 			if(!self::$annotations) {
+-				self::$annotations = array();
++				self::$annotations = self::$manualyDeclaredAnnotations;
+ 				foreach(get_declared_classes() as $class) {
+ 					if(is_subclass_of($class, 'Annotation') || $class == 'Annotation') self::$annotations[] = $class;
+ 				}

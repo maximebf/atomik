@@ -8,20 +8,36 @@ abstract class Atomik_Model_Query_Filter_Abstract
 	
 	protected $_value;
 	
-	public function __construct(Atomik_Model_Descriptor $descriptor, $field, $value = null)
+	public function __construct($descriptor, $field, $value = null)
 	{
-		if (is_string($field)) {
-			$field = $descriptor->getField($field);
-		}
-		
-		$this->_descriptor = $descriptor;
-		$this->_field = $field;
-		$this->_value = null;
+		$this->setDescriptor($descriptor);
+		$this->setField($field);
+		$this->setValue($value);
+	}
+	
+	public function setDescriptor($descriptor)
+	{
+	    $this->_descriptor = Atomik_Model_Descriptor::factory($descriptor);
 	}
 	
 	public function getDescriptor()
 	{
 		return $this->_descriptor;
+	}
+	
+	public function setField($field)
+	{
+	    if (!$this->_descriptor->hasField($field)) {
+            require_once 'Atomik/Model/Query/Exception.php';
+	        throw new Atomik_Model_Query_Exception("Descriptor '" 
+	            . $this->_descriptor->getName() . "' has no field '$field'");
+	    }
+	    
+	    if (is_string($field)) {
+	        $field = $this->_descriptor->getField($field);
+	    }
+	    
+	    $this->_field = $field;
 	}
 	
 	public function getField()
@@ -34,17 +50,17 @@ abstract class Atomik_Model_Query_Filter_Abstract
 		$this->_value = $value;
 	}
 	
-	public function hasValue()
-	{
-		return !empty($this->_value);
-	}
-	
 	public function getValue()
 	{
 		return $this->_value;
 	}
 	
-	abstract public function getQueryCondition();
+	abstract public function apply(Atomik_Db_Query $query);
 	
-	abstract public function getPossibleValues();
+	protected function _getSqlField()
+	{
+	    return sprintf('%s.%s', 
+	        $this->_descriptor->getTableName(),
+	        $this->_field->getColumnName());
+	}
 }

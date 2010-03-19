@@ -19,20 +19,22 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Abstract */
-require_once 'Atomik/Model/Behaviour/Abstract.php';
-
-/** Atomik_Model_Field */
-require_once 'Atomik/Model/Field.php';
+/**Atomik_Model_Behaviour */
+require_once 'Atomik/Model/Behaviour.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Orderable extends  Atomik_Model_Behaviour_Abstract
+class Atomik_Model_Behaviour_Orderable extends Atomik_Model_Behaviour
 {
-	public function init(Atomik_Model_Descriptor $descriptor)
+	public function apply(Atomik_Model_Descriptor $descriptor, $target)
 	{
-		$descriptor->addField(new Atomik_Model_Field('position', 'int'));
+		$descriptor->addField(Atomik_Model_Field::factory('position', 'int'));
+	}
+	
+	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
+	{
+	    // TODO: order by
 	}
 }

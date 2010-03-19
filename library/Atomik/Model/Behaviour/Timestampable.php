@@ -19,35 +19,26 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Abstract */
-require_once 'Atomik/Model/Behaviour/Abstract.php';
-
-/** Atomik_Model_Field_Timestamp */
-require_once 'Atomik/Model/Field/Timestamp.php';
+/**Atomik_Model_Behaviour */
+require_once 'Atomik/Model/Behaviour.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Timestampable extends  Atomik_Model_Behaviour_Abstract
+class Atomik_Model_Behaviour_Timestampable extends Atomik_Model_Behaviour
 {
-	public function init(Atomik_Model_Descriptor $descriptor)
+	public function apply(Atomik_Model_Descriptor $descriptor, $target)
 	{
-		if (!$descriptor->hasField('created')) {
-			$descriptor->addField(new Atomik_Model_Field_Timestamp('created', array('form-ignore' => true)));
-		}
-		
-		if (!$descriptor->hasField('updated')) {
-			$descriptor->addField(new Atomik_Model_Field_Timestamp('updated', array('form-ignore' => true)));
-		}
+		$descriptor->addField(Atomik_Model_Field::factory('createdAt', 'datetime'));
+		$descriptor->addField(Atomik_Model_Field::factory('updatedAt', 'datetime'));
 	}
 	
 	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$now = date('Y-m-d H:i:s');
 		if ($model->isNew()) {
-			$model->created = $now;
+			$model->setCreatedAt(mktime());
 		}
-		$model->updated = $now;
+		$model->setUpdatedAt(mktime());
 	}
 }

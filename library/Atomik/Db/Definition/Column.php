@@ -8,16 +8,13 @@ class Atomik_Db_Definition_Column
 	
 	public $type;
 	
-	public $length;
-	
 	public $options = array();
 	
-	public function __construct(Atomik_Db_Definition_Table $table, $name, $type, $length = null, $options = array())
+	public function __construct(Atomik_Db_Definition_Table $table, $name, Atomik_Db_Type_Abstract $type, $options = array())
 	{
 		$this->table = $table;
 		$this->name = $name;
 		$this->type = $type;
-		$this->length = $length;
 		$this->options = $options;
 	}
 	

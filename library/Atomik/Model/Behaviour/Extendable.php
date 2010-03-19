@@ -19,14 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Behaviour_Abstract */
-require_once 'Atomik/Model/Behaviour/Abstract.php';
+/**Atomik_Model_Behaviour */
+require_once 'Atomik/Model/Behaviour.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour_Abstract
+class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour
 {
 	public $keyword = 'extfields';
 	

@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Model_Query */
+require_once 'Atomik/Model/Query.php';
+
 /**
  * @package Atomik
  * @subpackage Model
@@ -32,16 +35,10 @@ class Atomik_Model_Locator
 	 * @param 	Atomik_Db_Query				$query
 	 * @return 	Atomik_Model_Modelset
 	 */
-	public static function query(Atomik_Db_Query $query, $descriptor = null)
+	public static function query(Atomik_Db_Query $query)
 	{
-		if ($descriptor !== null) {
-			$descriptor = Atomik_Model_Descriptor_Factory::get($descriptor);
-			$manager = $descriptor->getManager();
-		} else {
-			$manager = Atomik_Model_Manager::getDefault();
-		}
-		
-		return $manager->query($query);
+		$session = Atomik_Model_Session::getDefault();
+		return $session->query($query);
 	}
 	
 	/**
@@ -88,10 +85,10 @@ class Atomik_Model_Locator
 	 */
 	public static function find($descriptor, $where)
 	{
-		$descriptor = Atomik_Model_Descriptor_Factory::get($descriptor);
+		$descriptor = Atomik_Model_Descriptor::factory($descriptor);
 		
 		if (!is_array($where)) {
-		    $where = array($descriptor->getPrimaryKeyField()->name => $where);
+		    $where = array($descriptor->getPrimaryKeyField()->getColumnName() => $where);
 		}
 		
 		return self::findOne($descriptor, $where);
@@ -111,7 +108,7 @@ class Atomik_Model_Locator
 		if ($descriptor instanceof Atomik_Db_Query) {
 			$query = clone $descriptor;
 			$query->count();
-			$descriptor = Atomik_Model_Manager::getDescriptorFromQuery($query);
+			$descriptor = Atomik_Model_Session::getDescriptorFromQuery($query);
 			return $descriptor->getManager()->getDbInstance()->count($query);
 		}
 		
@@ -130,11 +127,12 @@ class Atomik_Model_Locator
 	 */
 	public static function buildQuery($descriptor, $where = null, $orderBy = null, $limit = null)
 	{
-		$query = Atomik_Model_Query::create($descriptor);
-		$query->select()->from($descriptor);
+		$query = Atomik_Model_Query::from($descriptor);
 		
 		if ($where !== null) {
-			$query->where($where);
+		    foreach ($where as $key => $value) {
+		        
+		    }
 		}
 		
 		if ($orderBy !== null) {

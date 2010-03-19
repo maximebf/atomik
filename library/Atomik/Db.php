@@ -117,20 +117,14 @@ class Atomik_Db
 	 *
 	 * @param Atomik_Db_Instance|string $instance An instance name or an Atomik_Db_Instance object
 	 */
-	public static function setInstance($instance = null)
+	public static function setInstance($instance)
 	{
 		if (is_string($instance)) {
-			if (isset(self::$_availableInstances[$instance])) {
-				$instance = self::$_availableInstances[$instance];
-			} else {
+			if (!self::isInstanceAvailable($instance)) {
 				require_once 'Atomik/Db/Exception.php';
-				throw new Atomik_Db_Exception('The instance named ' . $instance . ' does not exist');
+				throw new Atomik_Db_Exception("The instance named '$instance' does not exist");
 			}
-		} else if ($instance === null) {
-			$instance = new Atomik_Db_Instance();
-			if (count(self::$_availableInstances) == 0) {
-				self::$_availableInstances['default'] = $instance;
-			}
+			$instance = self::$_availableInstances[$instance];
 		}
 		self::$_instance = $instance;
 	}
@@ -141,20 +135,16 @@ class Atomik_Db
 	 * @param	string				$name
 	 * @return 	Atomik_Db_Instance
 	 */
-	public static function getInstance($name = null)
+	public static function getInstance($name = 'default')
 	{
-		if ($name !== null) {
-			if (!self::isInstanceAvailable($name)) {
-				require_once 'Atomik/Db/Exception.php';
-				throw new Atomik_Db_Exception('No instance named ' . $name . ' were found');
-			}
-			return self::$_availableInstances[$name];
+	    if (!self::isInstanceAvailable($name)) {
+	        if ($name != 'default') {
+    			require_once 'Atomik/Db/Exception.php';
+    			throw new Atomik_Db_Exception('No instance named ' . $name . ' were found');
+	        }
+	        self::addAvailableInstance('default', new Atomik_Db_Instance());
 		}
-		
-		if (self::$_instance === null) {
-			self::setInstance();
-		}
-		return self::$_instance;
+		return self::$_availableInstances[$name];
 	}
 	
 	/**

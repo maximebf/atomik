@@ -19,39 +19,164 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Field_Abstract */
-require_once 'Atomik/Model/Field/Abstract.php';
+/** Atomik_Db_Type */
+require_once 'Atomik/Db/Type.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Field extends Atomik_Model_Field_Abstract
+class Atomik_Model_Field
 {
-	/**
-	 * @var string
-	 */
-	public $type;
+	/** @var string */
+	protected $_name;
 	
-	/**
-	 * Constructor
-	 * 
-	 * @param	string	$name
-	 * @param 	array	$options
-	 */
-	public function __construct($name, $type, $options = array())
-	{
-		parent::__construct($name, $options);
-		$this->type = $type;
-	}
+	/** @var string */
+	protected $_columnName;
 	
+	/** @var Atomik_Db_Type_Abstract */
+	protected $_type;
+	
+	/** @var bool */
+	protected $_required = false;
+    
+	/** @var array of Atomik_Model_Validator */
+    protected $_validators = array();
+    
+    /**
+     * @param string $name
+     * @param string|Atomik_Db_Type_Abstract $type
+     * @return Atomik_Model_Field
+     */
+    public static function factory($name, $type, $length = null)
+    {
+        if (is_string($type)) {
+            $type = Atomik_Db_Type::factory($type, $length);
+        }
+        return new Atomik_Model_Field($name, $type);
+    }
+    
+    /**
+     * @param string $name
+     * @param Atomik_Db_Type_Abstract $type
+     */
+    public function __construct($name, Atomik_Db_Type_Abstract $type)
+    {
+        $this->setName($name);
+        $this->setType($type);
+    }
+    
 	/**
-	 * Returns an array where the first item is the sql type name and the second the length
-	 * 
-	 * @return array
+	 * @param string $name
 	 */
-	public function getSqlType()
-	{
-		return array($this->type, $this->getOption('length', null));
-	}
+    public function setName($name)
+    {
+        $this->_name = $name;
+        if ($this->_columnName === null) {
+            $this->_columnName = strtolower(preg_replace('/(?<=\\w)([A-Z])/', '_\1', $name));
+        }
+    }
+    
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->_name;
+    }
+    
+	/**
+	 * @param string $name
+	 */
+    public function setColumnName($name)
+    {
+        $this->_columnName = $name;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getColumnName()
+    {
+        return $this->_columnName;
+    }
+    
+    /**
+     * @param Atomik_Db_Type_Abstract $type
+     */
+    public function setType(Atomik_Db_Type_Abstract $type)
+    {
+        $this->_type = $type;
+    }
+    
+    /**
+     * @return Atomik_Db_Type_Abstract
+     */
+    public function getType()
+    {
+        return $this->_type;
+    }
+    
+    /**
+     * @param bool $required
+     */
+    public function setRequired($required = true)
+    {
+        $this->_required = true;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isRequired()
+    {
+        return $this->_required;
+    }
+    
+    /**
+     * @param array $validators array of Atomik_Model_Validator
+     */
+    public function setValidators($validators)
+    {
+        $this->_validators = array();
+        array_map(array($this, 'addValidator'), $validators);
+    }
+    
+    /**
+     * @param Atomik_Model_Validator $validator
+     */
+    public function addValidator(Atomik_Model_Validator $validator)
+    {
+        $this->_validators[] = $validator;
+    }
+    
+    /**
+     * @return array of Atomik_Model_Validator
+     */
+    public function getValidators()
+    {
+        return $this->_validators;
+    }
+    
+    /**
+     * @param string $value
+     * @return bool
+     */
+    public function isValid($value)
+    {
+        foreach ($this->_validators as $validator) {
+            if (!$validator->isValid($value)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->_name;
+    }
 }

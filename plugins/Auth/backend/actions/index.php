@@ -5,7 +5,7 @@ if (AuthPlugin::$config['model'] === null) {
 	return;
 }
 
-$descriptor = Atomik_Model_Descriptor_Factory::get(AuthPlugin::$config['model']);
+$descriptor = Atomik_Model_Descriptor::factory(AuthPlugin::$config['model']);
 $users = new Atomik_Model_Query();
 $users->from($descriptor)->filter(Atomik::get('request/filters', array()));
 

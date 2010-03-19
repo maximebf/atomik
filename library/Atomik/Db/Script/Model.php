@@ -22,8 +22,8 @@
 /** Atomik_Db_Script_Interface */
 require_once 'Atomik/Db/Script/Interface.php';
 
-/** Atomik_Model_Descriptor_Factory */
-require_once 'Atomik/Model/Descriptor/Factory.php';
+/** Atomik_Model_Descriptory */
+require_once 'Atomik/Model/Descriptor.php';
 
 /** Atomik_Model_Export */
 require_once 'Atomik/Model/Export.php';
@@ -71,7 +71,7 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 				continue;
 			}
 			
-			$descriptor = Atomik_Model_Descriptor_Factory::get($className);
+			$descriptor = Atomik_Model_Descriptor::factory($className);
 			$scripts[] = new Atomik_Db_Script_Model($descriptor);
 		}
 		
