@@ -86,6 +86,14 @@ class Atomik_Db_Type extends Atomik_Db_Type_Abstract
         $this->_length = $length;
     }
     
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return strtolower($this->_sqlType);
+    }
+    
 	/**
 	 * @see Atomik_Db_Type_Abstract::getSqlType()
 	 */

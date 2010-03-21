@@ -123,7 +123,15 @@ class Atomik_Model
                 $this->_descriptor->getAssociation($fieldName)->load($this);
 	    }
 	    
-        return $this->{$fieldName};
+	    if (property_exists($this, $fieldName)) {
+            return $this->{$fieldName};
+	    }
+	    
+	    if ($this->_descriptor->hasField($fieldName)) {
+	        return null;
+	    }
+	    
+	    throw new Atomik_Model_Exception("Unknown field '$fieldName' in '" . get_class($this) . "'");
 	}
 	
 	/**

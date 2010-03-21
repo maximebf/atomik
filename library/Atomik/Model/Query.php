@@ -103,13 +103,12 @@ class Atomik_Model_Query
     {
         $descriptor = Atomik_Model_Descriptor::factory($descriptor);
         
-        if (!$this->_from->isModelAssociated($descriptor)) {
-            require_once 'Atomik/Model/Query/Exception.php';
-            throw new Atomik_Model_Query_Exception("Cannot create join with unassociated model '" 
-                . $descriptor->getName() . "'");
-        }
-        
         if ($association === null) {
+            if (!$this->_from->isModelAssociated($descriptor)) {
+                require_once 'Atomik/Model/Query/Exception.php';
+                throw new Atomik_Model_Query_Exception("Cannot create join with unassociated model '" 
+                    . $descriptor->getName() . "'");
+            }
             if (count($associations = $this->_from->getAssociations($descriptor)) > 1) {
                 require_once 'Atomik/Model/Query/Exception.php';
                 throw new Atomik_Model_Query_Exception("Ambiguous join with '" . $descriptor->getName() . "'");
@@ -197,8 +196,9 @@ class Atomik_Model_Query
     
     public function getDbQuery(Atomik_Db_Instance $dbInstance)
     {
+        $field = sprintf('%s.*', $this->_from->getTableName());
         $query = new Atomik_Db_Query($dbInstance);
-        $query->from($this->_from->getTableName());
+        $query->select($field)->from($this->_from->getTableName());
         
         foreach ($this->_jointAssociations as $assoc) {
             $assoc->apply($query);

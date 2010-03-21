@@ -33,7 +33,18 @@ abstract class Atomik_Db_Type_Abstract
      */
     public function __construct($length = null)
     {
-        $this->_length = $length;
+        if ($length !== null) {
+            $this->_length = $length;
+        }
+    }
+    
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        $className = get_class($this);
+        return strtolower(substr($className, strrpos($className, '_') + 1));
     }
     
     /**

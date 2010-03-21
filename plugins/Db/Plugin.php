@@ -59,7 +59,10 @@ class DbPlugin
     	'model_dirs'	=> array('./app/models'),
     
         // where to find sql scripts
-        'sql_dirs'      => array('./app/sql')
+        'sql_dirs'      => array('./app/sql'),
+    
+        // other db instance to create
+        'instances' 	=> array()
     	
     );
     
@@ -73,18 +76,24 @@ class DbPlugin
     	self::$config = array_merge(self::$config, $config);
     	
 		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
-
-		// automatic connection
-		if (self::$config['dsn'] !== false) {
-			$dsn = self::$config['dsn'];
-			$username = self::$config['username'];
-			$password = self::$config['password'];
-			
-			$instance = Atomik_Db::createInstance('default', $dsn, $username, $password);
-			$instance->setTablePrefix(self::$config['table_prefix']);
-			$instance->enableQueryCache(self::$config['query_cache']);
-			$instance->enableResultCache(self::$config['result_cache']);
+		
+		$instances = self::$config['instances'];
+		$instances['default'] = array(
+		    'dsn' => self::$config['dsn'],
+		    'username' => self::$config['username'],
+		    'password' => self::$config['password'],
+		    'table_prefix' => self::$config['table_prefix'],
+		    'query_cache' => self::$config['query_cache'],
+		    'result_cache' => self::$config['result_cache']
+		);
+		
+		// initializes instances
+		foreach ($instances as $name => $instanceConf) {
+    		if ($instanceConf['dsn'] !== false) {
+    		    self::createInstance($name, $instanceConf);
+    		}
 		}
+		Atomik_Db::setInstance('default');
 		
 		// adds models directories to php's include path
 		$includes = explode(PATH_SEPARATOR, get_include_path());
@@ -102,6 +111,27 @@ class DbPlugin
 			ConsolePlugin::register('db-create', array('DbPlugin', 'dbCreateCommand'));
 			ConsolePlugin::register('db-create-sql', array('DbPlugin', 'dbCreateSqlCommand'));
 		}
+    }
+    
+    /**
+     * Creates a db instance from an array of info
+     * 
+     * @param string $name
+     * @param array $instanceConf
+     * @return Atomik_Db_Instance
+     */
+    public static function createInstance($name, $instanceConf)
+    {
+        $dsn = $instanceConf['dsn'];
+        $username = Atomik::get('username', 'root', $instanceConf);
+        $password = Atomik::get('password', '', $instanceConf);
+        
+		$instance = Atomik_Db::createInstance($name, $dsn, $username, $password);
+		$instance->setTablePrefix(Atomik::get('table_prefix', '', $instanceConf));
+		$instance->enableQueryCache(Atomik::get('query_cache', false, $instanceConf));
+		$instance->enableResultCache(Atomik::get('result_cache', false, $instanceConf));
+		
+		return $instance;
     }
 	
 	/**

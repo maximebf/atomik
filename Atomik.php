@@ -182,6 +182,9 @@ Atomik::set(array(
         
         /* @var bool */
         'start_session'          => true,
+
+        /* @var string */
+        'session_namespace'		=> false,
         
         /* Plugin's assets path template. 
          * %s will be replaced by the plugin's name
@@ -445,12 +448,6 @@ final class Atomik
                 self::listenEvent('Atomik::Log', 'Atomik::logToFile');
             }
             
-            // starts the session
-            if (self::get('atomik/start_session', true) == true) {
-                session_start();
-                self::$store['session'] = &$_SESSION;
-            }
-            
             // registers the class autoload handler
             if (self::get('atomik/class_autoload', true) == true) {
                 if (!function_exists('spl_autoload_register')) {
@@ -485,6 +482,19 @@ final class Atomik
             // loads bootstrap file
             if (file_exists($filename = self::get('atomik/files/bootstrap'))) {
                 require($filename);
+            }
+            
+            // starts the session
+            if (self::get('atomik/start_session', true) == true) {
+                session_start();
+                if (($ns = self::get('atomik/session_namespace', false)) !== false) {
+                    if (!isset($_SESSION[$ns])) {
+                        $_SESSION[$ns] = array();
+                    }
+                    self::$store['session'] = &$_SESSION[$ns];
+                } else {
+                    self::$store['session'] = &$_SESSION;
+                }
             }
         
             // core is starting
@@ -704,7 +714,7 @@ final class Atomik
             if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
                 list($content, $vars) = self::instance()->scoped($filename);
             }
-        
+            
             // executes the action
             ob_start();
             list($content, $vars) = self::execute(self::get('request/action'), $viewContext, $vars, true);
@@ -1118,12 +1128,14 @@ final class Atomik
         if ($actionFilename !== false) {
             // executes the action in its own scope and fetches defined variables
             list($content, $vars) = $atomik->scoped($actionFilename, $vars);
+            echo $content;
         }
         
         // executes the method specific action
         if ($methodActionFilename !== false) {
             // executes the action in its own scope and fetches defined variables
             list($content, $vars) = $atomik->scoped($methodActionFilename, $vars);
+            echo $content;
         }
         
         return $vars;

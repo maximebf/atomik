@@ -50,10 +50,7 @@ abstract class Atomik_Model_Association
 	protected $_targetField;
 	
 	/** @var bool */
-	protected $_lazyLoading = false;
-	
-	/** @var Atomik_Db_Query */
-	protected $_query;
+	protected $_eagerLoading = false;
 	
 	/**
 	 * @param string $name
@@ -202,7 +199,7 @@ abstract class Atomik_Model_Association
     public function getTargetField()
     {
         if ($this->_targetField === null) {
-            $this->_targetField = $this->getTarget()->getField($this->_targetField);
+            $this->_targetField = $this->getTarget()->getField($this->_targetFieldName);
         }
         return $this->_targetField;
     }
@@ -210,17 +207,31 @@ abstract class Atomik_Model_Association
     /**
      * @param bool $enable
      */
-    public function enabledLazyLoading($enable = true)
+    public function enabledEagerLoading($enable = true)
     {
-        $this->_lazyLoading = $enable;
+        $this->_eadgerLoading = $enable;
     }
     
     /**
      * @return bool
      */
-    public function isLazyLoaded()
+    public function isEagerLoaded()
     {
-        return $this->_lazyLoading;
+        return $this->_eagerLoading;
+    }
+    
+    /**
+     * Returns the opposite association
+     * 
+     * @return Atomik_Model_Association
+     */
+    public function getInvert()
+    {
+        $className = get_class($this);
+        $assoc = new $className($this->_target, $this->_name . 'Invert', $this->_source);
+        $assoc->setSourceFieldName($this->_targetFieldName);
+        $assoc->setTargetFieldName($this->_sourceFieldName);
+        return $assoc;
     }
     
     public function apply(Atomik_Db_Query $query)

@@ -264,6 +264,10 @@ class Atomik_Model_Descriptor
 	public function addField(Atomik_Model_Field $field)
 	{
 		$this->_fields[$field->getName()] = $field;
+		if ($field->getName() == 'id' && $this->_autoPrimaryKey) {
+		    $this->_autoPrimaryKey = false;
+		    $this->_primaryKeyField = $field;
+		}
 	}
 	
 	/**

@@ -53,7 +53,7 @@ $firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));]]>
 			However, the namespace prefix will be stripped off the first parameter, which is the "query" string.
 		</para>
 		<example>
-			<title>Registering a method</title>
+			<title>Registering a selector</title>
 			<programlisting>
 				<![CDATA[
 function my_selector($string) {

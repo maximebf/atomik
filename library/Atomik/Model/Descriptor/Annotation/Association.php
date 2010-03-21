@@ -14,11 +14,17 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
     
     public $has_many;
     
+    public $has_many_to_many;
+    
     public $via;
     
     public $sourceField;
     
     public $targetField;
+    
+    public $viaSourceColumn;
+    
+    public $viaTargetColumn;
     
     public $scope;
     
@@ -40,18 +46,29 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
             require_once 'Atomik/Model/Association/OneToMany.php';
             $assoc = new Atomik_Model_Association_OneToMany($descriptor, $name, $target);
             
-        } else if (!empty($this->has_many)) {
+        } else if (!empty($this->has_many) && empty($this->via)) {
             $target = Atomik_Model_Descriptor_Builder::getBase($this->has_many);
-		
-    		if (!empty($this->via)) {
-                require_once 'Atomik/Model/Association/ManyToMany.php';
-                $assoc = new Atomik_Model_Association_ManyToMany($descriptor, $name, $target);
-    		    $via = Atomik_Model_Descriptor_Builder::getBase($this->via);
-    		    $assoc->setVia($via);
-    		} else {
-                require_once 'Atomik/Model/Association/OneToMany.php';
-                $assoc = new Atomik_Model_Association_OneToMany($descriptor, $name, $target);
-    		}
+            require_once 'Atomik/Model/Association/OneToMany.php';
+            $assoc = new Atomik_Model_Association_OneToMany($descriptor, $name, $target);
+            
+        } else if (!empty($this->has_many_to_many) || (!empty($this->has_many) && !empty($this->via))) {
+            $targetName = empty($this->has_many) ? $this->has_many_to_many : $this->has_many;
+            $target = Atomik_Model_Descriptor_Builder::getBase($targetName);
+            
+            require_once 'Atomik/Model/Association/ManyToMany.php';
+            $assoc = new Atomik_Model_Association_ManyToMany($descriptor, $name, $target);
+            
+            if (empty($this->via)) {
+                $this->via = strtolower($descriptor->getName() . '_' . $target->getName());
+            }
+            
+		    $assoc->setViaTable($this->via);
+		    !empty($this->viaSourceColumn) && $assoc->setViaSourceColumn($this->viaSourceColumn);
+		    !empty($this->viaTargetColumn) && $assoc->setViaTargetColumn($this->viaTargetColumn);
+		    
+        } else {
+            throw new Atomik_Model_Descriptor_Exception("No target specified for association '$name' in '" 
+                . $descriptor->getName() . "'");
         }
         
 		!empty($this->sourceField) && $assoc->setSourceFieldName($this->sourceField);

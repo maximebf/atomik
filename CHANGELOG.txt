@@ -33,18 +33,34 @@
    constant ATOMIK_APP_ROOT
  * Added Atomik::loadConfig()
  * Added Atomik::registerHelper()
+ ! session_start() now happens after bootstrap.php and before the event Atomik::Start
+ * Added atomik/session_namespace
  
 [Plugin:SimpleClassExecutor]
 
- * New plugin to define actions as classes
+ * New plugin to define actions as classes (in the 2.2 way)
  
 [Plugin:Controller]
 
  * The plugin now acts as an executor
  
+[Plugin:Form]
+
+ * completely rewritten
+ * now uses helpers
+ 
 [Lib:Db]
 
  * Connection errors are now part of the exception message
+ * Atomik_Db_Type
+ 
+[Lib:Form]
+
+ * removed
+ 
+[Lib:Model]
+
+ * completely rewritten
 
 ----------- Atomik 2.2 --------------
 

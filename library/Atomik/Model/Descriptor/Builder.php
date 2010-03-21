@@ -34,6 +34,9 @@ require_once 'Atomik/Model/Descriptor/Annotation/Field.php';
 /** Atomik_Model_Descriptor_Annotation_Form */
 require_once 'Atomik/Model/Descriptor/Annotation/Form.php';
 
+/** Atomik_Model_Descriptor_Annotation_Id */
+require_once 'Atomik/Model/Descriptor/Annotation/Id.php';
+
 /** Atomik_Model_Descriptor_Annotation_Model */
 require_once 'Atomik/Model/Descriptor/Annotation/Model.php';
 

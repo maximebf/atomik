@@ -2,109 +2,61 @@
 
 class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
 {
-    /** @var Atomik_Model_Descriptor */
-    protected $_via;
+    /** @var string */
+    protected $_viaTable;
     
     /** @var string */
-    protected $_viaSourceFieldName;
-    
-    /** @var Atomik_Model_Field */
-    protected $_viaSourceField;
+    protected $_viaSourceColumn;
     
     /** @var string */
-    protected $_viaTargetFieldName;
-    
-    /** @var Atomik_Model_Field */
-    protected $_viaTargetField;
+    protected $_viaTargetColumn;
     
     /**
-     * @param Atomik_Model_Descriptor $descriptor
+     * @param string $tableName
      */
-    public function setVia(Atomik_Model_Descriptor $descriptor)
+    public function setViaTable($tableName)
     {
-        $this->_via = $descriptor;
-    }
-    
-    /**
-     * @return Atomik_Model_Descriptor
-     */
-    public function getVia()
-    {
-        return $this->_via;
-    }
-
-	/**
-	 * @param string $name
-	 */
-    public function setViaTargetFieldName($name)
-    {
-        $this->_viaTargetFieldName = $name;
-        $this->_viaTargetField = null;
+        $this->_viaTable = $tableName;
     }
     
     /**
      * @return string
      */
-    public function getViaTargetFieldName()
+    public function getViaTable()
     {
-        return $this->_viaTargetFieldName;
-    }
-    
-	/**
-	 * @param Atomik_Model_Field $field
-	 */
-    public function setViaTargetField(Atomik_Model_Field $field)
-    {
-        $this->_viaTargetField = $field;
-        $this->_viaTargetFieldName = $field->getName();
-    }
-    
-    /**
-     * @return Atomik_Model_Field
-     */
-    public function getViaTargetField()
-    {
-        if ($this->_viaTargetField === null) {
-            $this->_viaTargetField = $this->getVia()->getField($this->_viaTargetField);
-        }
-        return $this->_viaTargetField;
+        return $this->_viaTable;
     }
 
 	/**
 	 * @param string $name
 	 */
-    public function setViaSourceFieldName($name)
+    public function setViaTargetColumn($name)
     {
-        $this->_viaSourceFieldName = $name;
-        $this->_viaSourceField = null;
+        $this->_viaTargetColumn = $name;
     }
     
     /**
      * @return string
      */
-    public function getViaSourceFieldName()
+    public function getViaTargetColumn()
     {
-        return $this->_viaSourceFieldName;
+        return $this->_viaTargetColumn;
     }
-    
+
 	/**
-	 * @param Atomik_Model_Field $field
+	 * @param string $name
 	 */
-    public function setViaSourceField(Atomik_Model_Field $field)
+    public function setViaSourceColumn($name)
     {
-        $this->_viaSourceField = $field;
-        $this->_viaSourceFieldName = $field->getName();
+        $this->_viaSourceColumn = $name;
     }
     
     /**
-     * @return Atomik_Model_Field
+     * @return string
      */
-    public function getViaSourceField()
+    public function getViaSourceColumn()
     {
-        if ($this->_viaSourceField === null) {
-            $this->_viaSourceField = $this->getVia()->getField($this->_viaSourceField);
-        }
-        return $this->_viaSourceField;
+        return $this->_viaSourceColumn;
     }
     
     protected function _setup()
@@ -112,19 +64,46 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
 		$this->setSourceFieldName($this->_source->getPrimaryKeyField()->getName());
 		$this->setTargetFieldName($this->_target->getPrimaryKeyField()->getName());
 		
-		$this->setViaSourceFieldName(strtolower($this->_source->getName()) . '_' . $this->_sourceFieldName);
-		$this->setViaTargetFieldName(strtolower($this->_target->getName()) . '_' . $this->_targetFieldName);
+		$this->setViaSourceColumn(strtolower($this->_source->getName() . '_' . $this->_sourceFieldName));
+		$this->setViaTargetColumn(strtolower($this->_target->getName() . '_' . $this->_targetFieldName));
+    }
+    
+    /**
+     * @see Atomik_Model_Association::getInvert()
+     * @return Atomik_Model_Association
+     */
+    public function getInvert()
+    {
+        $assoc = parent::getInvert();
+        $assoc->setViaTable($this->_viaTable);
+        $assoc->setViaSourceColumn($this->_viaTargetColumn);
+        $assoc->setViaTargetColumn($this->_viaSourceColumn);
+        return $assoc;
+    }
+    
+    public function apply(Atomik_Db_Query $query)
+    {
+        $onVia = sprintf('%s.%s = %s.%s',
+            $this->_viaTable, $this->_viaSourceColumn,
+            $this->getSource()->getTableName(), $this->getSourceField()->getColumnName());
+            
+        $onTarget = sprintf('%s.%s = %s.%s',
+            $this->getTarget()->getTableName(), $this->getTargetField()->getColumnName(),
+            $this->_viaTable, $this->_viaTargetColumn);
+            
+        $query->join($this->_viaTable, $onVia)
+              ->join($this->getTarget()->getTableName(), $onTarget);
     }
     
     public function load(Atomik_Model $model)
     {
         $value = $model->_get($this->_sourceFieldName);
         
-        $query = $this->_createQuery($model);
-        $query->join($this->_source)
+        $query = Atomik_Model_Query::from($this->_target)
+              ->join($this->_source, $this->getInvert())
               ->filterEqual(array($this->_source, $this->_sourceFieldName), $value);
         
-		$collection = $this->getManager()->query($query);
+        $collection = $query->execute();
 		$model->_set($this->_name, $collection);
     }
 }

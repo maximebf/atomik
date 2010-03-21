@@ -122,7 +122,7 @@ echo Atomik::friendlify('My text in the url');
 			<programlisting>
 				<![CDATA[
 // using a php filter
-$result = Atomik::filter('me@example.com', PHP_VALIDATE_EMAIL);
+$result = Atomik::filter('me@example.com', FILTER_VALIDATE_EMAIL);
 $result = Atomik::filter('me@example.com', 'validate_email'); // using the filter name instead of its id
 $result = Atomik::filter('example.com', FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED);
 

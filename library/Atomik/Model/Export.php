@@ -15,12 +15,25 @@ class Atomik_Model_Export
 			
 			if ($descriptor->getPrimaryKeyField() == $field) {
 				$table->primaryKey($field->getColumnName());
-				$column->options['auto-increment'] = true;
+				if ($field->getType()->getName() == 'int') {
+				    $column->options['auto-increment'] = true;
+				}
 			}
 			
-			if ($descriptor->isFieldPartOfAssociation($field)) {
-				$table->index($field->getColumnName());
+			if ($descriptor->isFieldPartOfAssociation($field) && 
+			    $descriptor->getPrimaryKeyField() != $field) {
+				    $table->index($field->getColumnName());
 			}
+		}
+		
+		foreach ($descriptor->getAssociations() as $assoc) {
+		    if ($assoc instanceof Atomik_Model_Association_ManyToMany) {
+		        $definition->table($assoc->getViaTable())
+		            ->column($assoc->getViaSourceColumn(), Atomik_Db_Type::factory('int'))
+		            ->column($assoc->getViaTargetColumn(), Atomik_Db_Type::factory('int'))
+		            ->index($assoc->getViaSourceColumn())
+		            ->index($assoc->getViaTargetColumn());
+		    }
 		}
 		
 		$descriptor->getSession()->notify('BeforeExport', $descriptor, $definition);
