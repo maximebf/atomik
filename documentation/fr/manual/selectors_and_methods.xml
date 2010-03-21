@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Traduction : Roket pour Atomik framework
+Traduction non définitive, soumise à des changements.
+-->
+<chapter id="selectors-and-methods" xmlns="http://docbook.org/ns/docbook">
+	<title>Sélecteurs et méthodes</title>
+	<sect1 id="selectors">
+		<para>
+			Le système de sélecteurs est semblable à l'utilisation des sélecteurs CSS en javascript via un arbre DOM.
+		</para>
+		<para>
+			Les sélecteurs propre à Atomik vous permettent de sélectionner n'importe quel type de donnée ou d'objet.
+		</para>
+		<para>
+			Vous avez déjà rencontrer les sélecteurs quand vous avez découvert les accesseurs.
+			Les sélecteurs sont disponible via la méthode <methodname>Atomik::get()</methodname>.
+		</para>
+		<para>
+			Les namespaces sont utilisés pour différencier les sélecteurs. Un namespace est un mot suivit
+			de <quote>:</quote> au début du sélecteur.
+		</para>
+		<example>
+			<title>Utiliser le sélecteur flash</title>
+			<programlisting>
+				<![CDATA[
+Atomik::flash('mon message', 'label');
+$messages = A('flash:label');]]>
+			</programlisting>
+		</example>
+		<para>
+			Les Plugins peuvent fournir leurs propres sélecteurs avec leurs namespaces.
+			Par exemple, le plugin Db ajoute
+			le namespace <quote>db</quote> qui vous permet de faire des requêtes SQL.
+		</para>
+		<example>
+			<title>Utiliser le namespace fournit avec le plugin Db</title>
+			<programlisting>
+				<![CDATA[
+// On sélectionne une valeur
+$value = A('key1/key2/key3');
+
+// On sélectionne tous les articles
+$allPosts = A('db:SELECT * FROM posts');
+
+// On sélectionne le premier article
+$firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));]]>
+			</programlisting>
+		</example>
+		<para>
+			Reportez vous à la documentation du plugin Db pour plus d'informations.
+		</para>
+		<para>
+			Pour creer un namespace utilisez <methodname>Atomik::registerSelector()</methodname>
+			prenant en premier paramètres le préfixe du namespace voulu (namespace sans les deux points) et en second le nom de la fonction à appeler (callback).
+			Appelé, le callback prendra en paramètre celui utilisé pour <methodname>Atomik::get()</methodname>.
+		<example>
+			<title>Créer un Sélecteur</title>
+			<programlisting>
+				<![CDATA[
+function mon_selecteur($string) {
+	return strtoupper($string);
+}
+Atomik::registerSelector('up', 'mon_selecteur');
+echo A('up:hello world'); // HELLO WORLD]]>
+			</programlisting>>
+		</example>
+	</sect1>
+	<sect1 id="methods">
+		<title>Methodes</title>
+		<para>
+			La classe Atomik contient un nombre important de méthodes qui font beaucoup de choses.
+			Elle sont faciles à retenir puisque pour les appeler vous n'avez qu'à faire Atomikk::quelque_chose()
+			Depuis la version 2.2, il est possible d'ajouter des méthodes personnelles à la classe Atomik.
+			Cette possibilité est optimisée pour PHP 5.3, mais peut fonctionner (avec des limitations) sous des versions précédentes.
+		</para>
+		<para>
+			Créer une méthode est très simple, il suffit d'appeler  <methodname>Atomik::registerMethod()</methodname>.
+			Cette fonction prenant en paramètre le nom de la method et le callback, dans cet ordre-ci.
+		</para>
+		<example>
+			<title>Créer une méthode</title>
+			<programlisting>
+				<![CDATA[
+function mon_callback() {
+	echo 'appelé par maMethode()';
+}
+Atomik::registerMethod('maMethode', 'mon_callback');]]>
+			</programlisting>
+			<para>
+				Si vous utilisez PHP 5.3 vous pouvez utiliser les fonctions anonymes :
+			</para>
+			<programlisting>
+				<![CDATA[
+Atomik::registerMethod('maMethode', function() {
+	echo 'call from maMethode()';
+});]]>
+			</programlisting>
+		</example>
+		<para>
+			Appeler une méthode créée par vos soins est équivalent à appeler toute autre method de la classe Atomik.
+		<example>
+			<title>Appeler une méthode</title>
+			<programlisting>
+				<![CDATA[
+Atomik::maMethode();]]>
+			</programlisting>
+		</example>
+		<para>
+			Toute fois, cela ne marche que sous PHP 5.3. Avec une précédente version, vous serez contraint d'utiliser <methodname>Atomik::call()</methodname>.
+		</para>
+		<example>
+			<title>Appeler une méthode via <methodname>Atomik::call()</methodname></title>
+			<programlisting>
+				<![CDATA[
+Atomik::call('maMethode');
+Atomik::call('maMethode', $arg1, $arg2); // avec des arguments]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>
