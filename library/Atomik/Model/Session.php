@@ -25,8 +25,8 @@ require_once 'Atomik/Db.php';
 /** Atomik_Model_Collection */
 require_once 'Atomik/Model/Collection.php';
 
-/** Atomik_Model_EventListener */
-require_once 'Atomik/Model/EventListener.php';
+/** Atomik_Model_EventDispatcher */
+require_once 'Atomik/Model/EventDispatcher.php';
 
 /** Atomik_Model_Validator */
 require_once 'Atomik/Model/Validator.php';
@@ -35,13 +35,10 @@ require_once 'Atomik/Model/Validator.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Session
+class Atomik_Model_Session extends Atomik_Model_EventDispatcher
 {
 	/** @var Atomik_Db_Instance */
 	protected $_dbInstance;
-	
-	/** @var array of Atomik_Model_EventListener */
-	protected $_listeners = array();
 	
 	/** @var array of Atomik_Model_Session */
 	private static $_instances = array();
@@ -78,26 +75,13 @@ class Atomik_Model_Session
 	}
 	
 	/**
-	 * @param Atomik_Model_EventListener $listener
-	 */
-	public function addListener(Atomik_Model_EventListener $listener)
-	{
-	    $this->_listeners[] = $listener;
-	}
-	
-	/**
-	 * @param Atomik_Model_Descriptor $descriptor
-	 * @param string $event
-	 * @param array $args
+	 * @see Atomik_Model_EventDispatcher::notify()
 	 */
 	public function notify($event, Atomik_Model_Descriptor $descriptor)
 	{
 	    $args = func_get_args();
-	    array_shift($args);
-	    
-		foreach ($this->_listeners as $listener) {
-			call_user_func_array(array($listener, $event), $args);
-		}
+	    call_user_func_array(array($descriptor, 'notify'), $args);
+	    call_user_func_array(array($this, 'parent::notify'), $args);
 	}
 	
 	/**

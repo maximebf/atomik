@@ -61,6 +61,9 @@ class DbPlugin
         // where to find sql scripts
         'sql_dirs'      => array('./app/sql'),
     
+        // default db instance name
+        'default_instance' => 'default',
+    
         // other db instance to create
         'instances' 	=> array()
     	
@@ -93,7 +96,7 @@ class DbPlugin
     		    self::createInstance($name, $instanceConf);
     		}
 		}
-		Atomik_Db::setInstance('default');
+		Atomik_Db::setInstance(self::$config['default_instance']);
 		
 		// adds models directories to php's include path
 		$includes = explode(PATH_SEPARATOR, get_include_path());
@@ -252,7 +255,7 @@ class DbPlugin
             }
         }
 		
-		Atomik::fireEvent('Db::Script', array($script, $paths));
+		Atomik::fireEvent('Db::Script', array($script));
 		return $script;
 	}
 	

@@ -55,4 +55,12 @@ class DbSessionPlugin
         $handler = new Atomik_Session_Db($db, $table, $idColumn, $dataColumn, $expiresColumn);
         Atomik_Session_Db::register($handler);
     }
+	
+    public static function onDbScript($script)
+    {
+		/** Atomik_Db_Script_File */
+		require_once 'Atomik/Db/Script/File.php';
+		$filename = dirname(__FILE__) . '/sessions.sql';
+		$script->addScript(new Atomik_Db_Script_File($filename));
+    }
 }

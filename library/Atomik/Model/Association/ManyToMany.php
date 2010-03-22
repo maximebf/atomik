@@ -104,6 +104,7 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
               ->filterEqual(array($this->_source, $this->_sourceFieldName), $value);
         
         $collection = $query->execute();
-		$model->_set($this->_name, $collection);
+        $assocCollection = new Atomik_Model_AssocCollection($model, $this, $collection);
+		$model->_set($this->_name, $assocCollection);
     }
 }

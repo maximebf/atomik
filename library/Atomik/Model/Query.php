@@ -68,15 +68,7 @@ class Atomik_Model_Query
     
     public static function findQuery($descriptor, $where = array(), $orderBy = null, $limit = null)
     {
-        $query = Atomik_Model_Query::from($descriptor);
-        
-        foreach ($where as $key => $value) {
-            if ($value instanceof Atomik_Model_Query_Filter_Abstract) {
-                $query->filter($value);
-                continue;
-            }
-            $query->filterEqual($key, $value);
-        }
+        $query = Atomik_Model_Query::from($descriptor)->filter($where);
         
         if ($orderBy !== null) {
             $query->orderBy($orderBy);
@@ -105,9 +97,17 @@ class Atomik_Model_Query
         
         if ($association === null) {
             if (!$this->_from->isModelAssociated($descriptor)) {
-                require_once 'Atomik/Model/Query/Exception.php';
-                throw new Atomik_Model_Query_Exception("Cannot create join with unassociated model '" 
-                    . $descriptor->getName() . "'");
+                $found = false;
+                foreach ($this->_jointDescriptors as $join) {
+                    if ($join->isModelAssociated($descriptor)) {
+                        $found = true;
+                    }
+                }
+                if (!$found) {
+                    require_once 'Atomik/Model/Query/Exception.php';
+                    throw new Atomik_Model_Query_Exception("Cannot create join with unassociated model '" 
+                        . $descriptor->getName() . "'");
+                }
             }
             if (count($associations = $this->_from->getAssociations($descriptor)) > 1) {
                 require_once 'Atomik/Model/Query/Exception.php';
@@ -124,8 +124,14 @@ class Atomik_Model_Query
     public function filter($filter)
     {
         if (is_array($filter)) {
-            array_map(array($this, 'filter'), $filter);
-            return;
+            foreach ($filter as $key => $value) {
+                if (is_string($key)) {
+                    $this->filterEqual($key, $value);
+                } else {
+                    $this->filter($value);
+                }
+            }
+            return $this;
         }
         
         if (!($filter instanceof Atomik_Model_Query_Filter_Abstract)) {
@@ -156,18 +162,25 @@ class Atomik_Model_Query
             . $filterDescriptor->getName() . "' not part of the query");
     }
     
+    public function filterPk($pk)
+    {
+        $pkField = $descriptor->getPrimaryKeyField()->getName();
+        return $this->filterEqual($pkField, $pk);
+    }
+    
     public function __call($method, $args)
     {
         if (substr($method, 0, 6) == 'filter') {
             $filterName = substr($method, 6);
             $descriptor = $this->_from;
             $field = $args[0];
+            $value = isset($args[1]) ? $args[1] : null;
             if (is_array($field)) {
                 $descriptor = $field[0];
                 $field = $field[1];
             }
             
-            $filter = Atomik_Model_Query_Filter::factory($filterName, $descriptor, $field, $args[1]);
+            $filter = Atomik_Model_Query_Filter::factory($filterName, $descriptor, $field, $value);
             return $this->filter($filter);
         }
     }

@@ -40,84 +40,48 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	/**
 	 * @param Atomik_Model $owner
 	 * @param Atomik_Model_Association $assoc
-	 * @param array $models
+	 * @param Atomik_Model_Collection $collection
 	 */
-	public function __construct(Atomik_Model $owner, Atomik_Model_Association $assoc, $models = array())
+	public function __construct(Atomik_Model $owner, Atomik_Model_Association $assoc, Atomik_Model_Collection $collection = null)
 	{
 		$this->_owner = $owner;
 		$this->_association = $assoc;
-		$this->clear($models);
-	}
-	
-	public function add(Atomik_Model $model)
-	{
-	    
-	}
-	
-	public function get($index)
-	{
-	    
-	}
-	
-	public function remove(Atomik_Model $model)
-	{
-	    
+		if ($collection !== null) {
+		    $this->_models = $collection->getAll();
+		}
 	}
 	
 	/**
-	 * Checks if the specified model is part of this reference
-	 *
+	 * @param Atomik_Model $model
+	 */
+	public function add(Atomik_Model $model)
+	{
+	    $this->_models[] = $model;
+	}
+	
+	/**
+	 * @param int $index
+	 */
+	public function get($index)
+	{
+	    return $this->_models[$index];
+	}
+	
+	/**
+	 * @param Atomik_Model $model
+	 */
+	public function remove(Atomik_Model $model)
+	{
+	    unset($this->_models[array_search($model, $this->_models)]);
+	}
+	
+	/**
 	 * @param Atomik_Model $model
 	 * @return bool
 	 */
 	public function contains(Atomik_Model $model)
 	{
-		foreach ($this->_models as $modelComp) {
-			if ($modelComp == $model) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Saves all models contained is this reference
-	 */
-	public function save()
-	{
-		foreach ($this->_models as $model) {
-			$model->save();
-		}
-	}
-	
-	/**
-	 * Deletes all models contained is this relation
-	 */
-	public function delete()
-	{
-		foreach ($this->_models as $model) {
-			$model->delete();
-		}
-		$this->_models = array();
-	}
-	
-	/**
-	 * Resets all models from this reference
-	 *
-	 * @param array $models OPTIONAL An array of models to repopulate the reference
-	 */
-	public function clear($models = array())
-	{
-		// unsets old references
-		foreach ($this->_models as $model) {
-			$model->_set($this->_association->getTargetField(), null);
-			$model->save();
-		}
-		
-		$this->_models = array();
-		for ($i = 0, $c = count($models); $i < $c; $i++) {
-			$this->offsetSet($i, $models[$i]);
-		}
+		return array_search($model, $this->_models) !== false;
 	}
 	
 	/* -------------------------------------------------------------------------------------------
@@ -145,16 +109,11 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	
 	public function offsetSet($index, $model)
 	{
-		// sets the foreign key on the foreign model
-		$model->_set($this->_association->getTargetField(), 
-		    $this->_owner->_get($this->_association->getSourceField()));
 		$this->_models[$index] = $model;
 	}
 	
 	public function offsetUnset($index)
 	{
-		// unsets the foreign key on the foreign model
-		$this->_models[$index]->_set($this->_association->getTargetField(), null);
 		unset($this->_models[$index]);
 	}
 	

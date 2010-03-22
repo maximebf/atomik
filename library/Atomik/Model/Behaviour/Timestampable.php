@@ -28,7 +28,7 @@ require_once 'Atomik/Model/Behaviour.php';
  */
 class Atomik_Model_Behaviour_Timestampable extends Atomik_Model_Behaviour
 {
-	public function apply(Atomik_Model_Descriptor $descriptor, $target)
+	public function init(Atomik_Model_Descriptor $descriptor, $target)
 	{
 		$descriptor->addField(Atomik_Model_Field::factory('createdAt', 'datetime'));
 		$descriptor->addField(Atomik_Model_Field::factory('updatedAt', 'datetime'));

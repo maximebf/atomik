@@ -67,7 +67,7 @@ class Atomik_Db_Script_Model implements Atomik_Db_Script_Interface
 			}
 			
 			require_once $file->getPathname();
-			if (!class_exists($className, false)) {
+			if (!class_exists($className, false) || !is_subclass_of($className, 'Atomik_Model')) {
 				continue;
 			}
 			

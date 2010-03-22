@@ -146,10 +146,11 @@ class Atomik_Model
 	    
 	    $accessor = $matches[1];
 	    $property = $matches[2];
-	    $property = strtolower($property{0}) . substr($property, 1);
+	    $property{0} = strtolower($property{0});
 	    
-	    if (!property_exists($this, $property)) {
-	        return;
+	    if (!$this->_descriptor->hasField($property) &&
+	        !$this->_descriptor->hasAssociation($property)) {
+	            throw new Atomik_Model_Exception("Unknown property '$property' in '" . get_class($this) . "'");
 	    }
 	    
 	    if ($accessor == 'get') {

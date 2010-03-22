@@ -39,19 +39,35 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	 * @Field(type="string", length=100, repr=true)
 	 * @Form(label="Username")
 	 */
-	public $username;
+	protected $username;
 	
 	/**
 	 * @Field(type="string", length=50)
 	 * @Form(label="Password", helper="formPassword")
 	 */
-	public $password;
+	protected $password;
 	
 	/**
-	 * @Field(type="string")
+	 * @Field(type="serialize")
 	 * @Form(label="Roles (comma-separated):")
 	 */
-	public $roles;
+	protected $roles = array();
+	
+	/**
+	 * @param string $password
+	 */
+	public function setPassword($password)
+	{
+	    $this->password = md5($password);
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getRoles()
+	{
+		return $this->roles;
+	}
 	
 	/**
 	 * Checks if the user has access to the specified resource
@@ -73,15 +89,5 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	public function isAllowed($roles)
 	{
 		return Atomik_Auth::isAllowed($roles, $this->getRoles());
-	}
-	
-	/**
-	 * Returns roles of the user
-	 *
-	 * @return array
-	 */
-	public function getRoles()
-	{
-		return array_map('trim', explode(',', $this->roles));
 	}
 }

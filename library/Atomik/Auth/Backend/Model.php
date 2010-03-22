@@ -63,9 +63,9 @@ class Atomik_Auth_Backend_Model implements Atomik_Auth_Backend_Interface
 	 */
 	public function authentify($username, $password)
 	{
-		$user = Atomik_Model::findOne($this->modelName, array(
+		$user = Atomik_Model_Query::find($this->modelName, array(
 			$this->userField => $username,
-			$this->passwordField => $password
+			$this->passwordField => md5($password)
 		));
 		
 		return $user !== null;

@@ -32,5 +32,5 @@ interface Atomik_Auth_User_Locator_Interface
 	 *
 	 * @return Atomik_Auth_User_Interface
 	 */
-	static function find($username);
+	function find($username);
 }

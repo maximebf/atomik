@@ -37,7 +37,7 @@ require_once 'Atomik/Model/Session.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Descriptor
+class Atomik_Model_Descriptor extends Atomik_Model_EventDispatcher
 {
     const INHERITANCE_ABSTRACT = 'abstract';
     const INHERITANCE_JOINED = 'joined';
@@ -60,7 +60,7 @@ class Atomik_Model_Descriptor
 	/** @var Atomik_Model_Descriptor */
 	protected $_parentModelDescriptor;
 	
-	/** @var array */
+	/** @var array of Atomik_Model_Field */
 	protected $_fields = array();
 	
 	/** @var Atomik_Model_Field_Abstract */
@@ -69,10 +69,13 @@ class Atomik_Model_Descriptor
 	/** @var bool */
 	protected $_autoPrimaryKey = true;
 	
-	/** @var array */
+	/** @var array of Atomik_Model_Association */
 	protected $_associations = array();
 	
-	/** @var array */
+	/** @var array of Atomik_Model_Behaviour */
+	protected $_behaviours = array();
+	
+	/** @var array of Atomik_Model_Descriptor */
 	private static $_descriptors = array();
 	
 	/**
@@ -455,6 +458,43 @@ class Atomik_Model_Descriptor
 	}
 	
 	/**
+	 * @param Atomik_Model_Behaviour $behaviour
+	 */
+	public function addBehaviour(Atomik_Model_Behaviour $behaviour)
+	{
+	    $this->addListener($behaviour);
+	    $this->_behaviours[$behaviour->getName()] = $behaviour;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function hasBehaviour($name)
+	{
+	    return isset($this->_behaviours[$name]);
+	}
+	
+	/**
+	 * @param string $name
+	 * @return Atomik_Model_Behaviour
+	 */
+	public function getBehaviour($name)
+	{
+	    if (!isset($this->_behaviours[$name])) {
+	        return false;
+	    }
+	    return $this->_behaviours[$name];
+	}
+	
+	/**
+	 * @return array of Atomik_Model_Behaviour
+	 */
+	public function getBehaviours()
+	{
+	    return $this->_behaviours;
+	}
+	
+	/**
 	 * Creates a model instance
 	 *
 	 * @see Atomik_Model::__construct()
@@ -479,9 +519,9 @@ class Atomik_Model_Descriptor
 		    }
 		}
 		
-		$this->getSession()->notify('BeforeCreateInstance', $this, $data, $new);
+		$this->notify('BeforeCreateInstance', $this, $data, $new);
 		$instance = new $className($data, $new, $this);
-		$this->getSession()->notify('AfterCreateInstance', $this, $instance);
+		$this->notify('AfterCreateInstance', $this, $instance);
 		
 		return $instance;
 	}

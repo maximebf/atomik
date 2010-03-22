@@ -31,7 +31,13 @@ require_once 'Atomik/Model/EventListener.php';
  */
 abstract class Atomik_Model_Behaviour extends Atomik_Model_Descriptor_Annotation implements Atomik_Model_EventListener
 {
-	public function apply(Atomik_Model_Descriptor $descriptor, $target) {}
+	public function apply(Atomik_Model_Descriptor $descriptor, $target) 
+	{
+	    $this->init($descriptor, $target);
+	    $descriptor->addBehaviour($this);
+	}
+	
+	public function init(Atomik_Model_Descriptor $descriptor, $target) {}
 	
 	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query) {}
 	

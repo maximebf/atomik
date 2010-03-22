@@ -19,29 +19,38 @@
  * @link http://www.atomikframework.com
  */
 
-/**Atomik_Model_Behaviour */
-require_once 'Atomik/Model/Behaviour.php';
+/** Atomik_Model_EventListener */
+require_once 'Atomik/Model/EventListener.php';
 
 /**
- * Idea from Doctrine
- *
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Sluggable extends Atomik_Model_Behaviour
+class Atomik_Model_EventDispatcher
 {
-    public $field = 'title';
-    
-	public function init(Atomik_Model_Descriptor $descriptor, $target)
+	/** @var array of Atomik_Model_EventListener */
+	protected $_listeners = array();
+	
+	/**
+	 * @param Atomik_Model_EventListener $listener
+	 */
+	public function addListener(Atomik_Model_EventListener $listener)
 	{
-	    $descriptor->addField(Atomik_Model_Field::factory('slug', 'string', 100));
+	    $this->_listeners[] = $listener;
 	}
 	
-	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
+	/**
+	 * @param Atomik_Model_Descriptor $descriptor
+	 * @param string $event
+	 * @param array $args
+	 */
+	public function notify($event, Atomik_Model_Descriptor $descriptor)
 	{
-    	if (!$descriptor->hasField($this->field)) {
-    	    throw new Atomik_Model_Behaviour_Exception("Missing sluggable field '{$this->field}'");
-    	}
-		$model->slug = Atomik::friendlify($model->_get($this->field));
+	    $args = func_get_args();
+	    array_shift($args);
+	    
+		foreach ($this->_listeners as $listener) {
+			call_user_func_array(array($listener, $event), $args);
+		}
 	}
 }

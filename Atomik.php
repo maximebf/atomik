@@ -378,13 +378,6 @@ final class Atomik
     private static $pluggableApplications = array();
     
     /**
-     * Registered methods
-     * 
-     * @var array
-     */
-    private static $methods = array();
-    
-    /**
      * Already loaded helpers
      * 
      * @var array
@@ -409,7 +402,7 @@ final class Atomik
      * 
      * If dispatch is false, you will have to manually dispatch the request and exit.
      * 
-     * @param string $env
+     * @param string $env A configuration key which will be merged at the root of the store
      * @param string $uri
      * @param bool $dispatch Whether to dispatch
      */
@@ -540,7 +533,7 @@ final class Atomik
      * search for a file with one of the supported extensions.
      *
      * @param string $filename
-     * @param bool   $triggerError Whether to throw an exception if the file does not exist
+     * @param bool $triggerError Whether to throw an exception if the file does not exist
      */
     public static function loadConfig($filename, $triggerError = true)
     {
@@ -769,8 +762,8 @@ final class Atomik
     /**
      * Fires the Atomik::End event and exits the application
      *
-     * @param bool $success         Whether the application exit on success or because an error occured
-     * @param bool $writeSession    Whether to call session_write_close() before exiting
+     * @param bool $success Whether the application exit on success or because an error occured
+     * @param bool $writeSession Whether to call session_write_close() before exiting
      */
     public static function end($success = false, $writeSession = true)
     {
@@ -833,9 +826,9 @@ final class Atomik
      * in the returned params). Named route can then be use with Atomik::url()
      *
      * @param string $uri
-     * @param array $params    Additional parameters which are not in the uri
-     * @param array $routes    Uses app/routes if null
-     * @return array           Route parameters
+     * @param array $params Additional parameters which are not in the uri
+     * @param array $routes Uses app/routes if null
+     * @return array Route parameters
      */
     public static function route($uri, $params = array(), $routes = null)
     {
@@ -977,9 +970,9 @@ final class Atomik
      * public variables and the output buffer
      * 
      * @internal
-     * @param string $__filename   Filename
-     * @param array $__vars        An array containing key/value pairs that will be transformed to variables accessible inside the file
-     * @return array               A tuple with the output buffer and the public variables
+     * @param string $__filename Filename
+     * @param array $__vars An array containing key/value pairs that will be transformed to variables accessible inside the file
+     * @return array A tuple with the output buffer and the public variables
      */
     private function scoped($__filename, $__vars = array())
     {
@@ -1011,9 +1004,9 @@ final class Atomik
      * If neither of them are found, it will throw an exception.
      *
      * @see Atomik::render()
-     * @param string $action            The action name. The HTTP method can be suffixed after a dot
-     * @param bool|string $viewContext  The view context. Set to false to not render the view and return the variables or to true for the request's context
-     * @return mixed                    The output of the view or an array of variables or false if an error occured
+     * @param string $action The action name. The HTTP method can be suffixed after a dot
+     * @param bool|string $viewContext The view context. Set to false to not render the view and return the variables or to true for the request's context
+     * @return mixed The output of the view or an array of variables or false if an error occured
      */
     public static function execute($action, $viewContext = true, $vars = array(), $returnBoth = false)
     {
@@ -1185,9 +1178,9 @@ final class Atomik
      * directories configured in atomik/dirs/views. If no file is found, an 
      * exception is thrown unless $triggerError is false.
      *
-     * @param string $view         The view name
-     * @param array $vars          An array containing key/value pairs that will be transformed to variables accessible inside the view
-     * @param array $dirs          Directories where view files are stored
+     * @param string $view The view name
+     * @param array $vars An array containing key/value pairs that will be transformed to variables accessible inside the view
+     * @param array $dirs Directories where view files are stored
      * @return string|bool
      */
     public static function render($view, $vars = array(), $dirs = null)
@@ -1215,9 +1208,9 @@ final class Atomik
     /**
      * Renders a file using a filename which will not be resolved.
      *
-     * @param string $filename   Filename
-     * @param array $vars        An array containing key/value pairs that will be transformed to variables accessible inside the file
-     * @return string            The output of the rendered file
+     * @param string $filename Filename
+     * @param array $vars An array containing key/value pairs that will be transformed to variables accessible inside the file
+     * @return string The output of the rendered file
      */
     public static function renderFile($filename, $vars = array())
     {
@@ -1241,10 +1234,10 @@ final class Atomik
     /**
      * Renders a layout
      * 
-     * @param string $layout       Layout name
-     * @param string $content      The content that will be available in the layout in the $contentForLayout variable
-     * @param array $vars          An array containing key/value pairs that will be transformed to variables accessible inside the layout
-     * @param array $dirs          Directories where to search for layouts
+     * @param string $layout Layout name
+     * @param string $content The content that will be available in the layout in the $contentForLayout variable
+     * @param array $vars An array containing key/value pairs that will be transformed to variables accessible inside the layout
+     * @param array $dirs Directories where to search for layouts
      * @return string
      */
     public static function renderLayout($layout, $content, $vars = array(), $dirs = null)
@@ -1268,7 +1261,7 @@ final class Atomik
      * Loads an helper file
      * 
      * @param string $helperName
-     * @param array $dirs          Directories where to search for helpers
+     * @param array $dirs Directories where to search for helpers
      */
     public static function loadHelper($helperName, $dirs = null)
     {
@@ -1311,7 +1304,7 @@ final class Atomik
     /**
      * Registers an helper
      *
-     * @param string   $helperName
+     * @param string $helperName
      * @param callback $callback
      */
     public static function registerHelper($helperName, $callback)
@@ -1323,8 +1316,8 @@ final class Atomik
      * Executes an helper
      * 
      * @param string $helperName
-     * @param array $args          Arguments for the helper
-     * @param array $dirs          Directories where to search for helpers
+     * @param array $args Arguments for the helper
+     * @param array $dirs Directories where to search for helpers
      * @return mixed
      */
     public static function helper($helperName, $args = array(), $dirs = null)
@@ -1345,10 +1338,20 @@ final class Atomik
         if (method_exists('Atomik', $helperName)) {
             return call_user_func_array(array('Atomik', $helperName), $args);
         }
-        if (isset(self::$methods[$helperName])) {
-            return call_user_func_array(self::$methods[$helperName], $args);
-        }
         return self::helper($helperName, $args);
+    }
+    
+    /**
+     * PHP > 5.3 magic method to handle calls to undefined method
+     * Redirect calls to {@see Atomik::helper()}
+     * 
+     * @param string $helperName
+     * @param array $args
+     * @return mixed
+     */
+    public static function __callStatic($helperName, $args)
+    {
+        return call_user_func(array(self::instance(), 'helper'), $helperName, $args);
     }
     
     
@@ -1367,11 +1370,11 @@ final class Atomik
      * Can be used on any array by specifying the third argument
      *
      * @see Atomik::_dimensionizeArray()
-     * @param array|string $key     Can be an array to set many key/value
+     * @param array|string $key Can be an array to set many key/value
      * @param mixed $value
-     * @param bool $dimensionize    Whether to use Atomik::_dimensionizeArray() on $key
-     * @param array $array          The array on which the operation is applied
-     * @param array $add            Whether to add values or replace them
+     * @param bool $dimensionize Whether to use Atomik::_dimensionizeArray() on $key
+     * @param array $array The array on which the operation is applied
+     * @param array $add Whether to add values or replace them
      */
     public static function set($key, $value = null, $dimensionize = true, &$array = null, $add = false)
     {
@@ -1445,10 +1448,10 @@ final class Atomik
      * Can be used on any array by specifying the third argument
      *
      * @see Atomik::_dimensionizeArray()
-     * @param array|string $key      Can be an array to add many key/value
+     * @param array|string $key Can be an array to add many key/value
      * @param mixed $value
-     * @param bool $dimensionize     Whether to use Atomik::_dimensionizeArray()
-     * @param array $array           The array on which the operation is applied
+     * @param bool $dimensionize Whether to use Atomik::_dimensionizeArray()
+     * @param array $array The array on which the operation is applied
      */
     public static function add($key, $value = null, $dimensionize = true, &$array = null)
     {
@@ -1461,10 +1464,10 @@ final class Atomik
      * Works the same as add()
      *
      * @see Atomik::add()
-     * @param array|string $key      Can be an array to add many key/value
+     * @param array|string $key Can be an array to add many key/value
      * @param mixed $value
-     * @param bool $dimensionize     Whether to use Atomik::_dimensionizeArray()
-     * @param array $array           The array on which the operation is applied
+     * @param bool $dimensionize Whether to use Atomik::_dimensionizeArray()
+     * @param array $array The array on which the operation is applied
      */
     public static function prepend($key, $value = null, $dimensionize = true, &$array = null)
     {
@@ -1550,9 +1553,9 @@ final class Atomik
      * key1/key2/key3
      * Can be used on any array by specifying the third argument
      *
-     * @param string|array $key   The configuration key which value should be returned. If null, fetches all values
-     * @param mixed $default      Default value if the key is not found
-     * @param array $array        The array on which the operation is applied
+     * @param string|array $key The configuration key which value should be returned. If null, fetches all values
+     * @param mixed $default Default value if the key is not found
+     * @param array $array The array on which the operation is applied
      * @return mixed
      */
     public static function get($key = null, $default = null, $array = null)
@@ -1583,8 +1586,8 @@ final class Atomik
      * Can be used on any array by specifying the second argument
      *
      * @see Atomik::get()
-     * @param string $key    The key which should be deleted
-     * @param array $array   The array on which the operation is applied
+     * @param string $key The key which should be deleted
+     * @param array $array The array on which the operation is applied
      * @return bool
      */
     public static function has($key, $array = null)
@@ -1600,8 +1603,8 @@ final class Atomik
      *
      * @see Atomik::get()
      * @param string $key
-     * @param array $array    The array on which the operation is applied
-     * @return mixed          The deleted value
+     * @param array $array The array on which the operation is applied
+     * @return mixed The deleted value
      */
     public static function delete($key, &$array = null)
     {
@@ -1627,9 +1630,9 @@ final class Atomik
      * key1/key2/key3
      * Can be used on any array by specifying the second argument
      *
-     * @param string|array $key    The configuration key which value should be returned. If null, fetches all values
-     * @param array $array         The array on which the operation is applied
-     * @return mixed               Null if the key does not match
+     * @param string|array $key The configuration key which value should be returned. If null, fetches all values
+     * @param array $array The array on which the operation is applied
+     * @return mixed Null if the key does not match
      */
     public static function &getRef($key = null, &$array = null)
     {
@@ -1683,9 +1686,9 @@ final class Atomik
      * 
      * @internal 
      * @see Atomik::set()
-     * @param array|string $key      Can be an array to set many key/value
+     * @param array|string $key Can be an array to set many key/value
      * @param mixed $value
-     * @param bool $dimensionize     Whether to use Atomik::_dimensionizeArray() on $key
+     * @param bool $dimensionize Whether to use Atomik::_dimensionizeArray() on $key
      */
     public static function reset($key = null, $value = null, $dimensionize = true)
     {
@@ -1742,10 +1745,10 @@ final class Atomik
      *   - classNameTemplate: % will be replaced with the plugin name
      *   - callStart:         Whether to call the start() method on the plugin class
      *
-     * @param string $plugin   The plugin name
-     * @param array $config    Configuration for this plugin
-     * @param array $options   Options for loading this plugin
-     * @return bool            Success
+     * @param string $plugin The plugin name
+     * @param array $config Configuration for this plugin
+     * @param array $options Options for loading this plugin
+     * @return bool Success
      */
     public static function loadCustomPlugin($plugin, $config = array(), $options = array())
     {
@@ -1914,9 +1917,9 @@ final class Atomik
      *   - overwriteDirs:       whether to keep access to the user actions, views, layouts and helpers folders
      *   - checkPluginIsLoaded: whether to check if the plugin is loaded
      * 
-     * @param string $plugin    Plugin's name
-     * @param string $route     The route that will trigger the application (default is the plugin name)
-     * @param array $config     Configuration
+     * @param string $plugin Plugin's name
+     * @param string $route The route that will trigger the application (default is the plugin name)
+     * @param array $config Configuration
      */
     public static function registerPluggableApplication($plugin, $route = null, $config = array())
     {
@@ -1941,10 +1944,10 @@ final class Atomik
      * Dispatches a pluggable application
      * 
      * @see Atomik::registerPluggableApplication()
-     * @param string $plugin   Plugin's name
-     * @param string $uri      Uri
-     * @param array $config    Configuration
-     * @return bool            Dispatch success
+     * @param string $plugin Plugin's name
+     * @param string $uri Uri
+     * @param array $config Configuration
+     * @return bool Dispatch success
      */
     public static function dispatchPluggableApplication($plugin, $uri = null, $config = array())
     {
@@ -2065,64 +2068,16 @@ final class Atomik
     
     
     /* -------------------------------------------------------------------------------------------
-     *  Methods
-     * ------------------------------------------------------------------------------------------ */
-    
-    /**
-     * Registers a method that will be available on the Atomik class when using PHP5.3
-     * or through Atomik::call() for previous versions.
-     * 
-     * @param string $method       The method name
-     * @param callback $callback   A callback to be called when the method is called
-     */
-    public static function registerMethod($method, $callback)
-    {
-        if (!is_callable($callback)) {
-            throw new Atomik_Exception('The specified callback for the method ' . $method . ' is not callable');
-        }
-        self::$methods[$method] = $callback;
-    }
-    
-    /**
-     * Calls a registered method
-     * 
-     * @param string $method    Method name
-     * @param args $arg...      Any number of arguments that will be pass to the method
-     * @return mixed            The method result
-     */
-    public static function call($method)
-    {
-        if (!isset(self::$methods[$method])) {
-            throw new Atomik_Exception('Atomik::' . $method . '() not found');
-        }
-        
-        $args = func_get_args();
-        array_shift($args);
-        
-        return call_user_func_array(self::$methods[$method], $args);
-    }
-    
-    /**
-     * PHP 5.3 magic method to handle calls to undefined method
-     */
-    public static function __callStatic($method, $args)
-    {
-        array_unshift($args, $method);
-        return call_user_func_array(array(self, 'callPlugin'), $args);
-    }
-    
-    
-    /* -------------------------------------------------------------------------------------------
      *  Events
      * ------------------------------------------------------------------------------------------ */
     
     /**
      * Registers a callback to an event
      *
-     * @param string $event         Event name
-     * @param callback $callback    The callback to call when the event is fired
-     * @param int $priority         Listener priority
-     * @param bool $important       If true and a listener of the same priority already exists, registers the new listener before the existing one. 
+     * @param string $event Event name
+     * @param callback $callback The callback to call when the event is fired
+     * @param int $priority Listener priority
+     * @param bool $important If true and a listener of the same priority already exists, registers the new listener before the existing one. 
      */
     public static function listenEvent($event, $callback, $priority = 50, $important = false)
     {
@@ -2144,10 +2099,10 @@ final class Atomik
     /**
      * Fires an event
      * 
-     * @param string $event            The event name
-     * @param array $args              Arguments for listeners
-     * @param bool $resultAsString     Whether to return all listener results as a string
-     * @return array                   An array containing results of each executed listeners
+     * @param string $event The event name
+     * @param array $args Arguments for listeners
+     * @param bool $resultAsString Whether to return all listener results as a string
+     * @return array An array containing results of each executed listeners
      */
     public static function fireEvent($event, $args = array(), $resultAsString = false)
     {
@@ -2262,8 +2217,8 @@ final class Atomik
      * Returns an action's filename
      * 
      * @see Atomik::path()
-     * @param string $action     Action name
-     * @param array $dirs        Directories where actions are stored (default is using configuration)
+     * @param string $action Action name
+     * @param array $dirs Directories where actions are stored (default is using configuration)
      * @return string
      */
     public static function actionFilename($action, $dirs = null)
@@ -2282,9 +2237,9 @@ final class Atomik
      * Returns a view's filename
      * 
      * @see Atomik::path()
-     * @param string $view         View name
-     * @param array $dirs          Directories where views are stored (default is using configuration)
-     * @param string $extension    View's file extension
+     * @param string $view View name
+     * @param array $dirs Directories where views are stored (default is using configuration)
+     * @param string $extension View's file extension
      * @return string
      */
     public static function viewFilename($view, $dirs = null, $extension = null)
@@ -2313,10 +2268,10 @@ final class Atomik
      *
      * The item "_merge_GET" can be use in $params to merge GET parameters with specified params.
      *
-     * @param string $action         The action name or an url. Can contain GET parameters (after ?)
-     * @param array $params          GET parameters to be added to the query string, if true will reuse current GET params
-     * @param bool $useIndex         Whether to use index.php in the url
-     * @param bool $useBaseAction    Whether to prepend the action with atomik/base_action
+     * @param string $action The action name or an url. Can contain GET parameters (after ?)
+     * @param array $params GET parameters to be added to the query string, if true will reuse current GET params
+     * @param bool $useIndex Whether to use index.php in the url
+     * @param bool $useBaseAction Whether to prepend the action with atomik/base_action
      * @return string
      */
     public static function url($action = null, $params = true, $useIndex = true, $useBaseAction = true)
@@ -2437,7 +2392,7 @@ final class Atomik
      * Returns an url exactly like Atomik::url() but relative to a plugin
      *
      * @see Atomik::url()
-     * @param string $plugin   The name of a plugin which is used as a pluggable application
+     * @param string $plugin The name of a plugin which is used as a pluggable application
      * @param string $action
      * @param array $params
      * @param bool $useIndex
@@ -2489,7 +2444,7 @@ final class Atomik
      * defined in the configuration.
      * 
      * @see Atomik::url()
-     * @param string $plugin    Plugin's name (default is the currently running pluggable app)
+     * @param string $plugin Plugin's name (default is the currently running pluggable app)
      * @param string $filename
      * @param array $params
      * @return string
@@ -2505,9 +2460,9 @@ final class Atomik
     /*
      * Includes a file
      *
-     * @param string $include      Filename or class name following the PEAR convention
-     * @param bool $className      If true, $include will be transformed from a PEAR-formed class name to a filename
-     * @param string|array $dirs   Include from specific directories rather than include path
+     * @param string $include Filename or class name following the PEAR convention
+     * @param bool $className If true, $include will be transformed from a PEAR-formed class name to a filename
+     * @param string|array $dirs Include from specific directories rather than include path
      * @return bool
      */
     public static function needed($include, $className = true, $dirs = null)
@@ -2554,9 +2509,9 @@ final class Atomik
      * 
      * Uses escape profiles defined in the escaping configuration key
      * 
-     * @param string $text      The text to escape
-     * @param mixed $profile    A profile name, a function name, or an array of function
-     * @return string           The escaped string
+     * @param string $text The text to escape
+     * @param mixed $profile A profile name, a function name, or an array of function
+     * @return string The escaped string
      */
     public static function escape($text, $profile = 'default')
     {
@@ -2604,12 +2559,12 @@ final class Atomik
      * Returns the flash messages saved in the session
      * 
      * @internal 
-     * @param string $label     Whether to only retreives messages from this label. When null or 'all', returns all messages
-     * @param bool $delete      Whether to delete messages once retrieved
-     * @return array            An array of messages if the label is specified or an array of array message
+     * @param string $label Whether to only retreives messages from this label. When null or 'all', returns all messages
+     * @param bool $delete Whether to delete messages once retrieved
+     * @return array An array of messages if the label is specified or an array of array message
      */
     public static function _getFlashMessages($label = 'all', $delete = true) {
-        if (!isset($_SESSION['__FLASH'])) {
+        if (!self::has('session/__FLASH')) {
             return array();
         }
         
@@ -2620,7 +2575,7 @@ final class Atomik
         	return self::get('session/__FLASH');
         }
         
-        if (!isset($_SESSION['__FLASH'][$label])) {
+        if (!self::has('session/__FLASH/' . $label)) {
             return array();
         }
         
@@ -2762,9 +2717,9 @@ final class Atomik
      * Redirects to another url
      *
      * @see Atomik::url()
-     * @param string $url      The url to redirect to
-     * @param bool $useUrl     Whether to use Atomik::url() on $url before redirecting
-     * @param int $httpCode    The redirection HTTP code
+     * @param string $url The url to redirect to
+     * @param bool $useUrl Whether to use Atomik::url() on $url before redirecting
+     * @param int $httpCode The redirection HTTP code
      */
     public static function redirect($url, $useUrl = true, $httpCode = 302)
     {
@@ -2796,9 +2751,9 @@ final class Atomik
      * Same as Atomik::redirect() but for urls relative to the root application
      * 
      * @see Atomik::redirect()
-     * @param string $url      The url to redirect to
-     * @param bool $useUrl     Use Atomik::url() on $url before redirecting
-     * @param int $httpCode    The redirection HTTP code
+     * @param string $url The url to redirect to
+     * @param bool $useUrl Use Atomik::url() on $url before redirecting
+     * @param int $httpCode The redirection HTTP code
      */
     public static function appRedirect($url, $useUrl = true, $httpCode = 302)
     {
@@ -2813,9 +2768,9 @@ final class Atomik
      * Same as Atomik::redirect() but redirects to a pluggable application
      * 
      * @see Atomik::redirect()
-     * @param string $url      The url to redirect to
-     * @param bool $useUrl     Use Atomik::url() on $url before redirecting
-     * @param int $httpCode    The redirection HTTP code
+     * @param string $url The url to redirect to
+     * @param bool $useUrl Use Atomik::url() on $url before redirecting
+     * @param int $httpCode The redirection HTTP code
      */
     public static function pluginRedirect($plugin, $url, $useUrl = true, $httpCode = 302)
     {
@@ -2829,11 +2784,11 @@ final class Atomik
     /**
      * Triggers a 404 error
      *
-     * @deprecated
+     * @param string $message
      */
-    public static function trigger404()
+    public static function trigger404($message = 'Not found')
     {
-        throw new Atomik_Exception('Not found', 404);
+        throw new Atomik_Exception($message, 404);
     }
     
     /**
@@ -2879,10 +2834,10 @@ final class Atomik
      * Equivalent to var_dump() but can be disabled using the configuration
      *
      * @see var_dump()
-     * @param mixed $data    The data which value should be dumped
-     * @param bool $force    Always display the dump even if debug from the config is set to false
-     * @param bool $echo     Whether to echo or return the result
-     * @return string        The result or null if $echo is set to true
+     * @param mixed $data The data which value should be dumped
+     * @param bool $force Always display the dump even if debug from the config is set to false
+     * @param bool $echo Whether to echo or return the result
+     * @return string The result or null if $echo is set to true
      */
     public static function debug($data, $force = false, $echo = true)
     {
@@ -2925,8 +2880,8 @@ final class Atomik
     /**
      * Renders an exception
      * 
-     * @param Exception $exception    The exception which sould ne rendered
-     * @param bool $return            Return the output instead of printing it
+     * @param Exception $exception The exception which sould ne rendered
+     * @param bool $return Return the output instead of printing it
      * @return string
      */
     public static function renderException($exception, $return = false)
@@ -2975,4 +2930,3 @@ final class Atomik
         echo $html;
     }
 }
-

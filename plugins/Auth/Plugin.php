@@ -29,25 +29,49 @@ class AuthPlugin
 	 * @var array
 	 */
     public static $config = array(
+        // the route from which the pluggable app will be accessble
+        // false to disable
     	'route'				=> 'auth/*',
+    
+        // the Atomik_Model class name that represents a user
     	'model' 			=> null,
+    
+        // the username field in the model
+        'model_user_field'  => 'username',
+    
+        // the password field in the model
+        'model_pass_field'  => 'password',
+    
+        // if model is null, an array of users
+        // for Atomik_Auth_User_Locator_Array
     	'users'				=> array(),
-    	'user_locator'		=> null,
+    
+        // an array of roles for Atomik_Auth
     	'roles' 			=> array(),
+    
+        // an array of resources for Atomik_Auth
     	'resources' 		=> array(),
+    
+        // roles for unauthentified users
     	'guest_roles' 		=> array(),
+    
+        // whether to treat resources that starts with
+        // a slash as restricted uris
+        'restricted_uris_from_resources' => true,
+    
+        // the action to go to when the user
+        // is not logged in
     	'forbidden_action' 	=> 'auth/login',
+    
+        // additional Atomik_Auth backend in the form of
+        // array('name' => 'backend class name', 'args' => array('constructor args'))
     	'backends' 			=> array()
     );
     
-	/**
-	 * @var array
-	 */
+	/** @var array */
     protected static $_privateUris = array();
     
 	/**
-	 * Starts the plugin
-	 * 
 	 * @param array $config
 	 */
     public static function start($config = array())
@@ -61,20 +85,18 @@ class AuthPlugin
     	if (self::$config['model'] !== null) {
     		// using a model
     		Atomik::loadPlugin('Db');
-    		Atomik_Auth_User_Locator_Model::setModelName(self::$config['model']);
-    		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model']));
-    		if (self::$config['user_locator'] == 'model' || self::$config['user_locator'] == null) {
-    			Atomik_Auth::setUserLocator('Atomik_Auth_User_Locator_Model');
-    		}
-    	}
-    	
-    	if (self::$config['users'] !== null) {
+    		$locator = new Atomik_Auth_User_Locator_Model(self::$config['model'],
+    		                                                 self::$config['model_user_field']);
+    		Atomik_Auth::setUserLocator($locator);
+    		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model'], 
+    		                                                        self::$config['model_user_field'], 
+    		                                                        self::$config['model_pass_field']));
+    		
+    	} else if (self::$config['users'] !== null) {
     		// the users array backend
-    		Atomik_Auth_User_Array::setUsers(self::$config['users']);
-    		Atomik_Auth::addBackend(Atomik_Auth_User_Array::getBackend());
-    		if (self::$config['user_locator'] == 'array'  || self::$config['model'] === null) {
-    			Atomik_Auth::setUserLocator('Atomik_Auth_User_Array');
-    		}
+    		$locator = Atomik_Auth_User_Locator_Array(self::$config['users']);
+    		Atomik_Auth::setUserLocator($locator);
+    		Atomik_Auth::addBackend($locator->getBackend());
     	}
     	
     	// backends
@@ -96,24 +118,23 @@ class AuthPlugin
     }
     
     /**
-     * Adds a restricted URI
-     * 
-     * @param	string	$uri
-     * @param	array	$roles
+     * @param string $uri
+     * @param array $roles
      */
     public static function addRestrictedUri($uri, $roles = array())
     {
     	self::$_privateUris[ltrim($uri, '/')] = (array) $roles;
     }
     
+    /**
+     * @return array
+     */
     public static function getRestrictedUris()
     {
     	return self::$_privateUris;
     }
     
 	/**
-	 * Checks if the request uri is accessible to the currently logged in user
-	 * 
 	 * @return bool
 	 */
     public static function isCurrentUriAccessible()
@@ -137,9 +158,10 @@ class AuthPlugin
     	return true;
     }
     
-	/**
-	 * 
-	 */
+    /* ------------------------------------------------------------------------
+     * Events handlers
+     */
+    
     public static function onAtomikDispatchUri(&$uri, &$request, &$cancel)
     {
     	if (!self::isCurrentUriAccessible()) {
@@ -152,19 +174,14 @@ class AuthPlugin
     			Atomik::trigger404();
     		}
     	}
+    	Atomik::fireEvent('Auth::Check');
     }
     
-    /**
-     * 
-     */
     public static function onBackendStart()
     {
     	Atomik_Backend::addMenu('users', 'Users', 'auth', array(), 'right');
     }
     
-    /**
-     * 
-     */
     public static function onDbScript($script)
     {
     	if (self::$config['model'] !== null) {

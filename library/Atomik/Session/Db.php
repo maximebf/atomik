@@ -116,7 +116,7 @@ class Atomik_Session_Db
     
     public function read($id)
     {
-        return $this->_db->findValue($this->_table, $this->_dataColumn, $this->_getWhere($id));
+        return (string) $this->_db->findValue($this->_table, $this->_dataColumn, $this->_getWhere($id));
     }
     
     public function write($id, $sessionData)

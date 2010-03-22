@@ -19,6 +19,7 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Auth_User_Locator_Interface */
 require_once 'Atomik/Auth/User/Locator/Interface.php';
 
 /**
@@ -29,19 +30,29 @@ require_once 'Atomik/Auth/User/Locator/Interface.php';
  */
 class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interface
 {
+	/** @var string */
+	protected $_modelName;
+	
+	/** @var string */
+	protected $_userField;
+	
 	/**
-	 * @var string
+	 * @param string $modelName
 	 */
-	private static $_modelName;
+	public function __construct($modelName = null, $userField = 'username')
+	{
+	    $this->_modelName = $modelName;
+	    $this->_userField = $userField;
+	}
 	
 	/**
 	 * Sets the model name to use for user objects
 	 * 
-	 * @param	array|string	$source
+	 * @param string $name
 	 */
-	public static function setModelName($name)
+	public function setModelName($name)
 	{
-    	self::$_modelName = $name;
+    	$this->_modelName = $name;
 	}
 	
 	/**
@@ -49,23 +60,39 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	 * 
 	 * @return string
 	 */
-	public static function getModelName()
+	public function getModelName()
 	{
-		if (self::$_modelName === null) {
-			require_once 'Atomik/Auth/Exception.php';
-			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_User_Locator_Model');
-		}
-		return self::$_modelName;
+		return $this->_modelName;
+	}
+	
+	/**
+	 * @param string $field
+	 */
+	public function setUserField($field)
+	{
+	    $this->_userField = $field;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getUserField()
+	{
+	    return $this->_userField;
 	}
 	
 	/**
 	 * Returns the object for the specified username
 	 * 
-	 * @param	string	$username
-	 * @return 	Atomik_Auth_User_Interface
+	 * @param string $username
+	 * @return Atomik_Auth_User_Interface
 	 */
-	public static function find($username)
+	public function find($username)
 	{
-		return Atomik_Model_Locator::findOne(self::$_modelName, array('username' => $username));
+		if ($this->_modelName === null) {
+			require_once 'Atomik/Auth/Exception.php';
+			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_User_Locator_Model');
+		}
+		return Atomik_Model_Query::find($this->_modelName, array($this->_userField => $username));
 	}
 }

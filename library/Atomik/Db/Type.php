@@ -34,6 +34,9 @@ require_once 'Atomik/Db/Type/Bool.php';
 /** Atomik_Db_Type_Datetime */
 require_once 'Atomik/Db/Type/Datetime.php';
 
+/** Atomik_Db_Type_Serialize */
+require_once 'Atomik/Db/Type/Serialize.php';
+
 /**
  * @package Atomik
  * @subpackage Db
@@ -48,7 +51,8 @@ class Atomik_Db_Type extends Atomik_Db_Type_Abstract
         'bool'     => 'Atomik_Db_Type_Bool',
         'string'   => 'Atomik_Db_Type_String',
         'text'     => 'Atomik_Db_Type_Text',
-        'datetime' => 'Atomik_Db_Type_Datetime'
+        'datetime' => 'Atomik_Db_Type_Datetime',
+        'serialize' => 'Atomik_Db_Type_Serialize'
     );
     
     /**

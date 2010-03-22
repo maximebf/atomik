@@ -5,7 +5,9 @@ class Atomik_Model_Association_ManyToOne extends Atomik_Model_Association
     protected function _setup()
     {
 		$this->setTargetFieldName($this->_target->getPrimaryKeyField()->getName());
-		$this->setSourceFieldName(strtolower($this->_target->getName()) . '_' . $this->_targetFieldName);
+		$targetName = str_replace('_', '', $this->_target->getName());
+		$targetName{0} = strtolower($targetName{0});
+		$this->setSourceFieldName($targetName . ucfirst($this->_targetFieldName));
     }
     
     public function load(Atomik_Model $model)

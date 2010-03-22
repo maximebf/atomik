@@ -12,36 +12,43 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Db
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/**Atomik_Model_Behaviour */
-require_once 'Atomik/Model/Behaviour.php';
+/** Atomik_Db_Type_Abstract */
+require_once 'Atomik/Db/Type/Abstract.php';
 
 /**
- * Idea from Doctrine
- *
  * @package Atomik
- * @subpackage Model
+ * @subpackage Db
  */
-class Atomik_Model_Behaviour_Sluggable extends Atomik_Model_Behaviour
+class Atomik_Db_Type_Serialize extends Atomik_Db_Type_Abstract
 {
-    public $field = 'title';
-    
-	public function init(Atomik_Model_Descriptor $descriptor, $target)
+	/**
+	 * @see Atomik_Db_Type_Abstract::getSqlType()
+	 */
+	public function getSqlType()
 	{
-	    $descriptor->addField(Atomik_Model_Field::factory('slug', 'string', 100));
+		return 'VARCHAR(500)';
 	}
 	
-	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
+	/**
+	 * @see Atomik_Db_Type_Abstract::filterInput()
+	 */
+	public function filterInput($input)
 	{
-    	if (!$descriptor->hasField($this->field)) {
-    	    throw new Atomik_Model_Behaviour_Exception("Missing sluggable field '{$this->field}'");
-    	}
-		$model->slug = Atomik::friendlify($model->_get($this->field));
+		return unserialize($input);
+	}
+	
+	/**
+	 * @see Atomik_Db_Type_Abstract::filterOutput()
+	 */
+	public function filterOutput($output) 
+	{
+	    return serialize($output);
 	}
 }

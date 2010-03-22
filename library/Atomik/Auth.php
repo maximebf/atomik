@@ -97,9 +97,9 @@ class Atomik_Auth
 	/**
 	 * Sets the user locator
 	 * 
-	 * @var string|Atomik_Auth_User_Locator_Interface $userLocator
+	 * @var Atomik_Auth_User_Locator_Interface $userLocator
 	 */
-	public static function setUserLocator($userLocator)
+	public static function setUserLocator(Atomik_Auth_User_Locator_Interface $userLocator)
 	{
 		self::$_userLocator = $userLocator;
 	}

@@ -53,6 +53,10 @@ class Atomik_Db_Script_File implements Atomik_Db_Script_Interface
 				continue;
 			}
 			
+			if (strlen(trim(file_get_contents($file->getPathName()))) == 0) {
+			    continue;
+			}
+			
 			$scripts[] = new Atomik_Db_Script_File($file->getPathname());
 		}
 		

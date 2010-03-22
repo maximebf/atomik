@@ -5,6 +5,6 @@
         <dd><?= $this->modelFormInput($field, $model) ?></dd>
     	<?php endforeach; ?>
         <dt></dt>
-        <dd><?= $this->formButtons(__($buttonLabel)) ?></dd>
+        <dd><?= $this->formButtons($buttonLabel) ?></dd>
     </dl>
 </form>
