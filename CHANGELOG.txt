@@ -21,7 +21,6 @@
  * Added Atomik::scoped() which replaces _execute() and _render()
  ! removed the key atomik/display_errors
  * Added key atomik/throw_errors
- ! Atomik::trigger404() is deprecated
  ! Event Atomik::404 has changed
  * Atomik::dispatch() now catch Atomik_Exception and display 404 errors
  ! Change in Atomik::execute*(), Atomik::render*() and Atomik::route() to
@@ -35,6 +34,9 @@
  * Added Atomik::registerHelper()
  ! session_start() now happens after bootstrap.php and before the event Atomik::Start
  * Added atomik/session_namespace
+ ! Removed Atomik::call()
+ ! Removed Atomik::registerMethod()
+ ! Atomik::__callStatic() now redirects to helpers
  
 [Plugin:SimpleClassExecutor]
 
@@ -48,6 +50,14 @@
 
  * completely rewritten
  * now uses helpers
+ 
+[Plugin:DbSession]
+
+ * new plugin to store the session in a database
+ 
+[Plugin:Auth]
+
+ * updated config keys
  
 [Lib:Db]
 
