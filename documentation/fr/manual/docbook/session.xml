@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Traduction : Roket pour Atomik framework
+Traduction non définitive, soumise à des changements.
+-->
+<chapter id="session" xmlns="http://docbook.org/ns/docbook">
+	<title>Session</title>
+	<sect1 id="session-starting-accessing">
+		<title>Démarrer et utiliser une session</title>
+		<para>
+			Par défaut, Atomik démarre automatiquement les sessions. Si besoin, vous pouvez les désactiver en midifiant
+			la configuration <quote>atomik/start_session</quote>.
+		</para>
+		<note>
+			<methodname>Atomik::flash()</methodname> ne peut marcher si les sessions ne sont pas activés.
+		</note>
+		<para>
+			Vous pouvez accéder à une session depuis la méthode <methodname>Atomik::get()</methodname> avec 
+			le mot clef "session". Bien sûr, vous pouvez toujours utiliser la super-global <varname>$_SESSION</varname>.
+		</para>
+		<example>
+			<title>Accéder à une session depuis Atomik::get()</title>
+			<programlisting>
+				<![CDATA[
+echo Atomik::get('session/nom');]]>
+			</programlisting>
+		</example>
+	</sect1>
+	<sect1 id="session-flash">
+		<title>Messages flash</title>
+		<para>
+			Les messages de type flash sont des messages stockés dans une session et accessible seulement une fois.
+			Ils sont particuliérement utiles pour passer messages d'erreurs où de réussite d'une page à une autre.
+		</para>
+		<para>
+			Pour créer un message flash, il suffit d'appeler la méthode <methodname>Atomik::flash()</methodname>, prenant en premier paramètre
+			un message ou un array de messages. Ces messages peuvent aussi avoir des labels, par exemple  <quote>error</quote> ou  <quote>succes</quote>.
+			Pour spécifier un label, il suffit de renseigner le second paramètre (facultatif, initialisé à <quote>default</quote> par défaut).
+		</para>
+		<example>
+			<title>Création de messages flash</title>
+			<programlisting>
+				<![CDATA[
+Atomik::flash('L'action s'est déroulée avec succès');
+Atomik::flash('Une erreur est survenue', 'error'); // avec un label
+Atomik::flash(array('message1', 'message2'), 'error');]]>
+			</programlisting>
+		</example>
+		<para>
+			Les messages flash peuvent être retrouvés grâce au sélecteur flash. La valeur d'indexation est le nom du label utilisé (default...).
+			Utilisez <quote>all</quote> pour retrouver tous les messages. Cela retournera un array contenant en clef d'indexation le label utilisé et le message associé.
+			Si vous souhaitez retrouvez seulement les messages d'un seul label, c'est un array de messages qui sera renvoyé.
+		</para>
+		<example>
+			<title>Retrouver des messages flash</title>
+			<programlisting>
+				<![CDATA[
+foreach (Atomik::get('flash:all) as $label => $messages) {
+	foreach ($messages as $message) {
+		// ...
+	}
+}
+
+foreach (Atomik::get('flash:my_label) as $message) {
+	// ...
+}]]>
+			</programlisting>
+		</example>
+	</sect1>
+</chapter>
