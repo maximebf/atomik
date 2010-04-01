@@ -26,4 +26,6 @@
 interface Atomik_Model_Validator
 {
     function isValid($value);
+    
+    function getValidationMessage();
 }

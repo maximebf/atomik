@@ -155,4 +155,9 @@ class Atomik_Controller
 	{
 	    return Atomik::get('app/http_method') == 'POST';
 	}
+	
+	protected function _setHeader($name, $value)
+	{
+	    header("$name: $value");
+	}
 }

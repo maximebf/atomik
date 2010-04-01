@@ -40,6 +40,9 @@ class Atomik_Model_Session extends Atomik_Model_EventDispatcher
 	/** @var Atomik_Db_Instance */
 	protected $_dbInstance;
 	
+	/** @var array of string */
+	protected $_validationMessages = array();
+	
 	/** @var array of Atomik_Model_Session */
 	private static $_instances = array();
 	
@@ -97,7 +100,7 @@ class Atomik_Model_Session extends Atomik_Model_EventDispatcher
 		$this->notify('BeforeQuery', $descriptor, $dbQuery);
 		
 		if (($result = $this->_dbInstance->query($dbQuery)) === false) {
-			return new Atomik_Model_Collection($descriptor, array());
+			throw new Atomik_Model_Exception('Query failed: ' . $dbQuery->toSql());
 		}
 		
 		$result->setFetchMode(PDO::FETCH_ASSOC);
@@ -114,16 +117,27 @@ class Atomik_Model_Session extends Atomik_Model_EventDispatcher
 	 */
 	public function isValid(Atomik_Model $model)
 	{
+	    $this->_validationMessages = array();
 		$descriptor = $model->getDescriptor();
+		$success = true;
 		
 		foreach ($descriptor->getFields() as $field) {
 		    $value = $model->_get($field->getName());
 		    if (!$field->isValid($value)) {
-		        return false;
+		        $this->_validationMessages[] = $field->getValidationMessage();
+		        $success = false;
 		    }
 		}
 	    
-	    return true;
+	    return $success;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getValidationMessages()
+	{
+	    return $this->_validationMessages;
 	}
 	
 	/**
@@ -153,7 +167,7 @@ class Atomik_Model_Session extends Atomik_Model_EventDispatcher
 			// insert
 			if (($id = $this->_dbInstance->insert($descriptor->getTableName(), $data)) === false) {
 				$success = false;
-			} else {
+			} else if ($model->getPrimaryKey() === null) {
 				$model->setPrimaryKey($id);
 			}
 		} else {

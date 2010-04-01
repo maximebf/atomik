@@ -23,7 +23,7 @@
 require_once 'Atomik/Model/Behaviour.php';
 
 /**
- * Idea from Doctrine
+ * Inspired from the Doctrine behaviour of the same name
  *
  * @package Atomik
  * @subpackage Model
@@ -42,6 +42,6 @@ class Atomik_Model_Behaviour_Sluggable extends Atomik_Model_Behaviour
     	if (!$descriptor->hasField($this->field)) {
     	    throw new Atomik_Model_Behaviour_Exception("Missing sluggable field '{$this->field}'");
     	}
-		$model->slug = Atomik::friendlify($model->_get($this->field));
+		$model->setSlug(Atomik::friendlify($model->_get($this->field)));
 	}
 }

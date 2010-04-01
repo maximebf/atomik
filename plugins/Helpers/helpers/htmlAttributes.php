@@ -10,7 +10,7 @@ class HtmlAttributesHelper extends Atomik_Helper
     			($exclude && in_array($key, (array) $filter)))) {
     			continue;
     		}
-    		$attrs[] = sprintf('%s = "%s"', $key, $value);
+    		$attrs[] = sprintf('%s="%s"', $key, $value);
     	}
     	return implode(' ', $attrs);
     }

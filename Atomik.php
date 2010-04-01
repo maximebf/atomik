@@ -1057,7 +1057,7 @@ final class Atomik
         try {
             $vars = call_user_func($executor, $action, $method, $vars, $context);
         } catch (Atomik_Exception $e) {
-            if ($e->getCode() != 404 || $viewFilename === false) {
+            if ($e->getCode() != 404) {
                 throw $e;
             }
         }

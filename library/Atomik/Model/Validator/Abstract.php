@@ -19,47 +19,23 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Validator_Abstract */
-require_once 'Atomik/Model/Validator/Abstract.php';
+/** Atomik_Model_Validator */
+require_once 'Atomik/Model/Validator.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Validator_Callback implements Atomik_Model_Validator_Abstract
+abstract class Atomik_Model_Validator_Abstract implements Atomik_Model_Validator
 {
-    /** @var callback */
-    protected $_callback;
+    /** @var string */
+    protected $_validationMessage = '';
     
     /**
-     * @param callback $callback
+     * @see Atomik_Model_Validator::getValidationMessage()
      */
-    public function __construct($callback)
+    public function getValidationMessage()
     {
-        $this->_callback = $callback;
-    }
-    
-    /**
-     * @param callback $callback
-     */
-    public function setCallback($callback)
-    {
-        $this->_callback = $callback;
-    }
-    
-    /**
-     * @return callback
-     */
-    public function getCallback()
-    {
-        return $this->_callback;
-    }
-    
-    /**
-     * @see Atomik_Model_Validator::isValid()
-     */
-    public function isValid($value)
-    {
-        return call_user_func($this->_callback, $value);
+        return $this->_validationMessage;
     }
 }

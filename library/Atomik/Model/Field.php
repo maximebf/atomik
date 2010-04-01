@@ -122,7 +122,7 @@ class Atomik_Model_Field
      */
     public function setRequired($required = true)
     {
-        $this->_required = true;
+        $this->_required = $required;
     }
     
     /**
@@ -164,13 +164,27 @@ class Atomik_Model_Field
      */
     public function isValid($value)
     {
+        if ($this->_required && empty($value)) {
+            $this->_validationMessage = "Missing value for {$this->_name}";
+            return false;
+        }
+        
         foreach ($this->_validators as $validator) {
             if (!$validator->isValid($value)) {
+                $this->_validationMessage = $validator->getValidationMessage();
                 return false;
             }
         }
         return true;
     }
+	
+	/**
+	 * @return string
+	 */
+	public function getValidationMessage()
+	{
+	    return $this->_validationMessage;
+	}
     
     /**
      * @return string

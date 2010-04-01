@@ -68,7 +68,11 @@ class Atomik_Model_Query
     
     public static function findQuery($descriptor, $where = array(), $orderBy = null, $limit = null)
     {
-        $query = Atomik_Model_Query::from($descriptor)->filter($where);
+        $query = Atomik_Model_Query::from($descriptor);
+        
+        if (!empty($where)) {
+            $query->filter($where);
+        }
         
         if ($orderBy !== null) {
             $query->orderBy($orderBy);
@@ -193,11 +197,6 @@ class Atomik_Model_Query
     
     public function orderBy($fieldName)
     {
-        if (!$this->_from->hasField($fieldName)) {
-            require_once 'Atomik/Model/Query/Exception.php';
-            throw new Atomik_Model_Query_Exception("Field '$fieldName' not part of '" 
-                . $this->_from->getName() . "'");
-        }
         $this->_orderBy = $fieldName;
         return $this;
     }
@@ -219,6 +218,10 @@ class Atomik_Model_Query
         
         foreach ($this->_filters as $filter) {
             $filter->apply($query);
+        }
+        
+        if ($this->_orderBy !== null) {
+            $query->orderBy($this->_orderBy);
         }
         
         return $query;

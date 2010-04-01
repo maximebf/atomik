@@ -48,9 +48,7 @@ class Atomik_Model
 		    $this->_setupDescriptor();
 		}
 		
-		foreach ($data as $key => $value) {
-		    $this->_set($key, $value);
-		}
+		$this->fromArray($data);
 	}
 	
 	protected function _setupDescriptor()
@@ -87,7 +85,7 @@ class Atomik_Model
 	 */
 	public function setPrimaryKey($value)
 	{
-		$this->{$this->_descriptor->getPrimaryKeyField()->getName()} = $value;
+		$this->_set($this->_descriptor->getPrimaryKeyField()->getName(), $value);
 	}
 	
 	/**
@@ -95,7 +93,7 @@ class Atomik_Model
 	 */
 	public function getPrimaryKey()
 	{
-		return $this->{$this->_descriptor->getPrimaryKeyField()->getName()};
+		return $this->_get($this->_descriptor->getPrimaryKeyField()->getName());
 	}
 	
 	/**
@@ -104,6 +102,10 @@ class Atomik_Model
 	 */
 	public function _set($fieldName, $value)
 	{
+	    if (method_exists($this, 'set' . ucfirst($fieldName))) {
+	        return call_user_func(array($this, 'set' . ucfirst($fieldName)), $value);
+	    }
+	    
 	    if (!$this->_descriptor->hasField($fieldName) &&
 	        !$this->_descriptor->hasAssociation($fieldName)) {
 	            return;
@@ -121,6 +123,10 @@ class Atomik_Model
 	    if ($this->_descriptor->hasAssociation($fieldName) && 
 	        $this->{$fieldName} === null) {
                 $this->_descriptor->getAssociation($fieldName)->load($this);
+	    }
+	    
+	    if (method_exists($this, 'get' . ucfirst($fieldName))) {
+	        return call_user_func(array($this, 'get' . ucfirst($fieldName)));
 	    }
 	    
 	    if (property_exists($this, $fieldName)) {
@@ -160,21 +166,48 @@ class Atomik_Model
 	    }
 	}
 	
+	/**
+	 * @return bool
+	 */
 	public function isValid()
 	{
 		return $this->getSession()->isValid($this);
 	}
 	
+	/**
+	 * @return array of string
+	 */
+	public function getValidationMessages()
+	{
+	    return $this->getSession()->getValidationMessages();
+	}
+	
 	public function save($validate = true)
 	{
-		$this->getSession()->save($this, $validate);
+		if (!$this->getSession()->save($this, $validate)) {
+		    return false;
+		}
 		$this->_new = false;
+		return true;
 	}
 	
 	public function delete()
 	{
-		$this->getSession()->delete($this);
+		if (!$this->getSession()->delete($this)) {
+		    return false;
+		}
 		$this->_new = true;
+		return true;
+	}
+	
+	/**
+	 * @param array $array
+	 */
+	public function fromArray($array)
+	{
+		foreach ($array as $key => $value) {
+		    $this->_set($key, $value);
+		}
 	}
 	
 	/**

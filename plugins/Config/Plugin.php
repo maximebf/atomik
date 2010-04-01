@@ -76,7 +76,7 @@ class ConfigPlugin
 	/**
 	 * 
 	 */
-    public static function onDbScript($script, $paths)
+    public static function onDbScript($script)
     {
     	if (self::$config['backend'] == 'Database') {
 			/** Atomik_Db_Script_Text */

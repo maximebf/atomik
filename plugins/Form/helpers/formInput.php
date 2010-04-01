@@ -8,7 +8,7 @@ class FormInputHelper extends Atomik_Helper
     {
         $attrs = array_merge($attrs, array(
             'name' => $name,
-            'id' => $name,
+            'type' => $type,
             'value' => Atomik::get($name, $value, $_POST),
             'class' => Atomik::get('class', self::$defaultCSSClass, $attrs)
         ));

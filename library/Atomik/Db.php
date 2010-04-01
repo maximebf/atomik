@@ -135,8 +135,15 @@ class Atomik_Db
 	 * @param	string				$name
 	 * @return 	Atomik_Db_Instance
 	 */
-	public static function getInstance($name = 'default')
+	public static function getInstance($name = null)
 	{
+	    if ($name === null) {
+	        if (self::$_instance !== null) {
+	            return self::$_instance;
+	        }
+            $name = 'default';
+	    }
+	    
 	    if (!self::isInstanceAvailable($name)) {
 	        if ($name != 'default') {
     			require_once 'Atomik/Db/Exception.php';
@@ -144,6 +151,7 @@ class Atomik_Db
 	        }
 	        self::addAvailableInstance('default', new Atomik_Db_Instance());
 		}
+		
 		return self::$_availableInstances[$name];
 	}
 	

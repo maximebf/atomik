@@ -19,14 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Validator */
-require_once 'Atomik/Model/Validator.php';
+/** Atomik_Model_Validator_Abstract */
+require_once 'Atomik/Model/Validator/Abstract.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Validator_Regexp implements Atomik_Model_Validator
+class Atomik_Model_Validator_Regexp implements Atomik_Model_Validator_Abstract
 {
     /** @var string */
     protected $_regexp;

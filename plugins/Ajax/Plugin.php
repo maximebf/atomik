@@ -62,6 +62,7 @@ class AjaxPlugin
     {
         /* config */
         self::$config = array_merge(self::$config, $config);
+		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
         
         /* checks if this is an ajax request */
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
