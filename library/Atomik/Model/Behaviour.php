@@ -39,11 +39,11 @@ abstract class Atomik_Model_Behaviour extends Atomik_Model_Descriptor_Annotation
 	
 	public function init(Atomik_Model_Descriptor $descriptor, $target) {}
 	
-	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query) {}
+	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query) {}
 	
-	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Collection $collection) {}
+	public function afterQuery(Atomik_Model_Descriptor $descriptor, $data) {}
 	
-	public function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data, $isNew) {}
+	public function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data) {}
 	
 	public function afterCreateInstance(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
@@ -59,7 +59,7 @@ abstract class Atomik_Model_Behaviour extends Atomik_Model_Descriptor_Annotation
 	
 	public function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
-	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Definition $definition) {}
+	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Schema $definition) {}
 	
 	public function afterExport(Atomik_Model_Descriptor $descriptor, &$sql) {}
 }

@@ -30,10 +30,10 @@ class Atomik_Model_Behaviour_Orderable extends Atomik_Model_Behaviour
 {
 	public function init(Atomik_Model_Descriptor $descriptor, $target)
 	{
-		$descriptor->addField(Atomik_Model_Field::factory('position', 'int'));
+		$descriptor->mapProperty(Atomik_Model_Field::factory('position', 'int'));
 	}
 	
-	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
+	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
 	{
 	    // TODO: order by
 	}

@@ -1,6 +1,6 @@
 <?php
 
-class Atomik_Db_Definition_Generator
+class Atomik_Db_Schema_Generator
 {
 	/**
 	 * @var Atomik_Db_Adapter_Interface
@@ -8,39 +8,39 @@ class Atomik_Db_Definition_Generator
 	protected $_adapter;
 	
 	/**
-	 * @var Atomik_Db_Definition
+	 * @var Atomik_Db_Schema
 	 */
-	protected $_definition;
+	protected $_schema;
 	
 	public function __construct(Atomik_Db_Adapter_Interface $adapter)
 	{
 		$this->_adapter = $adapter;
 	}
 	
-	public function generate(Atomik_Db_Definition $definition)
+	public function generate(Atomik_Db_Schema $schema)
 	{
-		$this->_definition = $definition;
+		$this->_schema = $schema;
 		$sql = '';
 		
-		if ($definition->dropBeforeCreate) {
-			foreach ($definition->tables as $table) {
+		if ($schema->dropBeforeCreate) {
+			foreach ($schema->tables as $table) {
 				$sql .= $this->_buildDrop($table);
 			}
 		}
 		
-		foreach ($definition->tables as $table) {
+		foreach ($schema->tables as $table) {
 			$sql .= $this->_buildTable($table);
 		}
 		
 		return $sql;
 	}
 	
-	protected function _buildDrop(Atomik_Db_Definition_Table $table)
+	protected function _buildDrop(Atomik_Db_Schema_Table $table)
 	{
 		return sprintf("DROP TABLE IF EXISTS %s;\n", $this->_adapter->quoteIdentifier($table->name));
 	}
 	
-	protected function _buildTable(Atomik_Db_Definition_Table $table)
+	protected function _buildTable(Atomik_Db_Schema_Table $table)
 	{
 		$columns = array();
 		foreach ($table->columns as $column) {
@@ -61,7 +61,7 @@ class Atomik_Db_Definition_Generator
 		return $sql;
 	}
 	
-	protected function _buildColumn(Atomik_Db_Definition_Column $column)
+	protected function _buildColumn(Atomik_Db_Schema_Column $column)
 	{
 		$sql = $this->_adapter->quoteIdentifier($column->name) . ' ' . strtoupper($column->type->getSqlType());
 		
@@ -76,12 +76,12 @@ class Atomik_Db_Definition_Generator
 		return $sql;
 	}
 	
-	protected function _buildAutoIncrement(Atomik_Db_Definition_Column $column)
+	protected function _buildAutoIncrement(Atomik_Db_Schema_Column $column)
 	{
 		return 'AUTO_INCREMENT';
 	}
 	
-	protected function _buildIndex(Atomik_Db_Definition_Index $index)
+	protected function _buildIndex(Atomik_Db_Schema_Index $index)
 	{
 		return sprintf("CREATE INDEX %s ON %s(%s);\n", 
 			$this->_adapter->quoteIdentifier($index->name), 

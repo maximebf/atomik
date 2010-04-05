@@ -30,6 +30,6 @@ class Atomik_Model_Behaviour_Publishable extends Atomik_Model_Behaviour
 {
 	public function init(Atomik_Model_Descriptor $descriptor, $target)
 	{
-		$descriptor->addField(Atomik_Model_Field::factory('published', 'bool'));
+		$descriptor->mapProperty(Atomik_Model_Field::factory('published', 'bool'));
 	}
 }

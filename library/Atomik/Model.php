@@ -26,121 +26,77 @@ require_once 'Atomik/Model/Descriptor.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model
+abstract class Atomik_Model
 {
-	/** @var Atomik_Model_Descriptor */
-	protected $_descriptor;
-	
-	/** @var bool */
-	protected $_new = true;
-	
-	/**
-	 * @param 	array 					$data
-	 * @param 	bool 					$new	Whether the model is already saved or not
-	 * @param	Atomik_Model_Descriptor	$descriptor
-	 */
-	public function __construct($data = array(), $new = true, Atomik_Model_Descriptor $descriptor = null)
-	{
-		$this->_new = $new;
-		$this->_descriptor = $descriptor;
-		
-		if ($descriptor === null) {
-		    $this->_setupDescriptor();
-		}
-		
-		$this->fromArray($data);
-	}
-	
-	protected function _setupDescriptor()
-	{
-		$this->_descriptor = Atomik_Model_Descriptor::factory($this);
-	}
-	
-	/**
-	 * @return Atomik_Model_Descriptor
-	 */
-	public function getDescriptor()
-	{
-		return $this->_descriptor;
-	}
-	
-	/**
-	 * @return Atomik_Model_Session
-	 */
-	public function getSession()
-	{
-		return $this->_descriptor->getSession();
-	}
-	
-	/**
-	 * @return bool
-	 */
-	public function isNew()
-	{
-		return $this->_new;
-	}
-	
-	/**
-	 * @param mixed $value
-	 */
-	public function setPrimaryKey($value)
-	{
-		$this->_set($this->_descriptor->getPrimaryKeyField()->getName(), $value);
-	}
-	
-	/**
-	 * @return mixed
-	 */
-	public function getPrimaryKey()
-	{
-		return $this->_get($this->_descriptor->getPrimaryKeyField()->getName());
-	}
-	
-	/**
-	 * @param string $fieldName
-	 * @param mixed $value
-	 */
-	public function _set($fieldName, $value)
-	{
-	    if (method_exists($this, 'set' . ucfirst($fieldName))) {
-	        return call_user_func(array($this, 'set' . ucfirst($fieldName)), $value);
+    /** @var Atomik_Model_Descriptor */
+    private $_descriptor;
+    
+    /**
+     * @param array $data
+     */
+    public function __construct($data = array())
+    {
+        foreach ($data as $key => $value) {
+            $this->{$key} = $value;
+        }
+    }
+    
+    /**
+     * @return Atomik_Model_Descriptor
+     */
+    public function getDescriptor()
+    {
+        if ($this->_descriptor === null) {
+            $this->_descriptor = Atomik_Model_Descriptor::factory(get_class($this));
+        }
+        return $this->_descriptor;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isNew()
+    {
+        $id = $this->getDescriptor()->getIdentifierField()->getName();
+        return !property_exists($this, $id) || $this->{$id} === null;
+    }
+    
+    /**
+     * Sets a property of this object
+     * 
+     * @param string $name
+     * @param string $value
+     */
+    public function setProperty($name, $value)
+    {
+        $this->{$name} = $value;
+    }
+    
+    /**
+     * Returns the value of a property of this object
+     * 
+     * If the property represents an association, it will be loaded
+     * 
+     * @param string $name
+     * @return string
+     */
+    public function getProperty($name)
+    {
+	    if ($this->getDescriptor()->hasAssociation($name) && 
+	        $this->{$name} === null) {
+                $this->getDescriptor()->getAssociation($name)->load($this);
 	    }
 	    
-	    if (!$this->_descriptor->hasField($fieldName) &&
-	        !$this->_descriptor->hasAssociation($fieldName)) {
-	            return;
+	    if (property_exists($this, $name)) {
+            return $this->{$name};
 	    }
-		
-		$this->{$fieldName} = $value;
-	}
+	    
+	    return null;
+    }
 	
 	/**
-	 * @param string $fieldName
-	 * @return mixed
-	 */
-	public function _get($fieldName)
-	{
-	    if ($this->_descriptor->hasAssociation($fieldName) && 
-	        $this->{$fieldName} === null) {
-                $this->_descriptor->getAssociation($fieldName)->load($this);
-	    }
-	    
-	    if (method_exists($this, 'get' . ucfirst($fieldName))) {
-	        return call_user_func(array($this, 'get' . ucfirst($fieldName)));
-	    }
-	    
-	    if (property_exists($this, $fieldName)) {
-            return $this->{$fieldName};
-	    }
-	    
-	    if ($this->_descriptor->hasField($fieldName)) {
-	        return null;
-	    }
-	    
-	    throw new Atomik_Model_Exception("Unknown field '$fieldName' in '" . get_class($this) . "'");
-	}
-	
-	/**
+	 * Magid method to add getters and setters for properties
+	 * 
 	 * @param string $method
 	 * @param array $args
 	 */
@@ -154,89 +110,94 @@ class Atomik_Model
 	    $property = $matches[2];
 	    $property{0} = strtolower($property{0});
 	    
-	    if (!$this->_descriptor->hasField($property) &&
-	        !$this->_descriptor->hasAssociation($property)) {
-	            throw new Atomik_Model_Exception("Unknown property '$property' in '" . get_class($this) . "'");
-	    }
-	    
 	    if ($accessor == 'get') {
-	        return $this->_get($property);
+    	    return $this->getProperty($property);
 	    } else if ($accessor == 'set') {
-	        return $this->_set($property, $args[0]);
+	        $this->setProperty($property, $args[0]);
 	    }
 	}
 	
 	/**
+	 * Checks if the model if valid using properties validators
+	 * 
 	 * @return bool
 	 */
 	public function isValid()
 	{
-		return $this->getSession()->isValid($this);
+	    $this->_validationMessages = array();
+		$descriptor = $this->getDescriptor();
+		$success = true;
+		
+		foreach ($descriptor->getFields() as $field) {
+		    $value = $this->getProperty($field->getName());
+		    if (!$field->isValid($value)) {
+		        $this->_validationMessages[] = $field->getValidationMessage();
+		        $success = false;
+		    }
+		}
+	    
+	    return $success;
 	}
 	
 	/**
+	 * Returns messages from the last validation
+	 * 
 	 * @return array of string
 	 */
 	public function getValidationMessages()
 	{
-	    return $this->getSession()->getValidationMessages();
+	    return $this->_validationMessages;
 	}
 	
+	/**
+	 * Saves the model to the database
+	 *
+	 * @param bool $validate
+	 */
 	public function save($validate = true)
 	{
-		if (!$this->getSession()->save($this, $validate)) {
-		    return false;
+		$descriptor = $this->getDescriptor();
+		$persister = $descriptor->getPersister();
+		
+	    if ($validate && !$this->isValid()) {
+		    require_once 'Atomik/Model/Exception.php';
+	        throw new Atomik_Model_Exception("'{$descriptor->getName()}' failed to validate");
+	    }
+	    
+		$descriptor->notify('BeforeSave', $this);
+		
+		foreach ($descriptor->getAssociations() as $assoc) {
+		    if (!$assoc->isMany()) {
+		        $assoc->save($this);
+		    }
 		}
-		$this->_new = false;
-		return true;
+		
+		if ($this->isNew()) {
+			$persister->insert($this);
+		} else {
+			$persister->update($this);
+		}
+		
+		foreach ($descriptor->getAssociations() as $assoc) {
+		    if ($assoc->isMany()) {
+		        $assoc->save($this);
+		    }
+		}
+		
+		$descriptor->notify('AfterSave', $this);
 	}
 	
+	/**
+	 * Deletes the model from the database
+	 */
 	public function delete()
 	{
-		if (!$this->getSession()->delete($this)) {
-		    return false;
-		}
-		$this->_new = true;
-		return true;
-	}
-	
-	/**
-	 * @param array $array
-	 */
-	public function fromArray($array)
-	{
-		foreach ($array as $key => $value) {
-		    $this->_set($key, $value);
-		}
-	}
-	
-	/**
-	 * @return array
-	 */
-	public function toArray($includeAssocs = false)
-	{
-		$data = array();
-		$fields = $this->_descriptor->getFields();
+		$descriptor = $this->getDescriptor();
 		
-		foreach ($fields as $field) {
-			$data[$field->getName()] = $this->_get($field->getName());
-		}
+		$descriptor->notify('BeforeDelete', $this);
 		
-		return $data;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function __toString()
-	{
-		$reprField = $this->_descriptor->getRepresentationField();
-		return $this->_get($reprField->getName());
-	}
-	
-	public function __clone()
-	{
-		$this->_new = true;
-		$this->setPrimaryKey(null);
+		$descriptor->getPersister()->delete($this);
+		
+		$descriptor->notify('AfterDelete', $this);
 	}
 }

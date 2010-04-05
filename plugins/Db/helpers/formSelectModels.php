@@ -6,11 +6,11 @@ class FormSelectModelsHelper extends Atomik_Helper
     {
         $options = array();
         foreach ($models as $model) {
-            $options[$model->_get($keyField)] = $model->_get($valueField);
+            $options[$model->getProperty($keyField)] = $model->getProperty($valueField);
         }
         
         if (!empty($value) && $value instanceof Atomik_Model) {
-            $value = $value->_get($keyField);
+            $value = $value->getProperty($keyField);
         }
         
         return $this->helpers->formSelect($name, $options, $value, $attrs);

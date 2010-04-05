@@ -58,37 +58,41 @@ class Atomik_Model_Behaviour_Cacheable extends Atomik_Model_Behaviour
 		return $this->_memcache;
 	}
 	
-	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
+	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
 	{
 		// only select the primary key
 		$query->clearSelect()->select(
-		    $descriptor->getTableName() . '.' . $descriptor->getPrimaryKeyField()->getName());
+		    $descriptor->getTableName() . '.' . $descriptor->getIdentifierField()->getColumnName());
 	}
 	
-	public function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Collection $collection)
+	public function afterQuery(Atomik_Model_Descriptor $descriptor, $data)
 	{
 		$modelName = $descriptor->getName();
-		$primaryKeyName = $descriptor->getPrimaryKeyField()->getName();
+		$idField = $descriptor->getIdentifierField();
+		$primaryKeyName = $idField->getColumnName();
 		$session = $descriptor->getSession();
 		$db = $session->getDbInstance();
-		$rows = array();
+		$data = array();
 		
 		$dataQuery = $db->q()->select()
 				->from($descriptor->getTableName())
 				->where(array($primaryKeyName => null));
 		
-		foreach ($collection as $row) {
-		    $key = $this->getKey($row);
+		foreach ($collection as $partialModel) {
+		    $key = $this->getKey($descriptor, $partialModel);
 			
 			if (($cached = $this->_memcache->get($key)) !== false) {
 				// cache hit
-				$rows[] = $cached;
+				$data[] = $cached;
 				continue;
 			}
 			
-			$data = $dataQuery->setParams(array($row->getPrimaryKey()))->execute()->fetch();
-			$this->_memcache->set($key, $data);
-			$rows[] = $data;
+			$modelData = $dataQuery->setParams(array(
+			    $idField->getValue($partialModel)
+			))->execute()->fetch();
+			
+			$this->_memcache->set($key, $modelData);
+			$data[] = $modelData;
 		}
 		
 		$collection->setData($rows);
@@ -96,8 +100,12 @@ class Atomik_Model_Behaviour_Cacheable extends Atomik_Model_Behaviour
 	
 	public function afterSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$key = $this->getKey($model);
-		$data = $model->toArray();
+		$key = $this->getKey($descriptor, $model);
+		$data = array();
+		
+		foreach ($descriptor->getFields() as $field) {
+		    $data[$field->getColumnName()] = $field->getType()->filterOutput($field->getValue($model));
+		}
 		
 		if ($this->_memcache->replace($key, $data) === false) {
 			$this->_memcache->set($key, $data);
@@ -106,12 +114,12 @@ class Atomik_Model_Behaviour_Cacheable extends Atomik_Model_Behaviour
 	
 	public function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$key = $this->getKey($model);
+		$key = $this->getKey($descriptor, $model);
 		$this->_memcache->delete($key);
 	}
 	
-	public function getKey($model)
+	public function getKey($descriptor, $model)
 	{
-	    return $model->getDescriptor()->getName() . ':' . $model->getPrimaryKey();
+	    return $descriptor->getName() . ':' . $descriptor->getIdentifierField()->getValue($model);
 	}
 }

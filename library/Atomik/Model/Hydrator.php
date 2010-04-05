@@ -19,13 +19,41 @@
  * @link http://www.atomikframework.com
  */
 
-/**Atomik_Model_Behaviour */
-require_once 'Atomik/Model/Behaviour.php';
-
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Behaviour_Taggable extends Atomik_Model_Behaviour
+abstract class Atomik_Model_Hydrator
 {
+    /** @var Atomik_Model_Descriptor */
+    protected $_descriptor;
+    
+    /** @var Atomik_Db_Instance */
+    protected $_db;
+    
+    /**
+     * @param Atomik_Model_Descriptor $descriptor
+     */
+    public function __construct(Atomik_Model_Descriptor $descriptor)
+    {
+        $this->_descriptor = $descriptor;
+        $this->_db = $descriptor->getDb();
+    }
+    
+    /**
+     * @return Atomik_Model_Descriptor
+     */
+    public function getDescriptor()
+    {
+        return $this->_descriptor;
+    }
+    
+    /**
+     * Returns a model hydrated using the data from
+     * the database
+     * 
+     * @param array $data
+     * @return Atomik_Model
+     */
+    abstract public function hydrate($data);
 }

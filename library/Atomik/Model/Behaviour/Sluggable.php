@@ -34,14 +34,14 @@ class Atomik_Model_Behaviour_Sluggable extends Atomik_Model_Behaviour
     
 	public function init(Atomik_Model_Descriptor $descriptor, $target)
 	{
-	    $descriptor->addField(Atomik_Model_Field::factory('slug', 'string', 100));
+	    $descriptor->mapProperty(Atomik_Model_Field::factory('slug', 'string'));
 	}
 	
 	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-    	if (!$descriptor->hasField($this->field)) {
+    	if (($mappedField = $descriptor->getField($this->field)) === null) {
     	    throw new Atomik_Model_Behaviour_Exception("Missing sluggable field '{$this->field}'");
     	}
-		$model->setSlug(Atomik::friendlify($model->_get($this->field)));
+		$model->setSlug(Atomik::friendlify($model->getProperty($mappedField->getName())));
 	}
 }

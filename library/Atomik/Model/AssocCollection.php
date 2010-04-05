@@ -19,14 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
+/** Atomik_Model_Collection */
+require_once 'Atomik/Model/Collection.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
+class Atomik_Model_AssocCollection extends Atomik_Model_Collection
 {
 	/** @var Atomik_Model */
 	protected $_owner;
@@ -42,13 +42,31 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	 * @param Atomik_Model_Association $assoc
 	 * @param Atomik_Model_Collection $collection
 	 */
-	public function __construct(Atomik_Model $owner, Atomik_Model_Association $assoc, Atomik_Model_Collection $collection = null)
+	public function __construct(Atomik_Model $owner, Atomik_Model_Association $assoc, $data = array())
 	{
 		$this->_owner = $owner;
 		$this->_association = $assoc;
-		if ($collection !== null) {
-		    $this->_models = $collection->getAll();
-		}
+		parent::__construct(Atomik_Model_Descriptor::factory($owner), $data);
+	}
+	
+	/**
+	 * Returns the owner of this collection
+	 * 
+	 * @return Atomik_Model
+	 */
+	public function getOwner()
+	{
+	    return $this->_owner;
+	}
+	
+	/**
+	 * Returns the association used for this collection
+	 * 
+	 * @return Atomik_Model_Association
+	 */
+	public function getAssociation()
+	{
+	    return $this->_association;
 	}
 	
 	/**
@@ -57,14 +75,7 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	public function add(Atomik_Model $model)
 	{
 	    $this->_models[] = $model;
-	}
-	
-	/**
-	 * @param int $index
-	 */
-	public function get($index)
-	{
-	    return $this->_models[$index];
+	    $this->_count++;
 	}
 	
 	/**
@@ -72,7 +83,16 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	 */
 	public function remove(Atomik_Model $model)
 	{
-	    unset($this->_models[array_search($model, $this->_models)]);
+	    $this->getAll();
+	    for ($i = 0, $c = count($this->_models); $i < $c; $i++) {
+	        if ($this->_models[$i] == $model) {
+	            unset($this->_models[$i]);
+	            if (isset($this->_data[$i])) {
+	                unset($this->_data[$i]);
+	            }
+	        }
+	    }
+	    $this->_count--;
 	}
 	
 	/**
@@ -81,31 +101,13 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	 */
 	public function contains(Atomik_Model $model)
 	{
-		return array_search($model, $this->_models) !== false;
-	}
-	
-	/* -------------------------------------------------------------------------------------------
-	 *  Countable
-	 * ------------------------------------------------------------------------------------------ */
-	
-	public function count()
-	{
-		return count($this->_models);
+	    $this->getAll();
+		return in_array($model, $this->_models);
 	}
 	
 	/* -------------------------------------------------------------------------------------------
 	 *  ArrayAccess
 	 * ------------------------------------------------------------------------------------------ */
-	
-	public function offsetExists($index)
-	{
-		return array_key_exists($index, $this->_models);
-	}
-	
-	public function offsetGet($index)
-	{
-		return $this->_models[$index];
-	}
 	
 	public function offsetSet($index, $model)
 	{
@@ -115,34 +117,5 @@ class Atomik_Model_AssocCollection implements Iterator, ArrayAccess, Countable
 	public function offsetUnset($index)
 	{
 		unset($this->_models[$index]);
-	}
-	
-	/* -------------------------------------------------------------------------------------------
-	 *  Iterator
-	 * ------------------------------------------------------------------------------------------ */
-	
-	public function current()
-	{
-		return current($this->_models);
-	}
-	
-	public function key()
-	{
-		return key($this->_models);
-	}
-	
-	public function next()
-	{
-		return next($this->_models);
-	}
-	
-	public function rewind()
-	{
-		return reset($this->_models);
-	}
-	
-	public function valid()
-	{
-		return $this->current() !== false;
 	}
 }

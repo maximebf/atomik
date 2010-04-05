@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Traduction par Triviak (triviak24@gmail.com)
+	Non-définitive
+-->
+<chapter id="urls" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <title>URLs</title>
+        <sect1 id="url-calling-action">
+                <title>Appeler une action</title>
+                <para>
+                        Atomik a mis en place un mécanisme d'url très simple : quelque soit la page où l'on est,
+			l'url doit toujours pointer vers un seul script d'Atomik, par défaut : <filename>index.php</filename>
+                </para>
+                <para>
+			L'url peut contenir un paramètre de type GET qui va définir quelle action doit être déclencher.
+			Ce paramètre peut-être modifié dans la configuration d'Atomik (à l'aide de la clé <quote>atomik/trigger</quote>)
+			mais par défaut son nom est <quote>action</quote>. 
+		</para>
+                <para>
+			La valeur de ce paramètre doit uniquement contenir le nom de l'action, sans extension.
+			Par exemple, si on a le fichier <filename>home.php</filename> dans le répertoire <filename>app/actions</filename>
+			et/ou un fichier <filename>home.phtml</filename> dans le répertoire <filename>app/views</filename>,
+			on doit obligatoirement utiliser le paramètre <quote>home</quote> pour appeler cette action.
+			Ainsi, l'url devra donc ressembler à ceci : <link>http://example.com/index.php?action=home</link>.
+                </para>
+                <para>
+			Un fichier d'action ou de vue doit obligatoirement exister pour chaque action qui peut-être appelée.
+                </para>
+                <para>
+			Si le paramètre de l'action n'a pas été trouvé dans la requête, Atomik utilisera alors l'action par défaut
+			définie dans le fichier de configuration (la clé <quote>app/default_action</quote>).
+			Par défaut, cette clé a pour valeur <quote>index</quote>.
+                </para>
+                <para>
+			Atomik vous permet d'utiliser l'url rewriting pour pouvoir rendre votre url plus "propre". Si vous utilisez Apache, vous avez la possibilité de copier
+			ce code dans un fichier <filename>.htaccess</filename> dans le même répertoire qu'Atomik.
+                        <programlisting>
+RewriteEngine on
+RewriteRule ^app/plugins/(.+)/assets - [L]
+RewriteRule ^app/ - [L,F]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
+                        </programlisting>
+			Ce code devrait à présent vous donner l'accès au dossier <filename>app</filename> depuis le web
+			mais autorisera aussi l'accès au répertoire <filename>assets</filename> fournit par les plugins.
+                </para>
+                <para>
+			Lorsque vous utilisez l'url rewriting, vous avez accès aux pages voulues en ajoutant directement le nom de l'action dans l'url.
+			Par exemple : <link>http://example.com/home</link>
+                </para>
+                <note>
+			Parfois, il arrive qu'Atomik ne peut pas détecter l'activation ou non de l'url rewriting. Dans ce cas, la méthode <methodname>Atomik::url()</methodname>
+			renverra systématiquement <filename>index.php</filename>. Pour empêcher cela, il suffit de modifier la clé de configuration <quote>atomik/url_rewriting</quote>
+			avec la valeur : true.
+                </note>
+                <para>
+			L'action que vous voulez appeler peut-être trouvée dans la clé de configuration <quote>request_uri</quote>.
+			La base de l'url (le chemin avant l'affichage de la racine du site, dans la plupart des cas le nom de domaine) peut-être obtenue à l'aide de la
+			clé <quote>atomik/base_url</quote>.
+                </para>
+                <note>
+			Lorsque vous utilisez l'application avec des plugins (voir le chapitre des plugins), la clé <quote>request_uri</quote> pourra
+			alors devenir relative par rapport au chemin du plugin. Pour retrouver l'url dans sa totalité, vous pouvez utiliser
+			<quote>full_request_uri</quote>.
+                </note>
+        </sect1>
+        <sect1 id="url-router">
+                <title>Le routage des url</title>
+                <sect2 id="creating-routes">
+                        <title>Création des itinéraires</title>
+                        <para>
+				Il est courant d'utiliser d'utiliser l'url rewriting afin de rendre les urls moins compliquées, "plus propre". Ceci peut être facilement effectué grâce au routeur d'Atomik.
+				Le routeur fera le lien entre l'url et l'action et vous facilitera l'accès aux paramètres de cette url.
+				Une url et ses paramètres est appelés un itinéraire.
+                        </para>
+                        <para>
+				Les itinéraires sont définis dans la clé de configuration <quote>app/routes</quote>.
+				Les actions doivent être spécifiées comme un paramètre appelé <quote>action</quote>.
+                        </para>
+                        <note>
+				Vous ne pouvez pas mettre en place d'itinéraire si vous utilisez un tableau comme premier paramètre de <methodname>Atomik::set()</methodname>.
+				Sinon, le tableau deviendra alors dimensionnel et l'itinéraire ne pourra aboutir.
+                        </note>
+                        <example>
+                                <title>Création d'un itinéraire simple</title>
+                                <programlisting>
+                                        <![CDATA[
+Atomik::set('app/routes', array(
+   'user/add' => array(
+       'action' => 'user_add'
+   )
+));]]>
+                                </programlisting>
+                        </example>
+                        <para>
+				Comme vous le voyez, l'l'itinéraire est bien défini comme un tableau de clés et ses paramètres sont bien définis
+				dans le sous-tableau. Vous avez la possibilité d'ajouter un nombre infini de paramètres pour créer votre itinéraire. Vous devrez tout de même faire attention
+				à ce que votre itinéraire soit valide en définissant bien vos paramètres pour vos actions.
+                        </para>
+                        <para>
+				Toute la puissance des itinéraires vient de la possibilité d'attribuer la valeur d'un paramètre avec
+				un segment de l'url. Cela peut-être réalisé en plaçant le préfixe <quote>:</quote> dans le nom du paramètre.
+                        </para>
+                        <para>
+				Les paramètres définies comme des segments peuvent être optionnels tant qu'ils ont
+				déjà été définis dans la liste de paramètres.
+                        </para>
+                        <example>
+                                <title>Création d'un itinéraire</title>
+                                <programlisting>
+                                        <![CDATA[
+Atomik::set('app/routes', array(
+   'archives/:year/:month' => array(
+       'action' => 'archives',
+       'month' => 'all'
+   )
+));]]>
+                                </programlisting>
+                                <para>
+					Cette itinéraire permet de rendre le paramètre "month" optionnel tandis que "year" ne l'est pas. Ainsi, les possibles urls sont
+					<link>http://example.com/archives/2008</link> ou encore <link>http://example.com/archives/2008/02</link>.
+					Dans chacun des cas, le paramètre "year" a pour valeur <quote>2008</quote> tandis que le paramètre "month" n'est pas
+					spécifié dans le premier exemple et l'est dans le second ( et a pour valeur <quote>02</quote>).
+                                </para>
+                        </example>
+                        <note>
+                                <para>
+                                        Les itinéraires peuvent être réversibles.
+                                </para>
+                        </note>
+                        <para>
+				Depuis Atomik 2.2, les itinéraires peuvent être nommés et les expressions régulières peuvent être utilisées
+				avec leur notation classique.
+                        </para>
+                        <para>
+				Pour définir un nom à un itinéraire, il suffit simplement de définir le paramètre <quote>@name</quote>. Les deux types
+				d'itinéraires (classique et regexp) peuvent être nommés. La mise en place d'un nom pour les itinéraires peut-être très utile lorsque vous
+				devez utilisez la méthode <methodname>Atomik::url()</methodname>.
+                        </para>
+                        <example>
+                                <title>Nommer un itinéraire</title>
+                                <programlisting>
+                                        <![CDATA[
+Atomik::set('app/routes', array(
+   'archives/:year/:month' => array(
+       '@name' => 'archives',
+       'action' => 'archives',
+       'month' => 'all'
+   )
+));]]>
+                                </programlisting>
+                        </example>
+                        <para>
+				Les itinéraires sous forme de regexp vous autorise à utiliser les expressions régulières pour identifier une url à une route. Un itinéraire sous forme de regexp
+				peuvent définir les mêmes chemins que celle classique. Un itinéraire est remplacé par une regexp lorsque le signe dièse #
+				est utilisé comme délimiteur.
+                        </para>
+                        <para>
+				Les urls doivent toujours être relative (n'utilisez donc pas de slash au début). Pour spécifier un paramètre dans un itinéraire,
+				vous devez utiliser le sous-modèle de nom (voir <link xlink:href="http://php.net/manual/en/regexp.reference.subpatterns.php">
+				http://php.net/manual/en/regexp.reference.subpatterns.php</link>).
+                        </para>
+                        <example>
+                                <title>Créer un itinéraire avec des paramètres</title>
+                                <programlisting>
+                                        <![CDATA[
+Atomik::set('app/routes', array(
+   '#archives/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})#' => array(
+       '@name' => 'archives',
+       'action' => 'archives',
+       'month' => 'all'
+   )
+));]]>
+                                </programlisting>
+                        </example>
+                </sect2>
+                <sect2 id="routes-parameters">
+                        <title>Récupérer les paramètres de l'itinéraire</title>
+                        <para>Lorque le processus est terminé, la clé de configuration nommée <quote>request</quote> est disponible. Elle contient
+				un tableau associatif avec les paramètres et leurs valeurs.
+                        </para>
+                        <example>
+                                <title>Un itinéraire avec des paramètres</title>
+                                <programlisting>
+                                        <![CDATA[
+$params = Atomik::get('request');
+$year = Atomik::get('request/year');]]>
+                                </programlisting>
+                        </example>
+                </sect2>
+        </sect1>
+        <sect1 id="url-file-extensions">
+                <title>Les extensions des fichiers</title>
+                <para>
+			Depuis la version 2.2, Atomik permet d'afficher les extensions dans les urls. Ceci est facultatif.
+			Vous pouvez forcer l'extension en paramétrant la configuration <quote>app/force_uri_extension</quote> à : true.
+                </para>
+                <para>
+			Par défaut, l'extension du fichier est celui de la vue. Ceci sera abordé dans un autre chapitre.
+			L'extension de la vue par défaut est <quote>html</quote>. Elle peut être changée dans le fichier
+			<quote>app/views/default_context</quote>.
+                </para>
+                <example>
+                        <title>Urls avec des extensions simples</title>
+                        <programlisting>
+                                <![CDATA[
+http://example.com/home         =>      action=home format=html (ne fonctionne pas si app/force_uri_extension est à true)
+http://example.com/home.html    =>      action=home format=html
+http://example.com/home.xml     =>      action=home format=xml
+http://example.com/home.foo     =>      action=home format=foo]]>
+                        </programlisting>
+                </example>
+                <para>
+			Les itinéraires peuvent aussi avoir leurs extensions. Vous pouvez spécifier une extension dans votre itinéraire. L'extension
+			peut aussi être un paramètre. Dans ce cas, si vous spécifier une valeur par défaut, l'extension
+			ne sera pas obligatoire dans l'url.
+                </para>
+                <example>
+                        <title>Itinéraires avec les extensions</title>
+                        <programlisting>
+                                        <![CDATA[
+Atomik::set('app/routes', array(
+   ':category/:article.:format' => array(
+            'action' => 'article'
+   ),
+   'home.html' => array(
+        'action' => 'home',
+        'format' => 'html'
+   )
+));]]>
+                        </programlisting>
+                </example>
+                <note>
+			Le paramètre <varname>format</varname> n'est pas automatiquement ajouté dans l'itinéraire personnalisé. S'il n'est pas spécifié,
+			il aura alors pour valeur celle de <quote>app/views/default_context</quote>.
+                </note>
+        </sect1>
+        <sect1 id="url-method">
+                <title>Construire des urls avec <methodname>Atomik::url()</methodname></title>
+                <para>
+			Écrire directement l'url dans votre code peut amener de multiples problèmes dans le futur. Lorsque vous utilisez un layout,
+			il est difficile de savoir la position relative de la vue correspondante, à inclure dans la feuille de style par exemple. Beaucoup d'urls ont souvent besoin de concaténation
+			lorsqu'ils utilisent des paramètres et cela rend tout de suite le code moins lisible.
+                </para>
+                <para>
+                        <methodname>Atomik::url()</methodname> tente de résoudre ce problème en proposant 3 choses : 
+                        <itemizedlist>
+                                <listitem>Ajouter la base de l'url</listitem>
+                                <listitem>Ne pas utiliser de <filename>index.php</filename>  dans l'url si l'url rewriting est activé (ou utilisez le s'il ne l'est pas).</listitem>
+                                <listitem>Utilisez les paramètres d'urls</listitem>
+                        </itemizedlist>
+                </para>
+                <para>
+			Cette méthode fonctionne aussi bien avec les urls relatives ou absolues. 
+                        Cependant, on peut aussi travailler avec des urls entières.
+			Dans ce cas, les deux premiers points ne doivent pas être appliqués.
+                </para>
+                <para>
+			Si la valeur NULL est utilisée comme url, l'action en cours sera utilisée. La mise en place des noms des itinéraires peut être fait en utilisant
+			le préfixe @.
+                </para>
+                <example>
+                        <title>Construction d'une url simple</title>
+                        <programlisting>
+                                <![CDATA[
+$url = Atomik::url('home'); // /index.php?action=home if no url rewriting or /home otherwise
+$url = Atomik::url('/user/dashboard'); // /user/dashboard
+$url = Atomik::url('http://example.com'); // http://example.com
+$url = Atomik::url('@my_route'); // will use the route named my_route]]>
+                        </programlisting>
+                </example>
+                <para>
+			Vous pouvez ajouter dans paramètres de type GET dans l'url en utilisant un tableau dans le second paramètre. Vous pouvez
+			réutiliser les paramètres de la requête en cours en utilisant la valeur <quote>true</quote> à la place d'un tableaux. Si vous voulez
+			utiliser les paramètres actuels avec de nouvelles, utilisez un tableau et ajouter la valeur <quote>__merge_GET</quote>.
+                </para>
+                <example>
+                        <title>Construire des urls avec vos paramètres</title>
+                        <programlisting>
+                                <![CDATA[
+$url = Atomik::url('archives', array('year' => 2008)); // /index.php?action=archives&year=2008 if no url rewriting or /archives?year=2008 otherwise
+$url = Atomik::url('archives?year=2008', array('month' => 02)); // /archives?year=2008&month=02
+
+
+// if the page has been called with ?year=2008
+
+$url = Atomik::url('archives', true); // /archives?year=2008
+$url = Atomik::url('archives', array('__merge_GET', 'month' => 02)); // /archives?year=2008&month=02]]>
+                        </programlisting>
+                </example>
+                <para>
+			La méthode permet également d'utiliser les paramètres embarqués. Ce sont des paramètres dans l'url (comme dans un classique itinéraire)
+			Le nom de ses paramètres doit être préfixer d'un <quote>:</quote>.
+                </para>
+                <example>
+                        <title>Construire des urls avec des paramètres embarqués</title>
+                        <programlisting>
+                                <![CDATA[
+$url = Atomik::url('archives/:year', array('year' => 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
+$url = Atomik::url('archives/:year', array('year' => 2008, 'month' => 02)); // /archives/2008?month=02]]>
+                        </programlisting>
+                </example>
+                <example>
+                        <title>Construire des urls en utilisant des itinéraires nommés</title>
+                        <programlisting>
+                                <![CDATA[
+$url = Atomik::url('@archives', array('year' => 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
+$url = Atomik::url('@archives', array('year' => 2008, 'month' => 02)); // /archives/2008?month=02]]>
+                        </programlisting>
+                </example>
+                <para>
+			Lorsque vous créez des urls comme points de ressources (modifier), vous ne voudrez jamais les avoir le <filename>index.php</filename> dedans.
+			Pour éviter cela, vous pouvez utiliser la méthode <methodname>Atomik::asset()</methodname>.
+			Celle-ci fonctionne de la même façon que
+			<methodname>Atomik::url()</methodname> mais n'utilisera jamais <filename>index.php</filename> dans l'url.
+                </para>
+                <para>
+			Le fonctionnement de <methodname>Atomik::url()</methodname> est en fonction du contexte de l'application. Par exemple, si la méthode est utilisée
+			à l'intérieur des vues de votre application, l'url généré sera relative à la base de l'url de votre application. Cependant, si la méthode est utilisé
+			à l'intérieur d'un plugin, il sera relatif à la base de l'url du plugin. Tout ceci permet à la méthode
+			d'être utilisée partout, tout en assurant la relativité des urls.
+                </para>
+                <para>
+			Il est cependant possible d'utiliser la méthode <methodname>Atomik::appUrl()</methodname> pour générer constamment des url relative dans la base d'url
+			de votre application et la méthode <methodname>Atomik::pluginUrl()</methodname> pour générer des urls relatives à un plugin spécifique. Le nom du plugin
+			doit être équipé du premier argument du dernier argument devenu le même que celui de <methodname>Atomik::url()</methodname>.
+                </para>
+                <example>
+                        <title>Les urls relatives</title>
+                        <programlisting>
+                                <![CDATA[
+$url = Atomik::appUrl('home'); // always /home
+$url = Atomik::pluginUrl('my_plugin', 'home'); // /my_plugin_base_url/home
+$url = Atomik::url('home'); // either /home or /my_plugin_base_url/home depending on the context]]>
+                        </programlisting>
+                </example>
+                <para>
+			En complément de ce chapitre, on peux citer deux méthodes supplémentaires : <methodname>Atomik::appAsset()</methodname> et <methodname>Atomik::pluginAsset()</methodname>.
+                       La dernière, tout comme <methodname>Atomik::pluginUrl()</methodname> a besoin d'un plugin pour le premier argument.
+                </para>
+        </sect1>
+</chapter>

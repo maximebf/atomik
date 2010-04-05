@@ -28,9 +28,6 @@ require_once 'Atomik/Db/Query/Generator.php';
 /** Atomik_Db_Query_Expr */
 require_once 'Atomik/Db/Query/Expr.php';
 
-/** Atomik_Db_Query_Result */
-require_once 'Atomik/Db/Query/Result.php';
-
 /**
  * Used to generate and execute SQL queries
  *
@@ -39,55 +36,26 @@ require_once 'Atomik/Db/Query/Result.php';
  */
 class Atomik_Db_Query extends Atomik_Db_Query_Expr
 {
-	/**
-	 * @var Atomik_Db_Instance
-	 */
+    const _AND = ' AND ';
+    const _OR = ' OR ';
+    
+	/** @var Atomik_Db_Instance */
 	protected $_instance;
 	
-	/**
-	 * @var PDO
-	 */
+	/** @var PDO */
 	protected $_pdo;
 	
-	/**
-	 * @var Atomik_Db_Query_Generator_Interface
-	 */
+	/** @var Atomik_Db_Query_Generator_Interface */
 	protected $_generator;
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $_rawSql;
 	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	protected $_info;
 	
-	/**
-	 * @var bool
-	 */
-	protected $_cacheable = false;
-	
-	/**
-	 * @var Atomik_Db_Query_Result
-	 */
-	protected $_cachedResult;
-	
-	/**
-	 * @var PDOStatement
-	 */
-	protected $_statement;
-	
-	/**
-	 * @var array
-	 */
-	protected $_lastError;
-	
-	/**
-	 * @var bool
-	 */
-	protected static $_cacheAll = false;
+	/** @var int */
+	protected $_fetchMode = PDO::FETCH_ASSOC;
 	
 	/**
 	 * Shortcut to create a new Atomik_Db_Query_Expr object
@@ -102,52 +70,27 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
-	 * Activates the result cache on all queries
-	 * 
-	 * @param	string	$enable
-	 */
-	public static function setAlwaysCacheResults($enable = true)
-	{
-		self::$_cacheAll = $enable;
-	}
-	
-	/**
-	 * Returns whether the result cache is activated on all queries
-	 * 
-	 * @return bool
-	 */
-	public static function areResultsAlwaysCached()
-	{
-		return self::$_cacheAll;
-	}
-	
-	/**
 	 * Creates a new instance
 	 * 
 	 * @return Atomik_Db_Query
 	 */
-	public static function create(Atomik_Db_Instance $instance = null, $cacheable = null)
+	public static function create(Atomik_Db_Instance $instance = null)
 	{
 		if ($instance === null) {
 			$instance = Atomik_Db::getInstance();
 		}
-		return new self($instance, $cacheable);
+		return new self($instance);
 	}
 	
 	/**
 	 * Constructor
 	 */
-	public function __construct(Atomik_Db_Instance $instance = null, $cacheable = null)
+	public function __construct(Atomik_Db_Instance $instance)
 	{
 		$this->reset();
 		
-		if ($instance !== null) {
-			$this->setInstance($instance);
-		}
-		
-		if ($cacheable !== null) {
-			$this->_cacheable = $cacheable;
-		}
+		$this->_instance = $instance;
+		$this->_generator = $instance->getAdapter()->getQueryGenerator();
 	}
 	
 	/**
@@ -156,11 +99,8 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function reset()
 	{
-		$this->_cacheable = self::areResultsAlwaysCached();
-		$this->_cachedResult = null;
 		$this->_statement = null;
 		$this->_info = array(
-			'statement'	=> 'SELECT',
 			'fields' 	=> array(),
 			'from'		=> array(),
 			'table'		=> null,
@@ -174,21 +114,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			'params'	=> array()
 		);
 		
-		return $this;
-	}
-	
-	/**
-	 * Sets the associated instance
-	 * 
-	 * @param	Atomik_Db_Instance $instance
-	 * @return	Atomik_Db_Query
-	 */
-	public function setInstance(Atomik_Db_Instance $instance)
-	{
-		$this->_instance = $instance;
-		$this->_pdo = $instance->getPdo();
-		$this->_generator = $instance->getAdapter()->getQueryGenerator();
-		$this->_cacheable = $instance->isResultCacheEnabled();
 		return $this;
 	}
 	
@@ -213,47 +138,23 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
-	 * Sets whether to cache this query results
+	 * Sets the PDOStatement fetch mode
 	 * 
-	 * @param	bool	$enable
-	 * @return	Atomik_Db_Query
+	 * @param int $mode
 	 */
-	public function setCacheable($enable = true)
+	public function setFetchMode($mode)
 	{
-		$this->_cacheable = $enable;
-		return $this;
+	    $this->_fetchMode = $mode;
 	}
 	
 	/**
-	 * Checks if query results are cacheable
+	 * Returns the fetch mode of the PDOStatement
 	 * 
-	 * @return bool
+	 * @return int
 	 */
-	public function isCacheable()
+	public function getFetchMode()
 	{
-		return $this->_cacheable;
-	}
-	
-	/**
-	 * Checks if the query uses cached results
-	 * 
-	 * @return bool
-	 */
-	public function isResultCached()
-	{
-		return $this->_cachedResult !== null;
-	}
-	
-	/**
-	 * Empties the result cache
-	 * 
-	 * @return	Atomik_Db_Query
-	 */
-	public function emptyCache()
-	{
-		$this->_statement = null;
-		$this->_cachedResult = null;
-		return $this;
+	    return $this->_fetchMode;
 	}
 	
 	/**
@@ -287,7 +188,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		}
 		
 		$this->_rawSql = null;
-		$this->_info['statement'] = 'SELECT';
 		$this->_info['fields'] = array_merge($this->_info['fields'], $fields);
 		
 		return $this;
@@ -308,48 +208,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function count($field = '*')
 	{
 		$this->_rawSql = null;
-		$this->_info['statement'] = 'SELECT';
 		$this->_info['fields'] = array(sprintf('COUNT(%s)', $field));
-		return $this;
-	}
-	
-	/**
-	 * Creates an INSERT statement
-	 * 
-	 * @param 	string			$table
-	 * @return	Atomik_Db_Query
-	 */
-	public function insertInto($table)
-	{
-		$this->_rawSql = null;
-		$this->_info['statement'] = 'INSERT';
-		$this->_info['table'] = $this->_formatTableName($table);
-		return $this;
-	}
-	
-	/**
-	 * Creates an UPDATE statement
-	 * 
-	 * @param	string			$table
-	 * @return	Atomik_Db_Query
-	 */
-	public function update($table)
-	{
-		$this->_rawSql = null;
-		$this->_info['statement'] = 'UPDATE';
-		$this->_info['table'] = $this->_formatTableName($table);
-		return $this;
-	}
-	
-	/**
-	 * Creates a DELETE statement
-	 * 
-	 * @return	Atomik_Db_Query
-	 */
-	public function delete()
-	{
-		$this->_rawSql = null;
-		$this->_info['statement'] = 'DELETE';
 		return $this;
 	}
 	
@@ -378,15 +237,17 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			return $this;
 		}
 		
-		$this->_info['from'][] = array('table' => $this->_formatTableName($table), 'alias' => $alias);
-		$this->emptyCache();
+		$this->_info['from'][] = array(
+			'table' => $this->_formatTableName($table), 
+			'alias' => $alias
+		);
+		
 		return $this;
 	}
 	
 	public function clearFrom()
 	{
 		$this->_info['from'] = array();
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -398,46 +259,19 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	public function join($table, $on, $alias = null, $type = 'INNER')
 	{
-		$this->_info['join'][] = array('table' => $this->_formatTableName($table), 'on' => $on, 'alias' => $alias, 'type' => $type);
-		$this->emptyCache();
+		$this->_info['join'][] = array(
+			'table' => $this->_formatTableName($table), 
+			'on' => $on, 
+			'alias' => $alias, 
+			'type' => $type
+	    );
+	    
 		return $this;
 	}
 	
 	public function clearJoin()
 	{
 		$this->_info['join'] = array();
-		$this->emptyCache();
-		return $this;
-	}
-	
-	/**
-	 * Specifies the VALUES part of an INSERT statement
-	 * 
-	 * The data must specify the fields name as keys. 
-	 * Another query can be used.
-	 * 
-	 * @param	array|Atomik_Db_Query	$data
-	 * @return	Atomik_Db_Query
-	 */
-	public function values($data)
-	{
-		$this->_info['data'] = $this->_computeData($data);
-		$this->emptyCache();
-		return $this;
-	}
-	
-	/**
-	 * Specifies the SET part of an UPDATE statement
-	 * 
-	 * The data must specify the fields name as keys
-	 * 
-	 * @param	array			$data
-	 * @return	Atomik_Db_Query
-	 */
-	public function set($data)
-	{
-		$this->_info['data'] = $this->_computeData($data);
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -457,7 +291,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		$args = func_get_args();
 		$this->_info['where'][] = $this->_computeCondition($args);
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -470,15 +303,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function orWhere()
 	{
 		$args = func_get_args();
-		$this->_info['where'][] = $this->_computeCondition($args, 'or');
-		$this->emptyCache();
+		$this->_info['where'][] = $this->_computeCondition($args, self::_OR);
 		return $this;
 	}
 	
 	public function clearWhere()
 	{
 		$this->_info['where'] = array();
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -497,14 +328,12 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			$fields = func_get_args();
 		}
 		$this->_info['groupBy'] = array_merge($this->_info['groupBy'], $fields);
-		$this->emptyCache();
 		return $this;
 	}
 	
 	public function clearGroupBy()
 	{
 		$this->_info['groupBy'] = array();
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -520,7 +349,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		$args = func_get_args();
 		$this->_info['having'][] = $this->_computeCondition($args);
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -534,15 +362,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function orHaving()
 	{
 		$args = func_get_args();
-		$this->_info['having'][] = $this->_computeCondition($args, 'or');
-		$this->emptyCache();
+		$this->_info['having'][] = $this->_computeCondition($args, self::_OR);
 		return $this;
 	}
 	
 	public function clearHaving()
 	{
 		$this->_info['having'] = array();
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -578,14 +404,12 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		}
 		
 		$this->_info['orderBy'][$field] = $direction;
-		$this->emptyCache();
 		return $this;
 	}
 	
 	public function clearOrderBy()
 	{
 		$this->_info['orderBy'] = array();
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -605,7 +429,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	{
 		if ($limit === false) {
 			$this->_info['limit'] = null;
-			$this->emptyCache();
 			return $this;
 		}
 		
@@ -630,7 +453,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			'offset' => (int) $offset
 		);
 		
-		$this->emptyCache();
 		return $this;
 	}
 	
@@ -643,7 +465,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function setParams($params)
 	{
 		$this->_info['params'] = (array) $params;
-		$this->_cachedResult = null;
 		return $this;
 	}
 	
@@ -657,7 +478,6 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	public function setParam($index, $value)
 	{
 		$this->_info['params'][$index] = $value;
-		$this->_cachedResult = null;
 		return $this;
 	}
 	
@@ -729,51 +549,18 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
-	 * Executes the request against a PDO object
+	 * Executes the request against a db instance
 	 * 
-	 * @return 	bool|Atomik_Db_Query_Result		False if fail or the Atomik_Db_Query_Result object
+	 * @return PDOStatement
 	 */
-	public function execute($reCache = false, Atomik_Db_Query_Result $resultObject = null)
+	public function execute()
 	{
-		if ($this->_instance === null) {
-			require_once 'Atomik/Db/Query/Exception.php';
-			throw new Atomik_Db_Query_Exception('An Atomik_Db_Instance must be attached to the queyr to execute it');
-		}
-		
-		if (($resultObject === null || !$reCache) && $this->_cachedResult !== null) {
-			return $this->_cachedResult;
-		}
-		
-		if ($this->_statement === null) {
-			// prepare the query only if the statement is not already prepared
-			$this->_statement = $this->_pdo->prepare($this->toSql());
-		}
-		
-		$this->_lastError = false;
-		if (!$this->_statement->execute($this->getParams())) {
-			$this->_lastError = $this->_statement->errorInfo();
-			return false;
-		}
-		
-		if ($resultObject === null) {
-			$resultObject = new Atomik_Db_Query_Result($this);
-			if ($this->_cacheable) {
-				$this->_cachedResult = $resultObject;
-			}
-		}
-		
-		$resultObject->reset($this->_statement);
-		return $resultObject;
-	}
-	
-	/**
-	 * Returns the error from the last execute if one occured, false otherwise
-	 * 
-	 * @return array
-	 */
-	public function getLastErrorInfo()
-	{
-		return $this->_lastError;
+	    if (($stmt = $this->_instance->query($this->toSql(), $this->getParams())) === false) {
+	        return false;
+	    }
+	    
+		$stmt->setFetchMode($this->_fetchMode);
+		return $stmt;
 	}
 	
 	/**
@@ -799,42 +586,13 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	}
 	
 	/**
-	 * Extracts parameters from a data array and replace values by ? 
-	 * (unless it's an Atomik_Db_Query_Expr).
-	 * 
-	 * @param 	array	$data
-	 * @return 	array
-	 */
-	protected function _computeData($data)
-	{
-		if (!is_array($data)) {
-			return $data;
-		}
-		
-		$fields = array();
-		$params = array();
-		
-		foreach ($data as $field => $value) {
-			if ($value instanceof Atomik_Db_Query_Expr) {
-				$fields[$field] = $value->__toString();
-			} else {
-				$fields[$field] = '?';
-				$params[] = $value;
-			}
-		}
-		
-		$this->_info['params'] = array_merge($this->_info['params'], $params);
-		return $fields;
-	}
-	
-	/**
 	 * Returns information about a condition. Also extract params.
 	 * 
 	 * @param	array	$args
 	 * @param 	string	$operator
 	 * @return 	array
 	 */
-	protected function _computeCondition($args, $operator = 'and')
+	protected function _computeCondition($args, $operator = self::_AND)
 	{
 		list($sql, $params) = $this->_buildConditionString(array_shift($args), $args);
 		$this->_info['params'] = array_merge($this->_info['params'], $params);
@@ -857,11 +615,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 		
 		for ($i = 0, $c = count($array); $i < $c; $i++) {
 			if ($i > 0) {
-				if ($array[$i]['operator'] == 'and') {
-					$sql .= ' AND ';
-				} else {
-					$sql .= ' OR ';
-				}
+				$sql .= $array[$i]['operator'];
 			}
 			$sql .= $array[$i]['sql'];
 		}
@@ -877,7 +631,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 * @param 	string			$operator	The operator used to implode conditions
 	 * @return 	array						array(fields, params)
 	 */
-	protected function _buildConditionString($fields, $params = array(), $operator = ' AND ')
+	protected function _buildConditionString($fields, $params = array(), $operator = self::_AND)
 	{
 		if (is_string($fields)) {
 			$sql = $fields;

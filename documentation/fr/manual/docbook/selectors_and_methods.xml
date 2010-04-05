@@ -54,6 +54,7 @@ $firstPost = A('db:SELECT * FROM posts WHERE id = ?', array(1));]]>
 			Pour creer un namespace utilisez <methodname>Atomik::registerSelector()</methodname>
 			prenant en premier paramètres le préfixe du namespace voulu (namespace sans les deux points) et en second le nom de la fonction à appeler (callback).
 			Appelé, le callback prendra en paramètre celui utilisé pour <methodname>Atomik::get()</methodname>.
+		</para>
 		<example>
 			<title>Créer un Sélecteur</title>
 			<programlisting>
@@ -99,6 +100,7 @@ Atomik::registerMethod('maMethode', function() {
 		</example>
 		<para>
 			Appeler une méthode créée par vos soins est équivalent à appeler toute autre method de la classe Atomik.
+		</para>
 		<example>
 			<title>Appeler une méthode</title>
 			<programlisting>

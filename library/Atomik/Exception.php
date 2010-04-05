@@ -18,10 +18,9 @@
  * @link http://www.atomikframework.com
  */
 
-/**
- * @package Atomik
- */
-class Atomik_Exception extends Exception
-{
-	
+if (!class_exists('Atomik_Exception')) {
+    /**
+     * @package Atomik
+     */
+    class Atomik_Exception extends Exception {}
 }

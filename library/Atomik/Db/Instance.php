@@ -22,11 +22,11 @@
 /** Atomik_Db_Query */
 require_once 'Atomik/Db/Query.php';
 
+/** Atomik_Db_Adapter */
+require_once 'Atomik/Db/Adapter.php';
+
 /** Atomik_Db_Adapter_Interface */
 require_once 'Atomik/Db/Adapter/Interface.php';
-
-/** Atomik_Db_Adapter_Factory */
-require_once 'Atomik/Db/Adapter/Factory.php';
 
 /**
  * Helpers function for handling databases
@@ -36,59 +36,28 @@ require_once 'Atomik/Db/Adapter/Factory.php';
  */
 class Atomik_Db_Instance
 {
-	/**
-	 * The pdo instance
-	 *
-	 * @var PDO
-	 */
+	/** @var PDO */
 	public $pdo;
 	
-	/**
-	 * Connection information for lazy loading
-	 * 
-	 * @var array
-	 */
+	/** @var array */
 	public $connectionInfo;
 	
-	/**
-	 * @var Atomik_Db_Adapter_Interface
-	 */
+	/** @var Atomik_Db_Adapter_Interface */
 	protected $_adapter;
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $_tablePrefix = '';
 	
-	/**
-	 * @var bool
-	 */
-	protected $_queryCacheEnabled = false;
+	/** @var array */
+	protected $_errorInfo;
 	
-	/**
-	 * @var bool
-	 */
-	protected $_resultCacheEnabled = false;
-	
-	/**
-	 * @var array
-	 */
-	protected $_queryCache = array();
-	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected static $_defaultTablePrefix = '';
-	
-	/**
-	 * @var bool
-	 */
-	protected static $_alwaysCacheQuery = false;
 	
 	/**
 	 * Sets the prefix that will be appended to all table names
 	 * 
-	 * @param	string	$prefix
+	 * @param string $prefix
 	 */
 	public static function setDefaultTablePrefix($prefix)
 	{
@@ -109,40 +78,18 @@ class Atomik_Db_Instance
 	}
 	
 	/**
-	 * Sets whether queries should always be cached
-	 * 
-	 * @param string $enable
-	 */
-	public static function setAlwaysCacheQueries($enable = true)
-	{
-		self::$_alwaysCacheQuery = $enable;
-	}
-	
-	/**
-	 * Returns whether queries are always cached
-	 * 
-	 * @return bool
-	 */
-	public static function areQueriesAlwaysCached()
-	{
-		return self::$_alwaysCacheQuery;
-	}
-	
-	/**
 	 * Constructor
 	 *
-	 * @param 	PDO 	$pdo
+	 * @param PDO $pdo
 	 */
 	public function __construct($dsnOrPdo = null, $username = '', $password = '')
 	{
+		$this->_tablePrefix = self::getDefaultTablePrefix();
+		
 		if ($dsnOrPdo instanceof PDO) {
 			$this->pdo = $pdo;
 			return;
 		}
-		
-		$this->_tablePrefix = self::getDefaultTablePrefix();
-		$this->_queryCacheEnabled = self::areQueriesAlwaysCached();
-		$this->_resultCacheEnabled = Atomik_Db_Query::areResultsAlwaysCached();
 		
 		$this->setConnectionInfo($dsnOrPdo, $username, $password);
 	}
@@ -150,9 +97,9 @@ class Atomik_Db_Instance
 	/**
 	 * Sets the connection information
 	 * 
-	 * @param	string	$dsn
-	 * @param 	string	$username
-	 * @param 	string	$password
+	 * @param string $dsn
+	 * @param string $username
+	 * @param string $password
 	 */
 	public function setConnectionInfo($dsn, $username, $password = '')
 	{
@@ -180,7 +127,14 @@ class Atomik_Db_Instance
 	}
 	
 	/**
-	 * Connects to the database using the config values
+	 * Connects to the database
+	 * 
+	 * If no params are provided, connection information
+	 * will be used, {@see setConnectionInfo()}
+	 * 
+	 * @param string $dsn
+	 * @param string $username
+	 * @param string $password
 	 */
 	public function connect($dsn = null, $username = '', $password = '')
 	{
@@ -244,15 +198,37 @@ class Atomik_Db_Instance
 	{
 		if ($this->_adapter === null) {
 			$this->connect();
-			$this->_adapter = Atomik_Db_Adapter_Factory::factory($this->getPdoDriverName(), $this->pdo);
+			$this->_adapter = Atomik_Db_Adapter::factory($this->getPdoDriverName(), $this->pdo);
 		}
 		return $this->_adapter;
 	}
 	
 	/**
+	 * Returns a quoted value
+	 * 
+	 * @param string $text
+	 * @return string
+	 */
+	public function quote($text)
+	{
+	    return $this->getAdapter()->quote($text);
+	}
+	
+	/**
+	 * Returns a quoted identifier
+	 * 
+	 * @param string $id
+	 * @return string
+	 */
+	public function quoteIdentifier($id)
+	{
+	    return $this->getAdapter()->quoteIdentifier($id);
+	}
+	
+	/**
 	 * Sets the prefix that will be prepended to all table names
 	 * 
-	 * @param	string	$prefix
+	 * @param string $prefix
 	 */
 	public function setTablePrefix($prefix)
 	{
@@ -270,72 +246,17 @@ class Atomik_Db_Instance
 	}
 	
 	/**
-	 * Sets whether to cache query or not
-	 * 
-	 * @param bool $enable
-	 */
-	public function enableQueryCache($enable = true)
-	{
-		$this->_queryCacheEnabled = $enable;
-	}
-	
-	/**
-	 * Checks if the query cache is enabled.
-	 * Query are cached only if constructed with Atomik_Db_Query
-	 * 
-	 * @return bool
-	 */
-	public function isQueryCacheEnabled()
-	{
-		return $this->_queryCacheEnabled;
-	}
-	
-	/**
-	 * Sets whether query results are cached
-	 * 
-	 * @see Atomik_Db_Query
-	 * @param bool $enable
-	 */
-	public function enableResultCache($enable = true)
-	{
-		$this->_resultCacheEnabled = $enable;
-	}
-	
-	/**
-	 * Returns whether query results are cached
-	 * 
-	 * @return bool
-	 */
-	public function isResultCacheEnabled()
-	{
-		return $this->_resultCacheEnabled;
-	}
-	
-	/**
-	 * Empties the query cache
-	 * 
-	 * @param Atomik_Db_Query $query If specified will clear the cache only for this query
-	 */
-	public function emptyCache(Atomik_Db_Query $query = null)
-	{
-		if ($query !== null) {
-			$hash = $query->toHash();
-			if (isset($this->_queryCache[$hash])) {
-				unset($this->_queryCache[$hash]);
-			}
-			return;
-		}
-		$this->_cacheEnabled = array();
-	}
-	
-	/**
 	 * Returns error information
 	 * 
+	 * @param int $index
 	 * @return array
 	 */
-	public function getErrorInfo()
+	public function getErrorInfo($index = null)
 	{
-		return $this->pdo->errorInfo();
+	    if ($index !== null) {
+	        return $this->_errorInfo[$index];
+	    }
+		return $this->_errorInfo;
 	}
 	
 	/**
@@ -352,19 +273,21 @@ class Atomik_Db_Instance
 	/**
 	 * Prepares and executes a statement
 	 *
-	 * @param 	string|Atomik_Db_Query	$query
-	 * @param 	array 					$params
-	 * @return 	PDOStatement
+	 * @param string $query
+	 * @param array $params
+	 * @return PDOStatement
 	 */
 	public function query($query, $params = array())
 	{
 		$this->connect();
-		if ($query instanceof Atomik_Db_Query) {
-			return $this->_executeQuery($query);
+		
+		if (($stmt = $this->pdo->prepare((string) $query)) === false) {
+		    $this->_errorInfo = $this->pdo->errorInfo();
+		    return false;
 		}
 		
-		$stmt = $this->pdo->prepare((string) $query);
 		if (!$stmt->execute($params)) {
+		    $this->_errorInfo = $stmt->errorInfo();
 			return false;
 		}
 		
@@ -372,42 +295,58 @@ class Atomik_Db_Instance
 	}
 	
 	/**
-	 * Executes a query without results
+	 * Executes a statement
+	 * 
+	 * If $params is not empty, will use {@see query()}
 	 *
 	 * @see PDO::exec()
-	 * @param 	string 		$query
-	 * @return 	int|bool
+	 * @param string $sql
+	 * @param array $params
+	 * @return int Number of affected rows
 	 */
-	public function exec($query)
+	public function exec($sql, $params = null)
 	{
 		$this->connect();
-		return $this->pdo->exec((string) $query);
+		
+		if (!empty($params)) {
+		    return $this->query($sql, $params);
+		}
+		
+		if (($nbRowAffected = $this->pdo->exec((string) $sql)) === false) {
+		    $this->_errorInfo = $this->pdo->errorInfo();
+		    return false;
+		}
+		return $nbRowAffected;
 	}
 	
 	/**
 	 * Prepares a statement
 	 *
 	 * @see PDO::prepare()
-	 * @param 	string 			$query
-	 * @param 	array 			$options
-	 * @return 	PDOStatement
+	 * @param string $query
+	 * @param array $options
+	 * @return PDOStatement
 	 */
 	public function prepare($query, $options = array())
 	{
 		$this->connect();
-		return $this->pdo->prepare((string) $query, $options);
+		if (($stmt = $this->pdo->prepare((string) $query, $options)) === false) {
+		    $this->_errorInfo = $this->pdo->errorInfo();
+		    return false;
+		}
+		return $stmt;
 	}
 	
 	/**
 	 * Finds the first row matching the arguments
 	 *
 	 * @see Atomik_Db_Instance::findAll()
-	 * @param 	string 			$table
-	 * @param 	array 			$where
-	 * @param 	string 			$orderBy
-	 * @param 	string 			$offset
-	 * @param 	string|array 	$fields
-	 * @return 	mixed						False if nothing found
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @param string $offset
+	 * @param string|array $fields
+	 * @return mixed
 	 */
 	public function find($table, $where = null, $orderBy = null, $offset = 0, $fields = null)
 	{
@@ -426,29 +365,29 @@ class Atomik_Db_Instance
 	 * Finds all rows matching the arguments
 	 *
 	 * @see Atomik_Db_Query
-	 * @param 	string|array 	$table
-	 * @param 	array 			$where
-	 * @param 	string 			$orderBy
-	 * @param 	string 			$limit
-	 * @param 	string|array 	$fields
-	 * @return 	Atomik_Db_Query_Result
+	 * @param string|array $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @param string $limit
+	 * @param string|array $fields
+	 * @return Atomik_Db_Query_Result
 	 */
 	public function findAll($table, $where = null, $orderBy = null, $limit = null, $fields = null)
 	{
 		$query = $this->_buildQuery($table, $where, $orderBy, $limit, $fields);
-		return $this->_executeQuery($query);
+		return $query->execute();
 	}
 	
 	/**
 	 * Returns the value of the specified column of the first row to be found
 	 * 
 	 * @see Atomik_Db_Instance::find()
-	 * @param 	string 			$table
-	 * @param 	string 			$column
-	 * @param 	array 			$where
-	 * @param 	string 			$orderBy
-	 * @param 	string 			$offset
-	 * @return 	mixed						False if nothing found
+	 * @param string $table
+	 * @param string $column
+	 * @param array $where
+	 * @param string $orderBy
+	 * @param string $offset
+	 * @return mixed
 	 */
 	public function findValue($table, $column, $where = null, $orderBy = null, $offset = 0)
 	{
@@ -466,22 +405,21 @@ class Atomik_Db_Instance
 	 * Perform a SELECT COUNT(*) query
 	 *
 	 * @see Atomik_Db_Instance::buildWhere()
-	 * @param 	string|array|Atomik_Db_Query 	$table
-	 * @param 	array 							$where
-	 * @param 	string 							$limit
-	 * @return 	int
+	 * @param string|Atomik_Db_Query $table
+	 * @param array $where
+	 * @return int
 	 */
-	public function count($table, $where = null, $limit = null)
+	public function count($table, $where = null)
 	{
 		if (!($table instanceof Atomik_Db_Query)) {
-			$query = $this->_buildQuery($table, $where, null, $limit, 'COUNT(*)');
+			$query = $this->_buildQuery($table, $where, null, null, 'COUNT(*)');
 		} else {
 			$query = clone $table;
 			$query->count();
 		}
 		
-		if (($result = $this->_executeQuery($query)) === false) {
-			return 0;
+		if (($result = $query->execute()) === false) {
+			return false;
 		}
 		
 		$count = $result->fetchColumn();
@@ -493,14 +431,13 @@ class Atomik_Db_Instance
 	 * Checks if some rows exist with the specified $where
 	 * Kinf of an alias of {@see Atomik_Db_Instance::count()}
 	 * 
-	 * @param 	string|array 	$table
-	 * @param 	array 			$where
-	 * @param 	string 			$limit
-	 * @return 	bool
+	 * @param string|array $table
+	 * @param array $where
+	 * @return bool
 	 */
-	public function has($table, $where, $limit = null)
+	public function has($table, $where)
 	{
-		return $this->count($table, $where, $limit) > 0;
+		return $this->count($table, $where) > 0;
 	}
 	
 	/**
@@ -509,15 +446,23 @@ class Atomik_Db_Instance
 	 * and their associated value the value to insert in the
 	 * database
 	 *
-	 * @param 	string 		$table
-	 * @param 	array 		$data
-	 * @return 	bool|int 			Last insert id or false
+	 * @param string $table
+	 * @param array $data
+	 * @return int Last inserted id
 	 */
 	public function insert($table, $data)
 	{
-		$query = $this->q()->insertInto($table)->values($data);
+	    $sql = sprintf('INSERT INTO %s (%s) VALUES (%s)',
+			$table,
+			implode(', ', array_keys($data)),
+			implode(', ', array_fill(0, count($data), '?'))
+		);
+		
+		$params = array_values($data);
+		$stmt = $this->prepare($sql);
 	
-		if ($query->execute() === false) {
+		if (!$stmt->execute($params)) {
+		    $this->_errorInfo = $stmt->errorInfo();
 			return false;
 		}
 		return $this->pdo->lastInsertId();
@@ -527,15 +472,52 @@ class Atomik_Db_Instance
 	 * Updates a row 
 	 *
 	 * @see Atomik_Db_Instance::buildWhere()
-	 * @param 	string 	$table
-	 * @param 	array 	$data
-	 * @param 	array 	$where
-	 * @return 	bool
+	 * @param string $table
+	 * @param array $data
+	 * @param array $where
+	 * @return bool
 	 */
 	public function update($table, $data, $where)
 	{
-		$query = $this->q()->update($table)->set($data)->where($where);
-		return $query->execute() !== false;
+	    $sql = sprintf('UPDATE %s SET %s = ? WHERE %s = ?', 
+	        $table, 
+	        implode(' = ?, ', array_keys($data)), 
+	        implode(' = ? AND ', array_keys($where))
+	    );
+	    
+	    $params = array_merge(array_values($data), array_values($where));
+		$stmt = $this->prepare($sql);
+	
+		if (!$stmt->execute($params)) {
+		    $this->_errorInfo = $stmt->errorInfo();
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Deletes rows
+	 *
+	 * @see Atomik_Db_Instance::buildWhere()
+	 * @param array|string $table
+	 * @param array $where
+	 * @return bool
+	 */
+	public function delete($table, $where)
+	{
+	    $sql = sprintf('DELETE FROM %s WHERE %s = ?', 
+	        $table, 
+	        implode(' = ? AND ', array_keys($where))
+	    );
+	    
+	    $params = array_values($where);
+		$stmt = $this->prepare($sql);
+	
+		if (!$stmt->execute($params)) {
+		    $this->_errorInfo = $stmt->errorInfo();
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -545,10 +527,10 @@ class Atomik_Db_Instance
 	 * If $where is null, $data will be used as the where clause. $where can also
 	 * be a string representing a key of the data array
 	 * 
-	 * @param 	string 			$table
-	 * @param 	array 			$data
-	 * @param 	array|string 	$where
-	 * @return 	int|bool				Last insert id if it's an insert, true for success on update, false otherwise
+	 * @param string $table
+	 * @param array $data
+	 * @param array|string $where
+	 * @return int|bool	Last insert id if it's an insert, true for success on update, false otherwise
 	 */
 	public function set($table, $data, $where = null)
 	{
@@ -579,54 +561,14 @@ class Atomik_Db_Instance
 	}
 	
 	/**
-	 * Deletes rows
-	 *
-	 * @see Atomik_Db_Instance::buildWhere()
-	 * @param 	array|string 	$table
-	 * @param 	array 			$where
-	 * @return 	bool
-	 */
-	public function delete($table, $where = array())
-	{
-		$query = $this->q()->delete()->from($table)->where($where);
-		return $query->execute() !== false;
-	}
-	
-	/**
-	 * Executes a query.
-	 * Uses the cache version if available
-	 * 
-	 * @param	Atomik_Db_Query		$query
-	 * @return 	Atomik_Db_Query_Result
-	 */
-	protected function _executeQuery(Atomik_Db_Query $query)
-	{
-		$hash = $query->toHash();
-		if ($this->_queryCacheEnabled && isset($this->_queryCache[$hash])) {
-			$this->_queryCache[$hash]->rewind();
-			return $this->_queryCache[$hash];
-		}
-		
-		if (($result = $query->execute()) === false) {
-			return false;
-		}
-		
-		if ($this->_queryCacheEnabled) {
-			$this->_queryCache[$hash] = $result;
-			return $this->_queryCache[$hash];
-		}
-		return $result;
-	}
-	
-	/**
 	 * Builds a Atomik_Db_Query object
 	 * 
 	 * @see Atomik_Db_Query
-	 * @param 	string|array 	$table
-	 * @param 	array 			$where
-	 * @param 	string 			$orderBy
-	 * @param 	string 			$limit
-	 * @param 	string|array 	$fields
+	 * @param string|array $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @param string $limit
+	 * @param string|array $fields
 	 * @return Atomik_Db_Query
 	 */
 	protected function _buildQuery($table, $where = null, $orderBy = null, $limit = null, $fields = null)

@@ -49,12 +49,6 @@ class DbPlugin
     	// table prefix
     	'table_prefix'	=> '',
     
-    	// whether to enable query cache
-    	'query_cache'	=> false,
-    
-    	// whether to enable result cache
-    	'result_cache'	=> false,
-    
     	// where to find models
     	'model_dirs'	=> array('./app/models'),
     
@@ -85,9 +79,7 @@ class DbPlugin
 		    'dsn' => self::$config['dsn'],
 		    'username' => self::$config['username'],
 		    'password' => self::$config['password'],
-		    'table_prefix' => self::$config['table_prefix'],
-		    'query_cache' => self::$config['query_cache'],
-		    'result_cache' => self::$config['result_cache']
+		    'table_prefix' => self::$config['table_prefix']
 		);
 		
 		// initializes instances
@@ -131,8 +123,6 @@ class DbPlugin
         
 		$instance = Atomik_Db::createInstance($name, $dsn, $username, $password);
 		$instance->setTablePrefix(Atomik::get('table_prefix', '', $instanceConf));
-		$instance->enableQueryCache(Atomik::get('query_cache', false, $instanceConf));
-		$instance->enableResultCache(Atomik::get('result_cache', false, $instanceConf));
 		
 		return $instance;
     }

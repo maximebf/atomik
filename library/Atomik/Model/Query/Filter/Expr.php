@@ -19,14 +19,50 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model_Exception */
-require_once 'Atomik/Model/Exception.php';
+/** Atomik_Model_Query_Filter_Interface */
+require_once 'Atomik/Model/Query/Filter/Interface.php';
 
 /**
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Session_Exception extends Atomik_Model_Exception
+abstract class Atomik_Model_Query_Filter_Expr implements Atomik_Model_Query_Filter_Interface
 {
+    /** @var string */
+	protected $_expr;
 	
+	/**
+	 * @param string $expr
+	 */
+	public function __construct($expr)
+	{
+		$this->_expr = $expr;
+	}
+	
+	/**
+	 * Sets a raw sql string that will be used in the where clause of the
+	 * db query
+	 * 
+	 * @param string $expr
+	 */
+	public function setExpr($expr)
+	{
+		$this->_expr = $expr;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getExpr()
+	{
+		return $this->_expr;
+	}
+	
+	/**
+	 * @see Atomik_Model_Query_Filter_Interface::apply()
+	 */
+	public function apply(Atomik_Db_Query $query)
+	{
+		return $this->_expr;
+	}
 }

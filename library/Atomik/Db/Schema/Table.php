@@ -1,14 +1,14 @@
 <?php
 
-/** Atomik_Db_Definition_Column */
-require_once 'Atomik/Db/Definition/Column.php';
+/** Atomik_Db_Schema_Column */
+require_once 'Atomik/Db/Schema/Column.php';
 
-/** Atomik_Db_Definition_Index */
-require_once 'Atomik/Db/Definition/Index.php';
+/** Atomik_Db_Schema_Index */
+require_once 'Atomik/Db/Schema/Index.php';
 
-class Atomik_Db_Definition_Table
+class Atomik_Db_Schema_Table
 {
-	public $definition;
+	public $schema;
 	
 	public $name;
 	
@@ -18,9 +18,9 @@ class Atomik_Db_Definition_Table
 	
 	public $primaryKey;
 	
-	public function __construct(Atomik_Db_Definition $definition, $tableName)
+	public function __construct(Atomik_Db_Schema $schema, $tableName)
 	{
-		$this->definition = $definition;
+		$this->schema = $schema;
 		$this->name = $tableName;
 	}
 	
@@ -32,7 +32,7 @@ class Atomik_Db_Definition_Table
 	
 	public function createColumn($name, $type, $length = null, $options = array())
 	{
-		$column = new Atomik_Db_Definition_Column($this, $name, $type, $length, $options);
+		$column = new Atomik_Db_Schema_Column($this, $name, $type, $length, $options);
 		$this->columns[] = $column;
 		return $column;
 	}
@@ -54,13 +54,13 @@ class Atomik_Db_Definition_Table
 		if ($name === null) {
 			$name = 'idx_' . $this->name . '_' . $column;
 		}
-		$index = new Atomik_Db_Definition_Index($this, $name, $column);
+		$index = new Atomik_Db_Schema_Index($this, $name, $column);
 		$this->indexes[] = $index;
 		return $index;
 	}
 	
 	public function end()
 	{
-		return $this->definition;
+		return $this->schema;
 	}
 }

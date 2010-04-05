@@ -25,7 +25,18 @@
  */
 interface Atomik_Model_Validator
 {
+    /**
+     * Checks if the value validates against this validator
+     * 
+     * @param mixed $value
+     * @return bool
+     */
     function isValid($value);
     
+    /**
+     * Returns the message if the validation failed
+     * 
+     * @return string
+     */
     function getValidationMessage();
 }

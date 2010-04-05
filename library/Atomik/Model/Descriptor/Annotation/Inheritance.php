@@ -23,22 +23,28 @@
 require_once 'Atomik/Model/Descriptor/Annotation.php';
 
 /**
- * @Target("property")
+ * @Target("class")
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Descriptor_Annotation_Id extends Atomik_Model_Descriptor_Annotation
+class Atomik_Model_Descriptor_Annotation_Inheritance extends Atomik_Model_Descriptor_Annotation
 {
+    public $type = 'joined';
+    
+    public $descriminator;
+    
     public function apply(Atomik_Model_Descriptor $descriptor, $target)
     {
-        $name = $target->getName();
+        $descriptor->setInheritanceType($this->type);
         
-        if (!$target->hasAnnotation('Field')) {
-            throw new Atomik_Model_Descriptor_Exception(
-            	"'$name' must be a field to be an identifier in '" . $descriptor->getName() . "'");
+        if (empty($this->descriminator)) {
+            require_once 'Atomik/Model/Descriptor/Exception.php';
+            throw new Atomik_Model_Descriptor_Exception("No descriminator field specified for '" . $descriptor->getName() . "'");
         }
         
-        $field = $descriptor->getField($name);
-        $descriptor->setIdentifierField($field);
+        if (!$descriptor->hasField($this->descriminator)) {
+            $descriptor->mapProperty(Atomik_Model_Field::factory($this->descriminator, 'string'));
+        }
+        $descriptor->setDescriminatorField($descriptor->getField($this->descriminator));
     }
 }

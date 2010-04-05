@@ -196,51 +196,11 @@ class Atomik_Db
 	}
 	
 	/**
-	 * @see Atomik_Db_Instance::enableQueryCache()
-	 */
-	public static function enableQueryCache($enable = true)
-	{
-		return self::getInstance()->enableQueryCache($enable);
-	}
-	
-	/**
-	 * @see Atomik_Db_Instance::isQueryCacheEnabled()
-	 */
-	public static function isQueryCacheEnabled()
-	{
-		return self::getInstance()->isQueryCacheEnabled();
-	}
-	
-	/**
-	 * @see Atomik_Db_Instance::enableResultCache()
-	 */
-	public static function enableResultCache($enable = true)
-	{
-		return self::getInstance()->enableResultCache($enable);
-	}
-	
-	/**
-	 * @see Atomik_Db_Instance::isResultCacheEnabled()
-	 */
-	public static function isResultCacheEnabled()
-	{
-		return self::getInstance()->isResultCacheEnabled();
-	}
-	
-	/**
-	 * @see Atomik_Db_Instance::emptyCache()
-	 */
-	public static function emptyCache(Atomik_Db_Query $query = null)
-	{
-		return self::getInstance()->emptyCache($query);
-	}
-	
-	/**
 	 * @see Atomik_Db_Instance::getErrorInfo()
 	 */
-	public static function getErrorInfo()
+	public static function getErrorInfo($index)
 	{
-		return self::getInstance()->getErrorInfo();
+		return self::getInstance()->getErrorInfo($index);
 	}
 	
 	/**
@@ -262,9 +222,9 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::exec()
 	 */
-	public static function exec($query)
+	public static function exec($query, $params = null)
 	{
-		return self::getInstance()->exec($query);
+		return self::getInstance()->exec($query, $params);
 	}
 	
 	/**
@@ -302,7 +262,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::count()
 	 */
-	public static function count($table, $where = null, $limit = null)
+	public static function count($table, $where = null)
 	{
 		return self::getInstance()->count($table, $where, $limit);
 	}
@@ -310,7 +270,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::has()
 	 */
-	public static function has($table, $where, $limit = null)
+	public static function has($table, $where)
 	{
 		return self::getInstance()->has($table, $where, $limit);
 	}
@@ -334,7 +294,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::set()
 	 */
-	public static function set($table, $data, $where = null)
+	public static function set($table, $data, $where)
 	{
 		return self::getInstance()->set($table, $data, $where);
 	}
@@ -342,7 +302,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::delete()
 	 */
-	public static function delete($table, $where = array())
+	public static function delete($table, $where)
 	{
 		return self::getInstance()->delete($table, $where);
 	}

@@ -28,43 +28,35 @@ require_once 'Atomik/Model/Descriptor.php';
  */
 class Atomik_Model_Collection implements Iterator, ArrayAccess, Countable
 {
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	protected $_pointer = 0;
 	
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	protected $_count;
 	
-	/**
-	 * @var Atomik_Model_Descriptor
-	 */
+	/** @var Atomik_Model_Descriptor */
 	protected $_descriptor;
 	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	protected $_data = array();
 	
-	/**
-	 * @var array
-	 */
+	/** @var array of Atomik_Model */
 	protected $_models = array();
 	
 	/**
-	 * Constructor
-	 * 
-	 * @param	Atomik_Model_Descriptor	$descriptor
-	 * @param	array					$data
+	 * @param Atomik_Model_Session $session
+	 * @param Atomik_Model_Descriptor $descriptor
+	 * @param array $data
 	 */
-	public function __construct(Atomik_Model_Descriptor $descriptor, $data)
+	public function __construct(Atomik_Model_Descriptor $descriptor, $data = array())
 	{
-		$this->_descriptor = $descriptor;
+	    $this->_descriptor = $descriptor;
 		$this->setData($data);
 	}
 	
+	/**
+	 * @param Atomik_Model_Descriptor $descriptor
+	 */
 	public function setDescriptor(Atomik_Model_Descriptor $descriptor)
 	{
 	    $this->_descriptor = $descriptor;
@@ -72,6 +64,9 @@ class Atomik_Model_Collection implements Iterator, ArrayAccess, Countable
 		$this->_models = array();
 	}
 	
+	/**
+	 * @return Atomik_Model_Descriptor
+	 */
 	public function getDescriptor()
 	{
 	    return $this->_descriptor;
@@ -100,12 +95,22 @@ class Atomik_Model_Collection implements Iterator, ArrayAccess, Countable
 		return $this->_data;
 	}
 	
+	/**
+	 * Returns the first model in the collection
+	 * 
+	 * @return Atomik_Model
+	 */
 	public function getFirst()
 	{
 	    $model = $this->item(0);
 	    return $model === false ? null : $model;
 	}
 	
+	/**
+	 * Returns all the models as an array
+	 * 
+	 * @return array of Atomik_Model
+	 */
 	public function getAll()
 	{
         $this->current();
@@ -118,8 +123,8 @@ class Atomik_Model_Collection implements Iterator, ArrayAccess, Countable
 	/**
 	 * Returns the model at the specified index
 	 * 
-	 * @param	int		$index
-	 * @return 	Atomik_Model
+	 * @param int $index
+	 * @return Atomik_Model
 	 */
 	public function item($index)
 	{
@@ -128,10 +133,7 @@ class Atomik_Model_Collection implements Iterator, ArrayAccess, Countable
 		}
 		
 		if (!isset($this->_models[$index])) {
-			$this->_models[$index] = $this->_descriptor->createInstance(
-				$this->_data[$index],
-				false
-			);
+			$this->_models[$index] = $this->_descriptor->hydrate($this->_data[$index]);
 		}
 		
 		return $this->_models[$index];

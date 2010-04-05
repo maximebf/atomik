@@ -37,14 +37,14 @@ require_once 'Atomik/Model/Descriptor/Annotation/Form.php';
 /** Atomik_Model_Descriptor_Annotation_Id */
 require_once 'Atomik/Model/Descriptor/Annotation/Id.php';
 
+/** Atomik_Model_Descriptor_Annotation_Id */
+require_once 'Atomik/Model/Descriptor/Annotation/Inheritance.php';
+
 /** Atomik_Model_Descriptor_Annotation_Model */
 require_once 'Atomik/Model/Descriptor/Annotation/Model.php';
 
 /** Atomik_Model_Descriptor_Annotation_Validate */
 require_once 'Atomik/Model/Descriptor/Annotation/Validate.php';
-
-/** Atomik_Model_Behaviour_Cacheable */
-require_once 'Atomik/Model/Behaviour/Cacheable.php';
 
 /** Atomik_Model_Behaviour_Orderable */
 require_once 'Atomik/Model/Behaviour/Orderable.php';
@@ -55,21 +55,10 @@ require_once 'Atomik/Model/Behaviour/Publishable.php';
 /** Atomik_Model_Behaviour_Sluggable */
 require_once 'Atomik/Model/Behaviour/Sluggable.php';
 
-/** Atomik_Model_Behaviour_Taggable */
-require_once 'Atomik/Model/Behaviour/Taggable.php';
-
 /** Atomik_Model_Behaviour_Timestampable */
 require_once 'Atomik/Model/Behaviour/Timestampable.php';
 
-/** Atomik_Model_Behaviour_Translatable */
-require_once 'Atomik/Model/Behaviour/Translatable.php';
-
-/** Atomik_Model_Behaviour_Versionable */
-require_once 'Atomik/Model/Behaviour/Versionable.php';
-
 /**
- * Reads the doc comments of a class and its properties and generates a model descriptor
- * 
  * @package Atomik
  * @subpackage Model
  */
@@ -79,7 +68,7 @@ class Atomik_Model_Descriptor_Builder
 	private static $_cache = array();
 	
 	/**
-	 * Reads metadata from a class doc comments and creates a descriptor object
+	 * Reads metadata from a class annotations and creates a descriptor object
 	 * 
 	 * @param	string	$className
 	 * @return 	Atomik_Model_Descriptor
@@ -89,8 +78,9 @@ class Atomik_Model_Descriptor_Builder
 	    $class = new ReflectionAnnotatedClass($className);
 		$descriptor = self::getBase($class);
 		
+		// applying associations
 		foreach ($class->getProperties() as $prop) {
-		    if (!$prop->isPublic()) {
+		    if (!$prop->isPublic() && $prop->hasAnnotation('Association')) {
         		foreach ($prop->getAnnotations() as $annotation) {
         		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
         		        $annotation->apply($descriptor, $prop);
@@ -99,11 +89,18 @@ class Atomik_Model_Descriptor_Builder
 		    }
 		}
 		
+		if (($parent = $class->getParentClass()) !== false) {
+		    $parent = Atomik_Model_Descriptor::factory($parent->getName());
+		    if ($parent->getInheritanceType() != 'none') {
+		        $descriptor->setParent($parent);
+		    }
+		}
+		
 		return $descriptor;
 	}
 	
 	/**
-	 * Returns a descriptor without the references
+	 * Returns a descriptor without the associations
 	 * 
 	 * @param	string	$className
 	 * @return 	Atomik_Model_Descriptor
@@ -133,6 +130,23 @@ class Atomik_Model_Descriptor_Builder
 		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
 		        $annotation->apply($descriptor, $class);
 		    }
+		}
+		
+		// applying fields
+		foreach ($class->getProperties() as $prop) {
+		    if (!$prop->isPublic() && !$prop->hasAnnotation('Association')) {
+        		foreach ($prop->getAnnotations() as $annotation) {
+        		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
+        		            $annotation->apply($descriptor, $prop);
+        		    }
+        		}
+		    }
+		}
+		
+		if ($descriptor->getIdentifierField() === null) {
+		    $idField = Atomik_Model_Field::factory('id', 'int');
+		    $descriptor->mapProperty($idField);
+		    $descriptor->setIdentifierField($idField);
 		}
 		
 		self::$_cache[$className] = $descriptor;

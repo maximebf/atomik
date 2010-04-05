@@ -1,6 +1,6 @@
 <?php
 
-class Atomik_Db_Definition_Column
+class Atomik_Db_Schema_Column
 {
 	public $table;
 	
@@ -10,7 +10,7 @@ class Atomik_Db_Definition_Column
 	
 	public $options = array();
 	
-	public function __construct(Atomik_Db_Definition_Table $table, $name, Atomik_Db_Type_Abstract $type, $options = array())
+	public function __construct(Atomik_Db_Schema_Table $table, $name, Atomik_Db_Type_Abstract $type, $options = array())
 	{
 		$this->table = $table;
 		$this->name = $name;

@@ -58,104 +58,16 @@ class Atomik_Db_Query_Generator implements Atomik_Db_Query_Generator_Interface
 		$this->_query = $query;
 		$this->_info = $query->getInfo();
 		
-		$sql = '';
-		
-		switch($this->_info['statement']) {
-			case 'SELECT':
-				$sql = $this->_buildSelectStatement();
-				break;
-			case 'INSERT':
-				$sql = $this->_buildInsertStatement();
-				break;
-			case 'UPDATE':
-				$sql = $this->_buildUpdateStatement();
-				break;
-			case 'DELETE':
-				$sql = $this->_buildDeleteStatement();
-				break;
-		}
+		$sql = 'SELECT '
+		     . implode(', ', $this->_info['fields'])
+		     . $this->_buildFromPart()
+		     . $this->_buildJoinPart()
+		     . $this->_buildWherePart()
+		     . $this->_buildGroupByPart()
+		     . $this->_buildOrderByPart()
+		     . $this->_buildLimitPart();
 		
 		return trim($sql);
-	}
-	
-	/**
-	 * Builds a SELECT statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildSelectStatement()
-	{
-		if (count($fields = $this->_info['fields']) == 0) {
-			$fields = array('*');
-		}
-		
-		return 	'SELECT '
-				. implode(', ', $fields)
-				. $this->_buildFromPart()
-				. $this->_buildJoinPart()
-				. $this->_buildWherePart()
-				. $this->_buildGroupByPart()
-				. $this->_buildOrderByPart()
-				. $this->_buildLimitPart();
-	}
-	
-	/**
-	 * Builds an INSERT statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildInsertStatement()
-	{
-		$data = $this->_info['data'];
-		
-		if (!is_array($data)) {
-			return sprintf('INSERT INTO %s %s',
-				$this->_adapter->quoteIdentifier($this->_info['table']),
-				(string) $data
-			);
-			
-		} else {
-			return sprintf('INSERT INTO %s (%s) VALUES (%s)',
-				$this->_adapter->quoteIdentifier($this->_info['table']),
-				implode(', ', array_map(array($this->_adapter, 'quoteIdentifier'), array_keys($data))),
-				implode(', ', array_values($data))
-			);
-		}
-	}
-	
-	/**
-	 * Builds an UPDATE statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildUpdateStatement()
-	{
-		$sets = array();
-		foreach ($this->_info['data'] as $field => $value) {
-			$sets[] = $this->_adapter->quoteIdentifier($field) . ' = ' .$value;
-		}
-		
-		return sprintf('UPDATE %s SET %s',
-			$this->_adapter->quoteIdentifier($this->_info['table']),
-			implode(', ', $sets) .
-			$this->_buildWherePart() .
-			$this->_buildOrderByPart() .
-			$this->_buildLimitPart()
-		);
-	}
-	
-	/**
-	 * Builds a DELETE statement
-	 * 
-	 * @return string
-	 */
-	protected function _buildDeleteStatement()
-	{
-		return 	'DELETE'
-				. $this->_buildFromPart()
-				. $this->_buildWherePart()
-				. $this->_buildOrderByPart()
-				. $this->_buildLimitPart();
 	}
 	
 	/**

@@ -61,8 +61,14 @@
  
 [Lib:Db]
 
- * Connection errors are now part of the exception message
- * Atomik_Db_Type
+ * added Atomik_Db_Type
+ * Atomik_Db_Definition renamed Atomik_Db_Schema
+ * removed Atomik_Db_Adapter_Factory (see Atomik_Db_Adapter::factory())
+ * removed Atomik_Db_Query_Result (going back to PDOStatement)
+ * Atomik_Db_Query now only perform SELECT statements
+ * Atomik_Db_Instance::getErrorInfo() returns the last error whether from pdo
+   or a statement (only if it is executed through the instance)
+ * Removed all cache related method on Atomik_Db
  
 [Lib:Form]
 

@@ -19,10 +19,8 @@
  * @link http://www.atomikframework.com
  */
 
-if (!class_exists('Atomik_Exception', false)) {
-	/** Atomik_Exception */
-	require_once 'Atomik/Exception.php';
-}
+/** Atomik_Exception */
+require_once 'Atomik/Exception.php';
 
 /**
  * @package Atomik

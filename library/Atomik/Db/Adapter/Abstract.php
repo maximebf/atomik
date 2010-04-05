@@ -17,9 +17,9 @@ abstract class Atomik_Db_Adapter_Abstract implements Atomik_Db_Adapter_Interface
 		return new Atomik_Db_Query_Generator($this);
 	}
 	
-	public function getDefinitionGenerator()
+	public function getSchemaGenerator()
 	{
-		return new Atomik_Db_Definition_Generator($this);
+		return new Atomik_Db_Schema_Generator($this);
 	}
 	
 	public function quote($value)

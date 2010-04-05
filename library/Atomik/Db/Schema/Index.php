@@ -1,6 +1,6 @@
 <?php
 
-class Atomik_Db_Definition_Index
+class Atomik_Db_Schema_Index
 {
 	public $table;
 	
@@ -8,7 +8,7 @@ class Atomik_Db_Definition_Index
 	
 	public $column;
 	
-	public function __construct(Atomik_Db_Definition_Table $table, $name, $column)
+	public function __construct(Atomik_Db_Schema_Table $table, $name, $column)
 	{
 		$this->table = $table;
 		$this->name = $name;

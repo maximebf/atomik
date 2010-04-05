@@ -1,10 +1,31 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package Atomik
+ * @subpackage Model
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
 
 /** Atomik_Model_Descriptor_Annotation */
 require_once 'Atomik/Model/Descriptor/Annotation.php';
 
 /**
  * @Target("property")
+ * @package Atomik
+ * @subpackage Model
  */
 class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descriptor_Annotation
 {
@@ -22,78 +43,64 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
     
     public $targetField;
     
-    public $viaSourceColumn;
+    public $viaSourceField;
     
-    public $viaTargetColumn;
+    public $viaTargetField;
     
-    public $scope;
-    
-    public $order_by;
-    
-    public $limit;
-    
-    public function apply(Atomik_Model_Descriptor $descriptor, $target)
+    public function apply(Atomik_Model_Descriptor $descriptor, $property)
     {
-        $name = $target->getName();
+        $name = $property->getName();
     
         if (!empty($this->has_parent)) {
             $target = Atomik_Model_Descriptor_Builder::getBase($this->has_parent);
             require_once 'Atomik/Model/Association/ManyToOne.php';
-            $assoc = new Atomik_Model_Association_ManyToOne($descriptor, $name, $target);
+            $assoc = new Atomik_Model_Association_ManyToOne($name, $descriptor, $target);
             
         } else if (!empty($this->has_one)) {
             $target = Atomik_Model_Descriptor_Builder::getBase($this->has_one);
             require_once 'Atomik/Model/Association/OneToMany.php';
-            $assoc = new Atomik_Model_Association_OneToMany($descriptor, $name, $target);
+            $assoc = new Atomik_Model_Association_OneToMany($name, $descriptor, $target);
             
         } else if (!empty($this->has_many) && empty($this->via)) {
             $target = Atomik_Model_Descriptor_Builder::getBase($this->has_many);
             require_once 'Atomik/Model/Association/OneToMany.php';
-            $assoc = new Atomik_Model_Association_OneToMany($descriptor, $name, $target);
+            $assoc = new Atomik_Model_Association_OneToMany($name, $descriptor, $target);
             
         } else if (!empty($this->has_many_to_many) || (!empty($this->has_many) && !empty($this->via))) {
             $targetName = empty($this->has_many) ? $this->has_many_to_many : $this->has_many;
             $target = Atomik_Model_Descriptor_Builder::getBase($targetName);
             
             require_once 'Atomik/Model/Association/ManyToMany.php';
-            $assoc = new Atomik_Model_Association_ManyToMany($descriptor, $name, $target);
+            $assoc = new Atomik_Model_Association_ManyToMany($name, $descriptor, $target);
             
             if (empty($this->via)) {
                 $this->via = strtolower($descriptor->getName() . '_' . $target->getName());
             }
             
 		    $assoc->setViaTable($this->via);
-		    !empty($this->viaSourceColumn) && $assoc->setViaSourceColumn($this->viaSourceColumn);
-		    !empty($this->viaTargetColumn) && $assoc->setViaTargetColumn($this->viaTargetColumn);
+		    !empty($this->viaSourceField) && $assoc->setViaSourceField($this->viaSourceField);
+		    !empty($this->viaTargetField) && $assoc->setViaTargetField($this->viaTargetField);
 		    
         } else {
             throw new Atomik_Model_Descriptor_Exception("No target specified for association '$name' in '" 
                 . $descriptor->getName() . "'");
         }
         
-		!empty($this->sourceField) && $assoc->setSourceFieldName($this->sourceField);
-		!empty($this->targetField) && $assoc->setTargetFieldName($this->targetField);
+		!empty($this->sourceField) && $assoc->setSourceField($this->sourceField);
+		!empty($this->targetField) && $assoc->setTargetField($this->targetField);
 		
-		// scope
-		if (!empty($this->scope)) {
-			$assoc->getQuery()->where($this->scope);
+		if (!$descriptor->hasField($assoc->getSourceField())) {
+		    $descriptor->mapProperty(Atomik_Model_Field::factory($assoc->getSourceField(), 'int'));
 		}
-		
-		// order by
-		if (!empty($this->order_by)) {
-			$assoc->getQuery()->orderBy($this->order_by);
+		if (!$target->hasField($assoc->getTargetField())) {
+		    $target->mapProperty(Atomik_Model_Field::factory($assoc->getTargetField(), 'int'));
 		}
+        
+        if ($property->getDeclaringClass()->getName() != $descriptor->getName()) {
+            $descriptor->getField($assoc->getSourceField())->setInherited(true);
+            $assoc->setInherited(true);
+        }
 		
-		// limit
-		if (!empty($this->limit)) {
-			$assoc->getQuery()->limit($this->limit);
-		}
-    
-	    if (!$descriptor->hasField($assoc->getSourceFieldName())) {
-	        $descriptor->addField(
-	            Atomik_Model_Field::factory($assoc->getSourceFieldName(), 'int'));
-	    }
-		
-		$descriptor->addAssociation($assoc);
+		$descriptor->mapProperty($assoc);
     }
 }

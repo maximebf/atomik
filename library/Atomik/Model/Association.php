@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Model_Descriptor_Property */
+require_once 'Atomik/Model/Descriptor/Property.php';
+
 /** Atomik_Db_Query */
 require_once 'Atomik/Db/Query.php';
 
@@ -26,11 +29,8 @@ require_once 'Atomik/Db/Query.php';
  * @package Atomik
  * @subpackage Model
  */
-abstract class Atomik_Model_Association
+abstract class Atomik_Model_Association extends Atomik_Model_Descriptor_Property
 {
-	/** @var string */
-	protected $_name;
-	
 	/** @var Atomik_Model_Descriptor */
 	protected $_source;
 	
@@ -38,69 +38,28 @@ abstract class Atomik_Model_Association
 	protected $_target;
 	
 	/** @var string */
-	protected $_sourceFieldName;
-	
-	/** @var Atomik_Model_Field */
 	protected $_sourceField;
 	
 	/** @var string */
-	protected $_targetFieldName;
-	
-	/** @var Atomik_Model_Field */
 	protected $_targetField;
-	
-	/** @var bool */
-	protected $_eagerLoading = false;
 	
 	/**
 	 * @param string $name
 	 * @param string $type
 	 */
-	public function __construct(Atomik_Model_Descriptor $source, $name, Atomik_Model_Descriptor $target = null)
+	public function __construct($name, Atomik_Model_Descriptor $source, Atomik_Model_Descriptor $target = null)
 	{
 		$this->_source = $source;
-		$this->_name = $name;
+		$this->setName($name);
 		$this->setTarget($target);
 	}
-    
-	/**
-	 * @param string $name
-	 */
-    public function setName($name)
-    {
-        $this->_name = $name;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->_name;
-    }
 	
 	/**
 	 * @return bool
 	 */
-	public function isManyToOne()
+	public function isMany()
 	{
-		return $this instanceof Atomik_Model_Association_ManyToOne;
-	}
-	
-	/**
-	 * @return bool
-	 */
-	public function isOneToMany()
-	{
-		return $this instanceof Atomik_Model_Association_OneToMany;
-	}
-	
-	/**
-	 * @return bool
-	 */
-	public function isManyToMany()
-	{
-		return $this instanceof Atomik_Model_Association_ManyToMany;
+	    return false;
 	}
 	
     /**
@@ -120,6 +79,9 @@ abstract class Atomik_Model_Association
         $this->_setup();
     }
     
+    /**
+     * Setups this relation with default values
+     */
     abstract protected function _setup();
     
     /**
@@ -133,27 +95,9 @@ abstract class Atomik_Model_Association
 	/**
 	 * @param string $name
 	 */
-    public function setSourceFieldName($name)
+    public function setSourceField($name)
     {
-        $this->_sourceFieldName = $name;
-        $this->_sourceField = null;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getSourceFieldName()
-    {
-        return $this->_sourceFieldName;
-    }
-    
-	/**
-	 * @param Atomik_Model_Field $field
-	 */
-    public function setSourceField(Atomik_Model_Field $field)
-    {
-        $this->_sourceField = $field;
-        $this->_sourceFieldName = $field->getName();
+        $this->_sourceField = $name;
     }
     
     /**
@@ -161,63 +105,23 @@ abstract class Atomik_Model_Association
      */
     public function getSourceField()
     {
-        if ($this->_sourceField === null) {
-            $this->_sourceField = $this->getSource()->getField($this->_sourceFieldName);
-        }
         return $this->_sourceField;
     }
     
 	/**
 	 * @param string $name
 	 */
-    public function setTargetFieldName($name)
+    public function setTargetField($name)
     {
-        $this->_targetFieldName = $name;
-        $this->_targetField = null;
+        $this->_targetField = $name;
     }
     
     /**
      * @return string
      */
-    public function getTargetFieldName()
-    {
-        return $this->_targetFieldName;
-    }
-    
-	/**
-	 * @param Atomik_Model_Field $field
-	 */
-    public function setTargetField(Atomik_Model_Field $field)
-    {
-        $this->_targetField = $field;
-        $this->_targetFieldName = $field->getName();
-    }
-    
-    /**
-     * @return Atomik_Model_Field
-     */
     public function getTargetField()
     {
-        if ($this->_targetField === null) {
-            $this->_targetField = $this->getTarget()->getField($this->_targetFieldName);
-        }
         return $this->_targetField;
-    }
-    
-    /**
-     * @param bool $enable
-     */
-    public function enabledEagerLoading($enable = true)
-    {
-        $this->_eadgerLoading = $enable;
-    }
-    
-    /**
-     * @return bool
-     */
-    public function isEagerLoaded()
-    {
-        return $this->_eagerLoading;
     }
     
     /**
@@ -225,42 +129,55 @@ abstract class Atomik_Model_Association
      * 
      * @return Atomik_Model_Association
      */
-    public function getInvert()
+    public function getReverse()
     {
         $className = get_class($this);
-        $assoc = new $className($this->_target, $this->_name . 'Invert', $this->_source);
-        $assoc->setSourceFieldName($this->_targetFieldName);
-        $assoc->setTargetFieldName($this->_sourceFieldName);
+        $assoc = new $className($this->_name . 'Reverse', $this->_target, $this->_source);
+        $assoc->setSourceField($this->_targetField);
+        $assoc->setTargetField($this->_sourceField);
         return $assoc;
     }
     
+    /**
+     * When building a query and a joint has been added using this relation,
+     * apply to the query the needed params
+     * 
+     * @param Atomik_Db_Query $query
+     */
     public function apply(Atomik_Db_Query $query)
     {
         $on = sprintf('%s.%s = %s.%s',
-            $this->getTarget()->getTableName(), $this->getTargetField()->getColumnName(),
-            $this->getSource()->getTableName(), $this->getSourceField()->getColumnName());
+            $this->_target->getTableName(), $this->_targetField,
+            $this->_source->getTableName(), $this->_sourceField);
             
-        $query->join($this->getTarget()->getTableName(), $on);
+        $query->join($this->_target->getTableName(), $on);
     }
     
+    /**
+     * Loads this association and sets the model's property
+     * 
+     * @param Atomik_Model $model
+     */
     abstract public function load(Atomik_Model $model);
+    
+    /**
+     * Saves this association for the specified model
+     * 
+     * @param Atomik_Model $model
+     */
+    abstract public function save(Atomik_Model $model);
 	
 	/**
-	 * Returns the query object to query the target model
+	 * Utility method which returns the query object to query the target model
 	 * 
 	 * @param Atomik_Model $model
 	 * @return Atomik_Model_Query
 	 */
 	protected function _createQuery(Atomik_Model $model)
 	{
-	    $value = $model->_get($this->_sourceFieldName);
+	    $value = $model->getProperty($this->_sourceField);
 		$query = Atomik_Model_Query::from($this->_target)
-		            ->filterEqual($this->_targetFieldName, $value);
+		            ->filterEqual($this->_targetField, $value);
 		return $query;
-	}
-	
-	protected function _executeQuery(Atomik_Model_Query $query)
-	{
-	    return $this->_target->getSession()->executeQuery($query);
 	}
 }

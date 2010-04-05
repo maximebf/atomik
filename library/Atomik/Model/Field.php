@@ -19,6 +19,9 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Model_Descriptor_Property */
+require_once 'Atomik/Model/Descriptor/Property.php';
+
 /** Atomik_Db_Type */
 require_once 'Atomik/Db/Type.php';
 
@@ -26,22 +29,10 @@ require_once 'Atomik/Db/Type.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Field
+class Atomik_Model_Field extends Atomik_Model_Descriptor_Property
 {
-	/** @var string */
-	protected $_name;
-	
-	/** @var string */
-	protected $_columnName;
-	
 	/** @var Atomik_Db_Type_Abstract */
 	protected $_type;
-	
-	/** @var bool */
-	protected $_required = false;
-    
-	/** @var array of Atomik_Model_Validator */
-    protected $_validators = array();
     
     /**
      * @param string $name
@@ -66,41 +57,6 @@ class Atomik_Model_Field
         $this->setType($type);
     }
     
-	/**
-	 * @param string $name
-	 */
-    public function setName($name)
-    {
-        $this->_name = $name;
-        if ($this->_columnName === null) {
-            $this->_columnName = strtolower(preg_replace('/(?<=\\w)([A-Z])/', '_\1', $name));
-        }
-    }
-    
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->_name;
-    }
-    
-	/**
-	 * @param string $name
-	 */
-    public function setColumnName($name)
-    {
-        $this->_columnName = $name;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getColumnName()
-    {
-        return $this->_columnName;
-    }
-    
     /**
      * @param Atomik_Db_Type_Abstract $type
      */
@@ -115,82 +71,5 @@ class Atomik_Model_Field
     public function getType()
     {
         return $this->_type;
-    }
-    
-    /**
-     * @param bool $required
-     */
-    public function setRequired($required = true)
-    {
-        $this->_required = $required;
-    }
-    
-    /**
-     * @return bool
-     */
-    public function isRequired()
-    {
-        return $this->_required;
-    }
-    
-    /**
-     * @param array $validators array of Atomik_Model_Validator
-     */
-    public function setValidators($validators)
-    {
-        $this->_validators = array();
-        array_map(array($this, 'addValidator'), $validators);
-    }
-    
-    /**
-     * @param Atomik_Model_Validator $validator
-     */
-    public function addValidator(Atomik_Model_Validator $validator)
-    {
-        $this->_validators[] = $validator;
-    }
-    
-    /**
-     * @return array of Atomik_Model_Validator
-     */
-    public function getValidators()
-    {
-        return $this->_validators;
-    }
-    
-    /**
-     * @param string $value
-     * @return bool
-     */
-    public function isValid($value)
-    {
-        if ($this->_required && empty($value)) {
-            $this->_validationMessage = "Missing value for {$this->_name}";
-            return false;
-        }
-        
-        foreach ($this->_validators as $validator) {
-            if (!$validator->isValid($value)) {
-                $this->_validationMessage = $validator->getValidationMessage();
-                return false;
-            }
-        }
-        return true;
-    }
-	
-	/**
-	 * @return string
-	 */
-	public function getValidationMessage()
-	{
-	    return $this->_validationMessage;
-	}
-    
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->_name;
     }
 }

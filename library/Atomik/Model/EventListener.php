@@ -25,10 +25,10 @@
  */
 interface Atomik_Model_EventListener
 {
-	function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query);
-	function afterQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Collection $collection);
+	function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query);
+	function afterQuery(Atomik_Model_Descriptor $descriptor, $data);
 	
-	function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data, $isNew);
+	function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data);
 	function afterCreateInstance(Atomik_Model_Descriptor $descriptor, Atomik_Model $model);
 	
 	function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model);
@@ -39,6 +39,6 @@ interface Atomik_Model_EventListener
 	function failDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model);
 	function afterDelete(Atomik_Model_Descriptor $descriptor, Atomik_Model $model);
 	
-	function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Definition $definition);
+	function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Schema $definition);
 	function afterExport(Atomik_Model_Descriptor $descriptor, &$sql);
 }

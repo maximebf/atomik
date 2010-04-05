@@ -30,15 +30,13 @@ class Atomik_Model_Behaviour_Timestampable extends Atomik_Model_Behaviour
 {
 	public function init(Atomik_Model_Descriptor $descriptor, $target)
 	{
-		$descriptor->addField(Atomik_Model_Field::factory('createdAt', 'datetime'));
-		$descriptor->addField(Atomik_Model_Field::factory('updatedAt', 'datetime'));
+		$descriptor->mapProperty(Atomik_Model_Field::factory('createdAt', 'datetime'));
+		$descriptor->mapProperty(Atomik_Model_Field::factory('updatedAt', 'datetime'));
 	}
 	
 	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		if ($model->isNew()) {
-			$model->setCreatedAt(time());
-		}
+		$model->setCreatedAt(time());
 		$model->setUpdatedAt(time());
 	}
 }

@@ -30,7 +30,7 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour
 {
 	public $keyword = 'extfields';
 	
-	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Definition $definition)
+	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Schema $definition)
 	{
 		$tableName = $descriptor->tableName;
 		$foreignFieldName = $tableName . '_' . $descriptor->getPrimaryKeyField()->name;
@@ -44,7 +44,7 @@ class Atomik_Model_Behaviour_Extendable extends Atomik_Model_Behaviour
 			->index($foreignFieldName);
 	}
 	
-	public function beforeQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
+	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
 	{
 		$tableName = $descriptor->tableName;
 		$primaryKeyName = $descriptor->getPrimaryKeyField()->name;

@@ -1,12 +1,12 @@
 <?php
 
-/** Atomik_Db_Definition_Table */
-require_once 'Atomik/Db/Definition/Table.php';
+/** Atomik_Db_Schema_Table */
+require_once 'Atomik/Db/Schema/Table.php';
 
-/** Atomik_Db_Definition_Generator */
-require_once 'Atomik/Db/Definition/Generator.php';
+/** Atomik_Db_Schema_Generator */
+require_once 'Atomik/Db/Schema/Generator.php';
 
-class Atomik_Db_Definition
+class Atomik_Db_Schema
 {
 	public $tables = array();
 	
@@ -27,7 +27,7 @@ class Atomik_Db_Definition
 	public function __construct(Atomik_Db_Instance $instance)
 	{
 		$this->_instance = $instance;
-		$this->_generator = $instance->getAdapter()->getDefinitionGenerator();
+		$this->_generator = $instance->getAdapter()->getSchemaGenerator();
 	}
 	
 	public function getInstance()
@@ -48,7 +48,7 @@ class Atomik_Db_Definition
 	
 	public function table($name)
 	{
-		$table = new Atomik_Db_Definition_Table($this, $name);
+		$table = new Atomik_Db_Schema_Table($this, $name);
 		$this->tables[] = $table;
 		return $table;
 	}

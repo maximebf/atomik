@@ -49,6 +49,9 @@ class Atomik_Controller
 	 */
 	protected $_helpers;
 	
+	/**
+	 * @var object
+	 */
 	public $view;
 	
 	public function __construct()
@@ -129,6 +132,11 @@ class Atomik_Controller
 	protected function _noRender()
 	{
 	    Atomik::noRender();
+	}
+	
+	protected function _getParam($name, $default = null)
+	{
+	    return Atomik::get($name, $default, $this->_params);
 	}
 	
 	protected function _setLayout($layout)

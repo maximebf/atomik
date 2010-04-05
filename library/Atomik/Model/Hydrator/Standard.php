@@ -12,39 +12,34 @@
  * THE SOFTWARE.
  *
  * @package Atomik
- * @subpackage Db
+ * @subpackage Model
  * @author Maxime Bouroumeau-Fuseau
  * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
  * @license http://www.opensource.org/licenses/mit-license.php
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Db_Adapter_Interface */
-require_once 'Atomik/Db/Adapter/Interface.php';
+/** Atomik_Model_Hydrator */
+require_once 'Atomik/Model/Hydrator.php';
 
 /**
  * @package Atomik
- * @subpackage Db
+ * @subpackage Model
  */
-class Atomik_Db_Adapter_Factory
+class Atomik_Model_Hydrator_Standard extends Atomik_Model_Hydrator
 {
-	/**
-	 * Creates an instance of an adapter
-	 * 
-	 * @param 	string|objet 	$name		The last part of the adapter name if it starts with Atomik_Db_Adapter_ or a class name
-	 * @return 	Atomik_Db_Adapter_Interface
-	 */
-	public static function factory($name, PDO $pdo)
+	public function hydrate($data)
 	{
-		$className = 'Atomik_Db_Adapter_' . ucfirst(strtolower($name));
-		if (!class_exists($className)) {
-			$className = $name;
-			if (!class_exists($className)) {
-			    require_once 'Atomik/Db/Adapter.php';
-				$className = 'Atomik_Db_Adapter';
-			}
+		$className = $this->_descriptor->getName();
+		$instance = new $className();
+		
+		foreach ($data as $key => $value) {
+		    if ($this->_descriptor->hasField($key)) {
+		       $value = $this->_descriptor->getField($key)->getType()->filterInput($value);
+		    }
+		    $instance->setProperty($key, $value);
 		}
 		
-		return new $className($pdo);
+		return $instance;
 	}
 }
