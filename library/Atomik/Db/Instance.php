@@ -51,6 +51,9 @@ class Atomik_Db_Instance
 	/** @var array */
 	protected $_errorInfo;
 	
+	/** @var bool */
+	protected $_inTransaction = false;
+	
 	/** @var string */
 	protected static $_defaultTablePrefix = '';
 	
@@ -335,6 +338,46 @@ class Atomik_Db_Instance
 		    return false;
 		}
 		return $stmt;
+	}
+	
+	/**
+	 * Starts a transaction
+	 */
+	public function beginTransaction()
+	{
+	    $this->connect();
+	    $this->pdo->beginTransaction();
+	    $this->_inTransaction = true;
+	}
+	
+	/**
+	 * Checks if a transaction is being used
+	 * 
+	 * @return bool
+	 */
+	public function isInTransaction()
+	{
+	    return $this->_inTransaction;
+	}
+	
+	/**
+	 * Commits a transaction
+	 */
+	public function commit()
+	{
+	    $this->connect();
+	    $this->pdo->commit();
+	    $this->_inTransaction = false;
+	}
+	
+	/**
+	 * Rollbacks a transaction
+	 */
+	public function rollback()
+	{
+	    $this->connect();
+	    $this->pdo->rollBack();
+	    $this->_inTransaction = false;
 	}
 	
 	/**

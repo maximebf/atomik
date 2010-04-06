@@ -89,13 +89,6 @@ class Atomik_Model_Descriptor_Builder
 		    }
 		}
 		
-		if (($parent = $class->getParentClass()) !== false) {
-		    $parent = Atomik_Model_Descriptor::factory($parent->getName());
-		    if ($parent->getInheritanceType() != 'none') {
-		        $descriptor->setParent($parent);
-		    }
-		}
-		
 		return $descriptor;
 	}
 	
@@ -129,6 +122,13 @@ class Atomik_Model_Descriptor_Builder
 		foreach ($class->getAnnotations() as $annotation) {
 		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
 		        $annotation->apply($descriptor, $class);
+		    }
+		}
+		
+		if (($parent = $class->getParentClass()) !== false) {
+		    $parent = self::getBase($parent->getName());
+		    if ($parent->getInheritanceType() != 'none') {
+		        $descriptor->setParent($parent);
 		    }
 		}
 		

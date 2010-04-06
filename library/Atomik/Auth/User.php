@@ -31,12 +31,12 @@ require_once 'Atomik/Auth/User/Interface.php';
  * @package Atomik
  * @subpackage Auth
  * 
- * @Model(table="auth_users", inheritance="abstract")
+ * @Model(table="auth_users")
  */
 class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interface
 {
 	/**
-	 * @Field(type="string", length=100, repr=true)
+	 * @Field(type="string", length=100)
 	 * @Form(label="Username")
 	 */
 	protected $username;

@@ -134,9 +134,9 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
               ->join($this->_source, $this->getReverse())
               ->filterEqual(array($this->_source, $this->_sourceField), $value);
         
-        $collection = $query->execute();
-        $assocCollection = new Atomik_Model_AssocCollection($model, $this, $collection);
-        $model->setProperty($this->_name, $assocCollection);
+        $data = $query->executeData();
+        $collection = new Atomik_Model_AssocCollection($model, $this, $data);
+        $model->setProperty($this->_name, $collection);
     }
     
     public function save(Atomik_Model $model)
@@ -144,14 +144,24 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
         $coll = $model->getProperty($this->_name);
         $sourceValue = $model->getProperty($this->_sourceField);
         $db = $this->_source->getDescriptor->getDb();
+        $changeset = $coll->getChangeset();
         
-        foreach ($coll as $target) {
+        foreach ($changeset['added'] as $target) {
             $targetValue = $target->getProperty($this->_targetField);
             $data = array(
                 $this->_viaSourceField => $sourceValue,
                 $this->_viaTargetField => $targetValue
             );
             $db->insert($this->_viaTable, $data);
+        }
+        
+        foreach ($changeset['removed'] as $target) {
+            $targetValue = $target->getProperty($this->_targetField);
+            $where = array(
+                $this->_viaSourceField => $sourceValue,
+                $this->_viaTargetField => $targetValue
+            );
+            $db->delete($this->_viaTable, $where);
         }
     }
 }

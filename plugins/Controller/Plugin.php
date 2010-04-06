@@ -98,7 +98,7 @@ class ControllerPlugin
 	    }
         
         if (($filename = self::controllerFilename($controller)) === false) {
-            throw new Atomik_Exception("Controller file not found for $controller", 404);
+            return false;
         }
         $className = str_replace(' ', '_', ucwords(str_replace('/', ' ', $controller))) . 'Controller';
         

@@ -31,7 +31,7 @@ class Atomik_Model_Association_ManyToOne extends Atomik_Model_Association
     protected function _setup()
     {
 		$this->_targetField = $this->_target->getIdentifierField()->getName();
-		$this->_sourceField = $this->_target->getNameAsProperty() . ucfirst($this->_targetField);
+		$this->_sourceField = $this->_name . ucfirst($this->_targetField);
     }
     
     public function load(Atomik_Model $model)
@@ -44,7 +44,7 @@ class Atomik_Model_Association_ManyToOne extends Atomik_Model_Association
     {
         $target = $model->getProperty($this->_name);
         if ($target !== null) {
-            $model->setProperty($this->_sourceField, $target->getProperty($this->_targetfield));
+            $model->setProperty($this->_sourceField, $target->getProperty($this->_targetField));
         }
     }
 }

@@ -157,34 +157,49 @@ abstract class Atomik_Model
 	public function save($validate = true)
 	{
 		$descriptor = $this->getDescriptor();
+		$db = $descriptor->getDb();
 		$persister = $descriptor->getPersister();
+		$useTransaction = !$db->isInTransaction();
 		
 	    if ($validate && !$this->isValid()) {
 		    require_once 'Atomik/Model/Exception.php';
 	        throw new Atomik_Model_Exception("'{$descriptor->getName()}' failed to validate");
 	    }
-	    
-		$descriptor->notify('BeforeSave', $this);
 		
-		foreach ($descriptor->getAssociations() as $assoc) {
-		    if (!$assoc->isMany()) {
-		        $assoc->save($this);
-		    }
+	    $useTransaction && $db->beginTransaction();
+		
+		try {
+		    $descriptor->notify('BeforeSave', $this);
+		    
+    		foreach ($descriptor->getAssociations() as $assoc) {
+    		    if (!$assoc->isMany()) {
+    		        $assoc->save($this);
+    		    }
+    		}
+    		
+    		if ($this->isNew()) {
+    			$persister->insert($this);
+    		} else {
+    			$persister->update($this);
+    		}
+    		
+    		foreach ($descriptor->getAssociations() as $assoc) {
+    		    if ($assoc->isMany()) {
+    		        $assoc->save($this);
+    		    }
+    		}
+		    
+    		$useTransaction && $db->commit();
+		    $descriptor->notify('AfterSave', $this);
+		    
+		} catch (Atomik_Db_Exception $e) {
+		    $useTransaction && $db->rollback();
+		    throw $e;
+		    
+		} catch (Atomik_Model_Exception $e) {
+		    $useTransaction && $db->rollback();
+		    throw $e;
 		}
-		
-		if ($this->isNew()) {
-			$persister->insert($this);
-		} else {
-			$persister->update($this);
-		}
-		
-		foreach ($descriptor->getAssociations() as $assoc) {
-		    if ($assoc->isMany()) {
-		        $assoc->save($this);
-		    }
-		}
-		
-		$descriptor->notify('AfterSave', $this);
 	}
 	
 	/**

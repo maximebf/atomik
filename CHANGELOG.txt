@@ -21,10 +21,11 @@
  * Added Atomik::scoped() which replaces _execute() and _render()
  ! removed the key atomik/display_errors
  * Added key atomik/throw_errors
+ * Added Atomik_HttpException
  ! Event Atomik::404 has changed
- * Atomik::dispatch() now catch Atomik_Exception and display 404 errors
+ * Atomik::dispatch() now catch Atomik_HttpException and display 404 errors
  ! Change in Atomik::execute*(), Atomik::render*() and Atomik::route() to
-   throw exception instead of returning false
+   throw exception instead of returning false unless the file is not found
  ! Arguments of Atomik::run() have changed
  * Added support for config environment (first arg of Atomik::run())
  * ATOMIK_ENV constant
@@ -69,6 +70,7 @@
  * Atomik_Db_Instance::getErrorInfo() returns the last error whether from pdo
    or a statement (only if it is executed through the instance)
  * Removed all cache related method on Atomik_Db
+ * Added transaction support
  
 [Lib:Form]
 

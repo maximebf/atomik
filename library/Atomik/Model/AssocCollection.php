@@ -37,6 +37,9 @@ class Atomik_Model_AssocCollection extends Atomik_Model_Collection
 	/** @var array */
 	protected $_models = array();
 	
+	/** @var array */
+	protected $_changeset;
+	
 	/**
 	 * @param Atomik_Model $owner
 	 * @param Atomik_Model_Association $assoc
@@ -44,9 +47,10 @@ class Atomik_Model_AssocCollection extends Atomik_Model_Collection
 	 */
 	public function __construct(Atomik_Model $owner, Atomik_Model_Association $assoc, $data = array())
 	{
+	    $this->resetChangeset();
 		$this->_owner = $owner;
 		$this->_association = $assoc;
-		parent::__construct(Atomik_Model_Descriptor::factory($owner), $data);
+		parent::__construct($assoc->getTarget(), $data);
 	}
 	
 	/**
@@ -75,6 +79,7 @@ class Atomik_Model_AssocCollection extends Atomik_Model_Collection
 	public function add(Atomik_Model $model)
 	{
 	    $this->_models[] = $model;
+        $this->_addToChangeset('added', $model);
 	    $this->_count++;
 	}
 	
@@ -90,9 +95,20 @@ class Atomik_Model_AssocCollection extends Atomik_Model_Collection
 	            if (isset($this->_data[$i])) {
 	                unset($this->_data[$i]);
 	            }
+	            $this->_addToChangeset('removed', $model);
 	        }
 	    }
 	    $this->_count--;
+	}
+	
+	public function removeAll()
+	{
+	    $this->getAll();
+	    foreach ($this->_models as $model) {
+	        $this->_addToChangeset('removed', $model);
+	    }
+	    
+	    $this->setData(array());
 	}
 	
 	/**
@@ -103,6 +119,39 @@ class Atomik_Model_AssocCollection extends Atomik_Model_Collection
 	{
 	    $this->getAll();
 		return in_array($model, $this->_models);
+	}
+	
+	/**
+	 * Adds a model to the changeset, removing it from the other type
+	 * of operation if necessary
+	 * 
+	 * @param string $type
+	 * @param Atomik_Model $model
+	 */
+	protected function _addToChangeset($type, Atomik_Model $model)
+	{
+	    $otherType = $type == 'removed' ? 'added' : 'removed';
+	    for ($i = 0, $c = count($this->_changeset[$otherType]); $i < $c; $i++) {
+	        if ($this->_changeset[$otherType][$i] == $model) {
+	            unset($this->_changeset[$otherType][$i]);
+	        }
+	    }
+	    $this->_changeset[$type][] = $model;
+	}
+	
+	/**
+	 * Returns a list of added and removed models
+	 * 
+	 * @return array
+	 */
+	public function getChangeset()
+	{
+	    return $this->_changeset;
+	}
+	
+	public function resetChangeset()
+	{
+	    $this->_changeset = array('added' => array(), 'removed' => array());
 	}
 	
 	/* -------------------------------------------------------------------------------------------

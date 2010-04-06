@@ -41,7 +41,8 @@ class Atomik_Model_Association_OneToMany extends Atomik_Model_Association
     
     public function load(Atomik_Model $model)
     {
-        $collection = $this->_createQuery($model)->execute();
+        $data = $this->_createQuery($model)->executeData();
+        $collection = new Atomik_Model_AssocCollection($model, $this, $data);
         $model->setProperty($this->_name, $collection);
     }
     
@@ -49,9 +50,15 @@ class Atomik_Model_Association_OneToMany extends Atomik_Model_Association
     {
         $coll = $model->getProperty($this->_name);
         $value = $model->getProperty($this->_sourceField);
+        $changeset = $coll->getChangeset();
         
-        foreach ($coll as $target) {
+        foreach ($changeset['added'] as $target) {
             $target->setProperty($this->_targetField, $value);
+            $target->save();
+        }
+        
+        foreach ($changeset['removed'] as $target) {
+            $target->setProperty($this->_targetField, null);
             $target->save();
         }
     }

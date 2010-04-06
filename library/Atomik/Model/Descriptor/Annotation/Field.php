@@ -47,8 +47,9 @@ class Atomik_Model_Descriptor_Annotation_Field extends Atomik_Model_Descriptor_A
         
         $field = new Atomik_Model_Field($name, $type);
         
-        if ($target->getDeclaringClass()->getName() != $descriptor->getName()) {
-            $field->setInherited(true);
+        if ($target->getDeclaringClass()->getName() != $descriptor->getName() &&
+            $descriptor->hasParent()) {
+                $field->setInherited(true);
         }
         
         $descriptor->mapProperty($field);

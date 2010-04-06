@@ -82,7 +82,7 @@ Atomik::reset(array(
         /**
          * The callback used to execute actions
          * @var callback */
-        'executor'              => 'Atomik::executeFile',
+        'executor'              => array('Atomik', 'executeFile'),
     
         /* @see Atomik::render()
          * @var array */
@@ -275,7 +275,7 @@ if (!function_exists('A')) {
     function A()
     {
         $args = func_get_args();
-        return call_user_func_array('Atomik::get', $args);
+        return call_user_func_array(array('Atomik', 'get'), $args);
     }
 }
 
@@ -289,17 +289,16 @@ if (!defined('ATOMIK_AUTORUN') || ATOMIK_AUTORUN === true) {
  * 
  * @package Atomik
  */
-class Atomik_Exception extends Exception 
-{
-    /**
-     * @param string    $message
-     * @param int       $httpCode
-     */
-    public function __construct($message, $httpCode = 500)
-    {
-        parent::__construct($message, $httpCode);
-    }
-}
+class Atomik_Exception extends Exception {}
+
+/**
+ * HTTP Exception class for Atomik
+ * 
+ * The code must be an HTTP response code
+ * 
+ * @package Atomik
+ */
+class Atomik_HttpException extends Atomik_Exception {}
 
 /**
  * Atomik Framework Main class
@@ -359,7 +358,7 @@ final class Atomik
      *
      * @var array
      */
-    private static $namespaces = array('flash' => 'Atomik::_getFlashMessages');
+    private static $namespaces = array('flash' => array('Atomik', '_getFlashMessages'));
     
     /**
      * Execution contexts
@@ -410,7 +409,7 @@ final class Atomik
     {
         // wrap the whole app inside a try/catch block to catch all errors
         try {
-            chdir(dirname(self::get('atomik/scriptname')));
+            @chdir(dirname(self::get('atomik/scriptname')));
              
             // config & environment
             self::loadConfig(self::get('atomik/files/config'), false);
@@ -739,11 +738,11 @@ final class Atomik
             if (file_exists($filename = self::get('atomik/files/post_dispatch'))) {
                 require($filename);
             }
-                
-        } catch (Atomik_Exception $e) {
-            if ($e->getCode() === 404) {
+            
+        } catch (Atomik_HttpException $e) {
+            if ($e->getCode() == 404) {
                 self::fireEvent('Atomik::404', array($e));
-                
+                        
                 header('HTTP/1.0 404 Not Found');
                 header('Content-type: text/html');
                 
@@ -753,9 +752,9 @@ final class Atomik
                 } else {
                     echo '<h1>404 - ' . $e->getMessage() . '</h1>';
                 }
+                
                 self::end(false);
             }
-            throw $e;
         }
     }
 
@@ -1031,7 +1030,7 @@ final class Atomik
     
         self::fireEvent('Atomik::Execute::Start', array(&$action, &$context, &$vars));
         if ($action === false) {
-            throw new Exception("Action $action not found", 404);
+            self::trigger404('No action specified');
         }
         
         // checks if the method is specified in $action
@@ -1054,11 +1053,9 @@ final class Atomik
     
         self::fireEvent('Atomik::Execute::Before', array(&$action, &$context, &$vars));
         
-        try {
-            $vars = call_user_func($executor, $action, $method, $vars, $context);
-        } catch (Atomik_Exception $e) {
-            if ($e->getCode() != 404) {
-                throw $e;
+        if (($vars = call_user_func($executor, $action, $method, $vars, $context)) === false) {
+            if ($viewFilename === false) {
+                self::trigger404('No files found associated to the specified action');
             }
         }
         
@@ -1112,7 +1109,7 @@ final class Atomik
         
         // checks if at least one of the action files or the view file is defined
         if ($actionFilename === false && $methodActionFilename === false) {
-            throw new Atomik_Exception("Action file not found for $action", 404);
+            return false;
         }
         
         $atomik = self::instance();
@@ -1193,7 +1190,7 @@ final class Atomik
         
         // view filename
         if (($filename = self::viewFilename($view, $dirs)) === false) {
-            throw new Atomik_Exception('View ' . $view . ' not found', 404);
+            self::trigger404('View ' . $view . ' not found');
         }
         
         self::fireEvent('Atomik::Render::Before', array(&$view, &$vars, &$filename, $triggerError));
@@ -2788,7 +2785,7 @@ final class Atomik
      */
     public static function trigger404($message = 'Not found')
     {
-        throw new Atomik_Exception($message, 404);
+        throw new Atomik_HttpException($message, 404);
     }
     
     /**
@@ -2885,7 +2882,7 @@ final class Atomik
      * @return string
      */
     public static function renderException($exception, $return = false)
-    {    
+    {
         // checks if the user defined error file is available
         if (file_exists($filename = self::get('atomik/files/error'))) {
             include($filename);

@@ -82,7 +82,7 @@ class Atomik_Controller
 		    $methodName = $action . 'Action';
 			$method = new ReflectionMethod($this, $methodName);
 			if (!$method->isPublic()) {
-				Atomik::trigger404();
+				return false;
 			}
 		
 			/* building method parameters using request params */
@@ -90,14 +90,14 @@ class Atomik_Controller
 				if (array_key_exists($param->getName(), $this->_params)) {
 					$args[] = $this->_params[$param->getName()];
 				} else if (!$param->isOptional()) {
-					throw new Exception('Missing parameter ' . $param->getName());
+					throw new Atomik_Exception('Missing parameter ' . $param->getName());
 				}
 			}
 			
 		} catch (Exception $e) {
 			/* do not stop if __call() exist, so it allows us to trap method calls */
 			if (!method_exists($this, '__call')) {
-				throw new Atomik_Exception('Missing action method in ' . get_class($this));
+				return false;
 			}
 		}
 		
@@ -129,9 +129,19 @@ class Atomik_Controller
 	    Atomik::setView($view);
 	}
 	
+	protected function _trigger404($message = 'Not found')
+	{
+	    Atomik::trigger404($message);
+	}
+	
 	protected function _noRender()
 	{
 	    Atomik::noRender();
+	}
+	
+	protected function _hasParam($name)
+	{
+	    return Atomik::has($name, $this->_params);
 	}
 	
 	protected function _getParam($name, $default = null)
@@ -149,9 +159,9 @@ class Atomik_Controller
 	    Atomik::add('app/layout', $layout);
 	}
 	
-	protected function _redirect($url)
+	protected function _redirect($url, $useUrl = true, $httpCode = 302)
 	{
-	    Atomik::redirect($url);
+	    Atomik::redirect($url, $useUrl, $httpCode);
 	}
 	
 	protected function _flash($message, $label = 'default')
