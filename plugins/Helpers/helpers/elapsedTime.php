@@ -16,13 +16,14 @@ class ElapsedTimeHelper extends Atomik_Helper
         $diff = time() - $timestamp; 
         $periods = array("second", "minute", "hour", "day", "week", "month", "years", "decade"); 
         $lengths = array("60","60","24","7","4.35","12","10"); 
+        $ending = 'ago';
         
-        if ($diff > 0) {
-            $ending = "ago"; 
-        } else {
+        if ($diff < 60) {
+            return 'less than a minute ago';
+        } else if ($diff < 0) {
             $diff = -$diff; 
             $ending = "to go"; 
-        }  
+        }
               
         for($j = 0; $diff >= $lengths[$j]; $j++) {
             $diff /= $lengths[$j]; 

@@ -126,13 +126,20 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
               ->join($this->_target->getTableName(), $onTarget);
     }
     
-    public function load(Atomik_Model $model)
+    public function load(Atomik_Model $model, $orderBy = null, $limit = null)
     {
         $value = $model->getProperty($this->_sourceField);
         
         $query = Atomik_Model_Query::from($this->_target)
               ->join($this->_source, $this->getReverse())
               ->filterEqual(array($this->_source, $this->_sourceField), $value);
+
+        if ($orderBy !== null) {
+            $query->orderBy($orderBy);
+        }
+        if ($limit !== null) {
+            $query->limit($limit);
+        }
         
         $data = $query->executeData();
         $collection = new Atomik_Model_AssocCollection($model, $this, $data);

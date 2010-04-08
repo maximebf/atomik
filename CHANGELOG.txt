@@ -56,6 +56,10 @@
 
  * new plugin to store the session in a database
  
+[Plugin:Db]
+
+ * Command events changed
+ 
 [Plugin:Auth]
 
  * updated config keys
@@ -63,7 +67,7 @@
 [Lib:Db]
 
  * added Atomik_Db_Type
- * Atomik_Db_Definition renamed Atomik_Db_Schema
+ * Atomik_Db_Definition renamed Atomik_Db_Schema and completely rewritten
  * removed Atomik_Db_Adapter_Factory (see Atomik_Db_Adapter::factory())
  * removed Atomik_Db_Query_Result (going back to PDOStatement)
  * Atomik_Db_Query now only perform SELECT statements
@@ -71,6 +75,7 @@
    or a statement (only if it is executed through the instance)
  * Removed all cache related method on Atomik_Db
  * Added transaction support
+ * Removed Atomik_Db_Script
  
 [Lib:Form]
 

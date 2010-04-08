@@ -34,9 +34,9 @@ class Atomik_Model_Association_ManyToOne extends Atomik_Model_Association
 		$this->_sourceField = $this->_name . ucfirst($this->_targetField);
     }
     
-    public function load(Atomik_Model $model)
+    public function load(Atomik_Model $model, $orderBy = null, $limit = null)
     {
-        $collection = $this->_createQuery($model)->limit(1)->execute();
+        $collection = $this->_createQuery($model, $orderBy, $limit)->limit(1)->execute();
         $model->setProperty($this->_name, $collection->getFirst());
     }
     

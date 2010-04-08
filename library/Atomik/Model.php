@@ -75,16 +75,22 @@ abstract class Atomik_Model
     /**
      * Returns the value of a property of this object
      * 
-     * If the property represents an association, it will be loaded
+     * If the property represents an association, it will be loaded.
+     * Order by and limit clauses can be specified in the same way as
+     * in Atomik_Model_Query
      * 
      * @param string $name
+     * @param mixed $orderBy
+     * @param mixed $limit
      * @return string
      */
-    public function getProperty($name)
+    public function getProperty($name, $orderBy = null, $limit = null)
     {
 	    if ($this->getDescriptor()->hasAssociation($name) && 
 	        $this->{$name} === null) {
-                $this->getDescriptor()->getAssociation($name)->load($this);
+                $this->getDescriptor()
+                     ->getAssociation($name)
+                     ->load($this, $orderBy, $limit);
 	    }
 	    
 	    if (property_exists($this, $name)) {
@@ -109,12 +115,10 @@ abstract class Atomik_Model
 	    $accessor = $matches[1];
 	    $property = $matches[2];
 	    $property{0} = strtolower($property{0});
+	    $method = $accessor . 'Property';
+	    array_unshift($args, $property);
 	    
-	    if ($accessor == 'get') {
-    	    return $this->getProperty($property);
-	    } else if ($accessor == 'set') {
-	        $this->setProperty($property, $args[0]);
-	    }
+	    return call_user_func_array(array($this, $method), $args);
 	}
 	
 	/**

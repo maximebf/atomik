@@ -39,9 +39,9 @@ class Atomik_Model_Association_OneToMany extends Atomik_Model_Association
         return true;
     }
     
-    public function load(Atomik_Model $model)
+    public function load(Atomik_Model $model, $orderBy = null, $limit = null)
     {
-        $data = $this->_createQuery($model)->executeData();
+        $data = $this->_createQuery($model, $orderBy, $limit)->executeData();
         $collection = new Atomik_Model_AssocCollection($model, $this, $data);
         $model->setProperty($this->_name, $collection);
     }

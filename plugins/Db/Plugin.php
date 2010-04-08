@@ -180,15 +180,27 @@ class DbPlugin
 	 * @param	bool	$echo		Whether to echo or return the output from the script execution
 	 * @return	string
 	 */
-	public static function dbCreate($instance = 'default', $filter = array(), $echo = false)
+	public static function dbCreate($instance = 'default', $filter = array())
 	{
-		$script = self::getDbScript($filter, $echo);
-		Atomik::fireEvent('Db::Create::Before', array(&$instance, $script));
+		$sql = self::dbCreateSql($instance, $filter, $echo);
+		$db = Atomik_Db::getInstance($instance);
 		
-		$script->run(Atomik_Db::getInstance($instance));
+		Atomik::fireEvent('Db::Create::Before', array($db, &$sql));
 		
-		Atomik::fireEvent('Db::Create::After', array($instance, $script));
-		return $script->getOutputHandler()->getText();
+		$db->beginTransaction();
+		try {
+			$stmt = $db->prepare($sql);
+			if (!$stmt->execute()) {
+			    $info = $stmt->errorInfo();
+				throw new Atomik_Db_Exception($info[2]);
+			}
+			$db->commit();
+		} catch (Exception $e) {
+			$db->rollback();
+		    throw $e;
+		}
+		
+		Atomik::fireEvent('Db::Create::After', array($db, $sql));
 	}
 	
 	/**
@@ -197,36 +209,25 @@ class DbPlugin
 	 * @param 	array	$filter
 	 * @return	string
 	 */
-	public static function dbCreateSql($filter = array())
+	public static function dbCreateSql($instance = 'default', $filter = array())
 	{
-		Atomik::fireEvent('Db::CreateSql', array(&$filter));
-		return self::getDbScript($filter)->getSql();
-	}
-	
-	/**
-	 * Returns an Atomik_Db_Script object
-	 * 
-	 * @return Atomik_Db_Script
-	 */
-	public static function getDbScript($filter = array(), $echo = false)
-	{
+		$db = Atomik_Db::getInstance($instance);
+		
+		Atomik::fireEvent('Db::Createsql::Before', array($db, &$filter));
 		$filter = array_map('ucfirst', $filter);
 		
-		require_once 'Atomik/Db/Script.php';
-		require_once 'Atomik/Db/Script/Output/Text.php';
-		require_once 'Atomik/Db/Script/File.php';
-		
-		$script = new Atomik_Db_Script();
-		$script->setOutputHandler(new Atomik_Db_Script_Output_Text($echo));
+		require_once 'Atomik/Model/Exporter.php';
+		$exporter = new Atomik_Model_Exporter($db);
+		$sql = '';
 		
 		// plugins
         foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
             if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
 	            if (@is_dir($path . '/models')) {
-	                $script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path . '/models'));
+	                $exporter->addDescriptors(self::getDescriptorsFromDir($path . '/models'));
 	            }
 	            if (@is_dir($path . '/sql')) {
-	                $script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path . '/sql'));
+	                $sql .= self::getSqlFilesFromDir($path . '/sql');
 	            }
             }
         }
@@ -235,18 +236,22 @@ class DbPlugin
         if ((count($filter) && in_array('App', $filter)) || !count($filter)) {
             foreach (Atomik::path(self::$config['model_dirs'], true) as $path) {
                 if (@is_dir($path)) {
-                    $script->addScripts(Atomik_Db_Script_Model::getScriptFromDir($path));
+	                $exporter->addDescriptors(self::getDescriptorsFromDir($path));
                 }
             }
             foreach (Atomik::path(self::$config['sql_dirs'], true) as $path) {
                 if (@is_dir($path)) {
-                    $script->addScripts(Atomik_Db_Script_File::getScriptFromDir($path));
+                    $sql .= self::getSqlFilesFromDir($path);
                 }
             }
         }
+        
+        Atomik::fireEvent('Db::Createsql::Exporter', array($exporter));
+        
+        $sql = $exporter->getSql() . $sql;
 		
-		Atomik::fireEvent('Db::Script', array($script));
-		return $script;
+		Atomik::fireEvent('Db::Createsql::After', array(&$sql));
+		return $sql;
 	}
 	
 	/**
@@ -256,8 +261,14 @@ class DbPlugin
 	 */
 	public static function dbCreateCommand($args)
 	{
-		$instance = isset($args[0]) ? array_shift($args) : 'default';
-		self::dbCreate($instance, $args, true);
+		ConsolePlugin::println('Creating tables from models and executing sql files');
+	    try {
+    		$instance = isset($args[0]) ? array_shift($args) : 'default';
+    		self::dbCreate($instance, $args, true);
+    		ConsolePlugin::success();
+	    } catch (Exception $e) {
+	        ConsolePlugin::fail($e->getMessage());
+	    }
 	}
 	
 	/**
@@ -267,7 +278,76 @@ class DbPlugin
 	 */
 	public static function dbCreateSqlCommand($args)
 	{
-		echo self::dbCreateSql($args);
+		ConsolePlugin::println('Generating sql from models');
+		$instance = isset($args[0]) ? array_shift($args) : 'default';
+		echo self::dbCreateSql($instance, $args);
+	}
+	
+	/**
+	 * Returns an array of model descriptors from the specified directory
+	 * 
+	 * @param string $dir
+	 * @param string $parent
+	 * @return array
+	 */
+	public static function getDescriptorsFromDir($dir, $parent = '')
+	{
+		$descriptors = array();
+		
+		foreach (new DirectoryIterator($dir) as $file) {
+			if ($file->isDot() || substr($file->getFilename(), 0, 1) == '.') {
+				continue;
+			}
+			
+			$filename = $file->getFilename();
+			if (strpos($filename, '.') !== false) {
+				$filename = substr($filename, 0, strrpos($filename, '.'));
+			}
+			$className = trim($parent . '_' . $filename, '_');
+			
+			if ($file->isDir()) {
+				$descriptors = array_merge(
+				    $descriptors, 
+				    self::getDescriptorsFromDir($file->getPathname(), $className)
+				);
+				continue;
+			}
+			
+			require_once $file->getPathname();
+			if (!class_exists($className, false) || !is_subclass_of($className, 'Atomik_Model')) {
+				continue;
+			}
+			
+			$descriptors[] = Atomik_Model_Descriptor::factory($className);
+		}
+		
+		return $descriptors;
+	}
+	
+	/**
+	 * Returns contents of all files from the specified directory
+	 * 
+	 * @param string $dir
+	 * @return string
+	 */
+	public static function getSqlFilesFromDir($dir)
+	{
+		$sql = '';
+		
+		foreach (new DirectoryIterator($dir) as $file) {
+			if ($file->isDot() || substr($file->getFilename(), 0, 1) == '.') {
+				continue;
+			}
+			
+			if ($file->isDir()) {
+				$sql .= self::getSqlFilesFromDir($file->getPathname());
+				continue;
+			}
+			
+			$sql .= file_get_contents($file->getPathname());
+		}
+		
+		return $sql;
 	}
 }
 

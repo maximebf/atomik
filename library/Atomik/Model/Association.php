@@ -157,8 +157,10 @@ abstract class Atomik_Model_Association extends Atomik_Model_Descriptor_Property
      * Loads this association and sets the model's property
      * 
      * @param Atomik_Model $model
+     * @param mixed $orderBy
+     * @param mixed $limit
      */
-    abstract public function load(Atomik_Model $model);
+    abstract public function load(Atomik_Model $model, $orderBy = null, $limit = null);
     
     /**
      * Saves this association for the specified model
@@ -171,13 +173,23 @@ abstract class Atomik_Model_Association extends Atomik_Model_Descriptor_Property
 	 * Utility method which returns the query object to query the target model
 	 * 
 	 * @param Atomik_Model $model
+     * @param mixed $orderBy
+     * @param mixed $limit
 	 * @return Atomik_Model_Query
 	 */
-	protected function _createQuery(Atomik_Model $model)
+	protected function _createQuery(Atomik_Model $model, $orderBy = null, $limit = null)
 	{
 	    $value = $model->getProperty($this->_sourceField);
 		$query = Atomik_Model_Query::from($this->_target)
 		            ->filterEqual($this->_targetField, $value);
+
+        if ($orderBy !== null) {
+            $query->orderBy($orderBy);
+        }
+        if ($limit !== null) {
+            $query->limit($limit);
+        }
+		            
 		return $query;
 	}
 }

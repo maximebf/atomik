@@ -95,10 +95,8 @@ class Atomik_Model_Descriptor
 	public static function factory($name)
 	{
 		if ($name instanceof Atomik_Model_Descriptor) {
-			return $name;
-		}
-		
-		if (is_object($name)) {
+			$name = $name->getName();
+		} else if (is_object($name)) {
 			$name = get_class($name);
 		}
 		
@@ -163,6 +161,10 @@ class Atomik_Model_Descriptor
 	 */
 	public function getTableName()
 	{
+	    if ($this->_parent !== null && 
+	        $this->_parent->getInheritanceType() == self::INHERITANCE_SINGLE) {
+	            return $this->_parent->getTableName();
+	        }
 	    return $this->_tableName;
 	}
 	
@@ -389,6 +391,22 @@ class Atomik_Model_Descriptor
 	public function getDescriminatorField()
 	{
 		return $this->_descriminatorField;
+	}
+	
+	/**
+	 * Checks if a a field is the source field of an association
+	 * 
+	 * @param mixed $field
+	 * @return bool
+	 */
+	public function isFieldPartOfAssociation($field)
+	{
+	    foreach ($this->_associations as $assoc) {
+	        if ($assoc->getSourceField() == (string) $field) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 	
 	/**

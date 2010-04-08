@@ -1,4 +1,23 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package Atomik
+ * @subpackage Db
+ * @author Maxime Bouroumeau-Fuseau
+ * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
+ * @license http://www.opensource.org/licenses/mit-license.php
+ * @link http://www.atomikframework.com
+ */
 
 /** Atomik_Db_Schema_Column */
 require_once 'Atomik/Db/Schema/Column.php';
@@ -6,61 +25,121 @@ require_once 'Atomik/Db/Schema/Column.php';
 /** Atomik_Db_Schema_Index */
 require_once 'Atomik/Db/Schema/Index.php';
 
+/**
+ * @package Atomik
+ * @subpackage Db
+ */
 class Atomik_Db_Schema_Table
 {
-	public $schema;
+    /** @var string */
+	protected $_name;
 	
-	public $name;
+	/** @var array of Atomik_Db_Schema_Colunm */
+	protected $_columns = array();
 	
-	public $columns = array();
+	/** @var array of Atomik_Db_Schema_Index */
+	protected $_indexes = array();
 	
-	public $indexes = array();
+	/** @var Atomik_Db_Schema_Colunm */
+	protected $_primaryKey;
 	
-	public $primaryKey;
-	
-	public function __construct(Atomik_Db_Schema $schema, $tableName)
+	public function __construct($name, $columns = array(), $indexes = array())
 	{
-		$this->schema = $schema;
-		$this->name = $tableName;
+		$this->_name = $name;
+		array_map(array($this, 'addColumn'), $columns);
+		array_map(array($this, 'addIndex'), $indexes);
 	}
 	
-	public function column($name, $type, $length = null, $options = array())
+	/**
+	 * Sets the table's name
+	 * 
+	 * @param string $name
+	 */
+	public function setName($name)
 	{
-		$this->createColumn($name, $type, $length, $options);
-		return $this;
+	    $this->_name = $name;
 	}
 	
-	public function createColumn($name, $type, $length = null, $options = array())
+	/**
+	 * Returns the table's name
+	 * 
+	 * @return string
+	 */
+	public function getName()
 	{
-		$column = new Atomik_Db_Schema_Column($this, $name, $type, $length, $options);
-		$this->columns[] = $column;
+	    return $this->_name;
+	}
+	
+	public function createColumn($name, Atomik_Db_Type_Abstract $type, $options = array())
+	{
+		$column = new Atomik_Db_Schema_Column($name, $type, $options);
+		$this->addColumn($column);
 		return $column;
 	}
 	
-	public function primaryKey($column)
+	public function addColumn(Atomik_Db_Schema_Column $column)
 	{
-		$this->primaryKey = $column;
-		return $this;
+	    $this->_columns[$column->getName()] = $column;
 	}
 	
-	public function index($column, $name = null)
+	public function hasColumn($name)
 	{
-		$this->createIndex($column, $name);
-		return $this;
+	    return isset($this->_columns[$name]);
 	}
 	
-	public function createIndex($column, $name = null)
+	public function getColumn($name)
 	{
-		if ($name === null) {
-			$name = 'idx_' . $this->name . '_' . $column;
-		}
-		$index = new Atomik_Db_Schema_Index($this, $name, $column);
-		$this->indexes[] = $index;
-		return $index;
+	    if (!isset($this->_columns[$name])) {
+	        return null;
+	    }
+	    return $this->_columns[$name];
 	}
 	
-	public function end()
+	public function getColumns()
 	{
-		return $this->schema;
+	    return $this->_columns;
+	}
+	
+	public function setPrimaryKey(Atomik_Db_Schema_Column $column)
+	{
+		$this->_primaryKey = $column;
+	}
+	
+	public function getPrimaryKey()
+	{
+	    return $this->_primaryKey;
+	}
+	
+	public function createIndex($name, $column)
+	{
+	    if (is_string($column)) {
+	        $column = $this->getColumn($column);
+	    }
+	    $index = new Atomik_Db_Schema_Index($name, $column);
+	    $this->addIndex($index);
+	    return $index;
+	}
+	
+	public function addIndex(Atomik_Db_Schema_Index $index)
+	{
+	    $this->_indexes[$index->getName()] = $index;
+	}
+	
+	public function hasIndex($name)
+	{
+	    return isset($this->_indexes[$name]);
+	}
+	
+	public function getIndex($name)
+	{
+	    if (!isset($this->_indexes[$name])) {
+	        return null;
+	    }
+	    return $this->_indexes[$name];
+	}
+	
+	public function getIndexes()
+	{
+	    return $this->_indexes;
 	}
 }

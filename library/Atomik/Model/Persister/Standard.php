@@ -33,7 +33,8 @@ class Atomik_Model_Persister_Standard extends Atomik_Model_Persister
 		$data = $this->_prepareData($model);
 		
 		if (($id = $this->_db->insert($this->_descriptor->getTableName(), $data)) === false) {
-			throw new Atomik_Model_Exception("Failed inserting model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed inserting model of type '" 
+			    . get_class($model) . "': " . $this->_db->getErrorInfo(2));
 		}
 		
 		$model->setProperty($this->_descriptor->getIdentifierField()->getName(), $id);
@@ -45,7 +46,8 @@ class Atomik_Model_Persister_Standard extends Atomik_Model_Persister
 	    $where = $this->_getWhereId($model);
 	    
 		if (!$this->_db->update($this->_descriptor->getTableName(), $data, $where)) {
-			throw new Atomik_Model_Exception("Failed updating model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed updating model of type '" 
+			    . get_class($model) . "': " . $this->_db->getErrorInfo(2));
 		}
     }
     
@@ -54,7 +56,8 @@ class Atomik_Model_Persister_Standard extends Atomik_Model_Persister
 		$where = $this->_getWhereId($model);
 		
 		if (!$this->_db->delete($this->_descriptor->getTableName(), $where)) {
-			throw new Atomik_Model_Exception("Failed deleting model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed deleting model of type '" 
+			    . get_class($model) . "': " . $this->_db->getErrorInfo(2));
 		}
     }
     

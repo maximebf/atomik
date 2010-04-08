@@ -2,14 +2,10 @@
 
 class Atomik_Db_Schema_Generator
 {
-	/**
-	 * @var Atomik_Db_Adapter_Interface
-	 */
+	/** @var Atomik_Db_Adapter_Interface */
 	protected $_adapter;
 	
-	/**
-	 * @var Atomik_Db_Schema
-	 */
+	/** @var Atomik_Db_Schema */
 	protected $_schema;
 	
 	public function __construct(Atomik_Db_Adapter_Interface $adapter)
@@ -17,75 +13,81 @@ class Atomik_Db_Schema_Generator
 		$this->_adapter = $adapter;
 	}
 	
-	public function generate(Atomik_Db_Schema $schema)
+	public function generateSchema(Atomik_Db_Schema $schema)
 	{
 		$this->_schema = $schema;
 		$sql = '';
 		
-		if ($schema->dropBeforeCreate) {
-			foreach ($schema->tables as $table) {
-				$sql .= $this->_buildDrop($table);
-			}
-		}
-		
-		foreach ($schema->tables as $table) {
-			$sql .= $this->_buildTable($table);
+		foreach ($schema->getTables() as $table) {
+			$sql .= $this->generateTable($table);
 		}
 		
 		return $sql;
 	}
 	
-	protected function _buildDrop(Atomik_Db_Schema_Table $table)
+	public function generateDrop(Atomik_Db_Schema_Table $table)
 	{
-		return sprintf("DROP TABLE IF EXISTS %s;\n", $this->_adapter->quoteIdentifier($table->name));
+	    return sprintf("DROP TABLE IF EXISTS %s;\n", 
+	        $this->_adapter->quoteIdentifier($table->getName()));
 	}
 	
-	protected function _buildTable(Atomik_Db_Schema_Table $table)
+	public function generateTable(Atomik_Db_Schema_Table $table)
 	{
 		$columns = array();
-		foreach ($table->columns as $column) {
-			$columns[] = "\t" . $this->_buildColumn($column);
+		foreach ($table->getColumns() as $column) {
+			$columns[] = "\t" . $this->generateColumn($column);
 		}
 		
-		if (!empty($table->primaryKey)) {
-			$columns[] = "\tPRIMARY KEY (" . $this->_adapter->quoteIdentifier($table->primaryKey) . ')';
+		if (($pk = $table->getPrimaryKey()) !== null) {
+			$columns[] = "\tPRIMARY KEY (" 
+			           . $this->_adapter->quoteIdentifier($pk->getName()) . ')';
 		}
 		
 		$sql = sprintf("CREATE TABLE %s (\n%s\n);\n", 
-			$this->_adapter->quoteIdentifier($table->name), implode(",\n", $columns));
+			$this->_adapter->quoteIdentifier($table->getName()), implode(",\n", $columns));
 		
-		foreach ($table->indexes as $index) {
-			$sql .= $this->_buildIndex($index);
+		foreach ($table->getIndexes() as $index) {
+			$sql .= $this->generateIndex($table, $index);
 		}
 		
 		return $sql;
 	}
 	
-	protected function _buildColumn(Atomik_Db_Schema_Column $column)
+	public function generateColumn(Atomik_Db_Schema_Column $column)
 	{
-		$sql = $this->_adapter->quoteIdentifier($column->name) . ' ' . strtoupper($column->type->getSqlType());
+		$sql = $this->_adapter->quoteIdentifier($column->getName()) 
+		     . ' ' . strtoupper($column->getType()->getSqlType());
 		
-		if (isset($column->options['default'])) {
-			$sql .= ' DEFAULT ' . $this->_adapter->quote($column->options['default']);
+		if (!$column->isNullable()) {
+		    $sql .= ' NOT NULL';
 		}
 		
-		if (isset($column->options['auto-increment']) && $column->options['auto-increment']) {
-			$sql .= ' ' . $this->_buildAutoIncrement($column);
+		if (($default = $column->getDefaultValue()) !== null) {
+		    if (!($default instanceof Atomik_Db_Expr)) {
+		        $default = $this->_adapter->quote($default);
+		    }
+			$sql .= ' DEFAULT ' . $default;
+		}
+		
+		$options = $column->getOptions();
+		
+		if (isset($options['auto-increment']) && $options['auto-increment']) {
+			$sql .= ' ' . $this->generateAutoIncrement($column);
 		}
 		
 		return $sql;
 	}
 	
-	protected function _buildAutoIncrement(Atomik_Db_Schema_Column $column)
+	public function generateAutoIncrement(Atomik_Db_Schema_Column $column)
 	{
 		return 'AUTO_INCREMENT';
 	}
 	
-	protected function _buildIndex(Atomik_Db_Schema_Index $index)
+	public function generateIndex(Atomik_Db_Schema_Table $table, Atomik_Db_Schema_Index $index)
 	{
 		return sprintf("CREATE INDEX %s ON %s(%s);\n", 
-			$this->_adapter->quoteIdentifier($index->name), 
-			$this->_adapter->quoteIdentifier($index->table->name), 
-			$this->_adapter->quoteIdentifier($index->column));
+			$this->_adapter->quoteIdentifier($index->getName()), 
+			$this->_adapter->quoteIdentifier($table->getName()), 
+			$this->_adapter->quoteIdentifier($index->getColumn()->getName()));
 	}
 }

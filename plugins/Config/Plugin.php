@@ -76,12 +76,10 @@ class ConfigPlugin
 	/**
 	 * 
 	 */
-    public static function onDbScript($script)
+    public static function onDbCreatesqlAfter(&$sql)
     {
     	if (self::$config['backend'] == 'Database') {
-			/** Atomik_Db_Script_Text */
-			require_once 'Atomik/Db/Script/Text.php';
-			$script->addScript(new Atomik_Db_Script_Text(Atomik_Config_Backend_Database::getTableSql()));
+			$sql .= Atomik_Config_Backend_Database::getTableSql();
     	}
     }
 }

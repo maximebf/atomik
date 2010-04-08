@@ -182,12 +182,11 @@ class AuthPlugin
     	Atomik_Backend::addMenu('users', 'Users', 'auth', array(), 'right');
     }
     
-    public static function onDbScript($script)
+    public static function onDbCreatesqlExporter($exporter)
     {
     	if (self::$config['model'] !== null) {
     		if (self::$config['model'] == 'Atomik_Auth_User') {
-    			$script->addScript(new Atomik_Db_Script_Model(
-    				Atomik_Model_Descriptor::factory('Atomik_Auth_User')));
+    			$exporter->addDescriptor(tomik_Model_Descriptor::factory('Atomik_Auth_User'));
     		}
     	}
     }
