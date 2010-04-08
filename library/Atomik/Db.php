@@ -198,7 +198,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::getErrorInfo()
 	 */
-	public static function getErrorInfo($index)
+	public static function getErrorInfo($index = null)
 	{
 		return self::getInstance()->getErrorInfo($index);
 	}

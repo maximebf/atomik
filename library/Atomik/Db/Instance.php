@@ -289,7 +289,7 @@ class Atomik_Db_Instance
 		    return false;
 		}
 		
-		if (!$stmt->execute($params)) {
+		if (!$stmt->execute((array) $params)) {
 		    $this->_errorInfo = $stmt->errorInfo();
 			return false;
 		}

@@ -36,7 +36,7 @@ class Atomik_Model_Persister_Joined extends Atomik_Model_Persister_Standard
 		$parentData[$parent->getDescriminatorField()->getName()] = get_class($model);
     
 		if (($id = $this->_db->insert($parent->getTableName(), $parentData)) === false) {
-			throw new Atomik_Model_Session_Exception("Failed inserting model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed inserting model of type '" . get_class($model) . "'");
 		}
 		
 		$data[$this->_descriptor->getIdentifierField()->getName()] = $id;
@@ -55,11 +55,11 @@ class Atomik_Model_Persister_Joined extends Atomik_Model_Persister_Standard
 		$parent = $this->_descriptor->getParent();
 		
 		if (!$this->_db->update($parent->getTableName(), $parentData, $where)) {
-			throw new Atomik_Model_Session_Exception("Failed updating model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed updating model of type '" . get_class($model) . "'");
 		}
 		
 		if (!$this->_db->update($this->_descriptor->getTableName(), $data, $where)) {
-			throw new Atomik_Model_Session_Exception("Failed updating model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed updating model of type '" . get_class($model) . "'");
 		}
     }
     
@@ -68,11 +68,11 @@ class Atomik_Model_Persister_Joined extends Atomik_Model_Persister_Standard
 		$where = $this->_getWhereId($model);
 		
 		if (!$this->_db->delete($this->_descriptor->getTableName(), $where)) {
-			throw new Atomik_Model_Session_Exception("Failed deleting model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed deleting model of type '" . get_class($model) . "'");
 		}
 		
 		if (!$this->_db->delete($this->_descriptor->getParent()->getTableName(), $where)) {
-			throw new Atomik_Model_Session_Exception("Failed deleting model of type '" . get_class($model) . "'");
+			throw new Atomik_Model_Exception("Failed deleting model of type '" . get_class($model) . "'");
 		}
     }
     

@@ -143,7 +143,7 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
     {
         $coll = $model->getProperty($this->_name);
         $sourceValue = $model->getProperty($this->_sourceField);
-        $db = $this->_source->getDescriptor->getDb();
+        $db = $this->_source->getDb();
         $changeset = $coll->getChangeset();
         
         foreach ($changeset['added'] as $target) {
