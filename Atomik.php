@@ -258,7 +258,7 @@ if (!function_exists('A')) {
     function A()
     {
         $args = func_get_args();
-        return call_user_func_array('Atomik::get', $args);
+        return call_user_func_array(array('Atomik', 'get'), $args);
     }
 }
 
@@ -325,7 +325,7 @@ final class Atomik
      *
      * @var array
      */
-    private static $namespaces = array('flash' => 'Atomik::_getFlashMessages');
+    private static $namespaces = array('flash' => array('Atomik', '_getFlashMessages'));
     
     /**
      * Execution contexts
@@ -369,7 +369,7 @@ final class Atomik
     {
         // wrap the whole app inside a try/catch block to catch all errors
         try {
-            chdir(dirname(A('atomik/scriptname')));
+            @chdir(dirname(A('atomik/scriptname')));
              
             // loads the config file
             if (file_exists($filename = self::get('atomik/files/config') . '.php')) {

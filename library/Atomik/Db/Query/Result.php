@@ -76,7 +76,7 @@ class Atomik_Db_Query_Result implements Iterator, ArrayAccess, Countable
 	/**
 	 * @var array
 	 */
-	protected static $_defaultFetchMode = PDO::FETCH_BOTH;
+	protected static $_defaultFetchMode = array(PDO::FETCH_BOTH);
 	
 	/**
 	 * Sets the default fetch mode
