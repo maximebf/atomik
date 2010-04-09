@@ -28,6 +28,9 @@ require_once 'Atomik/Db/Query.php';
 /** Atomik_Model_Query_Filter */
 require_once 'Atomik/Model/Query/Filter.php';
 
+/** Atomik_Model_Query_FilterGroup */
+require_once 'Atomik/Model/Query/FilterGroup.php';
+
 /**
  * @package Atomik
  * @subpackage Model
@@ -37,20 +40,14 @@ class Atomik_Model_Query
     /** @var Atomik_Model_Descriptor */
     protected $_from;
     
+    /** @var Atomik_Db_Query */
+    protected $_query;
+    
     /** @var array of Atomik_Model_Descriptor */
-    protected $_jointDescriptors = array();
+    protected $_joins = array();
     
-    /** @var array of Atomik_Model_Association */
-    protected $_jointAssociations = array();
-    
-    /** @var array of Atomik_Model_Query_Filter_Interface */
+    /** @var Atomik_Model_Query_FilterGroup */
     protected $_filters = array();
-    
-    /** @var array */
-    protected $_limit;
-    
-    /** @var array */
-    protected $_orderBy;
     
     /**
      * Returns the model with the specified id.
@@ -118,6 +115,18 @@ class Atomik_Model_Query
         
         return $query;
     }
+	
+	/**
+	 * Creates a filter of type Atomik_Model_Query_Filter_Expr
+	 * 
+	 * @param string $expr
+	 * @return Atomik_Model_Query_Filter_Expr
+	 */
+	public static function expr($expr)
+	{
+	    require_once 'Atomik/Model/Query/Filter/Expr.php';
+	    return new Atomik_Model_Query_Filter_Expr($expr);
+	}
     
     /**
      * Creates a query for the specified descriptor
@@ -131,31 +140,56 @@ class Atomik_Model_Query
     }
     
     /**
-     * from() must be used instead of the constructor
-     * 
      * @param mixed $from
      */
-    private function __construct($from)
+    public function __construct($from)
     {
-        $this->_from = Atomik_Model_Descriptor::factory($from);
+        $this->_filters = new Atomik_Model_Query_FilterGroup($this, 'and');
+        
+        $this->_from = $this->_parseDescriptor($from);
+        $this->_query = $this->_from->getDb()->q()
+                            ->select($this->_from->getTableName() . '.*')
+                            ->from($this->_from->getTableName());
+                            
+        $this->_from->getHydrator()->prepareQuery($this);
+		$this->_from->notify('PrepareQuery', $this);
     }
     
     /**
      * Joins another model to this query according to their association
      * 
+     * If $association is null, will search for the first model (which
+     * are queried) that is related to $descriptor.
+     * 
+     * If $association is a string, it must be of the form 
+     * DescriptorName.associationName
+     * 
      * @param mixed $descriptor
-     * @param Atomik_Model_Association $association
+     * @param mixed $association
      * @return Atomik_Model_Query
      */
-    public function join($descriptor, Atomik_Model_Association $association = null)
+    public function join($descriptor, $association = null, $type = 'INNER')
     {
-        $descriptor = Atomik_Model_Descriptor::factory($descriptor);
+        if (is_string($descriptor)) {
+            list($descriptor, $alias) = $this->_parseAlias($descriptor);
+            if (strpos($descriptor, '.') !== false) {
+                list($source, $field, $association) = $this->_parseField($descriptor, true);
+                $descriptor = $association->getTarget();
+            } else {
+                $descriptor = Atomik_Model_Descriptor::factory($descriptor);
+            }
+            $this->_aliases[$alias] = $descriptor;
+        }
         
         if ($association === null) {
+            $source = $this->_from;
+            
+            // searches to which model the descriptor is associated
             if (!$this->_from->isModelAssociated($descriptor)) {
                 $found = false;
-                foreach ($this->_jointDescriptors as $join) {
+                foreach ($this->_joins as $join) {
                     if ($join->isModelAssociated($descriptor)) {
+                        $source = $join;
                         $found = true;
                     }
                 }
@@ -165,59 +199,49 @@ class Atomik_Model_Query
                         . $descriptor->getName() . "'");
                 }
             }
-            if (count($associations = $this->_from->getAssociations($descriptor)) > 1) {
+            
+            // gets the association
+            if (count($associations = $source->getAssociations($descriptor)) > 1) {
                 require_once 'Atomik/Model/Query/Exception.php';
                 throw new Atomik_Model_Query_Exception("Ambiguous join with '" . $descriptor->getName() . "'");
             }
             $association = $associations[0];
+            
+        } else if (is_string($association)) {
+            list($source, $field, $association) = $this->_parseField($association, true);
+            if (!$source->isModelRelated($descriptor)) {
+                require_once 'Atomik/Model/Query/Exception.php';
+                throw new Atomik_Model_Query_Exception("Cannot create join with unassociated model '" 
+                    . $descriptor->getName() . "'");
+            }
+            $association = $source->getAssociation($association);
         }
         
-        $this->_jointDescriptors[] = $descriptor;
-        $this->_jointAssociations[] = $association;
+        $this->_joins[] = $descriptor;
+        $association->apply($this->_query, $type);
         return $this;
     }
     
     /**
      * Adds a filter to this query
      * 
-     * Can either be ab object of type Atomik_Model_Query_Filter_Interface,
-     * an array of filters or an array of key/value pairs.
-     * 
      * @param mixed $filter
      * @return Atomik_Model_Query
      */
     public function filter($filter)
     {
-        if (is_array($filter)) {
-            foreach ($filter as $key => $value) {
-                if (is_string($key)) {
-                    $this->filterEqual($key, $value);
-                } else {
-                    $this->filter($value);
-                }
-            }
-            return $this;
-        }
-        
-        if (!($filter instanceof Atomik_Model_Query_Filter_Interface)) {
-            require_once 'Atomik/Model/Query/Exception.php';
-            throw new Atomik_Model_Query_Exception("Filters must be of type Atomik_Model_Query_Filter_Interface");
-        }
-        
-        $this->_filters[] = $filter;
+        $this->_filters->filter($filter);
         return $this;
     }
     
     /**
-     * Shortcut to filter models according to their identifier field
-     * 
-     * @param int $id
-     * @return Atomik_Model_Query
+     * Returns 
+     * @param unknown_type $separator
+     * @return unknown_type
      */
-    public function filterPk($id)
+    public function filterGroup($separator)
     {
-        $idField = $this->_from->getIdentifierField()->getName();
-        return $this->filterEqual($idField, $id);
+        return $this->_filters->filterGroup($separator);
     }
     
     /**
@@ -230,26 +254,40 @@ class Atomik_Model_Query
      */
     public function __call($method, $args)
     {
-        if (substr($method, 0, 6) !== 'filter') {
-            return;
-        }
-        
-        $filterName = substr($method, 6);
-        list($descriptor, $field, $assoc) = $this->_parseField($args[0]);
-        $value = isset($args[1]) ? $args[1] : null;
-        
-        if ($value instanceof Atomik_Model && $assoc !== false) {
-            $value = $value->getProperty($assoc->getTargetField());
-        }
-        
-        $filter = Atomik_Model_Query_Filter::factory($filterName, $descriptor, $field, $value);
-        return $this->filter($filter);
+        call_user_func_array(array($this->_filters, $method), $args);
+        return $this;
+    }
+    
+    /**
+     * Applies the filters to the query and removes them
+     */
+    public function applyFilters()
+    {
+		list($sql, $params) = $this->_filters->getSqlAndParams();
+		if (!empty($sql)) {
+    		$this->_query->where($sql, $params);
+    		$this->_filters->clearFilters();
+		}
+		return $this;
+    }
+    
+    /**
+     * Adds a group by clause
+     * 
+     * @param mixed $field {@see _parseField()}
+     * @return Atomik_Model_Query
+     */
+    public function groupBy($field)
+    {
+        list($desc, $fieldName, $assoc) = $this->_parseField($field);
+        $this->_query->groupBy($desc->getTableName() . '.' . $fieldName);
+        return $this;
     }
     
     /**
      * Orders model by a specific field
      * 
-     * @param mixed $field
+     * @param mixed $field {@see _parseField()}
      * @param string $direction
      * @return Atomik_Model_Query
      */
@@ -263,7 +301,7 @@ class Atomik_Model_Query
         list($desc, $fieldName, $assoc) = $this->_parseField($field);
         $column = $desc->getTableName() . '.' . $fieldName;
         
-        $this->_orderBy = array($column => $direction);
+        $this->_query->orderBy(array($column => $direction));
         return $this;
     }
     
@@ -276,7 +314,7 @@ class Atomik_Model_Query
      */
     public function limit($limit, $offset = 0)
     {
-        $this->_limit = array($offset, $limit);
+        $this->_query->limit(array($offset, $limit));
         return $this;
     }
     
@@ -300,10 +338,10 @@ class Atomik_Model_Query
      */
     public function executeData()
     {
-		$query = $this->getDbQuery();
+        $this->applyFilters();
+		$query = $this->_query;
 		
 		if (($result = $query->execute()) === false) {
-		    var_dump($query->toSql());
 			throw new Atomik_Model_Exception('Query failed: ' . $query->getInstance()->getErrorInfo(2));
 		}
 		
@@ -314,70 +352,96 @@ class Atomik_Model_Query
     }
     
     /**
+     * Executes the request as a count() statement
+     * 
+     * @return int
+     */
+    public function count($field = '*')
+    {
+        $this->applyFilters();
+        $query = clone $this->_query;
+        $query->count($field);
+        
+		if (($result = $query->execute()) === false) {
+			throw new Atomik_Model_Exception('Query failed: ' . $query->getInstance()->getErrorInfo(2));
+		}
+		
+		return (int) $result->fetchColumn();
+    }
+    
+    /**
      * Returns the database query generated by this query
      * 
      * @return Atomik_Db_Query
      */
     public function getDbQuery()
     {
-        $query = $this->_from->getDb()->q()
-              ->select($this->_from->getTableName() . '.*')
-              ->from($this->_from->getTableName());
-        
-        foreach ($this->_jointAssociations as $assoc) {
-            $assoc->apply($query);
-        }
-        
-        foreach ($this->_filters as $filter) {
-            $filter->apply($query);
-        }
-        
-        if ($this->_orderBy !== null) {
-            $query->orderBy($this->_orderBy);
-        }
-        
-        if ($this->_limit !== null) {
-            $query->limit($this->_limit);
-        }
-        
-		$this->_from->notify('PrepareQuery', $query);
-        
-        return $query;
+        return $this->_query;
     }
     
     /**
-     * Returns this query as an array
+     * Returns the descriptor specified by $descriptor
+     * which can either be an alias or a descriptor's name
      * 
-     * @return array
+     * @param mixed $descriptor
+     * @return Atomik_Model_Descriptor
      */
-    public function toArray()
+    public function _getDescriptor($descriptor)
     {
-        $joins = array();
-        for ($i = 0, $c = count($this->_jointAssociations); $i < $c; $i++) {
-            $joins[] = array($this->_jointDescriptors[$i], $this->_jointAssociations[$i]);
+        if (is_string($descriptor) && isset($this->_aliases[$descriptor])) {
+            return $this->_aliases[$descriptor];
+        }
+        return Atomik_Model_Descriptor::factory($descriptor);
+    }
+    
+    /**
+     * Parses a descriptor string and returns the descriptor
+     * and its alias if specified
+     *  
+     * @param mixed $descriptor
+     * @return Atomik_Model_Descriptor
+     */
+    protected function _parseDescriptor($descriptor)
+    {
+        list($descriptor, $alias) = $this->_parseAlias($descriptor);
+        $descriptor = Atomik_Model_Descriptor::factory($descriptor);
+        
+        if ($alias) {
+            $this->_aliases[$alias] = $descriptor;
         }
         
-        return array(
-            'from' => $this->_from,
-            'joins' => $joins,
-            'filters' => $this->_filters,
-            'orderBy' => $this->_orderBy,
-            'limit' => $this->_limit
-        );
+        return $descriptor;
+    }
+    
+    /**
+     * Parses a string and returns the string and its alias (if specified)
+     * 
+     * @param string $string
+     * @return array
+     */
+    protected function _parseAlias($string)
+    {
+        $alias = false;
+        if (is_string($string) && strpos($string, ' ') !== false) {
+            $parts = explode(' ', $string);
+            $string = $parts[0];
+            $alias = $parts[1]; 
+        }
+        return array($string, $alias);
     }
     
     /**
      * Parses a field and returns the designated descriptor and field
      * 
      * Possible forms:
-     *  - $field
-     *  - array($descriptor, $field)
-     *  - "descriptorName.fieldName"
+     *  - $property
+     *  - array($descriptor, $property)
+     *  - "descriptorName.propertyName"
      * 
      * @param mixed $field
      * @return array
      */
-    protected function _parseField($field)
+    public function _parseField($field, $mustBeAssoc = false)
     {
         $descriptor = $this->_from;
         $assoc = false;
@@ -387,17 +451,23 @@ class Atomik_Model_Query
 	    }
 	    
         if (is_array($field)) {
-	        $descriptor = Atomik_Model_Descriptor::factory($field[0]);
+	        $descriptor = $this->_getDescriptor($field[0]);
 	        $field = $field[1];
 	    }
 	    
-	    if (is_string($field) && $descriptor->hasAssociation($field)) {
-	        $field = $descriptor->getAssociation($field);
+	    if ($descriptor->hasParent() && $descriptor->isPropertyMapped($field) &&
+	        $descriptor->getMappedProperty($field)->isInherited()) {
+	            $descriptor = $descriptor->getParent();
 	    }
 	    
-	    if ($field instanceof Atomik_Model_Association) {
-	        $assoc = $field;
-	        $field = $field->getSourceField();
+	    if (is_string($field) && $descriptor->hasAssociation($field)) {
+	        $assoc = $descriptor->getAssociation($field);
+	        $field = $assoc->getSourceField(); 
+	    }
+	    
+	    if ($mustBeAssoc && $assoc === false) {
+            require_once 'Atomik/Model/Query/Exception.php';
+            throw new Atomik_Model_Query_Exception("$field must targets an association");
 	    }
 	    
 	    return array($descriptor, (string) $field, $assoc);

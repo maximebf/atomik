@@ -59,10 +59,10 @@ abstract class Atomik_Model_Query_Filter_Expr implements Atomik_Model_Query_Filt
 	}
 	
 	/**
-	 * @see Atomik_Model_Query_Filter_Interface::apply()
+	 * @see Atomik_Model_Query_Filter_Interface::getSqlAndParams()
 	 */
-	public function apply(Atomik_Db_Query $query)
+	public function getSqlAndParams()
 	{
-		return $this->_expr;
+		return array($this->_expr, array());
 	}
 }

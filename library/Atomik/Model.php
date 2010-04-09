@@ -86,7 +86,7 @@ abstract class Atomik_Model
      */
     public function getProperty($name, $orderBy = null, $limit = null)
     {
-	    if ($this->getDescriptor()->hasAssociation($name) && 
+	    if (!$this->isNew() && $this->getDescriptor()->hasAssociation($name) && 
 	        $this->{$name} === null) {
                 $this->getDescriptor()
                      ->getAssociation($name)
@@ -193,8 +193,8 @@ abstract class Atomik_Model
     		    }
     		}
 		    
-    		$useTransaction && $db->commit();
 		    $descriptor->notify('AfterSave', $this);
+    		$useTransaction && $db->commit();
 		    
 		} catch (Atomik_Db_Exception $e) {
 		    $useTransaction && $db->rollback();

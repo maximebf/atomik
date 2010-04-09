@@ -28,6 +28,23 @@ require_once 'Atomik/Model/Hydrator.php';
  */
 class Atomik_Model_Hydrator_Joined extends Atomik_Model_Hydrator
 {
+    public function prepareQuery(Atomik_Model_Query $query)
+    {
+	    $descriptor = $this->_descriptor;
+	    
+	    if ($descriptor->hasParent()) {
+	        $parent = $descriptor->getParent();
+	        
+	        $on = sprintf('%s.%s = %s.%s', 
+	            $parent->getTableName(), $parent->getIdentifierField()->getName(),
+	            $descriptor->getTableName(), $descriptor->getIdentifierField()->getName());
+            $query->getDbQuery()->join($parent->getTableName(), $on);
+            
+	        $descriminator = $parent->getDescriminatorField()->getName();
+	        $query->filterEqual($descriminator, $this->_descriptor->getName());
+	    }
+    }
+    
 	public function hydrate($data)
 	{
 	    $descriptor = $this->_descriptor;

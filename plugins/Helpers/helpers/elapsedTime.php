@@ -15,7 +15,7 @@ class ElapsedTimeHelper extends Atomik_Helper
         
         $diff = time() - $timestamp; 
         $periods = array("second", "minute", "hour", "day", "week", "month", "years", "decade"); 
-        $lengths = array("60","60","24","7","4.35","12","10"); 
+        $lengths = array(60, 60, 24, 7, 4.35, 12, 10); 
         $ending = 'ago';
         
         if ($diff < 60) {
@@ -25,7 +25,7 @@ class ElapsedTimeHelper extends Atomik_Helper
             $ending = "to go"; 
         }
               
-        for($j = 0; $diff >= $lengths[$j]; $j++) {
+        for($j = 0; $j < count($lengths) && $diff >= $lengths[$j]; $j++) {
             $diff /= $lengths[$j]; 
         }
         $diff = round($diff); 

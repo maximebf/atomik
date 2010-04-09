@@ -111,11 +111,11 @@ class Atomik_Backend
 		foreach (self::$_menu as $name => $item) {
 			if ($item['action'] == $url) {
 				return $item;
-			} else if (Atomik::uriMatch($item['action'] . '/*', $url)) {
+			} else if (Atomik::uriMatch($item['action'] . '*', $url)) {
 				$currentMenu = $item;
 			} else {
 				foreach ($item['submenu'] as $subLabel => $subAction) {
-					if (Atomik::uriMatch($subAction . '/*', $url)) {
+					if (Atomik::uriMatch($subAction . '*', $url)) {
 						return $item;
 					}
 				}

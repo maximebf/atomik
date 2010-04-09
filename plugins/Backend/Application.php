@@ -60,11 +60,6 @@
 		}
 	}
 	
-	if (class_exists('Atomik_Form')) {
-		Atomik_Form::setDefaultFormTemplate('Atomik/Backend/Form/FormTemplate.php');
-		Atomik_Form::setDefaultFieldTemplate('Atomik/Backend/Form/FieldTemplate.php');
-	}
-	
 	Atomik::fireEvent('Backend::Ready', array($plugin, &$uri, &$pluggAppConfig));
     
     // dispatches the plugin application

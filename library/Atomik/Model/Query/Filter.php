@@ -55,24 +55,12 @@ class Atomik_Model_Query_Filter extends Atomik_Model_Query_Filter_Field
 	    }
 	    
 	    $className = 'Atomik_Model_Query_Filter_' . $filterName;
-	    if (class_exists($className) && is_subclass_of($className, 'Atomik_Model_Query_Filter_Abstract')) {
+	    if (class_exists($className) && is_subclass_of($className, 'Atomik_Model_Query_Filter_Interface')) {
 	        return new $className($descriptor, $field, $value);
 	    }
 	    
         require_once 'Atomik/Model/Query/Exception.php';
-	    throw new Atomik_Model_Query_Exception("Query filter '$filter' not found");
-	}
-	
-	/**
-	 * Creates an unparsed filter (expression)
-	 * 
-	 * @param string $expr
-	 * @return Atomik_Model_Query_Filter_Expr
-	 */
-	public static function expr($expr)
-	{
-	    require_once 'Atomik/Model/Query/Filter/Expr.php';
-	    return new Atomik_Model_Query_Filter_Expr($expr);
+	    throw new Atomik_Model_Query_Exception("Query filter '$filterName' not found");
 	}
 	
 	/**
@@ -108,11 +96,13 @@ class Atomik_Model_Query_Filter extends Atomik_Model_Query_Filter_Field
 	}
 	
 	/**
-	 * @see Atomik_Model_Query_Filter_Interface::apply()
+	 * @see Atomik_Model_Query_Filter_Interface::getSqlAndParams()
 	 */
-	public function apply(Atomik_Db_Query $query)
+	public function getSqlAndParams()
 	{
-	    $where = sprintf('%s %s ?', $this->_getSqlColumn(), $this->_operator);
-	    $query->where($where, $this->_value);
+	    return array(
+	        sprintf('%s %s ?', $this->_getSqlColumn(), $this->_operator),
+	        array($this->_value)
+        );
 	}
 }

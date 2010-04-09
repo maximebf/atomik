@@ -110,7 +110,6 @@ class AssetsPlugin
         foreach ($namedAssets as $namedAsset) {
             if ($namedAsset{0} === '@' && Atomik::uriMatch(substr($namedAsset, 1))) {
                 $assets->addNamedAsset($namedAsset);
-                return;
             }
         }
     }

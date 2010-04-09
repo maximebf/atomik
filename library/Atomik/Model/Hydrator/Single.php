@@ -28,17 +28,26 @@ require_once 'Atomik/Model/Hydrator.php';
  */
 class Atomik_Model_Hydrator_Single extends Atomik_Model_Hydrator
 {
+    public function prepareQuery(Atomik_Model_Query $query)
+    {
+	    $descriptor = $this->_descriptor;
+	    if ($descriptor->hasParent()) {
+	        $descriminator = $descriptor->getParent()->getDescriminatorField()->getName();
+	        $query->filterEqual($descriminator, $this->_descriptor->getName());
+	    }
+    }
+    
 	public function hydrate($data)
 	{
 	    $descriptor = $this->_descriptor;
 	    $className = $descriptor->getName();
 	    
-	    if ($descriptor->hasParent()) {
-	        $descriminator = $descriptor->getParent()->getDescriminatorField()->getName();
-	        if (!empty($data[$descriminator])) {
-	            $className = $data[$descriminator];
-	            $descriptor = Atomik_Model_Descriptor::factory($className);
-	        }
+	    if (!$descriptor->hasParent()) {
+	        $descriminator = $descriptor->getDescriminatorField()->getName();
+            if (!empty($data[$descriminator])) {
+                $className = $data[$descriminator];
+                $descriptor = Atomik_Model_Descriptor::factory($className);
+            }
 	    }
 	    
 		$instance = new $className();

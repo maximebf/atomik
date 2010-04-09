@@ -168,6 +168,10 @@ Atomik::set(array(
         /* Whether url rewriting is activated on the server
          * @var bool */
         'url_rewriting'          => false,
+
+        /* Keep compatibility with 2.2
+         * @var bool */
+        'urimatch_compat'		 => true,
     
         /* @var bool */
         'debug'                  => false,
@@ -777,8 +781,14 @@ final class Atomik
     }
     
     /**
-     * Checks if an uri matches the pattern. The pattern can contain the * wildcard at the
-     * end to specify that it matches the target and all its child segments.
+     * Checks if an uri matches the pattern. 
+     * 
+     * The pattern can contain the * wildcard in any segment.
+     * For example "users/*" will match all child actions of users.
+     * If you want to match users and its children use "users*".
+     * 
+     * Pattern is considered a regular expression if enclosed
+     * between # (example: "#users/(.*)#")
      * 
      * @param string $pattern
      * @param string $uri Default is the current request uri
@@ -792,12 +802,19 @@ final class Atomik
         $uri = trim($uri, '/');
         $pattern = trim($pattern, '/');
         
-        if (substr($pattern, -1) == '*') {
-            $pattern = rtrim($pattern, '/*');
-            return strlen($uri) >= strlen($pattern) && substr($uri, 0, strlen($pattern)) == $pattern;
-        } else {
-            return $uri == $pattern;
+        if (self::get('atomik/urimatch_compat', false)) {
+            // compatibility with 2.2
+            if (substr($pattern, -2) == '/*') {
+                $pattern = substr($pattern, 0, -2) . '*';
+            }
         }
+        
+        $regexp = $pattern;
+        if ($pattern{0} != '#') {
+            $regexp = '#' . str_replace('*', '(.*)', $pattern) . '#';
+        }
+        
+        return preg_match($regexp, $uri);
     }
     
     /**
@@ -1930,7 +1947,7 @@ final class Atomik
         // route
         if ($route === null) {
             // default route
-            $route = strtolower($plugin) . '/*';
+            $route = strtolower($plugin) . '*';
         }
         
         $config['route'] = $route;

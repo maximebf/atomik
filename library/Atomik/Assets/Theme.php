@@ -28,24 +28,16 @@ require_once 'Atomik/Assets.php';
  */
 class Atomik_Assets_Theme extends Atomik_Assets
 {
-    /**
-     * @var Atomik_Assets
-     */
+    /** @var Atomik_Assets */
     protected $_manager;
     
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $_themeDir;
     
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $_themesDir = array();
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private static $_defaultThemeBaseUrl;
 	
 	/**

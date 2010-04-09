@@ -119,6 +119,8 @@ class Atomik_Model_Descriptor_Builder
 		    $class = new ReflectionAnnotatedClass($className);
 		}
 		
+		$annotations = $class->getAllAnnotations();
+		
 		foreach ($class->getAnnotations() as $annotation) {
 		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
 		        $annotation->apply($descriptor, $class);
@@ -129,6 +131,9 @@ class Atomik_Model_Descriptor_Builder
 		    $parent = self::getBase($parent->getName());
 		    if ($parent->getInheritanceType() != 'none') {
 		        $descriptor->setParent($parent);
+		        foreach ($parent->getBehaviours() as $behaviour) {
+		            $behaviour->apply($descriptor, $class);
+		        }
 		    }
 		}
 		

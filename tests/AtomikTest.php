@@ -13,7 +13,7 @@ class AtomikTest extends PHPUnit_Framework_TestCase
 	{
 		$uri = 'index';
 		$this->assertTrue(Atomik::uriMatch('/index/', $uri));
-		$this->assertTrue(Atomik::uriMatch('/index/*', $uri));
+		$this->assertTrue(Atomik::uriMatch('/index*', $uri));
 		$uri = 'dir/index';
 		$this->assertTrue(Atomik::uriMatch('/dir/*', $uri));
 		$this->assertFalse(Atomik::uriMatch('/dir', $uri));

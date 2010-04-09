@@ -25,7 +25,7 @@
  */
 interface Atomik_Model_EventListener
 {
-	function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query);
+	function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Query $query);
 	function afterQuery(Atomik_Model_Descriptor $descriptor, $data);
 	
 	function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data);

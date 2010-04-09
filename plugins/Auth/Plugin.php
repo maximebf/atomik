@@ -31,7 +31,7 @@ class AuthPlugin
     public static $config = array(
         // the route from which the pluggable app will be accessble
         // false to disable
-    	'route'				=> 'auth/*',
+    	'route'				=> 'auth*',
     
         // the Atomik_Model class name that represents a user
     	'model' 			=> null,
@@ -123,7 +123,7 @@ class AuthPlugin
      */
     public static function addRestrictedUri($uri, $roles = array())
     {
-    	self::$_privateUris[ltrim($uri, '/')] = (array) $roles;
+    	self::$_privateUris[trim($uri, '/')] = (array) $roles;
     }
     
     /**

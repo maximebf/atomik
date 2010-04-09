@@ -517,6 +517,11 @@ class Atomik_Model_Descriptor
 	public function notify($event)
 	{
 	    $args = func_get_args();
+	    
+	    if ($this->_parent !== null) {
+	        call_user_func_array(array($this->_parent, 'notify'), $args);
+	    }
+	    
 	    array_shift($args);
 	    array_unshift($args, $this);
 	    

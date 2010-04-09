@@ -143,14 +143,15 @@ abstract class Atomik_Model_Association extends Atomik_Model_Descriptor_Property
      * apply to the query the needed params
      * 
      * @param Atomik_Db_Query $query
+     * @param string $joinType
      */
-    public function apply(Atomik_Db_Query $query)
+    public function apply(Atomik_Db_Query $query, $joinType = 'INNER')
     {
         $on = sprintf('%s.%s = %s.%s',
             $this->_target->getTableName(), $this->_targetField,
             $this->_source->getTableName(), $this->_sourceField);
             
-        $query->join($this->_target->getTableName(), $on);
+        $query->join($this->_target->getTableName(), $on, null, $joinType);
     }
     
     /**

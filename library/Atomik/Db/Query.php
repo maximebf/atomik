@@ -263,7 +263,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 			'table' => $this->_formatTableName($table), 
 			'on' => $on, 
 			'alias' => $alias, 
-			'type' => $type
+			'type' => strtoupper($type)
 	    );
 	    
 		return $this;
@@ -281,6 +281,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 * Possible arguments:
 	 *  - where(string): a raw sql string
 	 *  - where(string, string...): the first string is the sql string, following args are parameters (see PDO and params in prepare())
+	 *  - where(string, array): the first arg is the sql string, the second arg is an array of parameters
 	 *  - where(array): an array where keys are field name and their value the value that it should be equal to
 	 * 
 	 * It can be called multiple time. Each condition will be concatenate using AND
@@ -594,7 +595,10 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 */
 	protected function _computeCondition($args, $operator = self::_AND)
 	{
-		list($sql, $params) = $this->_buildConditionString(array_shift($args), $args);
+	    $sql = array_shift($args);
+	    $params = count($args) && is_array($args[0]) ? $args[0] : $args;
+	    
+		list($sql, $params) = $this->_buildConditionString($sql, $params);
 		$this->_info['params'] = array_merge($this->_info['params'], $params);
 		
 		return array(

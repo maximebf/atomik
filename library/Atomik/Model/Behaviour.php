@@ -39,7 +39,7 @@ abstract class Atomik_Model_Behaviour extends Atomik_Model_Descriptor_Annotation
 	
 	public function init(Atomik_Model_Descriptor $descriptor, $target) {}
 	
-	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query) {}
+	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Query $query) {}
 	
 	public function afterQuery(Atomik_Model_Descriptor $descriptor, $data) {}
 	

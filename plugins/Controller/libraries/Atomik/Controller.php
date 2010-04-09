@@ -26,6 +26,13 @@
 class Atomik_Controller
 {
 	/**
+	 * Action name
+	 *
+	 * @var string
+	 */
+	protected $_action;
+	
+	/**
 	 * Request parameters
 	 *
 	 * @var array
@@ -73,6 +80,7 @@ class Atomik_Controller
 	 */
 	public function dispatch($action, $httpMethod, $vars = array())
 	{
+	    $this->_action = $action;
 		$this->_data = $_POST;
 		$this->_params = array_merge($vars, Atomik::get('request'));
 		$this->_httpMethod = $httpMethod;

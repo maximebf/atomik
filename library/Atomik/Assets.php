@@ -28,39 +28,25 @@ class Atomik_Assets
 	const CSS = 'text/css';
 	const JS = 'text/javascript';
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $_baseUrl;
 	
-	/**
-	 * @var callback
-	 */
+	/** @var callback */
 	protected $_urlFormater;
 	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	protected $_namedAssets = array();
 	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	protected $_assets = array();
 	
-	/**
-	 * @var Atomik_Assets
-	 */
+	/** @var Atomik_Assets */
 	private static $_instance;
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private static $_defaultBaseUrl = '';
 	
-	/**
-	 * @var callback
-	 */
+	/** @var callback */
 	private static $_defaultUrlFormater;
 	
 	/**
@@ -166,25 +152,44 @@ class Atomik_Assets
 	/**
 	 * Registers a named asset
 	 * 
-	 * @param	string			$name
-	 * @param	string|array	$url
-	 * @param 	string			$type
-	 * @param	array			$dependencies
+	 * $url can be:
+	 * 
+	 *   - a string = url of an asset
+	 *   - an asset created using {@see createAsset()}
+	 *   - an array of assets where assets can be:
+	 *      - a string = url of an asset
+	 *      - an asset created using {@see createAsset()}
+	 *      - the name of a named asset prefixed with @
+	 * 
+	 * @param string $name
+	 * @param mixed $url
+	 * @param string $type
+	 * @param array	$dependencies
 	 */
 	public function registerNamedAsset($name, $url, $type = null, $dependencies = array())
 	{
-		if (is_array($url)) {
+		if (is_array($url) && !isset($url['url'])) {
+		    // url is an array of assets
 		    $assets = array();
 			foreach ($url as $asset) {
 			    if (is_array($asset)) {
-			        $asset['name'] = $name;
 			        $assets[] = $asset;
+			    } else if ($asset{0} == '@') {
+			        $dependencies[] = substr($asset, 1);
 			    } else {
 			        $assets[] = $this->createAsset($asset);
 			    }
 			}
-			$assets['name'] = $name;
-			$this->_namedAssets[$name] = $assets;
+			$this->_namedAssets[$name] = array(
+				'name' => $name,
+			    'assets' => $assets,
+				'dependencies' => $dependencies
+		    );
+			
+		} else if (is_array($url) && isset($url['url'])) {
+		    // $url is an asset created using createAsset()
+		    $this->_namedAssets[$name] = $url;
+		    
 		} else {
 			$this->_namedAssets[$name] = $this->createAsset($url, $type, $dependencies, $name);
 		}
@@ -193,8 +198,8 @@ class Atomik_Assets
 	/**
 	 * Checks if a named asset is registered
 	 * 
-	 * @param 	string	$name
-	 * @return 	bool
+	 * @param string $name
+	 * @return bool
 	 */
 	public function isNamedAssetRegistered($name)
 	{
@@ -214,11 +219,11 @@ class Atomik_Assets
 	/**
 	 * Creates an asset array
 	 * 
-	 * @param	string	$url
-	 * @param 	string	$type
-	 * @param	array	$dependencies
-	 * @param 	string	$name
-	 * @return 	array
+	 * @param string $url
+	 * @param string $type
+	 * @param array $dependencies
+	 * @param string $name
+	 * @return array
 	 */
 	public function createAsset($url, $type = null, $dependencies = array(), $name = null)
 	{
@@ -233,8 +238,7 @@ class Atomik_Assets
 	/**
 	 * Adds a named asset
 	 * 
-	 * @param $name
-	 * @param $allowTwice
+	 * @param string $name
 	 */
 	public function addNamedAsset($name)
 	{
@@ -247,11 +251,12 @@ class Atomik_Assets
 		}
 		
 		$asset = $this->_namedAssets[$name];
-		if (!isset($asset['url'])) {
-			foreach ($asset as $a) {
-				if (is_array($a)) {
-					$this->_addAssetWithDependencies($a, $a['dependencies']);
-				}
+		if (isset($asset['assets'])) {
+			foreach ($asset['dependencies'] as $d) {
+			    $this->addNamedAsset($d);
+			}
+			foreach ($asset['assets'] as $a) {
+				$this->_addAssetWithDependencies($a, $a['dependencies']);
 			}
 		} else {
 			$this->_addAssetWithDependencies($asset, $asset['dependencies']);
@@ -279,10 +284,10 @@ class Atomik_Assets
 	/**
 	 * Adds a new asset file
 	 * 
-	 * @param	string	$url
-	 * @param	string	$type
-	 * @param	array	$dependencies
-	 * @param 	bool	$allowTwice		Whether the asset can be added twice
+	 * @param string $url
+	 * @param string $type
+	 * @param array $dependencies
+	 * @param bool $allowTwice Whether the asset can be added twice
 	 */
 	public function addAsset($url, $type = null, $dependencies = array(), $allowTwice = false)
 	{
@@ -297,8 +302,8 @@ class Atomik_Assets
 	/**
 	 * Adds an asset and all its dependencies
 	 * 
-	 * @param	array	$asset
-	 * @param 	array	$dependencies
+	 * @param array $asset
+	 * @param array $dependencies
 	 */
 	private function _addAssetWithDependencies($asset, $dependencies = array())
 	{
@@ -317,9 +322,9 @@ class Atomik_Assets
 	/**
 	 * Checks if an asset exists
 	 * 
-	 * @param	string	$url
-	 * @param	string	$type
-	 * @return	bool
+	 * @param string $url
+	 * @param string $type
+	 * @return bool
 	 */
 	public function hasAsset($url, $type = null)
 	{
@@ -334,8 +339,8 @@ class Atomik_Assets
 	/**
 	 * Checks if a named asset exists
 	 * 
-	 * @param	string	$name
-	 * @return	bool
+	 * @param string $name
+	 * @return bool
 	 */
 	public function hasNamedAsset($name)
 	{
@@ -350,8 +355,8 @@ class Atomik_Assets
 	/**
 	 * Removes an asset
 	 * 
-	 * @param	string	$url
-	 * @param	string	$type
+	 * @param string $url
+	 * @param string $type
 	 */
 	public function removeAsset($url, $type = null)
 	{
@@ -366,8 +371,8 @@ class Atomik_Assets
 	/**
 	 * Removes an asset
 	 * 
-	 * @param	string	$url
-	 * @param	string	$type
+	 * @param string $url
+	 * @param string $type
 	 */
 	public function removeNamedAsset($name)
 	{
@@ -381,8 +386,8 @@ class Atomik_Assets
 	/**
 	 * Returns a list of assets according to the filter
 	 * 
-	 * @param	string	$type	Null for all
-	 * @return 	array
+	 * @param string $type Null for all
+	 * @return array
 	 */
 	public function getAssets($type = null)
 	{
@@ -399,8 +404,8 @@ class Atomik_Assets
 	 * Adds a new asset of type text/css
 	 * 
 	 * @see Atomik_Assets::addAsset()
-	 * @param 	string	$url
-	 * @param 	array	$dependencies
+	 * @param string $url
+	 * @param array $dependencies
 	 */
 	public function addStyle($url, $dependencies = array())
 	{
@@ -410,7 +415,7 @@ class Atomik_Assets
 	/**
 	 * Returns all assets filenames of type text/css
 	 * 
-	 * @return 	array
+	 * @return array
 	 */
 	public function getStyles()
 	{
@@ -420,7 +425,7 @@ class Atomik_Assets
 	/**
 	 * Renders the link tag for styles
 	 * 
-	 * @return 	string
+	 * @return string
 	 */
 	public function renderStyles()
 	{
@@ -436,8 +441,8 @@ class Atomik_Assets
 	 * Adds a new asset of type text/javascript
 	 * 
 	 * @see Atomik_Assets::addAsset()
-	 * @param 	string	$url
-	 * @param 	array	$dependencies
+	 * @param string $url
+	 * @param array $dependencies
 	 */
 	public function addScript($url, $dependencies = array())
 	{
@@ -447,7 +452,7 @@ class Atomik_Assets
 	/**
 	 * Returns all assets filenames of type text/javascript
 	 * 
-	 * @return 	array
+	 * @return array
 	 */
 	public function getScripts()
 	{
@@ -457,7 +462,7 @@ class Atomik_Assets
 	/**
 	 * Renders the script tag for scripts
 	 * 
-	 * @return 	string
+	 * @return string
 	 */
 	public function renderScripts()
 	{
@@ -482,9 +487,9 @@ class Atomik_Assets
 	/**
 	 * Returns an asset type depending on its filename
 	 * 
-	 * @param	string	$url
-	 * @param	string	$userType
-	 * @return	string
+	 * @param string $url
+	 * @param string $userType
+	 * @return string
 	 */
 	private function _getAssetType($url, $userType = null)
 	{
@@ -510,8 +515,8 @@ class Atomik_Assets
 	/**
 	 * Formats a url using the specified url callback
 	 * 
-	 * @param	string	$url
-	 * @return	string
+	 * @param string $url
+	 * @return string
 	 */
 	private function _formatUrl($url, $baseUrl = '')
 	{

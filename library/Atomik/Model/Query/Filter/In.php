@@ -19,17 +19,24 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Model_Query_Filter_Field */
+require_once 'Atomik/Model/Query/Filter/Field.php';
+
 /**
  * @package Atomik
  * @subpackage Model
  */
-interface Atomik_Model_Query_Filter_Interface
+class Atomik_Model_Query_Filter_In extends Atomik_Model_Query_Filter_Field
 {
-    /**
-     * Returns an array where the first item is an sql
-     * string and the second an array of parameters
-     * 
-     * @return array
-     */
-	function getSqlAndParams();
+	/**
+	 * @see Atomik_Model_Query_Filter_Interface::getSqlAndParams()
+	 */
+	public function getSqlAndParams()
+	{
+	    return array(
+	        sprintf('%s IN (%s)', $this->_getSqlColumn(), 
+	            implode(', ', array_fill(0, count($this->_value), '?'))),
+	        $this->_value
+        );
+	}
 }

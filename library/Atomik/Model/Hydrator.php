@@ -49,6 +49,13 @@ abstract class Atomik_Model_Hydrator
     }
     
     /**
+     * Prepares the query
+     * 
+     * @param Atomik_Model_Query $query
+     */
+    public function prepareQuery(Atomik_Model_Query $query) {}
+    
+    /**
      * Returns a model hydrated using the data from
      * the database
      * 

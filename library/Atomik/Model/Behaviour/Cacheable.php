@@ -58,10 +58,10 @@ class Atomik_Model_Behaviour_Cacheable extends Atomik_Model_Behaviour
 		return $this->_memcache;
 	}
 	
-	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Db_Query $query)
+	public function prepareQuery(Atomik_Model_Descriptor $descriptor, Atomik_Model_Query $query)
 	{
 		// only select the primary key
-		$query->clearSelect()->select(
+		$query->getDbQuery()->clearSelect()->select(
 		    $descriptor->getTableName() . '.' . $descriptor->getIdentifierField()->getColumnName());
 	}
 	

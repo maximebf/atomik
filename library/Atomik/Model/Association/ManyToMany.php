@@ -112,7 +112,7 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
         return $assoc;
     }
     
-    public function apply(Atomik_Db_Query $query)
+    public function apply(Atomik_Db_Query $query, $joinType = 'INNER')
     {
         $onVia = sprintf('%s.%s = %s.%s',
             $this->_viaTable, $this->_viaSourceField,
@@ -122,8 +122,8 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
             $this->_target->getTableName(), $this->_targetField,
             $this->_viaTable, $this->_viaTargetField);
             
-        $query->join($this->_viaTable, $onVia)
-              ->join($this->_target->getTableName(), $onTarget);
+        $query->join($this->_viaTable, $onVia, null, $joinType)
+              ->join($this->_target->getTableName(), $onTarget, null, $joinType);
     }
     
     public function load(Atomik_Model $model, $orderBy = null, $limit = null)
@@ -149,6 +149,10 @@ class Atomik_Model_Association_ManyToMany extends Atomik_Model_Association
     public function save(Atomik_Model $model)
     {
         $coll = $model->getProperty($this->_name);
+        if (empty($coll)) {
+            return;
+        }
+        
         $sourceValue = $model->getProperty($this->_sourceField);
         $db = $this->_source->getDb();
         $changeset = $coll->getChangeset();
