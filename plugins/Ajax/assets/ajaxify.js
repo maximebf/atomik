@@ -74,7 +74,10 @@ var Ajaxify = (function() {
 	
 	ajaxify.overlay = {
 		'enabled': false,
-		'element': $('<div></div>').appendTo('body'),
+		'element': $('<div></div>').css({
+						'background': '#fff', 
+						'opacity': 0.6, 
+						'display': 'none'}).appendTo('body'),
 		'subject': $('body'),
 		'show': function() {
 			var s = ajaxify.overlay.subject;
@@ -83,7 +86,6 @@ var Ajaxify = (function() {
 				left: s.position().left,
 				width: s.width(),
 				height: s.height(),
-				opacity: 0.6,
 				display: 'block'
 			});
 		},
