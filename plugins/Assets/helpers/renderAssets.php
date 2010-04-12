@@ -4,7 +4,11 @@ class RenderAssetsHelper
 {
     public function renderAssets()
     {
-        return Atomik_Assets::getInstance()->render()
-             . AssetsPlugin::getTheme()->render();
+        $themeAssets = '';
+        if (($theme = AssetsPlugin::getTheme()) !== null) {
+            $themeAssets = $theme->render();
+        }
+        
+        return Atomik_Assets::getInstance()->render() . $themeAssets;
     }
 }

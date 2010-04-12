@@ -48,7 +48,7 @@ class AssetsPlugin
         'theme_base_url' => 'assets/themes',
     
         // theme name
-        'theme' => 'default',
+        'theme' => null,
     
         // whether to treat named assets starting with @
         // as resources
@@ -96,6 +96,9 @@ class AssetsPlugin
      */
     public static function getTheme()
     {
+        if (self::$config['theme'] === null) {
+            return null;
+        }
         return Atomik_Assets_Theme::factory(self::$config['theme']);
     }
     
