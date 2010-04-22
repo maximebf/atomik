@@ -121,4 +121,34 @@ abstract class Atomik_Model_Query_Filter_Field implements Atomik_Model_Query_Fil
 	        $this->_descriptor->getTableName(),
 	        $this->_field);
 	}
+	
+	/**
+	 * Returns the value prepared for the sql query
+	 * 
+	 * @return string
+	 */
+	protected function _getPreparedValue()
+	{
+	    if ($this->_value instanceof Atomik_Model_Query) {
+	        return '(' . $this->_value->getDbQuery()->toSql() . ')';
+	    } else if ($this->_value instanceof Atomik_Db_Query_Expr) {
+	        return $this->_value->__toString();
+	    }
+	    return '?';
+	}
+	
+	/**
+	 * Returns parameters for the sql query
+	 * 
+	 * @return array
+	 */
+	protected function _getParams()
+	{
+	    if ($this->_value instanceof Atomik_Model_Query) {
+	        return $this->_value->getDbQuery()->getParams();
+	    } else if ($this->_value instanceof Atomik_Db_Query_Expr) {
+	        return array();
+	    }
+	    return array((string) $this->_value);
+	}
 }

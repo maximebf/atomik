@@ -101,8 +101,8 @@ class Atomik_Model_Query_Filter extends Atomik_Model_Query_Filter_Field
 	public function getSqlAndParams()
 	{
 	    return array(
-	        sprintf('%s %s ?', $this->_getSqlColumn(), $this->_operator),
-	        array($this->_value)
+	        $this->_getSqlColumn() . ' ' . $this->_operator . ' ' . $this->_getPreparedValue(), 
+	        $this->_getParams()
         );
 	}
 }

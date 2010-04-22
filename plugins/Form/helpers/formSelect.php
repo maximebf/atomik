@@ -13,8 +13,12 @@ class FormSelectHelper extends Atomik_Helper
         ));
         
         $html = sprintf('<select %s>', $this->helpers->htmlAttributes($attrs));
-        foreach ($options as $key => $value) {
-            $html .= sprintf('<option value="%s">%s</option>', $key, $value);
+        foreach ($options as $key => $text) {
+            $html .= sprintf('<option value="%s"%s>%s</option>', 
+                $key, 
+                $key == $value ? ' selected="selected"' : '',
+                Atomik::escape($text)
+            );
         }
         $html .= '</select>';
         

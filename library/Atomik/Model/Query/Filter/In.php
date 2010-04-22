@@ -33,10 +33,20 @@ class Atomik_Model_Query_Filter_In extends Atomik_Model_Query_Filter_Field
 	 */
 	public function getSqlAndParams()
 	{
+	    $in = '';
+	    $params = array();
+	    
+	    if ($this->_value instanceof Atomik_Model_Query) {
+	        $in = $this->_value->getDbQuery()->toSql();
+	        $params = $this->_value->getDbQuery()->getParams();
+	    } else {
+	        $in = implode(', ', array_fill(0, count($this->_value), '?'));
+	        $params = $this->_value;
+	    }
+	    
 	    return array(
-	        sprintf('%s IN (%s)', $this->_getSqlColumn(), 
-	            implode(', ', array_fill(0, count($this->_value), '?'))),
-	        $this->_value
+	        sprintf('%s IN (%s)', $this->_getSqlColumn(), $in),
+	        $params
         );
 	}
 }

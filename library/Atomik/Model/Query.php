@@ -22,6 +22,9 @@
 /** Atomik_Db_Instance */
 require_once 'Atomik/Db/Instance.php';
 
+/** Atomik_Db_Query_Expr */
+require_once 'Atomik/Db/Query/Expr.php';
+
 /** Atomik_Db_Query */
 require_once 'Atomik/Db/Query.php';
 
@@ -35,7 +38,7 @@ require_once 'Atomik/Model/Query/FilterGroup.php';
  * @package Atomik
  * @subpackage Model
  */
-class Atomik_Model_Query
+class Atomik_Model_Query extends Atomik_Db_Query_Expr
 {
     /** @var Atomik_Model_Descriptor */
     protected $_from;
@@ -153,6 +156,30 @@ class Atomik_Model_Query
                             
         $this->_from->getHydrator()->prepareQuery($this);
 		$this->_from->notify('PrepareQuery', $this);
+    }
+    
+    /**
+     * Specifies which fields to retreive
+     * 
+     * @param string $field
+     * @param string ...
+     * @return Atomik_Model_Query
+     */
+    public function select($field)
+    {
+        $this->_query->clearSelect();
+        $fields = func_get_args();
+        $select = array();
+        foreach ($fields as $field) {
+            if ($field instanceof Atomik_Db_Query_Expr) {
+                $select[] = (string) $field;
+                continue;
+            }
+            list($descriptor, $field, $assoc) = $this->_parseField($field);
+            $select[] = $descriptor->getTableName() . '.' . $field;
+        }
+        $this->_query->select($select);
+        return $this;
     }
     
     /**
@@ -293,6 +320,13 @@ class Atomik_Model_Query
      */
     public function orderBy($field, $direction = 'ASC')
     {
+        if (strpos($field, ',')) {
+            foreach (explode(',', $field) as $f) {
+                $this->orderBy($f);
+            }
+            return;
+        }
+        
         if (is_string($field) && preg_match('/(.+)\s+(ASC|DESC)/', $field, $matches)) {
             $field = $matches[1];
             $direction = $matches[2];
@@ -376,7 +410,18 @@ class Atomik_Model_Query
      */
     public function getDbQuery()
     {
+        $this->applyFilters();
         return $this->_query;
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see library/Atomik/Db/Query/Atomik_Db_Query_Expr#__toString()
+     */
+    public function __toString()
+    {
+        $this->applyFilters();
+        return $this->_query->toSql();
     }
     
     /**
@@ -399,14 +444,15 @@ class Atomik_Model_Query
      * and its alias if specified
      *  
      * @param mixed $descriptor
+     * @param bool $setAlias
      * @return Atomik_Model_Descriptor
      */
-    protected function _parseDescriptor($descriptor)
+    protected function _parseDescriptor($descriptor, $setAlias = true)
     {
         list($descriptor, $alias) = $this->_parseAlias($descriptor);
         $descriptor = Atomik_Model_Descriptor::factory($descriptor);
         
-        if ($alias) {
+        if ($alias && $setAlias) {
             $this->_aliases[$alias] = $descriptor;
         }
         

@@ -36,9 +36,7 @@ abstract class Atomik_Model
      */
     public function __construct($data = array())
     {
-        foreach ($data as $key => $value) {
-            $this->{$key} = $value;
-        }
+        $this->populate($data);
     }
     
     /**
@@ -59,6 +57,18 @@ abstract class Atomik_Model
     {
         $id = $this->getDescriptor()->getIdentifierField()->getName();
         return !property_exists($this, $id) || $this->{$id} === null;
+    }
+    
+    /**
+     * Populates the model using an array of data
+     * 
+     * @param array $data
+     */
+    public function populate($data)
+    {
+        foreach ($data as $key => $value) {
+            $this->{$key} = $value;
+        }
     }
     
     /**

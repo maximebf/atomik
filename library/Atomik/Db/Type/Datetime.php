@@ -49,6 +49,10 @@ class Atomik_Db_Type_Datetime extends Atomik_Db_Type_Abstract
 	 */
 	public function filterOutput($output) 
 	{
+	    if (is_string($output)) {
+	        $output = strtotime($output);
+	    }
+	    
 	    if ($output instanceof DateTime) {
 	        $output = $output->format('Y-m-d H:i:s');
 	    } else if (is_int($output)) {
