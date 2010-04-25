@@ -2,15 +2,19 @@
 
 class FormSelectModelsHelper extends Atomik_Helper
 {
-    public function formSelectModels($name, $models, $keyField, $valueField, $value = '', $attrs = array())
+    public function formSelectModels($name, $models, $keyField, $valueField, $defaultOption = false, $value = '', $attrs = array())
     {
         $options = array();
         foreach ($models as $model) {
-            $options[$model->getProperty($keyField)] = $model->getProperty($valueField);
+            $options[$model->{'get' . ucfirst($keyField)}()] = $model->{'get' . ucfirst($valueField)}();
+        }
+        
+        if (is_array($defaultOption)) {
+            $options = array_merge($defaultOption, $options);
         }
         
         if (!empty($value) && $value instanceof Atomik_Model) {
-            $value = $value->getProperty($keyField);
+            $value = $value->{'get' . ucfirst($valueField)}();
         }
         
         return $this->helpers->formSelect($name, $options, $value, $attrs);

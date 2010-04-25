@@ -121,7 +121,6 @@ class Atomik_Controller
 	 */
 	public function preDispatch()
 	{
-		
 	}
 	
 	/**
@@ -165,6 +164,14 @@ class Atomik_Controller
 	protected function _addLayout($layout)
 	{
 	    Atomik::add('app/layout', $layout);
+	}
+	
+	public function _removeLastLayout($depth = 1)
+	{
+	    $layouts = &Atomik::getRef('app/layout');
+	    for ($i = 0; $i < $depth; $i++) {
+	        array_pop($layouts);
+	    }
 	}
 	
 	protected function _redirect($url, $useUrl = true, $httpCode = 302)

@@ -148,6 +148,8 @@ abstract class Atomik_Model_Query_Filter_Field implements Atomik_Model_Query_Fil
 	        return $this->_value->getDbQuery()->getParams();
 	    } else if ($this->_value instanceof Atomik_Db_Query_Expr) {
 	        return array();
+	    } else if ($this->_value === null) {
+	        return array(null);
 	    }
 	    return array((string) $this->_value);
 	}

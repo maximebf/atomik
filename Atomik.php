@@ -811,7 +811,7 @@ final class Atomik
         
         $regexp = $pattern;
         if ($pattern{0} != '#') {
-            $regexp = '#' . str_replace('*', '(.*)', $pattern) . '#';
+            $regexp = '#^' . str_replace('*', '(.*)', $pattern) . '#';
         }
         
         return preg_match($regexp, $uri);

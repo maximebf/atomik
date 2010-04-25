@@ -88,7 +88,11 @@ class Atomik_Model_Query_FilterGroup implements Atomik_Model_Query_Filter_Interf
         if (is_array($filter)) {
             foreach ($filter as $key => $value) {
                 if (is_string($key)) {
-                    $this->filterEqual($key, $value);
+                    if ($value === null) {
+                        $this->filterIsNull($key);
+                    } else {
+                        $this->filterEqual($key, $value);
+                    }
                 } else {
                     $this->filter($value);
                 }

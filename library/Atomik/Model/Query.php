@@ -324,7 +324,7 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
             foreach (explode(',', $field) as $f) {
                 $this->orderBy($f);
             }
-            return;
+            return $this;
         }
         
         if (is_string($field) && preg_match('/(.+)\s+(ASC|DESC)/', $field, $matches)) {
@@ -342,13 +342,14 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
     /**
      * Limits the number of model to be retreived
      * 
+     * @see Atomik_Db_Query::limit()
      * @param int $limit
-     * @param int $offset
      * @return Atomik_Model_Query
      */
-    public function limit($limit, $offset = 0)
+    public function limit($limit)
     {
-        $this->_query->limit(array($offset, $limit));
+        $args = func_get_args();
+        call_user_func_array(array($this->_query, 'limit'), $args);
         return $this;
     }
     

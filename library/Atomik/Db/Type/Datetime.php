@@ -41,6 +41,9 @@ class Atomik_Db_Type_Datetime extends Atomik_Db_Type_Abstract
 	 */
 	public function filterInput($input)
 	{
+	    if ($input === null) {
+	        return null;
+	    }
 		return new DateTime($input);
 	}
 	
@@ -49,6 +52,10 @@ class Atomik_Db_Type_Datetime extends Atomik_Db_Type_Abstract
 	 */
 	public function filterOutput($output) 
 	{
+	    if (empty($output)) {
+	        return null;
+	    }
+	    
 	    if (is_string($output)) {
 	        $output = strtotime($output);
 	    }

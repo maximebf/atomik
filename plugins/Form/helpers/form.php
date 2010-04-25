@@ -7,12 +7,10 @@ class FormHelper extends Atomik_Helper
     
     public static $defaultCSSClass = '';
     
-    public function form($action = '', $name = null, $enctype = FormHelper::ENCTYPE_URLENCODED, $method = 'POST', $attrs = array())
+    public function form($action = '', $name = null, $attrs = array())
     {
         $attrs = array_merge($attrs, array(
             'action' => $action,
-            'enctype' => $enctype,
-            'method' => $method,
             'class' => Atomik::get('class', self::$defaultCSSClass, $attrs)
         ));
         
