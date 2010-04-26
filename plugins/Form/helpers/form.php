@@ -11,6 +11,7 @@ class FormHelper extends Atomik_Helper
     {
         $attrs = array_merge($attrs, array(
             'action' => $action,
+            'method' => Atomik::get('method', 'POST', $attrs),
             'class' => Atomik::get('class', self::$defaultCSSClass, $attrs)
         ));
         

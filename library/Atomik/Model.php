@@ -96,11 +96,8 @@ abstract class Atomik_Model
      */
     public function getProperty($name, $orderBy = null, $limit = null)
     {
-	    if (!$this->isNew() && $this->getDescriptor()->hasAssociation($name) && 
-	        $this->{$name} === null) {
-                $this->getDescriptor()
-                     ->getAssociation($name)
-                     ->load($this, $orderBy, $limit);
+	    if ($this->getDescriptor()->hasAssociation($name) && $this->{$name} === null) {
+            $this->getDescriptor()->getAssociation($name)->load($this, $orderBy, $limit);
 	    }
 	    
 	    if (property_exists($this, $name)) {
