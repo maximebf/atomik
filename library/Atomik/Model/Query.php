@@ -268,7 +268,9 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
      */
     public function filterGroup($separator)
     {
-        return $this->_filters->filterGroup($separator);
+        $group = new Atomik_Model_Query_FilterGroup($this, $separator);
+        $this->_filters->filter($group);
+        return $group;
     }
     
     /**

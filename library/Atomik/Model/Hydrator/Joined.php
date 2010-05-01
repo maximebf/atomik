@@ -41,7 +41,8 @@ class Atomik_Model_Hydrator_Joined extends Atomik_Model_Hydrator
             $query->getDbQuery()->join($parent->getTableName(), $on);
             
 	        $descriminator = $parent->getDescriminatorField()->getName();
-	        $query->filterEqual($descriminator, $this->_descriptor->getName());
+	        $query->filterEqual(array($parent, $descriminator), $descriptor->getName());
+	        $query->select(array($descriptor, '*'), array($parent, '*'));
 	    }
     }
     

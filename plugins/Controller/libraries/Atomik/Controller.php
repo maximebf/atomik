@@ -99,6 +99,8 @@ class Atomik_Controller
 					$args[] = $this->_params[$param->getName()];
 				} else if (!$param->isOptional()) {
 					throw new Atomik_Exception('Missing parameter ' . $param->getName());
+				} else {
+				    $args[] = $param->getDefaultValue();
 				}
 			}
 			

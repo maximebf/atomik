@@ -2,7 +2,7 @@
 
 class FormButtonsHelper extends Atomik_Helper
 {
-    public function formButtons($submitText = 'Submit', $cancelUrl = '#', $buttonAttrs = array())
+    public function formButtons($submitText = 'Submit', $cancelUrl = 'javascript:history.back()', $buttonAttrs = array())
     {
         $html = $this->helpers->formButton($submitText, 'submit', $buttonAttrs);
         

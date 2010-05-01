@@ -159,7 +159,7 @@ class Atomik_Model_Exporter
 		$table = $this->_getTable($schema, $descriptor);
 		
 		foreach ($descriptor->getFields() as $field) {
-		    if ($field->isInherited()) {
+		    if ($descriptor->getIdentifierField() != $field && $field->isInherited()) {
 		        continue;
 		    }
 		    

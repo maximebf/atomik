@@ -31,6 +31,9 @@ class Atomik_Model_Query_FilterGroup implements Atomik_Model_Query_Filter_Interf
     /** @var Atomik_Model_Query */
 	protected $_query;
 	
+    /** @var Atomik_Model_Query_FilterGroup */
+	protected $_parentGroup;
+	
     /** @var string */
 	protected $_separator;
 	
@@ -38,14 +41,15 @@ class Atomik_Model_Query_FilterGroup implements Atomik_Model_Query_Filter_Interf
 	protected $_filters = array();
 	
 	/**
-	 * @param mixed $descriptor
-	 * @param mixed $field
-	 * @param string $value
-	 * @param string $operator
+	 * @param Atomik_Model_Query $query
+	 * @param string $separator
+	 * @param Atomik_Model_Query_FilterGroup $parentGroup
 	 */
-	public function __construct(Atomik_Model_Query $query, $separator)
+	public function __construct(Atomik_Model_Query $query, $separator, 
+	    Atomik_Model_Query_FilterGroup $parentGroup = null)
 	{
 	    $this->_query = $query;
+	    $this->_parentGroup = $parentGroup;
 		$this->setSeparator($separator);
 	}
 	
@@ -71,6 +75,9 @@ class Atomik_Model_Query_FilterGroup implements Atomik_Model_Query_Filter_Interf
 	 */
 	public function end()
 	{
+	    if ($this->_parentGroup !== null) {
+	        return $this->_parentGroup;
+	    }
 	    return $this->_query;
 	}
     
@@ -117,7 +124,7 @@ class Atomik_Model_Query_FilterGroup implements Atomik_Model_Query_Filter_Interf
      */
     public function filterGroup($separator)
     {
-        $group = new Atomik_Model_Query_FilterGroup($this->_query, $separator);
+        $group = new Atomik_Model_Query_FilterGroup($this->_query, $separator, $this);
         $this->filter($group);
         return $group;
     }

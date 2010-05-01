@@ -2288,7 +2288,7 @@ final class Atomik
      * @param bool $useBaseAction Whether to prepend the action with atomik/base_action
      * @return string
      */
-    public static function url($action = null, $params = true, $useIndex = true, $useBaseAction = true)
+    public static function url($action = null, $params = array(), $useIndex = true, $useBaseAction = true)
     {
         $trigger = self::get('atomik/trigger', 'action');
         
@@ -2296,7 +2296,7 @@ final class Atomik
             $params = array();
         }
         
-        if ($action === null || $params === true || in_array('__merge_GET', $params)) {
+        if ($params === true || in_array('__merge_GET', $params)) {
             if (!is_array($params)) {
                 $params = array();
             }

@@ -90,15 +90,19 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
 		!empty($this->targetField) && $assoc->setTargetField($this->targetField);
 		
 		if (!$descriptor->hasField($assoc->getSourceField())) {
-		    $descriptor->mapProperty(Atomik_Model_Field::factory($assoc->getSourceField(), 'int'));
+		    $field = Atomik_Model_Field::factory($assoc->getSourceField(), 'int');
+		    $descriptor->mapProperty($field);
 		}
 		if (!$target->hasField($assoc->getTargetField())) {
-		    $target->mapProperty(Atomik_Model_Field::factory($assoc->getTargetField(), 'int'));
+		    $field = Atomik_Model_Field::factory($assoc->getTargetField(), 'int');
+		    $target->mapProperty($field);
 		}
-        
+		
         if ($property->getDeclaringClass()->getName() != $descriptor->getName() &&
             $descriptor->hasParent()) {
-                $descriptor->getField($assoc->getSourceField())->setInherited(true);
+                if ($descriptor->getIdentifierField()->getName() != $assoc->getSourceField()) {
+                    $descriptor->getField($assoc->getSourceField())->setInherited(true);
+                }
                 $assoc->setInherited(true);
         }
 		
