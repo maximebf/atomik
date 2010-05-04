@@ -179,7 +179,10 @@ class LangPlugin
     	}
     	
     	/* include the language file */
-    	include $filename;
+    	$messages = include $filename;
+    	if (is_array($messages)) {
+    	    self::$_messages = array_merge(self::$_messages, $messages);
+    	}
     	
     	/* sets the current language */
     	Atomik::set('app/language', $language);
