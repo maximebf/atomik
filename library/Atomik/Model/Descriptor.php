@@ -538,7 +538,7 @@ class Atomik_Model_Descriptor
 	 */
 	public function hydrate($data)
 	{
-		$this->notify('BeforeCreateInstance', $data);
+		$this->notify('BeforeCreateInstance', new ArrayObject($data));
 		
 		$instance = $this->getHydrator()->hydrate($data);
 		

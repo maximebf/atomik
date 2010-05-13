@@ -182,7 +182,7 @@ class DbPlugin
 	 */
 	public static function dbCreate($instance = 'default', $filter = array())
 	{
-		$sql = self::dbCreateSql($instance, $filter, $echo);
+		$sql = self::dbCreateSql($instance, $filter);
 		$db = Atomik_Db::getInstance($instance);
 		
 		Atomik::fireEvent('Db::Create::Before', array($db, &$sql));

@@ -43,7 +43,7 @@ abstract class Atomik_Model_Behaviour extends Atomik_Model_Descriptor_Annotation
 	
 	public function afterQuery(Atomik_Model_Descriptor $descriptor, $data) {}
 	
-	public function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, &$data) {}
+	public function beforeCreateInstance(Atomik_Model_Descriptor $descriptor, $data) {}
 	
 	public function afterCreateInstance(Atomik_Model_Descriptor $descriptor, Atomik_Model $model) {}
 	
@@ -61,5 +61,5 @@ abstract class Atomik_Model_Behaviour extends Atomik_Model_Descriptor_Annotation
 	
 	public function beforeExport(Atomik_Model_Descriptor $descriptor, Atomik_Db_Schema $definition) {}
 	
-	public function afterExport(Atomik_Model_Descriptor $descriptor, &$sql) {}
+	public function afterExport(Atomik_Model_Descriptor $descriptor, $sql) {}
 }
