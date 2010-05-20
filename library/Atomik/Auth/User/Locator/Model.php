@@ -33,16 +33,12 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	/** @var string */
 	protected $_modelName;
 	
-	/** @var string */
-	protected $_userField;
-	
 	/**
 	 * @param string $modelName
 	 */
-	public function __construct($modelName = null, $userField = 'username')
+	public function __construct($modelName = null)
 	{
 	    $this->_modelName = $modelName;
-	    $this->_userField = $userField;
 	}
 	
 	/**
@@ -66,33 +62,17 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	}
 	
 	/**
-	 * @param string $field
-	 */
-	public function setUserField($field)
-	{
-	    $this->_userField = $field;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getUserField()
-	{
-	    return $this->_userField;
-	}
-	
-	/**
 	 * Returns the object for the specified username
 	 * 
-	 * @param string $username
+	 * @param string $id
 	 * @return Atomik_Auth_User_Interface
 	 */
-	public function find($username)
+	public function find($id)
 	{
 		if ($this->_modelName === null) {
 			require_once 'Atomik/Auth/Exception.php';
 			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_User_Locator_Model');
 		}
-		return Atomik_Model_Query::find($this->_modelName, array($this->_userField => $username));
+		return Atomik_Model_Query::find($this->_modelName, $id);
 	}
 }

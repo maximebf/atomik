@@ -30,7 +30,8 @@ interface Atomik_Auth_User_Locator_Interface
 	/**
 	 * Returns a user object
 	 *
+	 * @param mixed $userId
 	 * @return Atomik_Auth_User_Interface
 	 */
-	function find($username);
+	function find($userId);
 }

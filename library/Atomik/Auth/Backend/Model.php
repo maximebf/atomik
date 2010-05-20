@@ -68,6 +68,9 @@ class Atomik_Auth_Backend_Model implements Atomik_Auth_Backend_Interface
 			$this->passwordField => md5($password)
 		));
 		
-		return $user !== null;
+		if ($user !== null) {
+			return $user->getProperty($user->getDescriptor()->getIdentifierField()->getName());
+		}
+		return false;
 	}
 }

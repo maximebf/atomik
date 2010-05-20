@@ -38,6 +38,11 @@ class Atomik_Auth
 	private static $_userLocator;
 	
 	/**
+	 * @var mixed
+	 */
+	private static $_currentUserId;
+	
+	/**
 	 * @var string
 	 */
 	private static $_currentUsername;
@@ -130,31 +135,38 @@ class Atomik_Auth
 	{
 		$backends = self::getBackends();
 		
-		$success = false;
+		$id = false;
 		foreach ($backends as $backend) {
-			if ($backend->authentify($username, $password)) {
+			if (($id = $backend->authentify($username, $password)) !== false) {
 				$success = true;
 				break;
 			}
 		}
 		
-		if (!$success) {
+		if ($id === false) {
 			return false;
 		}
 		
-		self::setLoggedInUser($username, $remember);
+		self::setLoggedInUser($username, $id, $remember);
 		return true;
 	}
 	
 	/**
 	 * Sets the currently logged in user
 	 * 
+	 * @param string 	$id
 	 * @param string 	$username
 	 * @param bool		$remember
 	 */
-	public static function setLoggedInUser($username, $remember = false)
+	public static function setLoggedInUser($username, $id, $remember = false)
 	{
-		self::$_currentUsername = $_SESSION['__USER'] = $username;
+		$_SESSION['__USER'] = array(
+			'id' => $id,
+			'username' => $username
+		);
+		
+		self::$_currentUsername = $username;
+		self::$_currentUserId = $id;
 		
 		if ($remember !== false) {
 			if ($remember === true) {
@@ -174,6 +186,7 @@ class Atomik_Auth
 		if (isset($_SESSION['__USER'])) {
 			unset($_SESSION['__USER']);
 		}
+		self::$_currentUserId = null;
 		self::$_currentUsername = null;
 		self::$_currentUser = null;
 	}
@@ -185,7 +198,20 @@ class Atomik_Auth
 	 */
 	public static function isLoggedIn()
 	{
-		return self::getCurrentUsername() !== null;
+		return self::getCurrentUserId() !== null;
+	}
+	
+	/**
+	 * Returns the current logged in user id
+	 * 
+	 * @return mixed
+	 */
+	public static function getCurrentUserId()
+	{
+		if (self::$_currentUserId === null && isset($_SESSION['__USER'])) {
+			self::$_currentUserId = $_SESSION['__USER']['id'];
+		}
+		return self::$_currentUserId;
 	}
 	
 	/**
@@ -196,7 +222,7 @@ class Atomik_Auth
 	public static function getCurrentUsername()
 	{
 		if (self::$_currentUsername === null && isset($_SESSION['__USER'])) {
-			self::$_currentUsername = $_SESSION['__USER'];
+			self::$_currentUsername = $_SESSION['__USER']['username'];
 		}
 		return self::$_currentUsername;
 	}
@@ -209,8 +235,8 @@ class Atomik_Auth
 	public static function getCurrentUser()
 	{
 		if (self::$_currentUser === null) {
-			if (($username = self::getCurrentUsername()) !== null) {
-				self::$_currentUser = call_user_func(array(self::getUserLocator(), 'find'), $username);
+			if (($id = self::getCurrentUserId()) !== null) {
+				self::$_currentUser = self::getUserLocator()->find($id);
 			}
 		}
 		return self::$_currentUser;

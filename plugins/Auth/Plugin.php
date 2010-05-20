@@ -85,8 +85,7 @@ class AuthPlugin
     	if (self::$config['model'] !== null) {
     		// using a model
     		Atomik::loadPlugin('Db');
-    		$locator = new Atomik_Auth_User_Locator_Model(self::$config['model'],
-    		                                                 self::$config['model_user_field']);
+    		$locator = new Atomik_Auth_User_Locator_Model(self::$config['model']);
     		Atomik_Auth::setUserLocator($locator);
     		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model'], 
     		                                                        self::$config['model_user_field'], 
@@ -186,7 +185,7 @@ class AuthPlugin
     {
     	if (self::$config['model'] !== null) {
     		if (self::$config['model'] == 'Atomik_Auth_User') {
-    			$exporter->addDescriptor(tomik_Model_Descriptor::factory('Atomik_Auth_User'));
+    			$exporter->addDescriptor(Atomik_Model_Descriptor::factory('Atomik_Auth_User'));
     		}
     	}
     }
