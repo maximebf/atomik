@@ -130,6 +130,18 @@ class Atomik_Model_Query_FilterGroup implements Atomik_Model_Query_Filter_Interf
     }
     
     /**
+     * Creates a new filter of type Atomik_Model_Query_Filter_Expr
+     *  
+     * @param string $expr
+     * @return Atomik_Model_Query
+     */
+    public function filterExpr($expr)
+    {
+        $this->filter(new Atomik_Model_Query_Filter_Expr($expr));
+        return $this;
+    }
+    
+    /**
      * Magic method to quicly add filters using 
      * {@see Atomik_Model_Query_Filter::factory()}
      * 

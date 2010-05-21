@@ -262,15 +262,28 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
     }
     
     /**
-     * Returns 
-     * @param unknown_type $separator
-     * @return unknown_type
+     * Returns a new filter group
+     * 
+     * @param string $separator
+     * @return Atomik_Model_Query_FilterGroup
      */
     public function filterGroup($separator)
     {
         $group = new Atomik_Model_Query_FilterGroup($this, $separator);
         $this->_filters->filter($group);
         return $group;
+    }
+    
+    /**
+     * Creates a new filter of type Atomik_Model_Query_Filter_Expr
+     *  
+     * @param string $expr
+     * @return Atomik_Model_Query
+     */
+    public function filterExpr($expr)
+    {
+        $this->_filters->filterExpr($expr);
+        return $this;
     }
     
     /**

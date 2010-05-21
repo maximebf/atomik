@@ -43,6 +43,8 @@ class Atomik_Model_Descriptor_Annotation_Validate extends Atomik_Model_Descripto
     
     public $required;
     
+    public $unique;
+    
     public function apply(Atomik_Model_Descriptor $descriptor, $target)
     {
         $prop = $descriptor->getMappedProperty($target->getName());
@@ -66,7 +68,7 @@ class Atomik_Model_Descriptor_Annotation_Validate extends Atomik_Model_Descripto
             }
             $class = new ReflectionClass($this->class);
             $validator = $class->newInstanceArgs($this->args);
-        } else if ($this->required !== null) {
+        } else if ($this->required !== null || $this->unique !== null) {
             return;
         } else {
             throw new Atomik_Exception("Invalid @Validate in '{$descriptor->getName()}'");

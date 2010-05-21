@@ -67,7 +67,7 @@ abstract class Atomik_Model
     public function populate($data)
     {
         foreach ($data as $key => $value) {
-            $this->{$key} = $value;
+            $this->{'set' . ucfirst($key)}($value);
         }
     }
     

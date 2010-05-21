@@ -26,7 +26,7 @@ require_once 'Atomik/Model/Query/Filter/Interface.php';
  * @package Atomik
  * @subpackage Model
  */
-abstract class Atomik_Model_Query_Filter_Expr implements Atomik_Model_Query_Filter_Interface
+class Atomik_Model_Query_Filter_Expr implements Atomik_Model_Query_Filter_Interface
 {
     /** @var string */
 	protected $_expr;
