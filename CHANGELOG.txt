@@ -4,6 +4,18 @@
 ! = Modification to existing feature
 # = Fixed bug
 
+----------- Atomik 2.2.2 --------------
+
+[Atomik]
+
+BACKPORT OF SOME 2.3 FEATURES + BUG FIX
+
+ * Dirs and files (atomik/dirs, atomik/files) are now all prefixed using the
+   constant ATOMIK_APP_ROOT
+ ! Atomik::url() does not forward parameters by default anymore
+ ! Atomik::url() uses &amp; instead of &.
+ 
+
 ----------- Atomik 2.2 --------------
 
 [Atomik]
