@@ -178,7 +178,7 @@ class AuthPlugin
     
     public static function onBackendStart()
     {
-    	Atomik_Backend::addMenu('users', 'Users', 'auth', array(), 'right');
+    	//Atomik_Backend::addMenu('users', 'Users', 'auth', array(), 'right');
     }
     
     public static function onDbCreatesqlExporter($exporter)

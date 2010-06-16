@@ -45,7 +45,7 @@ class Atomik_Auth_Backend_Model implements Atomik_Auth_Backend_Interface
 	/**
 	 * Constructor
 	 * 
-	 * @param	string	$modelName
+	 * @param string $modelName
 	 */
 	public function __construct($modelName = 'Atomik_Auth_User', $userField = 'username', $passwordField = 'password')
 	{
@@ -57,9 +57,9 @@ class Atomik_Auth_Backend_Model implements Atomik_Auth_Backend_Interface
 	/**
 	 * Checks whether a user exists with the specified credentials
 	 * 
-	 * @param	string	$username
-	 * @param`	string	$password
-	 * @return	bool
+	 * @param string $username
+	 * @param string $password
+	 * @return bool
 	 */
 	public function authentify($username, $password)
 	{

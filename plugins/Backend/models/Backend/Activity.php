@@ -1,11 +1,29 @@
 <?php
 
 /**
- * @adapter Db
- * @table backend_activities
+ * @Model(table="backend_activities")
+ * @Timestampable
  */
 class Backend_Activity extends Atomik_Model
 {
+    /**
+     * @see Atomik_Model_Query::find()
+     * @return Backend_Activity
+     */
+    public static function find($id)
+    {
+        return Atomik_Model_Query::find('Backend_Activity', $id);
+    }
+    
+    /**
+     * @see Atomik_Model_Query::findAll()
+     * @return Atomik_Model_Collection
+     */
+    public static function findAll($where = array(), $orderBy = null, $limit = null)
+    {
+        return Atomik_Model_Query::findAll('Backend_Activity', $where, $orderBy, $limit);
+    }
+    
 	/**
 	 * Creates a new activity
 	 * 
@@ -18,31 +36,25 @@ class Backend_Activity extends Atomik_Model
 	public static function create($label, $message, $userAction = '', $date = null)
 	{
 		$activity = new self();
-		$activity->label = $label;
-		$activity->message = $message;
-		$activity->userAction = sprintf($userAction, Atomik_Auth::getCurrentUsername());
-		$activity->created = empty($date) ? @date('Y-m-d H:i:s') : $date;
+		$activity->setLabel($label);
+		$activity->setMessage($message);
+		$activity->setUserAction(sprintf($userAction, Atomik_Auth::getCurrentUsername()));
 		$activity->save();
 		return $activity;
 	}
 	
 	/**
-	 * @sql-type varchar(50)
+	 * @Field(type="string", length=50)
 	 */
-	public $label;
+	protected $label;
 	
 	/**
-	 * @sql-type varchar(200)
+	 * @Field(type="string", length=255)
 	 */
-	public $message;
+	protected $message;
 	
 	/**
-	 * @sql-type varchar(200)
+	 * @Field(type="string", length=100)
 	 */
-	public $userAction;
-	
-	/**
-	 * @sql-type datetime
-	 */
-	public $created;
+	protected $userAction;
 }

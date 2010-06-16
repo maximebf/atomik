@@ -19,9 +19,6 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Backend_Layout */
-require_once 'Atomik/Backend/Layout.php';
-
 /**
  * Backend main class
  * 
@@ -30,108 +27,103 @@ require_once 'Atomik/Backend/Layout.php';
  */
 class Atomik_Backend
 {
-	/**
-	 * @var array
-	 */
-	protected static $_menu = array();
-	
-	public static function pluginUrl($plugin, $action, $params = array(), $useIndex = true)
+    /** @var string */
+    private static $backendPluginPath;
+    
+    /** @var string */
+    private static $plugin;
+    
+    /** @var string */
+    private static $uri;
+    
+    /** @var Atomik_Assets */
+    private static $assets;
+    
+    public static function bootstrap()
+    {
+        $loadedPlugins = Atomik::getLoadedPlugins(true);
+        self::$backendPluginPath = $loadedPlugins['Backend'];
+        
+        $assets = new Atomik_Assets();
+        $assets->setUrlFormater(array('Atomik', 'asset'));
+        $assets->setBaseUrl('');
+        include self::$backendPluginPath . '/Assets.php';
+        self::$assets = $assets;
+        
+    	// backend layout
+    	Atomik::set('app/layout', 'main');
+    	
+    	$uri = Atomik::get('request_uri');
+    	if (empty($uri)) {
+    		$uri = 'backend/index';
+    	}
+    	Atomik::fireEvent('Backend::Uri', array(&$uri));
+    	Atomik::set('backend/full_request_uri', $uri);
+    	
+    	// extracting the plugin name from the uri
+    	$segments = explode('/', trim($uri, '/'));
+    	self::$plugin = strtolower(array_shift($segments));
+    	self::$uri = implode('/', $segments);
+    	$baseAction = Atomik::get('atomik/base_action');
+    	
+    	if (empty(self::$uri)) {
+    		self::$uri = 'index';
+    	}
+    	
+    	// reconfiguring
+    	Atomik::set('backend/plugin', self::$plugin);
+    	Atomik::set('backend/base_action', $baseAction);
+    	Atomik::set('atomik/base_action', $baseAction . '/' . self::$plugin);
+    	
+    	Atomik::fireEvent('Backend::Start', array(self::$plugin));
+    }
+    
+    public static function dispatch($uri = null)
+    {
+        if ($uri === null) {
+            $uri = self::$uri;
+        }
+        
+    	// configuration for the re-dispatch
+    	$pluggAppConfig = array(
+    		'pluginDir' 			=> null,
+    		'rootDir'				=> 'backend',
+    		'resetConfig'			=> false,
+    		'overwriteDirs'			=> false,
+    		'checkPluginIsLoaded' 	=> true
+    	);
+    	
+    	if (self::$plugin == 'app') {
+    		// this is the backend application for the user application, needs some reconfiguration
+    		// the backend dir is searched inside the app/ directory
+    		if (($pluggAppConfig['pluginDir'] = Atomik::path('backend', Atomik::get('atomik/dirs/app'))) === false) {
+    			throw new Exception('No backend application defined in your application');
+    		}
+    		$pluggAppConfig['rootDir'] = '';
+    		$pluggAppConfig['checkPluginIsLoaded'] = false;
+    	}
+    	
+    	Atomik::fireEvent('Backend::Dispatch', array(self::$plugin, &$uri, &$pluggAppConfig));
+        
+        // dispatches the plugin application
+        Atomik::dispatchPluggableApplication(self::$plugin, $uri, $pluggAppConfig);
+    }
+    
+    /**
+     * @return Atomik_Assets
+     */
+    public static function getAssets()
+    {
+        return self::$assets;
+    }
+}
+    	
+// creates the __() function if it is not defined
+// this is to support i18n even if Lang is not loaded
+if (!function_exists('__')) {
+	function __()
 	{
-		return Atomik::pluginUrl('Backend', $plugin . '/' . ltrim($action, '/'), $params, $useIndex);
-	}
-	
-	/**
-	 * Adds a new top menu item
-	 * 
-	 * @param 	string	$name
-	 * @param 	string	$label
-	 * @param 	string	$action
-	 * @param 	array	$submenus	An array where keys are labels and values are actions
-	 * @param 	string	$position	Either right or left
-	 */
-	public static function addMenu($name, $label, $action, $submenus = array(), $position = 'left')
-	{
-		self::$_menu[$name] = array(
-			'name' => $name,
-			'label' => $label,
-			'action' => trim($action, '/'),
-			'position' => $position,
-			'submenu' => isset(self::$_menu[$name]) ? self::$_menu[$name]['submenu'] : array()
-		);
-		
-		foreach ((array) $submenus as $submenuLabel => $submenuAction) {
-			self::addSubMenu($name, $submenuLabel, $submenuAction);
-		}
-	}
-	
-	/**
-	 * Adds a sub menu item
-	 * 
-	 * @param	string	$menuName	Parent menu name
-	 * @param 	string	$label
-	 * @param 	string	$action
-	 */
-	public static function addSubMenu($menuName, $label, $action)
-	{
-		if (!isset(self::$_menu[$menuName])) {
-			return;
-		}
-		
-		self::$_menu[$menuName]['submenu'][$label] = $action;
-	}
-	
-	/**
-	 * Removes all menu items
-	 */
-	public static function resetMenu()
-	{
-		self::$_menu = array();
-	}
-	
-	/**
-	 * Returns all menu items
-	 * 
-	 * @return array
-	 */
-	public static function getMenu()
-	{
-		return self::$_menu;
-	}
-	
-	/**
-	 * Returns the current active menu item
-	 *
-	 * @return array
-	 */
-	public static function getCurrentMenu()
-	{
-		$url = Atomik::get('backend/full_request_uri');
-		$currentMenu = null;
-		
-		foreach (self::$_menu as $name => $item) {
-			if ($item['action'] == $url) {
-				return $item;
-			} else if (Atomik::uriMatch($item['action'] . '*', $url)) {
-				$currentMenu = $item;
-			} else {
-				foreach ($item['submenu'] as $subLabel => $subAction) {
-					if (Atomik::uriMatch($subAction . '*', $url)) {
-						return $item;
-					}
-				}
-			}
-		}
-		
-		if ($currentMenu === null) {
-			return array(
-				'label' => '',
-				'name' => '',
-				'action' => '',
-				'position' => 'left',
-				'submenu' => array()
-			);
-		}
-		
-		return $currentMenu;
+    	$args = func_get_args();
+    	return vsprintf(array_shift($args), $args);
 	}
 }

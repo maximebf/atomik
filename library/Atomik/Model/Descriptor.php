@@ -107,6 +107,7 @@ class Atomik_Model_Descriptor
 		if (class_exists($name)) {
 			$builder = new Atomik_Model_Descriptor_Builder();
 			self::$_descriptors[$name] = $builder->build($name);
+			$builder->buildRemainings();
 			return self::$_descriptors[$name];
 		}
 		
@@ -259,11 +260,11 @@ class Atomik_Model_Descriptor
 	}
 	
 	/**
-	 * @param mixed $parentModel
+	 * @param Atomik_Model_Descriptor $parentModel
 	 */
 	public function setParent($parentDescriptor)
 	{
-		$this->_parent = self::factory($parentDescriptor);
+		$this->_parent = $parentDescriptor;
 	}
 	
 	/**

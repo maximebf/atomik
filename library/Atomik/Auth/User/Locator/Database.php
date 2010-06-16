@@ -22,43 +22,82 @@
 /** Atomik_Auth_User_Locator_Interface */
 require_once 'Atomik/Auth/User/Locator/Interface.php';
 
+/** Atomik_Db */
+require_once 'Atomik/Db.php';
+
 /**
  * Used to get a user object
  * 
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interface
+class Atomik_Auth_User_Locator_Database implements Atomik_Auth_User_Locator_Interface
 {
+    /** @var Atomik_Db_Instance */
+    protected $_db;
+    
 	/** @var string */
-	protected $_modelName;
+	protected $_tableName;
+    
+	/** @var string */
+	protected $_idColumn;
 	
 	/**
 	 * @param string $modelName
 	 */
-	public function __construct($modelName = 'Atomik_Auth_User')
+	public function __construct(Atomik_Db_Instance $db, $tableName = 'users', $idColumn = 'id')
 	{
-	    $this->_modelName = $modelName;
+	    $this->_db = $db;
+	    $this->_tableName = $tableName;
+	    $this->_idColumn = $idColumn;
 	}
 	
 	/**
-	 * Sets the model name to use for user objects
-	 * 
+	 * @param Atomik_Db_Instance $db
+	 */
+	public function setDb(Atomik_Db_Instance $db)
+	{
+	    $this->_db = $db;
+	}
+	
+	/**
+	 * @return Atomik_Db_Instance
+	 */
+	public function getDb()
+	{
+	    return $this->_db;
+	}
+	
+	/**
 	 * @param string $name
 	 */
-	public function setModelName($name)
+	public function setTableName($name)
 	{
-    	$this->_modelName = $name;
+    	$this->_tableName = $name;
 	}
 	
 	/**
-	 * Returns the model name used for user objects
-	 * 
 	 * @return string
 	 */
-	public function getModelName()
+	public function getTableName()
 	{
-		return $this->_modelName;
+		return $this->_tableName;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function setIdColumn($name)
+	{
+	    $this->_idColumn = $name;
+	}
+	
+	/**
+	 * @return string 
+	 */
+	public function getIdColumn()
+	{
+	    return $this->_idColumn;
 	}
 	
 	/**
@@ -69,10 +108,6 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	 */
 	public function find($id)
 	{
-		if ($this->_modelName === null) {
-			require_once 'Atomik/Auth/Exception.php';
-			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_User_Locator_Model');
-		}
-		return Atomik_Model_Query::find($this->_modelName, $id);
+		return $this->_db->find($this->_tableName, array($this->_idColumn => $id));
 	}
 }

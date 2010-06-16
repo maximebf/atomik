@@ -37,7 +37,7 @@ class Atomik_Auth_Backend_Array implements Atomik_Auth_Backend_Interface
 	/**
 	 * Constructor
 	 * 
-	 * @param	array	$users
+	 * @param array $users
 	 */
 	public function __construct($users = array())
 	{
@@ -47,9 +47,9 @@ class Atomik_Auth_Backend_Array implements Atomik_Auth_Backend_Interface
 	/**
 	 * Checks whether a user exists with the specified credentials
 	 * 
-	 * @param	string	$username
-	 * @param`	string	$password
-	 * @return	bool
+	 * @param string $username
+	 * @param string $password
+	 * @return bool
 	 */
 	public function authentify($username, $password)
 	{

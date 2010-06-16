@@ -115,13 +115,20 @@ abstract class Atomik_Model
 	 */
 	public function __call($method, $args)
 	{
-	    if (!preg_match('/^(get|set)(.+)$/', $method, $matches)) {
+	    if (!preg_match('/^(get|set|is|has)(.+)$/', $method, $matches)) {
 	        return;
 	    }
 	    
 	    $accessor = $matches[1];
 	    $property = $matches[2];
 	    $property{0} = strtolower($property{0});
+	    
+	    if ($accessor == 'is') {
+	        return $this->{$property} == true;
+	    } else if ($accessor == 'has') {
+	        return property_exists($this, $property) && $this->{$property} !== null;
+	    }
+	    
 	    $method = $accessor . 'Property';
 	    array_unshift($args, $property);
 	    

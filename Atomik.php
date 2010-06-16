@@ -171,7 +171,11 @@ Atomik::set(array(
 
         /* Keep compatibility with 2.2
          * @var bool */
-        'urimatch_compat'		 => true,
+        'urimatch_compat'		 => false,
+
+        /* Whether to automatically allow additional params at the end of routed uris
+         * @var bool */
+        'auto_uri_wildcard'		 => false,
     
         /* @var bool */
         'debug'                  => false,
@@ -215,11 +219,10 @@ Atomik::set(array(
         /* @var array */
         'dirs' => array(
             'app'                => ATOMIK_APP_ROOT,
-            'modules'            => ATOMIK_APP_ROOT . '/modules',
             'plugins'            => ATOMIK_APP_ROOT . '/plugins',
             'actions'            => ATOMIK_APP_ROOT . '/actions',
             'views'              => ATOMIK_APP_ROOT . '/views',
-            'layouts'            => array(ATOMIK_APP_ROOT . '/layouts', ATOMIK_APP_ROOT . '/views'),
+            'layouts'            => array(ATOMIK_APP_ROOT . '/views', ATOMIK_APP_ROOT . '/layouts'),
             'helpers'            => ATOMIK_APP_ROOT . '/helpers',
             'includes'           => array(ATOMIK_APP_ROOT . '/includes', ATOMIK_APP_ROOT . '/libraries'),
             'overrides'          => ATOMIK_APP_ROOT . '/overrides'
@@ -423,7 +426,7 @@ final class Atomik
             
             // adds includes dirs to php include path
             $includePaths = array_merge(
-                self::path(self::get('atomik/dirs/includes', array()), true),
+                (array) self::get('atomik/dirs/includes', array()),
                 array(get_include_path())
             );
             set_include_path(implode(PATH_SEPARATOR, $includePaths));
@@ -835,11 +838,11 @@ final class Atomik
      *    eg: #^archives/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})$#
      *
      * If no route matches, the default route (ie :action) will automatically be used.
-     * Unless you're using regexps, any additional segments will be added as parameters
-     * eg: /archives/2009/01/id/1, will also have the id=1 parameter
+     * If the route ends with *, any additional segments will be added as parameters
+     * eg: /archives/:year/* + /archives/2009/id/1 => year=2009 id=1
      * 
      * You can also name your routes using the @name parameter (which won't be included
-     * in the returned params). Named route can then be use with Atomik::url()
+     * in the returned params). Named route can then be used with Atomik::url()
      *
      * @param string $uri
      * @param array $params Additional parameters which are not in the uri
@@ -902,7 +905,6 @@ final class Atomik
                 break;
             }
             
-            $valid = true;
             $segments = explode('/', trim($route, '/'));
             $request = $default;
             $extension = false;
@@ -913,7 +915,10 @@ final class Atomik
                 $extension = substr($lastSegment, $dot + 1);
                 $lastSegment = substr($lastSegment, 0, $dot);
             }
-            $segments[] = $lastSegment;
+            // checks if additional params are allowed
+            if (!($wildcard = $lastSegment == '*')) {
+                $segments[] = $lastSegment;
+            }
             
             // checks the extension
             if ($extension !== false) {
@@ -939,31 +944,36 @@ final class Atomik
                         $segments[$i] = $uriSegments[$i];
                     } else if (!array_key_exists(substr($segments[$i], 1), $default)) {
                         // not defined in the uri and no default value
-                        $valid = false;
-                        break;
+                        continue 2;
                     }
                 } else {
                     // fixed segment
                     if (!isset($uriSegments[$i]) || $uriSegments[$i] != $segments[$i]) {
-                        $valid = false;
-                        break;
+                        continue 2;
                     }
                 }
             }
             
-            // checks if route is valid and if the action param is set
-            if ($valid && isset($request['action'])) {
-                $found = true;
-                // if there's remaining segments in the uri, adding them as params
-                if (($count = count($uriSegments)) > ($start = count($segments))) {
-                    for ($i = $start; $i < $count; $i += 2) {
-                        if (isset($uriSegments[$i + 1])) {
-                            $request[$uriSegments[$i]] = $uriSegments[$i + 1];
-                        }
+            // the "action" param must be set
+            if (!isset($request['action'])) {
+                continue;
+            }
+            
+            // if there's remaining segments in the uri
+            if (($count = count($uriSegments)) > ($start = count($segments))) {
+                if (!$wildcard || !self::get('atomik/auto_uri_wildcard', false)) {
+                    continue;
+                }
+                // adds them as params
+                for ($i = $start; $i < $count; $i += 2) {
+                    if (isset($uriSegments[$i + 1])) {
+                        $request[$uriSegments[$i]] = $uriSegments[$i + 1];
                     }
                 }
-                break;
             }
+            
+            $found = true;
+            break;
         }
         
         if (!$found) {
@@ -1768,7 +1778,7 @@ final class Atomik
     {
         $plugin = ucfirst($plugin);
         $defaultOptions = array(
-            'dirs'              => null,
+            'dirs'              => self::get('atomik/dirs/plugins'),
             'classNameTemplate' => '%Plugin',
             'callStart'         => true
         );
@@ -1777,11 +1787,6 @@ final class Atomik
         // checks if the plugin is already loaded
         if (self::isPluginLoaded($plugin)) {
             return true;
-        }
-        
-        // use default directories
-        if ($options['dirs'] === null) {
-            $options['dirs'] = self::get('atomik/dirs/plugins');
         }
         
         self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config, &$options));
@@ -1794,15 +1799,14 @@ final class Atomik
         // tries to load the plugin from a file
         if (($filename = self::path($plugin . '.php', $options['dirs'])) === false) {
             // no file, checks for a directory
-            if (($dirname = self::path($plugin, $options['dirs'])) === false) {
+            if (($pluginDir = self::path($plugin, $options['dirs'])) === false) {
                 // plugin not found
                 throw new Atomik_Exception('Missing plugin (no file or directory matching plugin name): ' . $plugin);
             }
             
             // directory found, plugin file should be inside
-            $filename = $dirname . '/Plugin.php';
-            $appFilename = $dirname . '/Application.php';
-            $pluginDir = $dirname;
+            $filename = $pluginDir . '/Plugin.php';
+            $appFilename = $pluginDir . '/Application.php';
             
             if (!($isPluggApp = file_exists($appFilename)) && !file_exists($filename)) {
                 throw new Atomik_Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
@@ -1814,13 +1818,13 @@ final class Atomik
             }
             
             // adds the libraries folder from the plugin directory to the include path
-            if (@is_dir($dirname . '/libraries')) {
-                set_include_path($dirname . '/libraries'. PATH_SEPARATOR . get_include_path());
+            if (@is_dir($pluginDir . '/libraries')) {
+                set_include_path($pluginDir . '/libraries'. PATH_SEPARATOR . get_include_path());
             }
             
             // adds the includes folder from the plugin directory to the include path
-            if (@is_dir($dirname . '/includes')) {
-                set_include_path($dirname . '/includes'. PATH_SEPARATOR . get_include_path());
+            if (@is_dir($pluginDir . '/includes')) {
+                set_include_path($pluginDir . '/includes'. PATH_SEPARATOR . get_include_path());
             }
             
         } else {
@@ -1928,8 +1932,11 @@ final class Atomik
      * Possible configuration keys are:
      *   - rootDir:             directory inside the plugin directory where the application is stored (default empty string)
      *   - pluginDir:           the plugin's directory (default to null, will find the directory automatically)
+     *   - resetConfig:			whether to reset the config before dispatching
      *   - overwriteDirs:       whether to keep access to the user actions, views, layouts and helpers folders
+     *   - overwriteFiles:		whether to keep access to the pre_dispatch and post_dispatch files
      *   - checkPluginIsLoaded: whether to check if the plugin is loaded
+     *   - bootstrapFile:		the name of the bootstrap file (eg: Application.php)
      * 
      * @param string $plugin Plugin's name
      * @param string $route The route that will trigger the application (default is the plugin name)
@@ -2005,7 +2012,7 @@ final class Atomik
         // overrides dir
         $overrideDir = self::path($plugin . $rootDir, self::get('atomik/dirs/overrides'));
         if ($overrideDir === false) {
-            $overrideDir = './app/overrides/' . $plugin . $rootDir;
+            $overrideDir = ATOMIK_APP_ROOT . '/overrides/' . $plugin . $rootDir;
         } else {
             $overrideDir = rtrim($overrideDir, '/');
         }
@@ -2033,8 +2040,7 @@ final class Atomik
         
         $overwritableDirs = array(
             'layouts'   => array($overrideDir . '/layouts', $overrideDir . '/views', 
-                                    $appDir . '/layouts', $appDir . '/views'),
-            'helpers'   => array($overrideDir . '/helpers', $appDir . '/helpers')
+                                    $appDir . '/layouts', $appDir . '/views')
         );
         
         if ($config['overwriteDirs']) {
@@ -2042,6 +2048,12 @@ final class Atomik
         } else {
             $dirs = array_merge_recursive($overwritableDirs, $dirs);
         }
+        
+        // do not overwrite helpers
+        $dirs['helpers'] = array_merge(
+            array($overrideDir . '/helpers', $appDir . '/helpers'),
+            $dirs['helpers']
+        );
         
         self::set('atomik/dirs', $dirs);
         
@@ -2204,22 +2216,11 @@ final class Atomik
             return $file;
         }
         
-        // case 2, $paths is a string
-        if (is_string($paths)) {
-            $filename = rtrim($paths, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
+        // case 2, $paths is an array or string
+        foreach (array_reverse((array) $paths) as $path) {
+            $filename = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
             if (!$check || file_exists($filename)) {
                 return $filename;
-            }
-            return false;
-        }
-        
-        // case 2, $paths is an array
-        if (is_array($paths)) {
-            foreach ($paths as $path) {
-                $filename = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
-                if (!$check || file_exists($filename)) {
-                    return $filename;
-                }
             }
         }
         
@@ -2323,7 +2324,7 @@ final class Atomik
         }
         
         // checks if it's a named route
-        if ($action{0} == '@') {
+        if (strlen($action) > 0 && $action{0} == '@') {
         	$routeName = substr($action, 1);
         	$action = null;
         	foreach (self::get('app/routes') as $route => $default) {
@@ -2377,7 +2378,7 @@ final class Atomik
         }
         
         if (count($params)) {
-            $url .= ($useIndex ? '&' : '?') . http_build_query($params);
+            $url .= ($useIndex ? '&amp;' : '?') . http_build_query($params, '', '&amp;');
         }
         
         // trigger an event

@@ -19,18 +19,14 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Exception */
+require_once 'Atomik/Exception.php';
+
 /**
- * Interface that must implement user objects
- * 
  * @package Atomik
- * @subpackage Auth
+ * @subpackage File
  */
-interface Atomik_Auth_User_Interface
+class Atomik_File_Exception extends Atomik_Exception
 {
-	/**
-	 * Returns roles of the user
-	 *
-	 * @return array
-	 */
-	function getRoles();
+	
 }

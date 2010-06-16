@@ -1,3 +1,3 @@
 <?php
 
-$activities = Atomik_Model::findAll('Backend_Activity', null, 'created DESC');
+$activities = Backend_Activity::findAll(null, 'createdAt DESC');

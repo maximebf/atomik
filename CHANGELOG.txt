@@ -8,10 +8,9 @@
 
 [Atomik]
 
- WARNING: The 2.2 class style actions are deprecated
+ WARNING: The 2.2 class style actions have been removed from the core
 
  ! Change in the execution process: new modular execution process
- ! Two execution profiles: file or class
  ! Atomik::executeFile() has completely changed: is now the file executor
  ! Events from Atomik::execute() and Atomik::executeFile() have changed
  * Removed the $triggerError argument in Atomik::execute() and Atomik::render()
@@ -41,6 +40,11 @@
  ! Change in the way uriMatch() works, compatibility break! 
    Use atomik/urimatch_compat=true to keep compatibility (but it's still deprecated)
    Be aware that this will be removed in the future
+ ! Atomik::url() does not forward parameters by default anymore
+ ! Atomik::url() uses &amp; instead of &.
+ ! The router do not add additional uri segments as parameters by default anymore.
+   Routes need to be appended with * (eq: /users/* or /users/*.html) for this behaviour.
+ * Added atomik/auto_uri_wildcard to automatically add * at the end of all routes.
  
 [Plugin:SimpleClassExecutor]
 

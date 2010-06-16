@@ -66,7 +66,7 @@ class AssetsPlugin
     	self::$config = array_merge(self::$config, $config);
 		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
 		
-		Atomik_Assets::setDefaultUrlFormater('Atomik::asset');
+		Atomik_Assets::setDefaultUrlFormater(array('Atomik', 'appAsset'));
 		Atomik_Assets::setDefaultBaseUrl(self::$config['assets_base_url']);
 		
 		Atomik_Assets_Theme::setThemesDir(self::$config['themes_dir']);

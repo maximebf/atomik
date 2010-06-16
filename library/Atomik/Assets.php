@@ -121,7 +121,7 @@ class Atomik_Assets
 	 */
 	public function setUrlFormater($callback)
 	{
-		$this->_urlCallback = $callback;
+		$this->_urlFormater = $callback;
 	}
 	
 	/**
@@ -131,7 +131,7 @@ class Atomik_Assets
 	 */
 	public function getUrlFormater()
 	{
-		return $this->_urlCallback;
+		return $this->_urlFormater;
 	}
 	
 	/**

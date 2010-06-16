@@ -66,11 +66,11 @@ class ConfigPlugin
 	 */
 	public static function onBackendStart()
 	{
-		Atomik_Backend::addMenu('settings', 'Settings', 'config', array(), 'right');
+		/*Atomik_Backend::addMenu('settings', 'Settings', 'config', array(), 'right');
 		Atomik_Backend::addSubMenu('settings', 'General', 'config/index');
 		Atomik_Backend::addSubMenu('settings', 'Plugins', 'config/plugins');
 		Atomik_Backend::addSubMenu('settings', 'Configuration', 'config/editor');
-		Atomik_Backend::addSubMenu('settings', 'Backend', 'backend/settings');
+		Atomik_Backend::addSubMenu('settings', 'Backend', 'backend/settings');*/
 	}
 	
 	/**

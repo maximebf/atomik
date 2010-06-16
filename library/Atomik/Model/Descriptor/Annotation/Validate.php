@@ -53,6 +53,10 @@ class Atomik_Model_Descriptor_Annotation_Validate extends Atomik_Model_Descripto
             $prop->setRequired($this->required);
         }
         
+        if ($this->unique !== null) {
+            $prop->setUnique($this->unique);
+        }
+        
         if (!empty($this->filter)) {
             require_once 'Atomik/Model/Validator/Filter.php';
             $validator = new Atomik_Model_Validator_Filter($this->filter, $this->options);

@@ -67,6 +67,9 @@ class Atomik_Model_Descriptor_Builder
 	/** @var array */
 	private static $_cache = array();
 	
+	/** @var array */
+	private static $_built = array();
+	
 	/**
 	 * Reads metadata from a class annotations and creates a descriptor object
 	 * 
@@ -75,21 +78,35 @@ class Atomik_Model_Descriptor_Builder
 	 */
 	public function build($className)
 	{
-	    $class = new ReflectionAnnotatedClass($className);
-		$descriptor = self::getBase($class);
-		
-		// applying associations
-		foreach ($class->getProperties() as $prop) {
-		    if (!$prop->isPublic() && $prop->hasAnnotation('Association')) {
-        		foreach ($prop->getAnnotations() as $annotation) {
-        		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
-        		        $annotation->apply($descriptor, $prop);
-        		    }
-        		}
-		    }
+		if (!isset(self::$_built[$className])) {
+    	    $class = new ReflectionAnnotatedClass($className);
+    		$descriptor = self::getBase($class);
+    		
+    		// applying associations
+    		foreach ($class->getProperties() as $prop) {
+    		    if (!$prop->isPublic() && $prop->hasAnnotation('Association')) {
+            		foreach ($prop->getAnnotations() as $annotation) {
+            		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
+            		        $annotation->apply($descriptor, $prop);
+            		    }
+            		}
+    		    }
+    		}
+    		
+		    self::$_built[$className] = $descriptor;
 		}
 		
-		return $descriptor;
+		return self::$_built[$className];
+	}
+	
+	/**
+	 * Finishes building models which have just been initialized
+	 */
+	public function buildRemainings()
+	{
+	    foreach (array_diff_key(self::$_cache, self::$_built) as $key => $value) {
+	        self::build($key);
+	    }
 	}
 	
 	/**

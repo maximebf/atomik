@@ -22,6 +22,7 @@
 Atomik::loadPluginIfAvailable('Console');
 Atomik::loadPlugin('Db');
 Atomik::loadPluginIfAvailable('Config');
+Atomik::loadPlugin('Assets');
 Atomik::loadPlugin('Auth');
 
 /**
@@ -57,9 +58,6 @@ class BackendPlugin
         self::$config = array_merge(self::$config, $config);
         Atomik::set('backend', self::$config);
         Atomik::registerPluggableApplication('Backend', self::$config['route']);
-        
-        if (Atomik::isPluginLoaded('Auth')) {
-        	AuthPlugin::addRestrictedUri(self::$config['route'], array('backend'));
-        }
+        AuthPlugin::addRestrictedUri(self::$config['route'], array('backend'));
 	}
 }

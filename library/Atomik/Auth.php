@@ -27,44 +27,28 @@
  */
 class Atomik_Auth
 {
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private static $_backends = array();
 	
-	/**
-	 * @var Atomik_Auth_User_Locator_Interface
-	 */
+	/** @var Atomik_Auth_User_Locator_Interface */
 	private static $_userLocator;
 	
-	/**
-	 * @var mixed
-	 */
+	/** @var mixed */
 	private static $_currentUserId;
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private static $_currentUsername;
 	
-	/**
-	 * @var Atomik_Auth_User_Interface
-	 */
+	/** @var object */
 	private static $_currentUser;
 	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private static $_roles = array();
 	
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private static $_resources = array();
 	
 	/**
-	 * Resets all backends
-	 * 
 	 * @param array $backends
 	 */
 	public static function setBackends($backends = array())
@@ -76,8 +60,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Sets the login backend
-	 * 
 	 * @param Atomik_Auth_Backend_Interface $backend
 	 */
 	public static function addBackend(Atomik_Auth_Backend_Interface $backend)
@@ -86,8 +68,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Returns the login backend
-	 * 
 	 * @return array
 	 */
 	public static function getBackends()
@@ -100,8 +80,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Sets the user locator
-	 * 
 	 * @var Atomik_Auth_User_Locator_Interface $userLocator
 	 */
 	public static function setUserLocator(Atomik_Auth_User_Locator_Interface $userLocator)
@@ -110,8 +88,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Returns the user locator
-	 * 
 	 * @return Atomik_Auth_User_Locator_Interface
 	 */
 	public static function getUserLocator()
@@ -126,37 +102,29 @@ class Atomik_Auth
 	/**
 	 * Authentify a user
 	 * 
-	 * @param 	string					$username
-	 * @param 	string					$password
-	 * @param 	bool|int				$remember	Whether to remember the user for next logins, true for 2 weeks, or set any time in seconds
-	 * @return 	Atomik_Auth_User|bool				The user object of false if it fails
+	 * @param string $username
+	 * @param string $password
+	 * @param bool|int $remember Whether to remember the user for next logins, true for 2 weeks, or set any time in seconds
+	 * @return bool The user object of false if it fails
 	 */
 	public static function login($username, $password, $remember = false)
 	{
-		$backends = self::getBackends();
-		
 		$id = false;
-		foreach ($backends as $backend) {
+		foreach (self::getBackends() as $backend) {
 			if (($id = $backend->authentify($username, $password)) !== false) {
-				$success = true;
-				break;
+        		self::setLoggedInUser($username, $id, $remember);
+        		return true;
 			}
 		}
-		
-		if ($id === false) {
-			return false;
-		}
-		
-		self::setLoggedInUser($username, $id, $remember);
-		return true;
+		return false;
 	}
 	
 	/**
 	 * Sets the currently logged in user
 	 * 
-	 * @param string 	$id
-	 * @param string 	$username
-	 * @param bool		$remember
+	 * @param string $id
+	 * @param string $username
+	 * @param bool $remember
 	 */
 	public static function setLoggedInUser($username, $id, $remember = false)
 	{
@@ -230,10 +198,14 @@ class Atomik_Auth
 	/**
 	 * Returns the current logged in user object
 	 * 
-	 * @return Atomik_Auth_User_Interface
+	 * @return object
 	 */
 	public static function getCurrentUser()
 	{
+	    if (self::$_userLocator === null) {
+	        throw new Atomik_Auth_Exception('No user locator specified');
+	    }
+	    
 		if (self::$_currentUser === null) {
 			if (($id = self::getCurrentUserId()) !== null) {
 				self::$_currentUser = self::getUserLocator()->find($id);
@@ -243,8 +215,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Resets all roles
-	 * 
 	 * @param array $roles
 	 */
 	public static function setRoles($roles)
@@ -253,10 +223,8 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Creates a new role
-	 * 
-	 * @param	string			$role
-	 * @param	string|array	$parentRoles
+	 * @param string $role
+	 * @param string|array $parentRoles
 	 */
 	public static function addRole($role, $parentRoles = array())
 	{
@@ -266,9 +234,9 @@ class Atomik_Auth
 	/**
 	 * Sets the parent roles of a specific role
 	 * 
-	 * @param	string			$role
-	 * @param	string|array	$parentRoles
-	 * @param	bool			$overwrite
+	 * @param string $role
+	 * @param string|array $parentRoles
+	 * @param bool $overwrite
 	 */
 	public static function setRoleParents($role, $parentRoles, $overwrite = true)
 	{
@@ -289,8 +257,8 @@ class Atomik_Auth
 	/**
 	 * Returns the parent roles of a specific role
 	 * 
-	 * @param	string|array	$roles	If an array is used, all parent roles of all specified roles will be returned
-	 * @return	array					All parent roles
+	 * @param string|array $roles If an array is used, all parent roles of all specified roles will be returned
+	 * @return array All parent roles
 	 */
 	public static function getRoleParents($roles)
 	{
@@ -312,8 +280,8 @@ class Atomik_Auth
 	 * 
 	 * Won't override any existing roles
 	 * 
-	 * @param	array	$roles
-	 * @return 	array			Returns a formated array of all roles
+	 * @param array $roles
+	 * @return array Returns a formated array of all roles
 	 */
 	private static function computeRoles($roles)
 	{
@@ -333,8 +301,8 @@ class Atomik_Auth
 	/**
 	 * Formats a roles array using role names as keys and parent roles as values
 	 * 
-	 * @param	array	$roles
-	 * @return	array
+	 * @param array $roles
+	 * @return array
 	 */
 	private static function formatRolesArray($roles)
 	{
@@ -353,8 +321,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Removes all specified roles
-	 * 
 	 * @param array|string $roles
 	 */
 	public static function removeRole($roles)
@@ -368,8 +334,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Returns all roles
-	 * 
 	 * @return array
 	 */
 	public static function getRoles()
@@ -378,8 +342,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Resets all resources
-	 * 
 	 * @param array $resources
 	 */
 	public static function setResources($resources)
@@ -395,10 +357,8 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Creates a new resource and associated roles to it
-	 * 
-	 * @param	string	$resource
-	 * @param	array	$roles
+	 * @param string $resource
+	 * @param array $roles
 	 */
 	public static function addResource($resource, $roles = array())
 	{
@@ -421,8 +381,6 @@ class Atomik_Auth
 	}
 	
 	/**
-	 * Returns all resources
-	 * 
 	 * @return array
 	 */
 	public static function getResources()
@@ -433,9 +391,9 @@ class Atomik_Auth
 	/**
 	 * Sets roles associated to a resource
 	 * 
-	 * @param	string			$resource
-	 * @param 	array|string	$roles
-	 * @param	bool			$overwrite
+	 * @param string $resource
+	 * @param array|string $roles
+	 * @param bool $overwrite
 	 */
 	public static function setResourceRoles($resource, $roles, $overwrite = true)
 	{
@@ -456,8 +414,8 @@ class Atomik_Auth
 	/**
 	 * Removes a role associated to a resource
 	 * 
-	 * @param	string			$resource
-	 * @param	string|array	$roles
+	 * @param string $resource
+	 * @param string|array $roles
 	 */
 	public static function removeRoleFromResource($resource, $roles)
 	{
@@ -480,8 +438,8 @@ class Atomik_Auth
 	/**
 	 * Returns all roles associated to the specified resources
 	 * 
-	 * @param	string|array	$resources
-	 * @return 	array
+	 * @param string|array $resources
+	 * @return array
 	 */
 	public static function getResourceRoles($resources)
 	{
@@ -521,9 +479,9 @@ class Atomik_Auth
 	/**
 	 * Checks if the specified roles can access a resource
 	 * 
-	 * @param	string 			$resource
-	 * @param 	string|array	$roles
-	 * @return 	bool
+	 * @param string $resource
+	 * @param string|array $roles
+	 * @return bool
 	 */
 	public static function hasAccessTo($resource, $roles)
 	{
@@ -542,9 +500,9 @@ class Atomik_Auth
 	/**
 	 * Checks if a role is contained in a role array. Also checks in role parents.
 	 * 
-	 * @param	string 	$neededRole
-	 * @param 	array	$availableRoles
-	 * @return  bool
+	 * @param string $neededRole
+	 * @param array $availableRoles
+	 * @return bool
 	 */
 	public static function isAllowed($neededRole, $availableRoles)
 	{

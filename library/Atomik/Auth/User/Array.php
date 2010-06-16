@@ -19,16 +19,13 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Auth_User_Interface */
-require_once 'Atomik/Auth/User/Interface.php';
-
 /**
  * Store users in an array.
  * 
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_User_Array implements Atomik_Auth_User_Interface
+class Atomik_Auth_User_Array
 {
 	/** @var string */
 	protected $_username;
@@ -97,5 +94,27 @@ class Atomik_Auth_User_Array implements Atomik_Auth_User_Interface
 	public function getRoles()
 	{
 		return $this->roles;
+	}
+	
+	/**
+	 * Checks if the user has access to the specified resource
+	 * 
+	 * @param string $resource
+	 * @return bool
+	 */
+	public function hasAccessTo($resource)
+	{
+		return Atomik_Auth::hasAccessTo($resource, $this->roles);
+	}
+	
+	/**
+	 * Checks if the user roles matches with the needed roles
+	 * 
+	 * @param string|array $roles
+	 * @return bool
+	 */
+	public function isAllowed($roles)
+	{
+		return Atomik_Auth::isAllowed($roles, $this->roles);
 	}
 }

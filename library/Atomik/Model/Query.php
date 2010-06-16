@@ -529,7 +529,7 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
 	    
 	    if ($mustBeAssoc && $assoc === false) {
             require_once 'Atomik/Model/Query/Exception.php';
-            throw new Atomik_Model_Query_Exception("$field must targets an association");
+            throw new Atomik_Model_Query_Exception("$field must represents an association");
 	    }
 	    
 	    return array($descriptor, (string) $field, $assoc);

@@ -22,9 +22,6 @@
 /** Atomik_Model */
 require_once 'Atomik/Model.php';
 
-/** Atomik_Auth_User_Interface */
-require_once 'Atomik/Auth/User/Interface.php';
-
 /**
  * The default user object. Store users in an array.
  * 
@@ -33,7 +30,7 @@ require_once 'Atomik/Auth/User/Interface.php';
  * 
  * @Model(table="auth_users")
  */
-class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interface
+class Atomik_Auth_User extends Atomik_Model
 {
 	/**
 	 * @Field(type="string", length=100)
@@ -62,14 +59,6 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	}
 	
 	/**
-	 * @return array
-	 */
-	public function getRoles()
-	{
-		return $this->roles;
-	}
-	
-	/**
 	 * Checks if the user has access to the specified resource
 	 * 
 	 * @param string $resource
@@ -77,7 +66,7 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	 */
 	public function hasAccessTo($resource)
 	{
-		return Atomik_Auth::hasAccessTo($resource, $this->getRoles());
+		return Atomik_Auth::hasAccessTo($resource, $this->roles);
 	}
 	
 	/**
@@ -88,6 +77,6 @@ class Atomik_Auth_User extends Atomik_Model implements Atomik_Auth_User_Interfac
 	 */
 	public function isAllowed($roles)
 	{
-		return Atomik_Auth::isAllowed($roles, $this->getRoles());
+		return Atomik_Auth::isAllowed($roles, $this->roles);
 	}
 }

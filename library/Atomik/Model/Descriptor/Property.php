@@ -33,6 +33,9 @@ abstract class Atomik_Model_Descriptor_Property
 	
 	/** @var bool */
 	protected $_required = false;
+	
+	/** @var bool */
+	protected $_unique = false;
     
 	/** @var array of Atomik_Model_Validator */
     protected $_validators = array();
@@ -83,6 +86,22 @@ abstract class Atomik_Model_Descriptor_Property
     public function isRequired()
     {
         return $this->_required;
+    }
+    
+    /**
+     * @param bool $unique
+     */
+    public function setUnique($unique = true)
+    {
+        $this->_unique = $unique;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isUnique()
+    {
+        return $this->_unique;
     }
     
     /**

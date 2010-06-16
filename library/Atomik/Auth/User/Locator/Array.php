@@ -110,8 +110,8 @@ class Atomik_Auth_User_Locator_Array implements Atomik_Auth_User_Locator_Interfa
 	/**
 	 * Returns the user object associated to the specified username
 	 * 
-	 * @param	string	$username
-	 * @return Atomik_Auth_User_Interface
+	 * @param string $username
+	 * @return object
 	 */
 	public function find($username)
 	{
