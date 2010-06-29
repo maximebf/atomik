@@ -244,8 +244,11 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
             $association = $source->getAssociation($association);
         }
         
-        $this->_joins[] = $descriptor;
-        $association->apply($this->_query, $type);
+        $id = $descriptor->getName() . $association->getName();
+        if (!isset($this->_joins[$id])) {
+            $this->_joins[$id] = $descriptor;
+            $association->apply($this->_query, $type);
+        }
         return $this;
     }
     

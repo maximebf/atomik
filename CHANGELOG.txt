@@ -45,6 +45,7 @@
  ! The router do not add additional uri segments as parameters by default anymore.
    Routes need to be appended with * (eq: /users/* or /users/*.html) for this behaviour.
  * Added atomik/auto_uri_wildcard to automatically add * at the end of all routes.
+ * fixed bug with view contexts and content types
  
 [Plugin:SimpleClassExecutor]
 

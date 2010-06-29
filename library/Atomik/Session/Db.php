@@ -136,11 +136,8 @@ class Atomik_Session_Db
     
     public function gc($maxlifetime)
     {
-        $cond = sprintf('%s < ?', $this->_expiresColumn);
-        return $this->_db->q()->delete()
-                    ->from($this->_table)
-                    ->where($cond, time())
-                    ->execute();
+        $cond = sprintf('%s < %s', $this->_expiresColumn, time());
+        return $this->_db->delete($this->_table, $cond);
     }
     
     protected function _getWhere($id)

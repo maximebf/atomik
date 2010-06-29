@@ -36,7 +36,7 @@ class AssetsPlugin
     public static $config = array (
         
         // @see Atomik_Assets::setDefaultBaseUrl()
-        'assets_base_url' => 'assets',
+        'assets_base_url' => '',
     
         // the assets file
         'assets_file' => './app/assets.php',

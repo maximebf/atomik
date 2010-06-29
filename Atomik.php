@@ -129,6 +129,16 @@ Atomik::reset(array(
                     'prefix'         => 'json',
                     'layout'         => false,
                     'content_type'   => 'application/json'
+                ),
+                'js' => array(
+                    'prefix'         => 'js',
+                    'layout'         => false,
+                    'content_type'   => 'text/javascript'
+                ),
+                'css' => array(
+                    'prefix'         => 'css',
+                    'layout'         => false,
+                    'content_type'   => 'text/css'
                 )
             )
         ),
@@ -424,6 +434,8 @@ final class Atomik
                 self::set(self::get($env));
             }
             
+            self::fireEvent('Atomik::Config');
+            
             // adds includes dirs to php include path
             $includePaths = array_merge(
                 (array) self::get('atomik/dirs/includes', array()),
@@ -477,6 +489,8 @@ final class Atomik
                         }
                     }
             }
+            
+            self::fireEvent('Atomik::Bootstrap');
              
             // loads bootstrap file
             if (file_exists($filename = self::get('atomik/files/bootstrap'))) {
@@ -543,6 +557,8 @@ final class Atomik
      */
     public static function loadConfig($filename, $triggerError = true)
     {
+        self::fireEvent('Atomik::Loadconfig::Before', array(&$filename, &$triggerError));
+        
         // config file format
         if (!preg_match('/.+\.(php|ini|json)$/', $filename)) {
             $found = false;
@@ -579,6 +595,8 @@ final class Atomik
             }
             self::set($config);
         }
+        
+        self::fireEvent('Atomik::Loadconfig::After', array($filename, $triggerError));
     }
     
     /**
@@ -697,7 +715,7 @@ final class Atomik
                 if ($viewContextParams['layout'] !== true) {
                     self::set('app/layout', $viewContextParams['layout']);
                 }
-                header('Content-type: ' . self::get('content-type', 'text/html', $viewContextParams));
+                header('Content-type: ' . self::get('content_type', 'text/html', $viewContextParams));
             }
         
             // configuration is ok, ready to dispatch

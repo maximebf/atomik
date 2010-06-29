@@ -548,12 +548,16 @@ class Atomik_Db_Instance
 	 */
 	public function delete($table, $where)
 	{
-	    $sql = sprintf('DELETE FROM %s WHERE %s = ?', 
-	        $table, 
-	        implode(' = ? AND ', array_keys($where))
-	    );
+	    $sql = sprintf('DELETE FROM %s WHERE ', $table);
+	    $params = array();
 	    
-	    $params = array_values($where);
+	    if (is_array($where)) {
+	        $sql .= sprintf('%s = ?', implode(' = ? AND ', array_keys($where)));
+	        $params = array_values($where);
+	    } else {
+	        $sql .= $where;
+	    }
+	    
 		$stmt = $this->prepare($sql);
 	
 		if (!$stmt->execute($params)) {
