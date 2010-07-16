@@ -137,6 +137,10 @@ class Atomik_Db
 	 */
 	public static function getInstance($name = null)
 	{
+	    if ($name instanceof Atomik_Db_Instance) {
+	        return $name;
+	    }
+	    
 	    if ($name === null) {
 	        if (self::$_instance !== null) {
 	            return self::$_instance;

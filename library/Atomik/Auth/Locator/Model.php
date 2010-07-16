@@ -19,8 +19,11 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Auth_User_Locator_Interface */
-require_once 'Atomik/Auth/User/Locator/Interface.php';
+/** Atomik_Auth_Locator_Interface */
+require_once 'Atomik/Auth/Locator/Interface.php';
+
+/** Atomik_Model_Query */
+require_once 'Atomik/Model/Query.php';
 
 /**
  * Used to get a user object
@@ -28,7 +31,7 @@ require_once 'Atomik/Auth/User/Locator/Interface.php';
  * @package Atomik
  * @subpackage Auth
  */
-class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interface
+class Atomik_Auth_Locator_Model implements Atomik_Auth_Locator_Interface
 {
 	/** @var string */
 	protected $_modelName;
@@ -36,7 +39,7 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	/**
 	 * @param string $modelName
 	 */
-	public function __construct($modelName = 'Atomik_Auth_User')
+	public function __construct($modelName = 'Atomik_Auth_User_Model')
 	{
 	    $this->_modelName = $modelName;
 	}
@@ -71,7 +74,7 @@ class Atomik_Auth_User_Locator_Model implements Atomik_Auth_User_Locator_Interfa
 	{
 		if ($this->_modelName === null) {
 			require_once 'Atomik/Auth/Exception.php';
-			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_User_Locator_Model');
+			throw new Atomik_Auth_Exception('A model name must be specified for Atomik_Auth_Locator_Model');
 		}
 		return Atomik_Model_Query::find($this->_modelName, $id);
 	}

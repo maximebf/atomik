@@ -19,73 +19,46 @@
  * @link http://www.atomikframework.com
  */
 
+/** Atomik_Auth_User_Interface */
+require_once 'Atomik/Auth/User/Interface.php';
+
+/** Atomik_Model */
+require_once 'Atomik/Model.php';
+
 /**
- * Store users in an array.
+ * The default user object. Store users in an array.
  * 
  * @package Atomik
  * @subpackage Auth
+ * 
+ * @Model(table="auth_users")
  */
-class Atomik_Auth_User_Array
+class Atomik_Auth_User_Model extends Atomik_Model implements Atomik_Auth_User_Interface
 {
-	/** @var string */
-	protected $_username;
-	
-	/** @var string */
-	protected $_password;
-	
-	/** @var username */
-	protected $_roles = array();
+	/**
+	 * @Field(type="string", length=100)
+	 * @Form(label="Username")
+	 */
+	protected $username;
 	
 	/**
-	 * @param string $username
-	 * @param string $password
-	 * @param array $roles
+	 * @Field(type="string", length=50)
+	 * @Form(label="Password", helper="formPassword")
 	 */
-	public function __construct($username, $password, $roles = array())
-	{
-		$this->_username = $username;
-		$this->_password = $password;
-		$this->_roles = $roles;
-	}
+	protected $password;
 	
 	/**
-	 * @param string $username
+	 * @Field(type="serialize")
+	 * @Form(label="Roles (comma-separated):")
 	 */
-	public function setUsername($username)
-	{
-	    $this->_username = $username;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getUsername()
-	{
-	    return $this->_username;
-	}
+	protected $roles = array();
 	
 	/**
 	 * @param string $password
 	 */
 	public function setPassword($password)
 	{
-	    $this->_password = $password;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getPassword()
-	{
-	    return $this->_password;
-	}
-	
-	/**
-	 * @param array $roles
-	 */
-	public function setRoles($roles)
-	{
-	    $this->_roles = $roles;
+	    $this->password = md5($password);
 	}
 	
 	/**

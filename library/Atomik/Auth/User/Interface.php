@@ -20,18 +20,10 @@
  */
 
 /**
- * Interface that must implement user locators
- * 
  * @package Atomik
  * @subpackage Auth
  */
-interface Atomik_Auth_User_Locator_Interface
+interface Atomik_Auth_User_Interface
 {
-	/**
-	 * Returns a user object
-	 *
-	 * @param mixed $userId
-	 * @return object
-	 */
-	function find($userId);
+    function getRoles();
 }

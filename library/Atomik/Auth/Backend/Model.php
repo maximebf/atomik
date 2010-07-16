@@ -55,6 +55,16 @@ class Atomik_Auth_Backend_Model implements Atomik_Auth_Backend_Interface
 	}
 	
 	/**
+	 * @return Atomik_Auth_Locator_Model
+	 */
+	public function getLocator()
+	{
+	    /** Atomik_Auth_Locator_Model */
+	    require_once 'Atomik/Auth/Locator/Model.php';
+	    return new Atomik_Auth_Locator_Model($this->modelName);
+	}
+	
+	/**
 	 * Checks whether a user exists with the specified credentials
 	 * 
 	 * @param string $username

@@ -19,43 +19,88 @@
  * @link http://www.atomikframework.com
  */
 
-/** Atomik_Model */
-require_once 'Atomik/Model.php';
+/** Atomik_Auth_User_Interface */
+require_once 'Atomik/Auth/User/Interface.php';
 
 /**
- * The default user object. Store users in an array.
+ * Store users in an array.
  * 
  * @package Atomik
  * @subpackage Auth
- * 
- * @Model(table="auth_users")
  */
-class Atomik_Auth_User extends Atomik_Model
+class Atomik_Auth_User implements Atomik_Auth_User_Interface
 {
-	/**
-	 * @Field(type="string", length=100)
-	 * @Form(label="Username")
-	 */
-	protected $username;
+	/** @var string */
+	protected $_username;
+	
+	/** @var string */
+	protected $_password;
+	
+	/** @var array */
+	protected $_roles = array();
+	
+	/** @var array */
+	protected $_data = array();
 	
 	/**
-	 * @Field(type="string", length=50)
-	 * @Form(label="Password", helper="formPassword")
+	 * @param string $username
+	 * @param string $password
+	 * @param array $roles
 	 */
-	protected $password;
+	public function __construct($username, $password, $roles = array(), $data = array())
+	{
+		$this->_username = $username;
+		$this->_password = $password;
+		$this->_roles = $roles;
+		$this->_data = $data;
+	}
 	
 	/**
-	 * @Field(type="serialize")
-	 * @Form(label="Roles (comma-separated):")
+	 * @param string $username
 	 */
-	protected $roles = array();
+	public function setUsername($username)
+	{
+	    $this->_username = $username;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getUsername()
+	{
+	    return $this->_username;
+	}
 	
 	/**
 	 * @param string $password
 	 */
 	public function setPassword($password)
 	{
-	    $this->password = md5($password);
+	    $this->_password = $password;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getPassword()
+	{
+	    return $this->_password;
+	}
+	
+	/**
+	 * @param array $roles
+	 */
+	public function setRoles($roles)
+	{
+	    $this->_roles = $roles;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getRoles()
+	{
+		return $this->_roles;
 	}
 	
 	/**
@@ -66,7 +111,7 @@ class Atomik_Auth_User extends Atomik_Model
 	 */
 	public function hasAccessTo($resource)
 	{
-		return Atomik_Auth::hasAccessTo($resource, $this->roles);
+		return Atomik_Auth::hasAccessTo($resource, $this->_roles);
 	}
 	
 	/**
@@ -77,6 +122,6 @@ class Atomik_Auth_User extends Atomik_Model
 	 */
 	public function isAllowed($roles)
 	{
-		return Atomik_Auth::isAllowed($roles, $this->roles);
+		return Atomik_Auth::isAllowed($roles, $this->_roles);
 	}
 }

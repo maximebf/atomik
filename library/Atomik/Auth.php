@@ -30,8 +30,8 @@ class Atomik_Auth
 	/** @var array */
 	private static $_backends = array();
 	
-	/** @var Atomik_Auth_User_Locator_Interface */
-	private static $_userLocator;
+	/** @var Atomik_Auth_Locator_Interface */
+	private static $_locator;
 	
 	/** @var mixed */
 	private static $_currentUserId;
@@ -72,31 +72,23 @@ class Atomik_Auth
 	 */
 	public static function getBackends()
 	{
-		if (count(self::$_backends) == 0) {
-			require_once 'Atomik/Auth/Exception.php';
-			throw new Atomik_Auth_Exception('At least one login backend must be specified');
-		}
 		return self::$_backends;
 	}
 	
 	/**
-	 * @var Atomik_Auth_User_Locator_Interface $userLocator
+	 * @var Atomik_Auth_Locator_Interface $userLocator
 	 */
-	public static function setUserLocator(Atomik_Auth_User_Locator_Interface $userLocator)
+	public static function setLocator(Atomik_Auth_Locator_Interface $locator)
 	{
-		self::$_userLocator = $userLocator;
+		self::$_locator = $locator;
 	}
 	
 	/**
-	 * @return Atomik_Auth_User_Locator_Interface
+	 * @return Atomik_Auth_Locator_Interface
 	 */
-	public static function getUserLocator()
+	public static function getLocator()
 	{
-		if (self::$_userLocator === null) {
-			require_once 'Atomik/Auth/Exception.php';
-			throw new Atomik_Auth_Exception('A user locator must be specified');
-		}
-		return self::$_userLocator;
+		return self::$_locator;
 	}
 	
 	/**
@@ -110,6 +102,12 @@ class Atomik_Auth
 	public static function login($username, $password, $remember = false)
 	{
 		$id = false;
+		
+		if (count(self::$_backends) == 0) {
+			require_once 'Atomik/Auth/Exception.php';
+			throw new Atomik_Auth_Exception('At least one authentification backend must be specified');
+		}
+		
 		foreach (self::getBackends() as $backend) {
 			if (($id = $backend->authentify($username, $password)) !== false) {
         		self::setLoggedInUser($username, $id, $remember);
@@ -202,13 +200,13 @@ class Atomik_Auth
 	 */
 	public static function getCurrentUser()
 	{
-	    if (self::$_userLocator === null) {
+	    if (self::$_locator === null) {
 	        throw new Atomik_Auth_Exception('No user locator specified');
 	    }
 	    
 		if (self::$_currentUser === null) {
 			if (($id = self::getCurrentUserId()) !== null) {
-				self::$_currentUser = self::getUserLocator()->find($id);
+				self::$_currentUser = self::getLocator()->find($id);
 			}
 		}
 		return self::$_currentUser;

@@ -43,14 +43,17 @@ class AuthPlugin
         'model_pass_field'  => 'password',
     
         // if model is null, an array of users
-        // for Atomik_Auth_User_Locator_Array
-    	'users'				=> array(),
+        // for Atomik_Auth_Backend_Array
+    	'users'				=> null,
     
         // an array of roles for Atomik_Auth
     	'roles' 			=> array(),
     
         // an array of resources for Atomik_Auth
     	'resources' 		=> array(),
+    
+        // restricted uris (array in the same form as resources)
+    	'restricted' 		=> array(),
     
         // roles for unauthentified users
     	'guest_roles' 		=> array(),
@@ -59,9 +62,8 @@ class AuthPlugin
         // a slash as restricted uris
         'restricted_uris_from_resources' => true,
     
-        // the action to go to when the user
-        // is not logged in
-    	'forbidden_action' 	=> 'auth/login',
+        // the action to go to when the user is not logged in
+    	'login_action' 	    => 'auth/login',
     
         // additional Atomik_Auth backend in the form of
         // array('name' => 'backend class name', 'args' => array('constructor args'))
@@ -69,7 +71,7 @@ class AuthPlugin
     );
     
 	/** @var array */
-    protected static $_privateUris = array();
+    private static $_restrictedUris = array();
     
 	/**
 	 * @param array $config
@@ -79,28 +81,32 @@ class AuthPlugin
     	self::$config = array_merge(self::$config, $config);
     	
     	if (self::$config['route'] !== false) {
-    		Atomik::registerPluggableApplication('Auth', self::$config['route'], array('overwriteDirs' => false));
+    		Atomik::registerPluggableApplication('Auth', 
+    		    self::$config['route'], array('overwriteDirs' => false));
     	}
     	
     	if (self::$config['model'] !== null) {
-    		// using a model
     		Atomik::loadPlugin('Db');
-    		$locator = new Atomik_Auth_User_Locator_Model(self::$config['model']);
-    		Atomik_Auth::setUserLocator($locator);
-    		Atomik_Auth::addBackend(new Atomik_Auth_Backend_Model(self::$config['model'], 
-    		                                                        self::$config['model_user_field'], 
-    		                                                        self::$config['model_pass_field']));
+    		
+    		$backend = new Atomik_Auth_Backend_Model(
+    		    self::$config['model'], 
+    		    self::$config['model_user_field'], 
+    		    self::$config['model_pass_field']
+		    );
+    		        
+    		Atomik_Auth::addBackend($backend);
+    		Atomik_Auth::setLocator($backend->getLocator());
     		
     	} else if (self::$config['users'] !== null) {
-    		// the users array backend
-    		$locator = Atomik_Auth_User_Locator_Array(self::$config['users']);
-    		Atomik_Auth::setUserLocator($locator);
-    		Atomik_Auth::addBackend($locator->getBackend());
+    		$backend = new Atomik_Auth_Backend_Array(self::$config['users']);
+    		Atomik_Auth::addBackend($backend);
+    		Atomik_Auth::setLocator($backend->getLocator());
     	}
     	
     	// backends
     	foreach (self::$config['backends'] as $backendInfo) {
-	    	$backend = Atomik_Auth_Backend_Factory::factory($backendInfo['name'], $backendInfo['args']);
+	    	$backend = Atomik_Auth_Backend_Factory::factory(
+	    	            $backendInfo['name'], $backendInfo['args']);
 	    	Atomik_Auth::addBackend($backend);
     	}
     	
@@ -108,11 +114,18 @@ class AuthPlugin
     	Atomik_Auth::setRoles(self::$config['roles']);
     	Atomik_Auth::setResources(self::$config['resources']);
     	
+    	// restricted uris
+    	foreach (self::$config['restricted'] as $uri => $roles) {
+    	    self::addRestrictedUri($uri, $roles);
+    	}
+    	
     	// extracting uris from resources
-    	foreach (Atomik_Auth::getAcl() as $resource => $roles) {
-    		if ($resource{0} == '/') {
-    			self::addRestrictedUri($resource, $roles);
-    		}
+    	if (self::$config['restricted_uris_from_resources']) {
+        	foreach (Atomik_Auth::getAcl() as $resource => $roles) {
+        		if ($resource{0} == '/') {
+        			self::addRestrictedUri($resource, $roles);
+        		}
+        	}
     	}
     }
     
@@ -122,7 +135,7 @@ class AuthPlugin
      */
     public static function addRestrictedUri($uri, $roles = array())
     {
-    	self::$_privateUris[trim($uri, '/')] = (array) $roles;
+    	self::$_restrictedUris[trim($uri, '/')] = (array) $roles;
     }
     
     /**
@@ -130,7 +143,7 @@ class AuthPlugin
      */
     public static function getRestrictedUris()
     {
-    	return self::$_privateUris;
+    	return self::$_restrictedUris;
     }
     
 	/**
@@ -140,11 +153,14 @@ class AuthPlugin
     {
     	$requestUri = Atomik::get('full_request_uri');
     	$userRoles = self::$config['guest_roles'];
-    	if (($user = Atomik_Auth::getCurrentUser()) !== null) {
-    		$userRoles = $user->getRoles();
+    	
+    	if (Atomik_Auth::getLocator() !== null && 
+    	    ($user = Atomik_Auth::getCurrentUser()) !== null && 
+    	        $user instanceof Atomik_Auth_User_Interface) {
+    		        $userRoles = $user->getRoles();
     	}
     	
-    	foreach (self::$_privateUris as $uri => $roles) {
+    	foreach (self::$_restrictedUris as $uri => $roles) {
     		if (Atomik::uriMatch($uri, $requestUri)) {
     			foreach ($roles as $role) {
     				if (!Atomik_Auth::isAllowed($role, $userRoles)) {
@@ -164,11 +180,9 @@ class AuthPlugin
     public static function onAtomikDispatchUri(&$uri, &$request, &$cancel)
     {
     	if (!self::isCurrentUriAccessible()) {
-    		if (self::$config['forbidden_action'] !== false) {
-    			if (Atomik_Auth::isLoggedIn()) {
-    				Atomik::flash('Your roles do not allow you to access this section of the site', 'error');
-    			}
-    			Atomik::appRedirect(Atomik::appUrl(self::$config['forbidden_action'], array('from' => Atomik::appUrl(Atomik::get('full_request_uri')))), false);
+    		if (self::$config['login_action'] !== false) {
+    			Atomik::redirect(Atomik::appUrl(self::$config['login_action'], 
+    			    array('from' => Atomik::appUrl(Atomik::get('full_request_uri')))), false);
     		} else {
     			Atomik::trigger404();
     		}
@@ -184,8 +198,8 @@ class AuthPlugin
     public static function onDbCreatesqlExporter($exporter)
     {
     	if (self::$config['model'] !== null) {
-    		if (self::$config['model'] == 'Atomik_Auth_User') {
-    			$exporter->addDescriptor(Atomik_Model_Descriptor::factory('Atomik_Auth_User'));
+    		if (self::$config['model'] == 'Atomik_Auth_User_Model') {
+    			$exporter->addDescriptor(Atomik_Model_Descriptor::factory('Atomik_Auth_User_Model'));
     		}
     	}
     }
