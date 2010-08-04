@@ -46,6 +46,8 @@
    Routes need to be appended with * (eq: /users/* or /users/*.html) for this behaviour.
  * Added atomik/auto_uri_wildcard to automatically add * at the end of all routes.
  * fixed bug with view contexts and content types
+ * Added Atomik::setViewContext()
+ ! Modified the way layout are rendered (compatibility guaranteed)
  
 [Plugin:SimpleClassExecutor]
 

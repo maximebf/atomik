@@ -705,18 +705,8 @@ final class Atomik
             }
             self::set('app/http_method', strtoupper($httpMethod));
             
-            // fetches the view context
-            $viewContext = self::get(self::get('app/views/context_param', 'format'), 
-                                self::get('app/views/default_context', 'html'), $request);
-            self::set('app/view_context', $viewContext);
-            
-            // retreives view context params and prepare the response
-            if (($viewContextParams = self::get('app/views/contexts/' . $viewContext, false)) !== false) {
-                if ($viewContextParams['layout'] !== true) {
-                    self::set('app/layout', $viewContextParams['layout']);
-                }
-                header('Content-type: ' . self::get('content_type', 'text/html', $viewContextParams));
-            }
+            // sets the view context
+            self::setViewContext();
         
             // configuration is ok, ready to dispatch
             self::fireEvent('Atomik::Dispatch::Before', array(&$cancel));
@@ -734,7 +724,7 @@ final class Atomik
             
             // executes the action
             ob_start();
-            list($content, $vars) = self::execute(self::get('request/action'), $viewContext, $vars, true);
+            list($content, $vars) = self::execute(self::get('request/action'), true, $vars, true);
             $content = ob_get_clean() . $content;
             
             // whether to propagate vars to the layout or not
@@ -743,12 +733,9 @@ final class Atomik
             }
             
             // renders the layouts if enable
-            if (($layouts = self::get('app/layout', false)) !== false) {
-                if (!empty($layouts) && !self::get('app/disable_layout', false)) {
-                    foreach (array_reverse((array) $layouts) as $layout) {
-                        $content = self::renderLayout($layout, $content, $vars);
-                    }
-                }
+            if (($layout = self::get('app/layout', false)) !== false && 
+                !self::get('app/disable_layout', false)) {
+                    $content = self::renderLayout($layout, $content, $vars);
             }
             
             // echoes the content
@@ -799,6 +786,38 @@ final class Atomik
         
         self::log('Ending', LOG_DEBUG);
         exit;
+    }
+    
+    /**
+     * Sets the view context
+     * 
+     * View contexts are defined in app/views/contexts. 
+     * They can specify:
+     * 	- an extension prefix (prefix)
+     *  - a layout (layout) (false disables the layout)
+     *  - an HTTP Content-Type (content_type)
+     * 
+     * @param string $context
+     */
+    public static function setViewContext($context = null)
+    {
+        if ($context === null) {
+            // fetches the view context
+            $context = self::get(self::get('app/views/context_param', 'format'), 
+                                self::get('app/views/default_context', 'html'), 
+                                self::get('request'));
+        }
+        
+        self::set('app/view_context', $context);
+        
+        // retreives view context params and prepare the response
+        if (($viewContextParams = self::get('app/views/contexts/' . $context, false)) !== false) {
+            if ($viewContextParams['layout'] !== true) {
+                self::set('app/layout', $viewContextParams['layout']);
+            }
+            header('Content-type: ' . 
+                self::get('content_type', 'text/html', $viewContextParams));
+        }
     }
     
     /**
@@ -1288,10 +1307,25 @@ final class Atomik
             $dirs = self::get('atomik/dirs/layouts');
         }
         
-        self::fireEvent('Atomik::Renderlayout', array(&$layout, &$content, &$vars, &$dirs));
-        $vars['contentForLayout'] = $content;
+        if (is_array($layout)) {
+            foreach (array_reverse($layout) as $lay) {
+                $content = self::renderLayout($lay, $content, $vars, $dirs);
+            }
+            return $content;
+        }
         
-        return self::render($layout, $vars, $dirs);
+        $appLayout = self::delete('app/layout');
+        self::set('app/layout', array($layout));
+        
+        do {
+            $layout = array_shift(self::getRef('app/layout'));
+            self::fireEvent('Atomik::Renderlayout', array(&$layout, &$content, &$vars, &$dirs));
+            $vars['contentForLayout'] = $content;
+            $content = self::render($layout, $vars, $dirs);
+        } while (count(self::get('app/layout')));
+        
+        self::set('app/layout', $appLayout);
+        return $content;
     }
     
     

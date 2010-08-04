@@ -116,6 +116,10 @@ class AuthPlugin
     	
     	// restricted uris
     	foreach (self::$config['restricted'] as $uri => $roles) {
+    	    if (is_int($uri)) {
+    	        $uri = $roles;
+    	        $roles = array();
+    	    }
     	    self::addRestrictedUri($uri, $roles);
     	}
     	
