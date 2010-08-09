@@ -166,11 +166,15 @@ class AuthPlugin
     	
     	foreach (self::$_restrictedUris as $uri => $roles) {
     		if (Atomik::uriMatch($uri, $requestUri)) {
+    		    if (!Atomik_Auth::isLoggedIn()) {
+    		        return false;
+    		    }
     			foreach ($roles as $role) {
     				if (!Atomik_Auth::isAllowed($role, $userRoles)) {
     					return false;
     				}
     			}
+    			break;
     		}
     	}
     	

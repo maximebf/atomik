@@ -36,7 +36,9 @@ class Atomik_Model_Behaviour_Timestampable extends Atomik_Model_Behaviour
 	
 	public function beforeSave(Atomik_Model_Descriptor $descriptor, Atomik_Model $model)
 	{
-		$model->setCreatedAt(new DateTime());
+	    if ($model->isNew()) {
+		    $model->setCreatedAt(new DateTime());
+	    }
 		$model->setUpdatedAt(new DateTime());
 	}
 }
