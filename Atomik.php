@@ -631,7 +631,11 @@ final class Atomik
                     if (self::get('atomik/url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
                         // finds the base url from the redirected url
                         $redirectUrl = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['REDIRECT_URI'];
-                        self::set('atomik/base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
+                        if (isset($_GET[$trigger])) {
+                            self::set('atomik/base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
+                        } else {
+                            self::set('atomik/base_url', $redirectUrl);
+                        }
                     } else {
                         // finds the base url from the script name
                         self::set('atomik/base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
