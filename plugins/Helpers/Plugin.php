@@ -25,21 +25,17 @@
  */
 class HelpersPlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array ();
+	/** @var array */
+    public static $config = array();
     
     /**
      * Plugin starts
      *
      * @param array $config
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-    	self::$config = array_merge(self::$config, $config);
+    	self::$config = &$config;
 		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
     }
 }

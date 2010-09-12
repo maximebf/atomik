@@ -27,29 +27,10 @@
  */
 class LangPlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array(
-
-    	/* default language */
-    	'language'	    => 'en',
-    	
-    	/* autodetect browser language */
-    	'autodetect'    => true,
-    	
-    	/* directory where language files are stored */
-    	'dir' 		    => './app/languages/'
-	
-    );
+	/** @var array */
+    public static $config = array();
     
-    /**
-     * Text messages
-     *
-     * @var array
-     */
+    /** @var array */
     protected static $_messages = array();
     
     /**
@@ -57,10 +38,21 @@ class LangPlugin
      *
      * @param array $config
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-        /* config */
-        self::$config = array_merge(self::$config, $config);
+        $config = array_merge(array(
+        
+        	/* default language */
+        	'language'	    => 'en',
+        	
+        	/* autodetect browser language */
+        	'autodetect'    => true,
+        	
+        	/* directory where language files are stored */
+        	'dir' 		    => ATOMIK_APP_ROOT . '/languages'
+	
+        ), $config);
+        self::$config = &$config;
     }
     
     /**

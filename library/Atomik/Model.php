@@ -32,6 +32,24 @@ abstract class Atomik_Model
     private $_descriptor;
     
     /**
+     * Magic static methods
+     * 
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public static function __callStatic($method, $args)
+    {
+        array_unshift($args, get_called_class());
+        if ($method === 'find') {
+            return call_user_func_array('Atomik_Model_Query::find', $args);
+        }
+        if ($method === 'findAll') {
+            return call_user_func_array('Atomik_Model_Query::findAll', $args);
+        }
+    }
+    
+    /**
      * @param array $data
      */
     public function __construct($data = array())

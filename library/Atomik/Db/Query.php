@@ -377,7 +377,7 @@ class Atomik_Db_Query extends Atomik_Db_Query_Expr
 	 * Specifies the ORDER BY part
 	 * 
 	 * Fields can be specified as an array following this structure:
-	 * 	array(fieldName, fieldName => direction)
+	 * 	array(fieldName, fieldName2 => direction)
 	 * Otherwise it can be specified as argument of the method.
 	 * 
 	 * @param	string|array	$field		If the value contain ASC, DESC or a comma, it will be considered as a custom order by statement

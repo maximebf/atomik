@@ -25,113 +25,113 @@
  */
 class Atomik_Controller
 {
-	/**
-	 * Action name
-	 *
-	 * @var string
-	 */
+	/** @var string */
 	protected $_action;
 	
-	/**
-	 * Request parameters
-	 *
-	 * @var array
-	 */
+	/** @var array */
 	protected $_params;
 	
-	/**
-	 * POST data
-	 *
-	 * @var array
-	 */
+	/** @var array */
 	protected $_data;
 	
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $_httpMethod;
 	
-	/**
-	 * @var Atomik
-	 */
+	/** @var Atomik */
 	protected $_helpers;
-	
-	/**
-	 * @var object
-	 */
-	public $view;
 	
 	public function __construct()
 	{
 	    $this->_helpers = Atomik::instance();
-	    $this->view = new stdClass();
 	    $this->init();
 	}
 	
-	public function init()
-	{
+	/**
+	 * Called after __construct()
+	 */
+	protected function init() {}
 	
-	}
+	/**
+	 * Called before an action
+	 */
+	protected function preDispatch() {}
+	
+	/**
+	 * Called after an action
+	 */
+	protected function postDispatch() {}
 	
 	/**
 	 * Dispatches a request to a controller action
 	 *
-	 * @param array $request
+	 * @param string $action
+	 * @param string $httpMethod
+	 * @param array $vars
 	 */
-	public function dispatch($action, $httpMethod, $vars = array())
+	public function _dispatch($action, $httpMethod, $vars = array())
 	{
 	    $this->_action = $action;
 		$this->_data = $_POST;
-		$this->_params = array_merge($vars, Atomik::get('request'));
+		$this->_params = array_merge(Atomik::get('request'), $vars);
 		$this->_httpMethod = $httpMethod;
 		$args = array();
+	    $methodName = str_replace(' ', '', ucwords(str_replace('_', ' ', $action)));
+	    $methodName{0} = strtolower($methodName{0});
 		
 		try {
-		    $methodName = $action . 'Action';
 			$method = new ReflectionMethod($this, $methodName);
 			if (!$method->isPublic()) {
-				return false;
+			    if (ControllerPlugin::$config['controller_must_exists']) {
+				    throw new Atomik_HttpException("'" . get_class($this) . "::$methodName()' is not a public method", 404);
+			    }
+			    return false;
 			}
-		
-			/* building method parameters using request params */
+			
+			// building method parameters using request params
 			foreach ($method->getParameters() as $param) {
 				if (array_key_exists($param->getName(), $this->_params)) {
 					$args[] = $this->_params[$param->getName()];
 				} else if (!$param->isOptional()) {
-					throw new Atomik_Exception('Missing parameter ' . $param->getName());
+					throw new Atomik_Exception("Missing parameter '" . $param->getName() . "' in '" .
+					    get_class($this) . "::$methodName()'");
 				} else {
 				    $args[] = $param->getDefaultValue();
 				}
 			}
 			
-		} catch (Exception $e) {
-			/* do not stop if __call() exist, so it allows us to trap method calls */
+		} catch (ReflectionException $e) {
+			// do not stop if __call() exist, so it allows us to trap method calls
 			if (!method_exists($this, '__call')) {
-				return false;
+			    if (ControllerPlugin::$config['controller_must_exists']) {
+				    throw new Atomik_HttpException("Method '" . get_class($this) . "::$methodName()' not found", 404);
+			    }
+			    return false;
 			}
 		}
 		
 		$this->preDispatch();
 		call_user_func_array(array($this, $methodName), $args);
 		$this->postDispatch();
-		
-		return get_object_vars($this->view);
 	}
 	
 	/**
-	 * Called before an action
+	 * Forward the current action to another action from the same controller
+	 * 
+	 * @param string $action
+	 * @param array $params
 	 */
-	public function preDispatch()
+	protected function _forward($action, $params = array())
 	{
+	    $className = ltrim(substr(get_class($this), 0, -10), '\\');
+	    $className = substr($className, strlen(ltrim(ControllerPlugin::$config['default_namespace'], '\\')));
+	    $view = trim(str_replace('\\', '/', strtolower($className)) . '/' . $action, '/');
+	    
+	    $this->_setView($view);
+	    return $this->_dispatch(basename($action), $this->_httpMethod, $params);
 	}
 	
-	/**
-	 * Called after an action
-	 */
-	public function postDispatch()
-	{
-		
-	}
+	// ------------------------------------------------------------------------------
+	// Shortcut methods
 	
 	protected function _setView($view)
 	{
@@ -161,19 +161,6 @@ class Atomik_Controller
 	protected function _setLayout($layout)
 	{
 	    Atomik::set('app/layout', $layout);
-	}
-	
-	protected function _addLayout($layout)
-	{
-	    Atomik::add('app/layout', $layout);
-	}
-	
-	public function _removeLastLayout($depth = 1)
-	{
-	    $layouts = &Atomik::getRef('app/layout');
-	    for ($i = 0; $i < $depth; $i++) {
-	        array_pop($layouts);
-	    }
 	}
 	
 	protected function _redirect($url, $useUrl = true, $httpCode = 302)

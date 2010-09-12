@@ -86,6 +86,25 @@ class Atomik_Model_Descriptor
 	/** @var array of Atomik_Model_Descriptor */
 	private static $_descriptors = array();
 	
+	/** @var string */
+	private static $_defaultNamespace = '';
+	
+	/**
+	 * @param string $ns
+	 */
+	public static function setDefaultNamespace($ns)
+	{
+	    self::$_defaultNamespace = $ns;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public static function getDefaultNamespace()
+	{
+	    return self::$_defaultNamespace;
+	}
+	
 	/**
 	 * Returns a descriptor instance for to the model of the specified name
 	 * 
@@ -97,16 +116,20 @@ class Atomik_Model_Descriptor
 		if ($name instanceof Atomik_Model_Descriptor) {
 			$name = $name->getName();
 		} else if (is_object($name)) {
-			$name = get_class($name);
+			$name = basename(str_replace('\\', '/', get_class($name)));
 		}
 		
 		if (isset(self::$_descriptors[$name])) {
 			return self::$_descriptors[$name];
 		}
 		
-		if (class_exists($name)) {
+		$className = $name;
+        if (strpos($className, '\\') === false) {
+		    $className = ltrim(self::getDefaultNamespace() . '\\' . $name, '\\');
+		}
+		if (class_exists($className)) {
 			$builder = new Atomik_Model_Descriptor_Builder();
-			self::$_descriptors[$name] = $builder->build($name);
+			self::$_descriptors[$name] = $builder->build($className);
 			$builder->buildRemainings();
 			return self::$_descriptors[$name];
 		}
@@ -125,7 +148,8 @@ class Atomik_Model_Descriptor
 	        throw new Atomik_Model_Exception("Class '$className' not found");
 	    }
 	    
-		$this->_name = $className;
+		$this->_name = basename(str_replace('\\', '/', $className));
+		$this->_className = $className;
 		$this->_tableName = $tableName === null ? strtolower($name) : $tableName;
 	}
 	
@@ -147,6 +171,14 @@ class Atomik_Model_Descriptor
 	    $name = $this->_name;
 	    $name{0} = strtolower($name{0});
 	    return $name;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getClassName()
+	{
+	    return $this->_className;
 	}
 	
 	/**

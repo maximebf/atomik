@@ -27,33 +27,37 @@
  */
 class ControllerPlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array(
-    
-    	// default action name
-    	'default_action' => 'index',
-    	'controller_dirs' => './app/controllers'
-    
-    );
-    
-    /**
-     * @var array
-     */
-    private static $request;
+	/** @var array */
+    public static $config = array();
     
     /**
      * Plugin starts
      *
      * @param array $config
-     * @param bool $doNotRouteIfAlreadyDispatched OPTIONAL
      */
-    public static function start($config, $doNotRouteIfAlreadyDispatched = false)
+    public static function start(&$config)
     {
-        self::$config = array_merge(self::$config, $config);
+        $config = array_merge(array(
+        
+        	// default action name
+        	'default_action' => 'index',
+        
+            // directories where to find controllers
+        	'controller_dirs' => ATOMIK_APP_ROOT . '/controllers',
+        
+            // whether a controller must exists 
+            // (will trigger error even if a view exists)
+            'controller_must_exists' => true,
+        
+            // default controller namespaces
+        	'default_namespace' => '',
+        
+            // namespace separator
+            'namespace_separator' => '_'
+            
+        ), $config);
+        
+    	self::$config = &$config;
         Atomik::set('app/executor', 'ControllerPlugin::execute');
 		
 		// adds controllers directories to php's include path
@@ -76,7 +80,7 @@ class ControllerPlugin
     {
         $filename = str_replace(' ', '/', ucwords(str_replace('/', ' ', $controller)))
                   . 'Controller.php';
-        
+                  
         return Atomik::path($filename, self::$config['controller_dirs']);
     }
 	
@@ -96,11 +100,17 @@ class ControllerPlugin
 	        $controller = $action;
 	        $action = self::$config['default_action'];
 	    }
-        
+	    
+        $className = ltrim(self::$config['default_namespace'] . self::$config['namespace_separator'] 
+                   . str_replace(' ', self::$config['namespace_separator'], ucwords(str_replace('/', ' ', $controller))) 
+                   . 'Controller', '_');
+	    
         if (($filename = self::controllerFilename($controller)) === false) {
+            if (self::$config['controller_must_exists']) {
+                throw new Atomik_HttpException("Class '$className' not found", 404);
+            }
             return false;
         }
-        $className = str_replace(' ', '_', ucwords(str_replace('/', ' ', $controller))) . 'Controller';
         
         Atomik::fireEvent('Controller::Execute', array(&$filename, &$className, &$context));
         
@@ -112,7 +122,10 @@ class ControllerPlugin
         }
 		
 		$instance = new $className();
-		return $instance->dispatch($action, $method, $vars);
+		if (($instance->_dispatch($action, $method, $vars)) === false) {
+		    return false;
+		}
+		return get_object_vars($instance);
     }
 }
 

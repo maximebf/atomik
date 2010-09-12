@@ -171,7 +171,7 @@ class Atomik_Model_Exporter
 				    $column->setOption('auto-increment', true);
 				}
 			} else if ($descriptor->isFieldPartOfAssociation($field)) {
-			    $table->createIndex($column->getName() . '_idx', $column);
+			    $table->createIndex($table->getName() . '_' . $column->getName() . '_idx', $column);
 			}
 		}
 		

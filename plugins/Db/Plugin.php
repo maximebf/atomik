@@ -30,48 +30,49 @@ require_once 'Atomik/Db.php';
  */
 class DbPlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array (
-    	
-    	// connection string (see PDO)
-    	'dsn' 			=> false,
-    	
-    	// username
-    	'username'		=> 'root',
-    	
-    	// password
-    	'password'		=> '',
-    
-    	// table prefix
-    	'table_prefix'	=> '',
-    
-    	// where to find models
-    	'model_dirs'	=> array('./app/models'),
-    
-        // where to find sql scripts
-        'sql_dirs'      => array('./app/sql'),
-    
-        // default db instance name
-        'default_instance' => 'default',
-    
-        // other db instance to create
-        'instances' 	=> array()
-    	
-    );
+	/** @var array */
+    public static $config = array();
     
     /**
      * Plugin starts
      *
      * @param array $config
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-    	self::$config = array_merge(self::$config, $config);
+    	$config = array_merge(array(
+        	// connection string (see PDO)
+        	'dsn' 			    => false,
+        	
+        	// username
+        	'username'		    => 'root',
+        	
+        	// password
+        	'password'		    => '',
+        
+        	// table prefix
+        	'table_prefix'	    => '',
+        
+        	// where to find models (and their associated namespace)
+        	'model_dirs'	    => ATOMIK_APP_ROOT . '/models',
+        
+            // where to find sql scripts
+            'sql_dirs'          => ATOMIK_APP_ROOT . '/sql',
+        
+            // default db instance name
+            'default_instance'  => 'default',
+        
+            // other db instance to create
+            'instances' 	    => array(),
+        
+            // default php namespace for models
+            'default_namespace' => '',
+        
+            // namespace separator for model classes (use \ for PHP5.3)
+            'namespace_separator' => '_'
+    	), $config);
     	
+    	self::$config = &$config;
 		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
 		
 		$instances = self::$config['instances'];
@@ -89,6 +90,7 @@ class DbPlugin
     		}
 		}
 		Atomik_Db::setInstance(self::$config['default_instance']);
+		Atomik_Model_Descriptor::setDefaultNamespace(self::$config['default_namespace']);
 		
 		// adds models directories to php's include path
 		$includes = explode(PATH_SEPARATOR, get_include_path());
@@ -142,23 +144,6 @@ class DbPlugin
 	    
 	    return Atomik_Db::query($selector, $params);
 	}
-    
-    /**
-     * Adds models folders to php's include path
-     */
-    public static function onAtomikStart()
-    {
-		$includes = explode(PATH_SEPARATOR, get_include_path());
-		
-		// add plugin's models folder to php's include path 
-		foreach (Atomik::getLoadedPlugins(true) as $plugin => $dir) {
-			if (!in_array($dir . '/models', $includes)) {
-				array_unshift($includes, $dir . '/models');
-			}
-		}
-		
-		set_include_path(implode(PATH_SEPARATOR, $includes));
-    }
     
     /**
      * 
@@ -218,13 +203,14 @@ class DbPlugin
 		
 		require_once 'Atomik/Model/Exporter.php';
 		$exporter = new Atomik_Model_Exporter($db);
+        $classNames = array();
 		$sql = '';
 		
 		// plugins
         foreach (Atomik::getLoadedPlugins(true) as $plugin => $path) {
             if ((count($filter) && in_array($plugin, $filter)) || !count($filter)) {
 	            if (@is_dir($path . '/models')) {
-	                $exporter->addDescriptors(self::getDescriptorsFromDir($path . '/models'));
+	                $classNames = array_merge($classNames, self::getClassNamesFromDir($path . '/models'));
 	            }
 	            if (@is_dir($path . '/sql')) {
 	                $sql .= self::getSqlFilesFromDir($path . '/sql');
@@ -234,9 +220,11 @@ class DbPlugin
         
         // app
         if ((count($filter) && in_array('App', $filter)) || !count($filter)) {
-            foreach (Atomik::path(self::$config['model_dirs'], true) as $path) {
+            foreach (Atomik::path(self::$config['model_dirs'], true) as $key => $path) {
+                $ns = is_string($key) ? $key : self::$config['default_namespace'];
                 if (@is_dir($path)) {
-	                $exporter->addDescriptors(self::getDescriptorsFromDir($path));
+	                $classNames = array_merge($classNames, self::getClassNamesFromDir($path, $ns,
+	                    self::$config['namespace_separator']));
                 }
             }
             foreach (Atomik::path(self::$config['sql_dirs'], true) as $path) {
@@ -244,6 +232,10 @@ class DbPlugin
                     $sql .= self::getSqlFilesFromDir($path);
                 }
             }
+        }
+        
+        foreach ($classNames as $className) {
+            $exporter->addDescriptor(Atomik_Model_Descriptor::factory($className));
         }
         
         Atomik::fireEvent('Db::Createsql::Exporter', array($exporter));
@@ -284,15 +276,15 @@ class DbPlugin
 	}
 	
 	/**
-	 * Returns an array of model descriptors from the specified directory
+	 * Returns an array of model class names from the specified directory
 	 * 
 	 * @param string $dir
 	 * @param string $parent
 	 * @return array
 	 */
-	public static function getDescriptorsFromDir($dir, $parent = '')
+	public static function getClassNamesFromDir($dir, $parent = '', $nsSeparator = '_')
 	{
-		$descriptors = array();
+		$classNames = array();
 		
 		foreach (new DirectoryIterator($dir) as $file) {
 			if ($file->isDot() || substr($file->getFilename(), 0, 1) == '.') {
@@ -303,12 +295,12 @@ class DbPlugin
 			if (strpos($filename, '.') !== false) {
 				$filename = substr($filename, 0, strrpos($filename, '.'));
 			}
-			$className = trim($parent . '_' . $filename, '_');
+			$className = trim($parent . $nsSeparator . $filename, '_');
 			
 			if ($file->isDir()) {
-				$descriptors = array_merge(
-				    $descriptors, 
-				    self::getDescriptorsFromDir($file->getPathname(), $className)
+				$classNames = array_merge(
+				    $classNames, 
+				    self::getClassNamesFromDir($file->getPathname(), $className)
 				);
 				continue;
 			}
@@ -318,10 +310,10 @@ class DbPlugin
 				continue;
 			}
 			
-			$descriptors[] = Atomik_Model_Descriptor::factory($className);
+			$classNames[] = $className;
 		}
 		
-		return $descriptors;
+		return $classNames;
 	}
 	
 	/**

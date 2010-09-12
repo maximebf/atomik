@@ -30,7 +30,7 @@ class Atomik_Model_Hydrator_Standard extends Atomik_Model_Hydrator
 {
 	public function hydrate($data)
 	{
-		$className = $this->_descriptor->getName();
+		$className = $this->_descriptor->getClassName();
 		$instance = new $className();
 		
 		foreach ($data as $key => $value) {

@@ -52,23 +52,23 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
         $name = $property->getName();
     
         if (!empty($this->has_parent)) {
-            $target = Atomik_Model_Descriptor_Builder::getBase($this->has_parent);
+            $target = $this->getTargetDescriptor($this->has_parent);
             require_once 'Atomik/Model/Association/ManyToOne.php';
             $assoc = new Atomik_Model_Association_ManyToOne($name, $descriptor, $target);
             
         } else if (!empty($this->has_one)) {
-            $target = Atomik_Model_Descriptor_Builder::getBase($this->has_one);
+            $target = $this->getTargetDescriptor($this->has_one);
             require_once 'Atomik/Model/Association/OneToMany.php';
             $assoc = new Atomik_Model_Association_OneToMany($name, $descriptor, $target);
             
         } else if (!empty($this->has_many) && empty($this->via)) {
-            $target = Atomik_Model_Descriptor_Builder::getBase($this->has_many);
+            $target = $this->getTargetDescriptor($this->has_many);
             require_once 'Atomik/Model/Association/OneToMany.php';
             $assoc = new Atomik_Model_Association_OneToMany($name, $descriptor, $target);
             
         } else if (!empty($this->has_many_to_many) || (!empty($this->has_many) && !empty($this->via))) {
             $targetName = empty($this->has_many) ? $this->has_many_to_many : $this->has_many;
-            $target = Atomik_Model_Descriptor_Builder::getBase($targetName);
+            $target = $this->getTargetDescriptor($targetName);
             
             require_once 'Atomik/Model/Association/ManyToMany.php';
             $assoc = new Atomik_Model_Association_ManyToMany($name, $descriptor, $target);
@@ -107,5 +107,14 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
         }
 		
 		$descriptor->mapProperty($assoc);
+    }
+    
+    public function getTargetDescriptor($target)
+    {
+        $className = $target;
+        if (strpos($className, '\\') === false) {
+            $className = ltrim(Atomik_Model_Descriptor::getDefaultNamespace() . '\\' . $target, '\\');
+        }
+        return Atomik_Model_Descriptor_Builder::getBase($className);
     }
 }

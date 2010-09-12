@@ -49,7 +49,7 @@ class Atomik_Model_Hydrator_Joined extends Atomik_Model_Hydrator
 	public function hydrate($data)
 	{
 	    $descriptor = $this->_descriptor;
-	    $className = $descriptor->getName();
+	    $className = $descriptor->getClassName();
 	    
 	    if (!$descriptor->hasParent()) {
 	        $descriminator = $descriptor->getDescriminatorField()->getName();

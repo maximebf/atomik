@@ -23,6 +23,7 @@
  * Added Atomik_HttpException
  ! Event Atomik::404 has changed
  * Atomik::dispatch() now catch Atomik_HttpException and display 404 errors
+ ! The Atomik_HttpException message is not displayed anymore unless atomik/debug is set to true
  ! Change in Atomik::execute*(), Atomik::render*() and Atomik::route() to
    throw exception instead of returning false unless the file is not found
  ! Arguments of Atomik::run() have changed
@@ -47,7 +48,11 @@
  * Added atomik/auto_uri_wildcard to automatically add * at the end of all routes.
  * fixed bug with view contexts and content types
  * Added Atomik::setViewContext()
- ! Modified the way layout are rendered (compatibility guaranteed)
+ ! Modified the way layout are rendered (no compatibility break)
+ * Added @redirect in routes
+ * Added support for PHP 5.3 namespaces in Atomik::needed()
+ * Added shortcut syntax array(route => action) for simple routes
+ ! Plugin's $config is now a reference to the plugins/PluginName entry
  
 [Plugin:SimpleClassExecutor]
 
@@ -56,6 +61,7 @@
 [Plugin:Controller]
 
  * The plugin now acts as an executor
+ * Added support for PHP 5.3 namespaces
  
 [Plugin:Form]
 

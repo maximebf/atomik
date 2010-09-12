@@ -467,7 +467,7 @@ class Atomik_Db_Instance
 		
 		$count = $result->fetchColumn();
 		$result->closeCursor();
-		return $count;
+		return (int) $count;
 	}
 	
 	/**

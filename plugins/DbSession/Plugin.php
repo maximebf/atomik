@@ -31,20 +31,21 @@ require_once 'Atomik/Session/Db.php';
 class DbSessionPlugin
 {
 	/** @var array */
-    public static $config = array(
-        'instance' => 'default',
-        'table' => 'sessions',
-        'idColumn' => 'session_id',
-        'dataColumn' => 'session_data',
-        'expiresColumn' => 'session_expires'
-    );
+    public static $config = array();
     
     /**
      * @param array $config
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-        self::$config = array_merge(self::$config, $config);
+        $config = array_merge(array(
+            'instance' => 'default',
+            'table' => 'sessions',
+            'idColumn' => 'session_id',
+            'dataColumn' => 'session_data',
+            'expiresColumn' => 'session_expires'
+        ), $config);
+        self::$config = &$config;
         
         $db = Atomik_Db::getInstance(self::$config['instance']);
         $table = self::$config['table'];

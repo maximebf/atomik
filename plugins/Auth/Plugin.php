@@ -25,50 +25,8 @@
  */
 class AuthPlugin
 {
-	/**
-	 * @var array
-	 */
-    public static $config = array(
-        // the route from which the pluggable app will be accessble
-        // false to disable
-    	'route'				=> 'auth*',
-    
-        // the Atomik_Model class name that represents a user
-    	'model' 			=> null,
-    
-        // the username field in the model
-        'model_user_field'  => 'username',
-    
-        // the password field in the model
-        'model_pass_field'  => 'password',
-    
-        // if model is null, an array of users
-        // for Atomik_Auth_Backend_Array
-    	'users'				=> null,
-    
-        // an array of roles for Atomik_Auth
-    	'roles' 			=> array(),
-    
-        // an array of resources for Atomik_Auth
-    	'resources' 		=> array(),
-    
-        // restricted uris (array in the same form as resources)
-    	'restricted' 		=> array(),
-    
-        // roles for unauthentified users
-    	'guest_roles' 		=> array(),
-    
-        // whether to treat resources that starts with
-        // a slash as restricted uris
-        'restricted_uris_from_resources' => true,
-    
-        // the action to go to when the user is not logged in
-    	'login_action' 	    => 'auth/login',
-    
-        // additional Atomik_Auth backend in the form of
-        // array('name' => 'backend class name', 'args' => array('constructor args'))
-    	'backends' 			=> array()
-    );
+	/** @var array */
+    public static $config = array();
     
 	/** @var array */
     private static $_restrictedUris = array();
@@ -76,9 +34,50 @@ class AuthPlugin
 	/**
 	 * @param array $config
 	 */
-    public static function start($config = array())
+    public static function start(&$config)
     {
-    	self::$config = array_merge(self::$config, $config);
+    	$config = array_merge(array(
+            // the route from which the pluggable app will be accessble
+            // false to disable
+        	'route'				=> 'auth*',
+        
+            // the Atomik_Model class name that represents a user
+        	'model' 			=> null,
+        
+            // the username field in the model
+            'model_user_field'  => 'username',
+        
+            // the password field in the model
+            'model_pass_field'  => 'password',
+        
+            // if model is null, an array of users
+            // for Atomik_Auth_Backend_Array
+        	'users'				=> null,
+        
+            // an array of roles for Atomik_Auth
+        	'roles' 			=> array(),
+        
+            // an array of resources for Atomik_Auth
+        	'resources' 		=> array(),
+        
+            // restricted uris (array in the same form as resources)
+        	'restricted' 		=> array(),
+        
+            // roles for unauthentified users
+        	'guest_roles' 		=> array(),
+        
+            // whether to treat resources that starts with
+            // a slash as restricted uris
+            'restricted_uris_from_resources' => true,
+        
+            // the action to go to when the user is not logged in
+        	'login_action' 	    => 'auth/login',
+        
+            // additional Atomik_Auth backend in the form of
+            // array('name' => 'backend class name', 'args' => array('constructor args'))
+        	'backends' 			=> array()
+        ), $config);
+    	self::$config = &$config;
     	
     	if (self::$config['route'] !== false) {
     		Atomik::registerPluggableApplication('Auth', 

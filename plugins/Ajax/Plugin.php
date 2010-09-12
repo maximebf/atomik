@@ -27,28 +27,10 @@
  */
 class AjaxPlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array(
-
-    	/* disabe layouts for all templates when it's an ajax request */
-    	'disable_layout'	=> true,
+	/** @var array */
+    public static $config = array();
     
-    	/* default action: restrict all (and use the ajax_allowed array) 
-    	 * or allow all (and use the ajax_restricted array) */
-    	'allow_all'			=> false,
-    	
-    	/* actions where ajax won't be available */
-    	'restricted'		=> array(),
-    	
-    	/* actions where ajax will be available */
-    	'allowed'			=> array()
-    
-    );
-    
+    /** @var bool */
     protected static $enabled = false;
     
     /**
@@ -58,10 +40,24 @@ class AjaxPlugin
      * @param array $config
      * @return bool
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-        /* config */
-        self::$config = array_merge(self::$config, $config);
+        $config = array_merge(array(
+        	// disabe layouts for all templates when it's an ajax request
+        	'disable_layout'	=> true,
+        
+        	// default action: restrict all (and use the ajax_allowed array) 
+        	// or allow all (and use the ajax_restricted array)
+        	'allow_all'			=> false,
+        	
+        	// actions where ajax won't be available
+        	'restricted'		=> array(),
+        	
+        	// actions where ajax will be available
+        	'allowed'			=> array()
+        ), $config);
+        
+    	self::$config = &$config;
 		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
         
         /* checks if this is an ajax request */

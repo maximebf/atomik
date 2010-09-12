@@ -34,23 +34,10 @@
  */
 class ConsolePlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array(
-
-    	/* directory where scripts are stored */
-    	'scripts_dir'	=> './app/scripts'
+	/** @var array */
+    public static $config = array();
     
-    );
-    
-    /**
-     * Registered commands
-     *
-     * @var array
-     */
+    /** @var array */
     protected static $_commands = array();
     
     /**
@@ -59,17 +46,22 @@ class ConsolePlugin
      * @param array $config
      * @return bool
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-        /* config */
-        self::$config = array_merge(self::$config, $config);
+        $config = array_merge(array(
         
-    	/* checks if we are in the CLI */
+        	// directory where scripts are stored
+        	'scripts_dir'	=> './app/scripts'
+        	
+        ), $config);
+        self::$config = &$config;
+        
+    	// checks if we are in the CLI
     	if (isset($_SERVER['HTTP_HOST'])) {
     		return false;
     	}
     	
-    	/* registers builtin commands */
+    	// registers builtin commands
     	self::register('init', array('ConsolePlugin', 'init'));
     	self::register('generate', array('ConsolePlugin', 'generate'));
     }

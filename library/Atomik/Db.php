@@ -210,7 +210,7 @@ class Atomik_Db
 	/**
 	 * @see Atomik_Db_Instance::q()
 	 */
-	public function q()
+	public static function q()
 	{
 		return self::getInstance()->q();
 	}

@@ -28,42 +28,38 @@ require_once 'Atomik/Assets.php';
  */
 class AssetsPlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array (
-        
-        // @see Atomik_Assets::setDefaultBaseUrl()
-        'assets_base_url' => '',
-    
-        // the assets file
-        'assets_file' => './app/assets.php',
-    
-        // @see Atomik_Assets_Theme::setDefaultThemesDir()
-        'themes_dir' => 'assets/themes',
-    
-        // @see Atomik_Assets_Theme::setDefaultThemeBaseUrl()
-        'theme_base_url' => 'assets/themes',
-    
-        // theme name
-        'theme' => null,
-    
-        // whether to treat named assets starting with @
-        // as resources
-        'allow_resource_assets' => true
-    
-    );
+	/** @var array */
+    public static $config = array();
     
     /**
      * Plugin starts
      *
      * @param array $config
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-    	self::$config = array_merge(self::$config, $config);
+    	$config = array_merge(array(
+            // @see Atomik_Assets::setDefaultBaseUrl()
+            'assets_base_url' => '',
+        
+            // the assets file
+            'assets_file' => ATOMIK_APP_ROOT . '/assets.php',
+        
+            // @see Atomik_Assets_Theme::setDefaultThemesDir()
+            'themes_dir' => 'assets/themes',
+        
+            // @see Atomik_Assets_Theme::setDefaultThemeBaseUrl()
+            'theme_base_url' => 'assets/themes',
+        
+            // theme name
+            'theme' => null,
+        
+            // whether to treat named assets starting with @
+            // as resources
+            'allow_resource_assets' => true
+        ), $config);
+    	
+    	self::$config = &$config;
 		Atomik::add('atomik/dirs/helpers', dirname(__FILE__) . '/helpers');
 		
 		Atomik_Assets::setDefaultUrlFormater(array('Atomik', 'appAsset'));

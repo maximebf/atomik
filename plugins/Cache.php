@@ -50,33 +50,29 @@
  */
 class CachePlugin
 {
-	/**
-	 * Default configuration
-	 * 
-	 * @var array 
-	 */
-    public static $config = array(
-    	
-    	/* directory where to stored cached file */
-    	'dir'			=> './app/cache/',
-    	
-    	/* requests to cache */
-    	'requests' 		=> array(),
-    	
-    	/* default time for how long the cached file are used */
-    	'default_time' 	=> 3600
-    
-    );
+	/** @var array */
+    public static $config = array();
     
     /**
      * Plugin starts
      *
      * @param array $config
      */
-    public static function start($config)
+    public static function start(&$config)
     {
-        /* config */
-        self::$config = array_merge(self::$config, $config);
+        $config = array_merge(array(
+        
+        	// directory where to stored cached file
+        	'dir'			=> ATOMIK_APP_ROOT . '/cache/',
+        	
+        	// requests to cache
+        	'requests' 		=> array(),
+        	
+        	// default time for how long the cached file are used
+        	'default_time' 	=> 3600
+        
+        ), $config);
+         self::$config = &$config;
     }
     
     /**
