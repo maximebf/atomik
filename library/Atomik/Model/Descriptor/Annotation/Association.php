@@ -50,7 +50,7 @@ class Atomik_Model_Descriptor_Annotation_Association extends Atomik_Model_Descri
     public function apply(Atomik_Model_Descriptor $descriptor, $property)
     {
         $name = $property->getName();
-    
+        
         if (!empty($this->has_parent)) {
             $target = $this->getTargetDescriptor($this->has_parent);
             require_once 'Atomik/Model/Association/ManyToOne.php';

@@ -153,7 +153,8 @@ class Atomik_Model_Query extends Atomik_Db_Query_Expr
         $this->_query = $this->_from->getDb()->q()
                             ->select($this->_from->getTableName() . '.*')
                             ->from($this->_from->getTableName());
-                            
+        
+                       
         $this->_from->getHydrator()->prepareQuery($this);
 		$this->_from->notify('PrepareQuery', $this);
     }

@@ -2961,7 +2961,7 @@ final class Atomik
     public static function _errorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
     {
         // handles errors depending on the level defined with error_reporting
-        if ($errno <= error_reporting()) {
+        if (($errno & error_reporting()) == $errno) {
             throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         }
     }

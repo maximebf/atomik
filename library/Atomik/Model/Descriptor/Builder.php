@@ -159,7 +159,7 @@ class Atomik_Model_Descriptor_Builder
 		    if (!$prop->isPublic() && !$prop->hasAnnotation('Association')) {
         		foreach ($prop->getAnnotations() as $annotation) {
         		    if ($annotation instanceof Atomik_Model_Descriptor_Annotation) {
-        		            $annotation->apply($descriptor, $prop);
+		                $annotation->apply($descriptor, $prop);
         		    }
         		}
 		    }
