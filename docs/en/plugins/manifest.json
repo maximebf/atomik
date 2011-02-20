@@ -1,0 +1,15 @@
+{
+    "title": "Atomik Plugins",
+    "home": "ajax.md",
+    "files": [
+        "ajax.md",
+        "auth.md",
+        "backend.md",
+        "cache.md",
+        "config.md",
+        "console.md",
+        "controller.md",
+        "db.md",
+        "lang.md"
+    ]
+}

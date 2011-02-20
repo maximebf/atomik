@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<chapter id="auth" xmlns="http://docbook.org/ns/docbook">
-	<title>Auth</title>
-	<note>
-		This plugin is still in development. Documentation will be available when the final version
-		is released.
-	</note>
-</chapter>

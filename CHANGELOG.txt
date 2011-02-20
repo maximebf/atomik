@@ -63,11 +63,6 @@
  * The plugin now acts as an executor
  * Added support for PHP 5.3 namespaces
  
-[Plugin:Form]
-
- * completely rewritten
- * now uses helpers
- 
 [Plugin:DbSession]
 
  * new plugin to store the session in a database
@@ -83,7 +78,7 @@
 [Lib:Db]
 
  * added Atomik_Db_Type
- * Atomik_Db_Definition renamed Atomik_Db_Schema and completely rewritten
+ * removed Atomik_Db_Definition
  * removed Atomik_Db_Adapter_Factory (see Atomik_Db_Adapter::factory())
  * removed Atomik_Db_Query_Result (going back to PDOStatement)
  * Atomik_Db_Query now only perform SELECT statements
@@ -96,10 +91,6 @@
 [Lib:Form]
 
  * removed
- 
-[Lib:Model]
-
- * completely rewritten
 
 ----------- Atomik 2.2 --------------
 

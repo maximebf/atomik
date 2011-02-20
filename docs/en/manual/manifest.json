@@ -1,0 +1,22 @@
+{
+    "title": "Atomik Framework",
+    "home": "introduction.md",
+    "files": [
+        "introduction.md",
+        "principles.md",
+        "installation.md",
+        "get_started.md",
+        "global_store.md",
+        "configuration.md",
+        "urls.md",
+        "actions.md",
+        "views.md",
+        "session.md",
+        "utilities.md",
+        "error_log_debug.md",
+        "events.md",
+        "using_plugins.md",
+        "developing_plugins.md",
+        "update_2.2.md"
+    ]
+}
