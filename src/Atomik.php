@@ -1912,7 +1912,7 @@ final class Atomik
             
             // call the start method on the plugin class if it's defined
             if ($options['callStart'] && method_exists($pluginClass, 'start')) {
-                if (call_user_func(array($pluginClass, 'start'), &$config) === false) {
+                if (call_user_func_array(array($pluginClass, 'start'), array(&$config)) === false) {
                     $registerEventsCallback = false;
                 }
             }
@@ -2121,7 +2121,7 @@ final class Atomik
         // do not overwrite helpers
         $dirs['helpers'] = array_merge(
             array($overrideDir . '/helpers', $appDir . '/helpers'),
-            $dirs['helpers']
+            (array) $dirs['helpers']
         );
         
         self::set('atomik/dirs', $dirs);
