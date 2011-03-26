@@ -1072,7 +1072,7 @@ final class Atomik
     
     /**
      * Executes an action using the executor specified in app/executor
-     
+     *
      * Tries to execute the action. If this fail, it tries to render the view.
      * If neither of them are found, it will throw an exception.
      *
