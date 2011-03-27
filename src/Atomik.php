@@ -1888,7 +1888,7 @@ final class Atomik
             
             // adds the libraries folder from the plugin directory to the include path
             if (@is_dir($pluginDir . '/libs')) {
-                set_include_path($pluginDir . '/libraries'. PATH_SEPARATOR . get_include_path());
+                set_include_path($pluginDir . '/libs'. PATH_SEPARATOR . get_include_path());
             }
             
             // adds the includes folder from the plugin directory to the include path
