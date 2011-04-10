@@ -54,7 +54,7 @@ class DataTableHelper
 	public function __construct()
 	{
 		$this->options = self::$defaultOptions;
-		Atomik_Assets::addNamedAsset('dataTable');
+		Atomik_Assets::getInstance()->addNamedAsset('dataTable');
 	}
 	
 	/**
