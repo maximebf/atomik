@@ -620,8 +620,6 @@ final class Atomik
             
             // checks if it's needed to auto discover the uri
             if ($uri === null) {
-                
-                // retreives the requested uri
                 $trigger = self::get('atomik/trigger', 'action');
                 if (isset($_GET[$trigger]) && !empty($_GET[$trigger])) {
                     $uri = trim($_GET[$trigger], '/');
@@ -708,7 +706,6 @@ final class Atomik
                 $httpMethod = strtoupper(self::get($param, $httpMethod, $request));
             }
             if (!in_array($httpMethod, self::get('app/allowed_http_methods'))) {
-                // specified method not allowed
                 throw new Atomik_Exception('HTTP method not allowed');
             }
             self::set('app/http_method', strtoupper($httpMethod));
@@ -725,7 +722,6 @@ final class Atomik
             self::log('Dispatching action ' . $request['action'], LOG_DEBUG);
             $vars = array();
         
-            // pre dispatch action
             if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
                 list($content, $vars) = self::instance()->scoped($filename);
             }
@@ -746,15 +742,12 @@ final class Atomik
                     $content = self::renderLayout($layout, $content, $vars);
             }
             
-            // echoes the content
             self::fireEvent('Atomik::Output::Before', array(&$content));
             echo $content;
             self::fireEvent('Atomik::Output::After', array($content));
         
-            // dispatch done
             self::fireEvent('Atomik::Dispatch::After');
         
-            // post dispatch action
             if (file_exists($filename = self::get('atomik/files/post_dispatch'))) {
                 require($filename);
             }
@@ -768,7 +761,6 @@ final class Atomik
                 header('Content-type: text/html');
                 
                 if (file_exists($filename = self::get('atomik/files/404'))) {
-                    // includes the 404 error file
                     include($filename);
                 } else if (self::get('atomik/debug', false)) {
                     echo '<h1>' . $e->getMessage() . '</h1>';
@@ -813,7 +805,6 @@ final class Atomik
     public static function setViewContext($context = null)
     {
         if ($context === null) {
-            // fetches the view context
             $context = self::get(self::get('app/views/context_param', 'format'), 
                                 self::get('app/views/default_context', 'html'), 
                                 self::get('request'));
@@ -821,7 +812,6 @@ final class Atomik
         
         self::set('app/view_context', $context);
         
-        // retreives view context params and prepare the response
         if (($viewContextParams = self::get('app/views/contexts/' . $context, false)) !== false) {
             if ($viewContextParams['layout'] !== true) {
                 self::set('app/layout', $viewContextParams['layout']);
@@ -1088,10 +1078,8 @@ final class Atomik
         $executor = self::get('app/executor', 'Atomik::executeFile');
         
         if (is_bool($viewContext)) {
-            // using the request's context
             $viewContext = self::get('app/view_context');
         }
-        // appends the context's prefix to the view name
         $prefix = self::get('app/views/contexts/' . $viewContext . '/prefix', $viewContext);
         if (!empty($prefix)) {
             $view .= '.' . $prefix;
@@ -1109,11 +1097,9 @@ final class Atomik
         
         // checks if the method is specified in $action
         if (($dot = strrpos($action, '.')) !== false) {
-            // it is, extract it
             $method = strtolower(substr($action, $dot + 1));
             $action = substr($action, 0, $dot);
         } else {
-            // use the current request's http method
             $method = strtolower(self::get('app/http_method'));
         }
         $context['method'] = $method;
@@ -1176,7 +1162,6 @@ final class Atomik
      */
     public static function executeFile($action, $method, $vars, $context)
     {
-        // filenames
         $methodAction = $action . '.' . $method;
         $actionFilename = self::actionFilename($action);
         $methodActionFilename = self::actionFilename($methodAction);
@@ -1192,14 +1177,12 @@ final class Atomik
             
         // executes the global action
         if ($actionFilename !== false) {
-            // executes the action in its own scope and fetches defined variables
             list($content, $vars) = $atomik->scoped($actionFilename, $vars);
             echo $content;
         }
         
         // executes the method specific action
         if ($methodActionFilename !== false) {
-            // executes the action in its own scope and fetches defined variables
             list($content, $vars) = $atomik->scoped($methodActionFilename, $vars);
             echo $content;
         }
@@ -1264,7 +1247,6 @@ final class Atomik
         
         self::fireEvent('Atomik::Render::Start', array(&$view, &$vars, &$dirs, &$triggerError));
         
-        // view filename
         if (($filename = self::viewFilename($view, $dirs)) === false) {
             self::trigger404('View ' . $view . ' not found');
         }
@@ -1466,7 +1448,6 @@ final class Atomik
      */
     public static function set($key, $value = null, $dimensionize = true, &$array = null, $add = false)
     {
-        // if $data is null, uses the global store
         if ($array === null) {
             $array = &self::$store;
         }
@@ -1650,9 +1631,7 @@ final class Atomik
     {
         // checks if a namespace is used
         if (is_string($key) && preg_match('/^([a-z]+):(.*)/', $key, $match)) {
-            // checks if the namespace exists */
             if (isset(self::$namespaces[$match[1]])) {
-                // calls the namespace callback and returns
                 $args = func_get_args();
                 $args[0] = $match[2];
                 return call_user_func_array(self::$namespaces[$match[1]], $args);
@@ -1662,8 +1641,6 @@ final class Atomik
         if (($value = self::getRef($key, $array)) !== null) {
             return $value;
         }
-        
-        // key not found, returns default
         return $default;
     }
     
@@ -1725,20 +1702,14 @@ final class Atomik
     public static function &getRef($key = null, &$array = null)
     {
         $null = null;
-        
-        // returns the store
         if ($array === null) {
             $array = &self::$store;
         }
-        
-        // return the whole arrat
         if ($key === null) {
             return $array;
         }
         
-        // checks if the $key is an array
         if (!is_array($key)) {
-            // checks if it has slashes
             if (!strpos($key, '/')) {
                 if (array_key_exists($key, $array)) {
                     $value =& $array[$key];
@@ -1746,18 +1717,14 @@ final class Atomik
                 }
                 return $null;
             }
-            // creates an array by spliting using slashes
             $key = explode('/', $key);
         }
         
-        // checks if the key exists
         $firstKey = array_shift($key);
         if (array_key_exists($firstKey, $array)) {
             if (count($key) > 0) {
-                // there's still keys so it goes deeper
                 return self::getRef($key, $array[$firstKey]);
             } else {
-                // the key has been found
                 $value =& $array[$firstKey];
                 return $value;
             }
@@ -1786,7 +1753,6 @@ final class Atomik
             return;
         }
         
-        // reset
         self::$store = self::_mergeRecursive(self::$store, self::$reset);
     }
     
@@ -1848,7 +1814,6 @@ final class Atomik
         );
         $options = array_merge($defaultOptions, $options);
         
-        // checks if the plugin is already loaded
         if (self::isPluginLoaded($plugin)) {
             return true;
         }
@@ -1864,16 +1829,14 @@ final class Atomik
         if (($filename = self::path($plugin . '.php', $options['dirs'])) === false) {
             // no file, checks for a directory
             if (($pluginDir = self::path($plugin, $options['dirs'])) === false) {
-                // plugin not found
-                throw new Atomik_Exception('Missing plugin (no file or directory matching plugin name): ' . $plugin);
+                throw new Atomik_Exception("Missing plugin '$plugin' (no file or directory matching plugin name)");
             }
             
-            // directory found, plugin file should be inside
             $filename = $pluginDir . '/Plugin.php';
             $appFilename = $pluginDir . '/Application.php';
             
             if (!($isPluggApp = file_exists($appFilename)) && !file_exists($filename)) {
-                throw new Atomik_Exception('Missing plugin (no file inside the plugin\'s directory): ' . $plugin);
+                throw new Atomik_Exception("Missing plugin '$plugin' (no file inside the plugin\'s directory)");
             }
             
             // registers the plugin as an application if Application.php exists
@@ -1881,31 +1844,21 @@ final class Atomik
                 self::registerPluggableApplication($plugin);
             }
             
-            // adds the libraries folder from the plugin directory to the include path
-            if (@is_dir($pluginDir . '/libraries')) {
-                set_include_path($pluginDir . '/libraries'. PATH_SEPARATOR . get_include_path());
-            }
-            
-            // adds the libraries folder from the plugin directory to the include path
-            if (@is_dir($pluginDir . '/libs')) {
-                set_include_path($pluginDir . '/libs'. PATH_SEPARATOR . get_include_path());
-            }
-            
-            // adds the includes folder from the plugin directory to the include path
-            if (@is_dir($pluginDir . '/includes')) {
-                set_include_path($pluginDir . '/includes'. PATH_SEPARATOR . get_include_path());
+            foreach (array('libraries', 'libs', 'includes') as $dir) {
+                if (@is_dir("$pluginDir/$dir")) {
+                    set_include_path("$pluginDir/$dir" . PATH_SEPARATOR . get_include_path());
+                }
             }
             
         } else {
             $pluginDir = dirname($filename);
         }
         
-        // loads the plugin
         self::log('Loading plugin ' . $plugin, LOG_DEBUG);
         self::instance()->scoped($filename, array('config' => $config));
         
         // checks if the *Plugin class is defined. The use of this class
-        // is not mandatory in plugin file
+        // is not mandatory in plugin files
         $pluginClass = str_replace('%', $plugin, $options['classNameTemplate']);
         if (class_exists($pluginClass, false)) {
             $registerEventsCallback = true;
@@ -2020,9 +1973,7 @@ final class Atomik
             return;
         }
         
-        // route
         if ($route === null) {
-            // default route
             $route = strtolower($plugin) . '*';
         }
         
@@ -2042,8 +1993,6 @@ final class Atomik
     public static function dispatchPluggableApplication($plugin, $uri = null, $config = array())
     {
         $plugin = ucfirst($plugin);
-        
-        // configuration
         $defaultConfig = array(
             'rootDir'             => '', 
             'pluginDir'           => null,
@@ -2059,26 +2008,22 @@ final class Atomik
             return false;
         }
         
-        // params check
         if (empty($uri)) {
             $uri = '';
         }
         $rootDir = rtrim('/' . trim($config['rootDir'], '/'), '/');
         
-        // plugin dir
         if ($config['pluginDir'] === null) {
             $pluginDir = self::$plugins[$plugin];
         } else {
             $pluginDir = rtrim($config['pluginDir'], '/');
         }
         
-        // application dir
         $appDir = $pluginDir . $rootDir;
         if (!is_dir($appDir)) {
             throw new Atomik_Exception('To be used as an application, the plugin ' . $plugin . ' must use a directory');
         }
         
-        // overrides dir
         $overrideDir = self::path($plugin . $rootDir, self::get('atomik/dirs/overrides'));
         if ($overrideDir === false) {
             $overrideDir = ATOMIK_APP_ROOT . '/overrides/' . $plugin . $rootDir;
@@ -2140,7 +2085,6 @@ final class Atomik
             return true;
         }
         
-        // includes the bootstrap file
         $bootstrapFile = $appDir . '/' . $config['bootstrapFile'];
         if (file_exists($bootstrapFile)) {
             $continue = include $bootstrapFile;
@@ -2157,7 +2101,6 @@ final class Atomik
         
         self::log('Dispatching pluggable application: ' . $plugin, LOG_DEBUG);
         
-        // re-dispatches the application
         return self::dispatch($uri, false);
     }
     
@@ -2176,7 +2119,6 @@ final class Atomik
      */
     public static function listenEvent($event, $callback, $priority = 50, $important = false)
     {
-        // initialize the current event array */
         if (!isset(self::$events[$event])) {
             self::$events[$event] = array();
         }
@@ -2187,7 +2129,6 @@ final class Atomik
             $priority += $important ? -1 : 1;
         }
         
-        // stores the callback
         self::$events[$event][$priority] = $callback;
     }
     
@@ -2203,7 +2144,6 @@ final class Atomik
     {
         $results = array();
         
-        // executes all callback
         if (isset(self::$events[$event])) {
             $keys = array_keys(self::$events[$event]); 
             sort($keys);
@@ -2212,7 +2152,6 @@ final class Atomik
                 $results[$key] = call_user_func_array($callback, $args);
             }
         }
-        
         
         if ($resultAsString) {
             return implode('', $results);
@@ -2293,7 +2232,6 @@ final class Atomik
             }
         }
         
-        // nothing found
         return false;
     }
     
@@ -2450,7 +2388,6 @@ final class Atomik
             $url .= ($useIndex ? '&amp;' : '?') . http_build_query($params, '', '&amp;');
         }
         
-        // trigger an event
         $args = func_get_args();
         unset($args[0]);    
         self::fireEvent('Atomik::Url', array($action, &$url, $args));
@@ -2624,7 +2561,6 @@ final class Atomik
         foreach ($functions as $function) {
             $text = call_user_func($function, $text);
         }
-        
         return $text;
     }
     
@@ -2645,7 +2581,6 @@ final class Atomik
         if (!self::has('session/__FLASH/' . $label)) {
             self::set('session/__FLASH/' . $label, array());
         }
-        
         self::add('session/__FLASH/' . $label, $message);
     }
     
@@ -2707,7 +2642,6 @@ final class Atomik
             
             foreach ($rule as $field => $params) {
                 if (isset($data[$field]) && is_array($data[$field])) {
-                    // data is an array
                     if (($results[$field] = self::filter($data[$field], $params)) === false) {
                         $messages[$field] = A('app/filters/messages', array());
                         $validate = false;
@@ -2822,7 +2756,6 @@ final class Atomik
             return;
         }
         
-        // uses Atomik::url()
         if ($useUrl) {
             $url = self::url($url);
         }
@@ -2836,7 +2769,6 @@ final class Atomik
             session_write_close();
         }
         
-        // redirects
         header('Location: ' . $url, true, $httpCode);
         self::end(true, false);
     }
@@ -2846,12 +2778,11 @@ final class Atomik
      * 
      * @see Atomik::redirect()
      * @param string $url The url to redirect to
-     * @param bool $useUrl Use Atomik::url() on $url before redirecting
+     * @param bool $useUrl Use Atomik::appUrl() on $url before redirecting
      * @param int $httpCode The redirection HTTP code
      */
     public static function appRedirect($url, $useUrl = true, $httpCode = 302)
     {
-        // uses Atomik::appUrl()
         if ($useUrl) {
             $url = self::appUrl($url);
         }
@@ -2862,13 +2793,13 @@ final class Atomik
      * Same as Atomik::redirect() but redirects to a pluggable application
      * 
      * @see Atomik::redirect()
+     * @param string $plugin Plugin's name
      * @param string $url The url to redirect to
-     * @param bool $useUrl Use Atomik::url() on $url before redirecting
+     * @param bool $useUrl Use Atomik::pluginUrl() on $url before redirecting
      * @param int $httpCode The redirection HTTP code
      */
     public static function pluginRedirect($plugin, $url, $useUrl = true, $httpCode = 302)
     {
-        // uses Atomik::pluginUrl()
         if ($useUrl) {
             $url = self::pluginUrl($plugin, $url);
         }
@@ -2949,7 +2880,6 @@ final class Atomik
         if (!$echo) {
             return $dump;
         }
-        
         echo $dump;
     }
     
