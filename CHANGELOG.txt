@@ -43,7 +43,7 @@
  * Added support for short tags in views (will be converted to standard tags)
  * Short tags can be disabled using app/views/short_tags
  * Plugins can be loaded from the include path
- ! Removed ATOMIK_APP_DIR constant
+ ! Removed ATOMIK_APP_ROOT constant
  ! Files and directories are now relative to the atomik/dirs/app entry
  
 [Helpers]

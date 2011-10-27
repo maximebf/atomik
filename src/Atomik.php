@@ -19,8 +19,6 @@
  */
 
 define('ATOMIK_VERSION', '3.0');
-!defined('ATOMIK_APP_ROOT') && define('ATOMIK_APP_ROOT', './app');
-
 
 /* -------------------------------------------------------------------------------------------
  *  APPLICATION CONFIGURATION
