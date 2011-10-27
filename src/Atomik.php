@@ -185,25 +185,25 @@ Atomik::set(array(
     
         /* @var array */
         'dirs' => array(
-            'app'                => ATOMIK_APP_ROOT,
-            'plugins'            => array('Atomik' => __DIR__ . '/plugins', ATOMIK_APP_ROOT . '/plugins'),
-            'actions'            => ATOMIK_APP_ROOT . '/actions',
-            'views'              => ATOMIK_APP_ROOT . '/views',
-            'layouts'            => array(ATOMIK_APP_ROOT . '/views', ATOMIK_APP_ROOT . '/layouts'),
-            'helpers'            => array('Atomik' => __DIR__ . '/helpers', ATOMIK_APP_ROOT . '/helpers'),
-            'includes'           => array(__DIR__ . '/lib', ATOMIK_APP_ROOT . '/includes', ATOMIK_APP_ROOT . '/libs'),
-            'namespaces' 		 => array('Atomik' => __DIR__ . '/lib'),
-            'overrides'          => ATOMIK_APP_ROOT . '/overrides'
+            'app'                => './app',
+            'plugins'            => array(__DIR__ . '/plugins', 'plugins'),
+            'actions'            => 'actions',
+            'views'              => 'views',
+            'layouts'            => array('views', 'layouts'),
+            'helpers'            => array(__DIR__ . '/helpers', 'helpers'),
+            'includes'           => array(__DIR__ . '/lib', './includes', 'libs'),
+            'namespaces' 		 => array(),
+            'overrides'          => 'overrides'
         ),
     
         /* @var array */
         'files' => array(
             'index'              => 'index.php',
-            'config'             => ATOMIK_APP_ROOT . '/config', // without extension
-            'bootstrap'          => ATOMIK_APP_ROOT . '/bootstrap.php',
-            'pre_dispatch'       => ATOMIK_APP_ROOT . '/pre_dispatch.php',
-            'post_dispatch'      => ATOMIK_APP_ROOT . '/post_dispatch.php',
-            '404'                => ATOMIK_APP_ROOT . '/404.php'
+            'config'             => 'config', // without extension
+            'bootstrap'          => 'bootstrap.php',
+            'pre_dispatch'       => 'pre_dispatch.php',
+            'post_dispatch'      => 'post_dispatch.php',
+            '404'                => '404.php'
         )
         
     ),
@@ -363,14 +363,14 @@ final class Atomik
         try {
         
             // config & environment
-            self::loadConfig(self::get('atomik/files/config'), false);
+            self::loadConfig(self::path(self::get('atomik/files/config'), null, false), false);
             if ($env !== null && self::has($env)) {
                 self::set(self::get($env));
             }
             
             self::fireEvent('Atomik::Config');
             set_include_path(implode(PATH_SEPARATOR, array_merge(
-                (array) self::get('atomik/dirs/includes', array()),
+                array_filter(self::path((array) self::get('atomik/dirs/includes', array()))),
                 array(get_include_path())
             )));
             
@@ -413,8 +413,8 @@ final class Atomik
             }
             
             self::fireEvent('Atomik::Bootstrap');
-            if (file_exists($filename = self::get('atomik/files/bootstrap'))) {
-                require($filename);
+            if ($filename = self::path(self::get('atomik/files/bootstrap'))) {
+                include $filename;
             }
         
             self::fireEvent('Atomik::Start', array(&$cancel));
@@ -433,8 +433,11 @@ final class Atomik
             }
             
         } catch (Exception $e) {
-            self::fireEvent('Atomik::Error', array($e));
-            self::end(false);
+            $cancel = false;
+            self::fireEvent('Atomik::Error', array($e, &$cancel));
+            if (!$cancel) {
+                throw $e;
+            }
         }
     }
     
@@ -474,7 +477,7 @@ final class Atomik
         if (!preg_match('/.+\.(php|ini|json)$/', $filename)) {
             $found = false;
             foreach (array('php', 'ini', 'json') as $format) {
-                if (file_exists($filename . '.' . $format)) {
+                if (file_exists("$filename.$format")) {
                     $found = true;
                     break;
                 }
@@ -555,7 +558,7 @@ final class Atomik
             if (empty($uri)) {
                 $uri = self::get('app/default_action', 'index');
             }
-            
+
             $request = $_GET;
             if ($router = self::get('app/router')) {
                 $request = call_user_func($router, $uri, $_GET);
@@ -620,7 +623,7 @@ final class Atomik
             }
             
             $vars = array();
-            if (file_exists($filename = self::get('atomik/files/pre_dispatch'))) {
+            if ($filename = self::path(self::get('atomik/files/pre_dispatch'))) {
                 list($content, $vars) = self::instance()->scoped($filename);
             }
             
@@ -646,7 +649,7 @@ final class Atomik
         
             self::fireEvent('Atomik::Dispatch::After');
         
-            if (file_exists($filename = self::get('atomik/files/post_dispatch'))) {
+            if ($filename = self::path(self::get('atomik/files/post_dispatch'))) {
                 require($filename);
             }
             
@@ -986,7 +989,7 @@ final class Atomik
      */
     public static function actionFilename($action, $dirs = null)
     {
-        $dirs = $dirs ?: self::get('atomik/dirs/actions');
+        $dirs = self::path($dirs ?: self::get('atomik/dirs/actions'));
         if (($filename = self::findFile($action . '.php', $dirs)) === false) {
             return self::findFile($action . '/index.php', $dirs);
         }
@@ -1126,7 +1129,7 @@ final class Atomik
      */
     public static function viewFilename($view, $dirs = null, $extension = null)
     {
-        $dirs = $dirs ?: self::get('atomik/dirs/views');
+        $dirs = self::path($dirs ?: self::get('atomik/dirs/views'));
         $extension = $extension ?: ltrim(self::get('app/views/file_extension'), '.');
         if (($filename = self::findFile($view . '.' . $extension, $dirs)) === false) {
             return self::findFile($view . '/index.' . $extension, $dirs);
@@ -1151,15 +1154,14 @@ final class Atomik
             return;
         }
         
-        $dirs = $dirs ?: self::get('atomik/dirs/helpers');
+        self::fireEvent('Atomik::Loadhelper::Before', array(&$helperName, &$dirs));
         $functionName = $helperName;
         $camelizedHelperName = str_replace(' ', '', ucwords(str_replace('_', ' ', $helperName)));
         $className = $camelizedHelperName . 'Helper';
         
-        self::fireEvent('Atomik::Loadhelper::Before', array(&$helperName, &$dirs));
-        
         if (!function_exists($functionName) && !class_exists($className)) {
-            if (($include = self::findInclude("$helperName.php", $dirs)) === false) {
+            $dirs = self::path($dirs ?: self::get('atomik/dirs/helpers'));
+            if (($include = self::findFile("$helperName.php", $dirs, true)) === false) {
                 throw new AtomikException("Helper '$helperName' not found");
             }
             list($filename, $ns) = $include;
@@ -1168,7 +1170,7 @@ final class Atomik
             $className = ltrim("$ns\\$className", '\\');
         }
         
-        if (function_exists($functionName) {
+        if (function_exists($functionName)) {
             self::$loadedHelpers[$helperName] = $functionName;
         } else if (class_exists($className, false)) {
             self::$loadedHelpers[$helperName] = array(new $className(), $camelizedHelperName);
@@ -1694,6 +1696,7 @@ final class Atomik
             'classNameTemplate' => '%Plugin',
             'callStart'         => true
         ), $options);
+        $options['dirs'] = self::path($options['dirs']);
         
         self::fireEvent('Atomik::Plugin::Before', array(&$plugin, &$config, &$options));
         if ($plugin === false) {
@@ -1704,9 +1707,9 @@ final class Atomik
         if (!class_exists($pluginClass)) {
             // tries to load the plugin from a file
             $ns = '';
-            if (($include = self::findInclude("$plugin.php", $options['dirs'])) === false) {
+            if (($include = self::findFile("$plugin.php", $options['dirs'], true)) === false) {
                 // no file, checks for a directory
-                if (($include = self::findInclude($plugin, $options['dirs'])) === false) {
+                if (($include = self::findFile($plugin, $options['dirs'], true)) === false) {
                     throw new AtomikException("Missing plugin '$plugin' (no file or directory matching plugin name)");
                 }
                 
@@ -1810,8 +1813,9 @@ final class Atomik
     public static function isPluginAvailable($plugin)
     {
         $plugin = ucfirst($plugin);
-        if (self::findFile($plugin . '.php', self::get('atomik/dirs/plugins')) === false) {
-            return self::findFile($plugin, self::get('atomik/dirs/plugins')) !== false;
+        $dirs = self::path(self::get('atomik/dirs/plugins'));
+        if (self::findFile("$plugin.php", $dirs) === false) {
+            return self::findFile($plugin, $dirs) !== false;
         }
         return true;
     }
@@ -1824,10 +1828,7 @@ final class Atomik
      */
     public static function getLoadedPlugins($withDir = false)
     {
-        if ($withDir) {
-            return self::$plugins;
-        }
-        return array_keys(self::$plugins);
+        return $withDir ? self::$plugins : array_keys(self::$plugins);
     }
     
     /**
@@ -1853,7 +1854,6 @@ final class Atomik
         if (empty($plugin)) {
             return;
         }
-        
         $config['route'] = $route ?: (strtolower($plugin) . '*');
         self::$pluggableApplications[$plugin] = $config;
     }
@@ -1897,9 +1897,9 @@ final class Atomik
             throw new AtomikException("To be used as an application, the plugin '$plugin' must use a directory");
         }
         
-        $overrideDir = self::findFile($plugin . $rootDir, self::get('atomik/dirs/overrides'));
+        $overrideDir = self::findFile($plugin . $rootDir, self::path(self::get('atomik/dirs/overrides')));
         if ($overrideDir === false) {
-            $overrideDir = ATOMIK_APP_ROOT . '/overrides/' . $plugin . $rootDir;
+            $overrideDir = 'overrides/' . $plugin . $rootDir;
         }
         
         if (!self::has('app/running_plugin')) {
@@ -2020,28 +2020,54 @@ final class Atomik
      */
     public static function findFile($filename, $dirs, $isInclude = false)
     {
+        if (empty($filename)) {
+            return false;
+        }
         foreach (array_reverse((array) $dirs) as $ns => $dir) {
+            if ($dir === false) {
+                continue;
+            }
             if($isInclude && is_numeric($ns)) {
                 $ns = '';
             }
-            $pathname = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $filename;
-            if (file_exists($pathname)) {
+            if ($pathname = self::path($filename, $dir)) {
                 return $isInclude ? array($pathname, $ns) : $pathname;
             }
         }
         return false;
     }
-    
+
     /**
-     * Shortcut to {@see findFile()} with $isInclude = true
+     * Makes a filename relative to another one
      *
      * @param string $filename
-     * @param array $dirs
-     * @return array tuple (filename, ns)
+     * @param string $relativeTo
+     * @param bool $checkExists
+     * @return string
      */
-    public static function findInclude($filename, $dirs)
+    public static function path($filename, $relativeTo = null, $checkExists = true)
     {
-        return self::findFile($filename, $dirs, true);
+        if (is_array($filename)) {
+            $pathnames = array();
+            foreach ($filename as $f) {
+                $pathnames[] = self::path($f, $relativeTo, $checkExists);
+            }
+            return $pathnames;
+        }
+
+        $relativeTo = $relativeTo ?: self::get('atomik/dirs/app');
+        $pathname = $filename;
+        if ($filename{0} != '/' && !preg_match('#^[A-Z]:(\\|/)#', $filename)) {
+            if (strlen($filename) >= 2 && substr($filename, 0, 2) == './') {
+                $filename = substr($filename, 2);
+            }
+            $pathname = rtrim($relativeTo, DIRECTORY_SEPARATOR) 
+                      . DIRECTORY_SEPARATOR . $filename;
+        }
+        if ($checkExists) {
+            return realpath($pathname);
+        }
+        return $pathname;
     }
     
     /**
@@ -2260,7 +2286,11 @@ final class Atomik
             $include = str_replace(array('_', '\\'), DIRECTORY_SEPARATOR, $include);
         }
         
-        return include("$include.php");
+        try {
+            return include("$include.php");
+        } catch (ErrorException $e) {
+            return false;
+        }
     }
     
     /**

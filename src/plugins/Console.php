@@ -105,7 +105,7 @@ class ConsolePlugin
 			Atomik::fireEvent('Console::Start', array(&$command, &$arguments));
 			
 			/* checks if a script file exists */
-			if (($scriptFilename = Atomik::path($command . '.php', self::getScriptDirs())) !== false) {
+			if (($scriptFilename = Atomik::findFile($command . '.php', self::getScriptDirs())) !== false) {
 				/* run the script */
 				require $scriptFilename;
 			} else {
@@ -268,22 +268,22 @@ class ConsolePlugin
 		}
 		
 		/* creates the actions directory */
-		foreach (Atomik::path(Atomik::get('atomik/dirs/actions'), true) as $path) {
+		foreach ((array) Atomik::get('atomik/dirs/actions') as $path) {
 		    self::mkdir($path, 1);
 		}
 			
 		/* creates the templates directory */
-		foreach (Atomik::path(Atomik::get('atomik/dirs/views'), true) as $path) {
+		foreach ((array) Atomik::get('atomik/dirs/views') as $path) {
 		    self::mkdir($path, 1);
 		}
 		
 		/* creates the plugins directory */
-		foreach (Atomik::path(Atomik::get('atomik/dirs/plugins'), true) as $path) {
+		foreach ((array) Atomik::get('atomik/dirs/plugins') as $path) {
 		    self::mkdir($path, 1);
 		}
 		
 		/* creates the includes directory */
-		foreach (Atomik::path(Atomik::get('atomik/dirs/includes'), true) as $path) {
+		foreach ((array) Atomik::get('atomik/dirs/includes') as $path) {
 		    self::mkdir($path, 1);
 		}
 		
@@ -328,11 +328,11 @@ class ConsolePlugin
 			$filename = ltrim($action, '/') . '.php';
 			
 			/* creates the action file */
-			self::touch(Atomik::path(Atomik::get('atomik/dirs/actions')) . $filename, 
+			self::touch(array_shift((array) Atomik::get('atomik/dirs/actions')) . $filename, 
 				"<?php\n\n\t/* Logic goes here */\n", 1);
 		
 			/* creates the template file */
-			self::touch(Atomik::path(Atomik::get('atomik/dirs/views')) . $filename, '', 1);
+			self::touch(array_shift((array) Atomik::get('atomik/dirs/views')) . $filename, '', 1);
 		
 			/* fires an event to allow packages to extend the generate command */
 			Atomik::fireEvent('Console::Generate', array($action));

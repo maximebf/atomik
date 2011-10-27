@@ -96,7 +96,7 @@ class Atomik_Backend
     	if (self::$plugin == 'app') {
     		// this is the backend application for the user application, needs some reconfiguration
     		// the backend dir is searched inside the app/ directory
-    		if (($pluggAppConfig['pluginDir'] = Atomik::path('backend', Atomik::get('atomik/dirs/app'))) === false) {
+    		if (($pluggAppConfig['pluginDir'] = Atomik::findFile('backend', Atomik::get('atomik/dirs/app'))) === false) {
     			throw new Exception('No backend application defined in your application');
     		}
     		$pluggAppConfig['rootDir'] = '';

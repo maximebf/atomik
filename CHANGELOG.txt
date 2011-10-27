@@ -35,8 +35,7 @@
  ! Renamed _mergeRecursive() to mergeRecursive()
  ! Removed autoload(), needed() is now directly used as the autoloader
  * Added findFile()
- * Added findInclude()
- ! Removed path()
+ ! Completely modified path() function
  * Added support for namespaced plugins and helpers
  ! Rewrite of route()
  * New app/router key to allow alternative router or to disable the router
@@ -44,6 +43,8 @@
  * Added support for short tags in views (will be converted to standard tags)
  * Short tags can be disabled using app/views/short_tags
  * Plugins can be loaded from the include path
+ ! Removed ATOMIK_APP_DIR constant
+ ! Files and directories are now relative to the atomik/dirs/app entry
  
 [Helpers]
  

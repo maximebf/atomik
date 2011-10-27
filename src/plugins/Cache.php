@@ -81,7 +81,7 @@ class CachePlugin
     public static function onAtomikDispatchBefore()
     {
     	/* filename of the cached file associated to this uri */
-    	$cacheFilename = Atomik::path(self::$config['dir']) . md5($_SERVER['REQUEST_URI']) . '.php';
+    	$cacheFilename = self::$config['dir'] . md5($_SERVER['REQUEST_URI']) . '.php';
     	self::$config['filename'] = $cacheFilename;
     	
     	/* rebuilds the cache_requests array */
@@ -101,8 +101,8 @@ class CachePlugin
     		
     		/* last modified time */
     		$cacheTime = filemtime($cacheFilename);
-    		$actionTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/actions')));
-    		$templateTime = filemtime(Atomik::path($request . '.php', Atomik::get('atomik/dirs/views')));
+    		$actionTime = filemtime(Atomik::findFile($request . '.php', Atomik::get('atomik/dirs/actions')));
+    		$templateTime = filemtime(Atomik::findFile($request . '.php', Atomik::get('atomik/dirs/views')));
     		
     		/* checks if the action or the template have been modified */
     		if ($cacheTime < $actionTime || $cacheTime < $templateTime) {
@@ -166,7 +166,7 @@ class CachePlugin
      */
     public static function onConsoleInit($args)
     {
-        foreach (Atomik::path(self::$config['dir'], true) as $directory) {
+        foreach ((array) self::$config['dir'] as $directory) {
         	/* creates cache directory */
         	ConsolePlugin::mkdir($directory, 1);
         	

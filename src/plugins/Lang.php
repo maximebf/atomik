@@ -114,10 +114,7 @@ class LangPlugin
         }
         
     	/* filename of the language file */
-    	$filename = Atomik::path($language . '.php', $dirs);
-    	
-    	/* checks if the file exists */
-    	return file_exists($filename);
+    	return Atomik::findFile($language . '.php', $dirs);
     }
     
     /**
@@ -133,7 +130,7 @@ class LangPlugin
         }
         
         $languages = array();
-        foreach (Atomik::path($dirs, true) as $dir) {
+        foreach ((array) $dirs as $dir) {
             if (is_dir($dir)) {
                 foreach (new DirectoryIterator($dir) as $file) {
                     $filename = $file->getFilename();
@@ -163,7 +160,7 @@ class LangPlugin
     	}
     	
     	/* filename of the language file */
-    	$filename = Atomik::path($language . '.php', self::$config['dir']);
+    	$filename = Atomik::findFile($language . '.php', self::$config['dir']);
     	
     	/* checks if the file exists */
     	if ($filename === false) {

@@ -62,7 +62,7 @@ class ControllerPlugin
 		
 		// adds controllers directories to php's include path
 		$includes = explode(PATH_SEPARATOR, get_include_path());
-		foreach (Atomik::path(self::$config['controller_dirs'], true) as $dir) {
+		foreach ((array) self::$config['controller_dirs'] as $dir) {
 			if (!in_array($dir, $includes)) {
 				array_unshift($includes, $dir);
 			}
@@ -81,7 +81,7 @@ class ControllerPlugin
         $filename = str_replace(' ', '/', ucwords(str_replace('/', ' ', $controller)))
                   . 'Controller.php';
                   
-        return Atomik::path($filename, self::$config['controller_dirs']);
+        return Atomik::findFile($filename, self::$config['controller_dirs']);
     }
 	
 	/**
