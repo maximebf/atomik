@@ -1,18 +1,30 @@
 <?php
 
-class FormHelper extends Atomik_Helper
+class FormHelper
 {
     const ENCTYPE_FORMDATA = 'multipart/form-data';
     const ENCTYPE_URLENCODED = 'application/x-www-form-urlencoded';
     
-    public static $defaultCSSClass = '';
+    public $action;
+    
+    public $name;
+    
+    public $attrs = array();
     
     public function form($action = '', $name = null, $attrs = array())
+    {
+        $this->action = $action;
+        $this->name = $name;
+        $this->attrs = $attrs;
+        return $this;
+    }
+    
+    public function open($action = '', $name = null, $attrs = array())
     {
         $attrs = array_merge($attrs, array(
             'action' => $action,
             'method' => Atomik::get('method', 'POST', $attrs),
-            'class' => Atomik::get('class', self::$defaultCSSClass, $attrs)
+            'class' => Atomik::get('class', Atomik::get('helpers/form/default_form_class', ''), $attrs)
         ));
         
         if ($name !== null) {
@@ -20,6 +32,130 @@ class FormHelper extends Atomik_Helper
             $attrs['id'] = $name;
         }
         
-        return '<form ' . $this->helpers->htmlAttributes($attrs) . '>';
+        return '<form ' . Atomik::htmlAttributes($attrs) . '>';
     }
+    
+    public function __toString()
+    {
+        return $this->open($this->action, $this->name, $this->attrs);
+    }
+    
+    public function close()
+    {
+        return '</form>';
+    }
+    
+    public function label($label, $required = false, $attrs = array())
+    {
+        return sprintf('<label %s>%s %s</label>', 
+            Atomik::htmlAttributes($attrs),
+            $label,
+            $required ? '<span class="required">*</span>' : ''
+        );
+    }
+    
+    public function input($name, $value = '', $type = 'text', $attrs = array())
+    {
+        $attrs = array_merge($attrs, array(
+            'name' => $name,
+            'type' => $type,
+            'value' => Atomik::get($name, $value, $_POST),
+            'class' => Atomik::get('class', Atomik::get('helpers/form/default_input_class', ''), $attrs)
+        ));
+        
+        return sprintf('<input %s />', Atomik::htmlAttributes($attrs));
+    }
+    
+    public function checkbox($name, $checked = false, $value = 1, $attrs = array())
+    {
+        if ($checked) {
+            $attrs['checked'] = 'checked';
+        }
+        return $this->input($name, $value, 'checkbox', $attrs);
+    }
+    
+    public function file($name, $attrs = array())
+    {
+        return $this->input($name, '', 'file', $attrs);
+    }
+    
+    public function hidden($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'hidden', $attrs);
+    }
+    
+    public function select($name, $options, $value = '', $attrs = array())
+    {
+        $attrs = array_merge($attrs, array(
+            'name' => $name,
+            'class' => Atomik::get('class', Atomik::get('helpers/form/default_select_class', ''), $attrs)
+        ));
+        
+        $html = sprintf('<select %s>', Atomik::htmlAttributes($attrs));
+        foreach ($options as $key => $text) {
+            $html .= sprintf('<option value="%s"%s>%s</option>', 
+                $key, 
+                $key == $value ? ' selected="selected"' : '',
+                Atomik::escape($text)
+            );
+        }
+        $html .= '</select>';
+        
+        return $html;
+    }
+    
+    public function textarea($name, $value = '', $attrs = array())
+    {
+        $attrs = array_merge($attrs, array(
+            'name' => $name,
+            'class' => Atomik::get('class', Atomik::get('helpers/form/default_textarea_class', ''), $attrs)
+        ));
+        
+        return sprintf('<textarea %s>%s</textarea>', 
+                    Atomik::htmlAttributes($attrs), 
+                    Atomik::get($name, $value, $_POST));
+    }
+    
+    public function richTextarea($name, $value = '', $uEditor = array(), $attrs = array())
+    {
+        Atomik_Assets::getInstance()->addNamedAsset('uEditor');
+        
+        $uEditor = array_merge(array(
+            'toolbarItems' => array('bold', 'italic', 'link', 'image', 'orderedlist', 'unorderedlist')
+        ), $uEditor);
+        
+        $id = uniqid();
+        $attrs['id'] = $id;
+        
+        $html = $this->textarea($name, $value, $attrs);
+        $html .= '<script type="text/javascript">$(function() { '
+               . sprintf('$(\'#%s\').uEditor(%s);', $id, json_encode($uEditor))
+               . ' });</script>';
+        
+        return $html;
+    }
+    
+    public function button($text, $type = 'submit', $attrs = array())
+    {
+        $attrs = array_merge($attrs, array(
+            'value' => $text,
+            'type' => $type,
+            'class' => Atomik::get('class', Atomik::get('helpers/form/default_button_class', ''), $attrs)
+        ));
+        
+        return sprintf('<input %s />', Atomik::htmlAttributes($attrs) );
+    }
+    
+    public function buttons($submitText = 'Submit', $cancelUrl = 'javascript:history.back()', $buttonAttrs = array())
+    {
+        $html = $this->formButton($submitText, 'submit', $buttonAttrs);
+        
+        if ($cancelUrl !== false) {
+            $html .= sprintf('<span class="cancel">%s <a href="%s">%s</a></span>',
+                __('or'), $cancelUrl, __('cancel'));
+        }
+        
+        return $html;
+    }
+    
 }

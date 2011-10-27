@@ -57,7 +57,7 @@ class ConsolePlugin
         self::$config = &$config;
         
     	// checks if we are in the CLI
-    	if (isset($_SERVER['HTTP_HOST'])) {
+    	if (PHP_SAPI !== 'cli') {
     		return false;
     	}
     	

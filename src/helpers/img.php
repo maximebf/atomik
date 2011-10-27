@@ -1,11 +1,11 @@
 <?php
 
-class ImgHelper extends Atomik_Helper
+class ImgHelper
 {
     public function img($src, $alt = '', $attrs = array())
     {
         $attrs['src'] = $src;
         $attrs['alt'] = $alt;
-        return sprintf('<img %s />', $this->helpers->htmlAttributes($attrs));
+        return sprintf('<img %s />', Atomik::htmlAttributes($attrs));
     }
 }

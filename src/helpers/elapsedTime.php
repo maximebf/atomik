@@ -1,6 +1,6 @@
 <?php
 
-class ElapsedTimeHelper extends Atomik_Helper
+class ElapsedTimeHelper
 {
     public static $texts = array(
         'times' => array("second", "minute", "hour", "day", "week", "month", "years", "decade"),

@@ -1,6 +1,6 @@
 <?php
 
-class HtmlHelper extends Atomik_Helper
+class HtmlHelper
 {
     /**
      * Builds an html string from an array
@@ -20,7 +20,7 @@ class HtmlHelper extends Atomik_Helper
     {
     	if ($tag !== null) {
     		/* building a proper $html array using the tag */
-    		return array_to_html(array($tag => $html));
+    		return $this->html(array($tag => $html));
     	}
     	
     	if (is_string($html)) {
@@ -67,18 +67,18 @@ class HtmlHelper extends Atomik_Helper
     			$keys = array_keys($value);
     			if (!is_string($keys[0]) && is_array($value[0])) {
     				foreach ($value as $item) {
-    					$output .= array_to_html($item, $tag);
+    					$output .= $this->html($item, $tag);
     				}
     				break;
     			} else {
-    				$value = array_to_html($value);
+    				$value = $this->html($value);
     			}
     		}
     		
     		/* builds the html string */
     		$output .= sprintf("<%s %s>%s</%s>\n", 
     		    $tag,
-    		    $this->helpers->htmlAttributes($attributes), 
+    		    Atomik::htmlAttributes($attributes), 
     		    $value, 
     		    $tag
 		    );

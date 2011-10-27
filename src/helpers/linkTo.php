@@ -1,11 +1,11 @@
 <?php
 
-class LinkToHelper extends Atomik_Helper
+class LinkToHelper
 {
-    public function linkTo($text, $url, $attrs = array()) 
+    public function linkTo($text, $url, $params = array(), $attrs = array()) 
     {
-        $attrs['href'] = $url;
+        $attrs['href'] = Atomik::url($url, $params);
         return sprintf('<a %s>%s</a>', 
-                $this->helpers->htmlAttributes($attrs), $text);
+                Atomik::htmlAttributes($attrs), $text);
     }
 }

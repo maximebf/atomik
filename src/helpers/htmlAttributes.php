@@ -1,6 +1,6 @@
 <?php
 
-class HtmlAttributesHelper extends Atomik_Helper
+class HtmlAttributesHelper
 {
     public function htmlAttributes($array, $filter = null, $exclude = true)
     {

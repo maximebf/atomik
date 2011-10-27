@@ -4,6 +4,67 @@
 ! = Modification to existing feature
 # = Fixed bug
 
+----------- Atomik 3.0 --------------
+
+[Atomik]
+
+ WARNING: Compatibility breaks and at least PHP 5.3 is needed
+ 
+ ! Extracted escape() as an helper (config moved to helpers/escape)
+ ! Extracted filter() as an helper (config moved to helpers/filter)
+ ! Extracted flash() as a plugin (config moved to plugin)
+ ! Removed _getFlashMessage() (see Flash plugin)
+ ! Extracted friendlify() as the linkify helper
+ ! Extracted redirect() as an helper
+ ! Removed appRedirect()
+ ! Removed pluginRedirect()
+ ! Extracted debug() as an helper
+ ! Session management extracted as a plugin (config moved to plugin)
+ ! Logging extracted as a plugin (config moved to plugin)
+ ! Removed log()
+ ! Removed logToFile()
+ ! Error management extracted as a plugin (config moved to plugin)
+ ! Removed renderException() (see Errors plugin)
+ ! Renamed _errorHandler() to errorHandler()
+ ! Renamed Atomik_Exception to AtomikException
+ ! Renamed Atomik_HttpException to AtomikHttpException
+ ! Removed atomik/urimatch_compat
+ ! Removed atomik/scriptname
+ ! Atomik does not change the directory anymore to atomik/scriptname
+ ! Renamed _dimensionizeArray() to dimensionizeArray()
+ ! Renamed _mergeRecursive() to mergeRecursive()
+ ! Removed autoload(), needed() is now directly used as the autoloader
+ * Added findFile()
+ * Added findInclude()
+ ! Removed path()
+ * Added support for namespaced plugins and helpers
+ ! Rewrite of route()
+ * New app/router key to allow alternative router or to disable the router
+ * New app/views/auto config to disable automatic render of views after actions
+ * Added support for short tags in views (will be converted to standard tags)
+ * Short tags can be disabled using app/views/short_tags
+ * Plugins can be loaded from the include path
+ 
+[Helpers]
+ 
+ * Added debug
+ * Added escape
+ * Added filter
+ * Added linkify
+ * Added redirect
+ * Refactored form
+
+[Plugin:Config]
+
+Deleted
+
+[New plugins]
+
+ * Errors
+ * Flash
+ * Logger
+ * Session
+
 ----------- Atomik 2.3 --------------
 
 [Atomik]
