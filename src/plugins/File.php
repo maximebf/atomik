@@ -19,11 +19,11 @@
  * @link http://www.atomikframework.com
  */
 
-/**
- * @package Atomik
- * @subpackage File
- */
-class Atomik_File
+namespace Atomik;
+use Atomik,
+    AtomikException;
+
+class File
 {
     /**
      * Uploads a file
@@ -38,18 +38,18 @@ class Atomik_File
     {
         if ($info['error'] == UPLOAD_ERR_NO_FILE) {
             require_once 'Atomik/File/Exception.php';
-        	throw new Atomik_File_Exception('No file were uploaded');
+        	throw new AtomikException('No file were uploaded');
         }
         
         if ($info['error'] == UPLOAD_ERR_INI_SIZE || 
             ($maxSize !== null && $info['size'] > $maxSize)) {
             require_once 'Atomik/File/Exception.php';
-        	throw new Atomik_File_Exception('File size is greater than allowed');
+        	throw new AtomikException('File size is greater than allowed');
         }
         
         if ($info['error'] != UPLOAD_ERR_OK) {
             require_once 'Atomik/File/Exception.php';
-        	throw new Atomik_File_Exception('An error has occured while uploading');
+        	throw new AtomikException('An error has occured while uploading');
         }
         
         $filename = basename($info['name']);
@@ -60,7 +60,7 @@ class Atomik_File
         
         if (is_array($allowedExts) && !in_array($extension, $allowedExts)) {
             require_once 'Atomik/File/Exception.php';
-        	throw new Atomik_File_Exception('File type not allowed');
+        	throw new AtomikException('File type not allowed');
         }
         
         return move_uploaded_file($info['tmp_name'], $destFilename);

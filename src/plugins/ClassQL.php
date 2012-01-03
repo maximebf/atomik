@@ -19,44 +19,29 @@
  */
 
 namespace Atomik;
+
 use Atomik;
 
-class Session
+class ClassQL
 {
-    /** @var array */
-    public static $config = array();
-    
-    /**
-     * Starts this class as a plugin
-     *
-     * @param array $config
-     */
-    public static function start(&$config)
+    public static function start($config)
     {
         $config = array_merge(array(
-        
-            /* @var bool */
-            'autostart' => true,
 
-            /* @var string */
-            'namespace' => false
-            
+            'model_dirs' => array('Models' => 'models')
+
         ), $config);
-        self::$config = &$config;
-    }
-    
-    public static function onAtomikStart()
-    {
-        if (self::$config['autostart']) {
-            session_start();
-            if (($ns = self::$config['namespace']) !== false) {
-                if (!isset($_SESSION[$ns])) {
-                    $_SESSION[$ns] = array();
-                }
-                Atomik::$store['session'] = &$_SESSION[$ns];
-            } else {
-                Atomik::$store['session'] = &$_SESSION;
-            }
+
+        foreach (array_filter((array) Atomik::path($config['model_dirs'])) as $ns => $dir) {
+            \ClassQL\Loader::register($ns, $dir, true);
+        }
+
+        \ClassQL\Session::start($config);
+
+        if (Atomik::isPluginLoaded('Console')) {
+            Console::register('classql', function($argv) {
+                \ClassQL\CLI::run($argv);
+            });
         }
     }
 }

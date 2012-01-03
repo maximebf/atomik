@@ -1,10 +1,36 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2011 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package     Atomik
+ * @author      Maxime Bouroumeau-Fuseau
+ * @copyright   2008-2011 (c) Maxime Bouroumeau-Fuseau
+ * @license     http://www.opensource.org/licenses/mit-license.php
+ * @link        http://www.atomikframework.com
+ */
 
-class LoggerPlugin
+namespace Atomik;
+use Atomik;
+
+class Logger
 {
-	/** @var array */
+    /** @var array */
     public static $config = array();
     
+    /**
+     * Starts this class as a plugin
+     *
+     * @param array $config
+     */
     public static function start(&$config)
     {
         $config = array_merge(array(
@@ -12,25 +38,24 @@ class LoggerPlugin
             /* @var bool */
             'register_default'   => false,
             
-            'filename'           => ATOMIK_APP_ROOT . '/log.txt',
+            /* @var string */
+            'filename'           => 'log.txt',
             
             /* From which level to start logging messages
              * @var int */
             'level'              => LOG_WARNING,
             
             /* Message template for the default logger
-             * @see Atomik::logToFile()
+             * @see logToFile()
              * @var string */
             'message_template'   => '[%date%] [%level%] %message%'
-        	
+            
         ), $config);
         self::$config = &$config;
         
-        Atomik::registerHelper('log', 'LoggerPlugin::log');
-            
-        // default logger
+        Atomik::registerHelper('log', 'Atomik\Logger::log');
         if ($config['register_default']) {
-            self::listenEvent('Logger::Log', 'LoggerPlugin::logToFile');
+            self::listenEvent('Logger::Log', 'Atomik\Logger::logToFile');
         }
     }
     

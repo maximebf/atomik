@@ -45,6 +45,7 @@
  * Plugins can be loaded from the include path
  ! Removed ATOMIK_APP_ROOT constant
  ! Files and directories are now relative to the atomik/dirs/app entry
+ ! Removed error_handler
  
 [Helpers]
  

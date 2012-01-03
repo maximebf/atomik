@@ -1,10 +1,38 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2011 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package     Atomik
+ * @author      Maxime Bouroumeau-Fuseau
+ * @copyright   2008-2011 (c) Maxime Bouroumeau-Fuseau
+ * @license     http://www.opensource.org/licenses/mit-license.php
+ * @link        http://www.atomikframework.com
+ */
 
-class ErrorsPlugin
+namespace Atomik;
+use Atomik,
+    Exception,
+    AtomikHttpException;
+
+class Errors
 {
-	/** @var array */
+    /** @var array */
     public static $config = array();
     
+    /**
+     * Starts this class as a plugin
+     *
+     * @param array $config
+     */
     public static function start(&$config)
     {
         $config = array_merge(array(
@@ -15,9 +43,13 @@ class ErrorsPlugin
             /* @var bool */
             'throw_errors'           => false,
             
-            'error_view'             => false,
+            /* Which view to render when an error occurs
+             * @var string */
+            'error_view'             => 'errors/error',
             
-            '404_view'             => false,
+            /* Which view to render when an error occurs
+             * @var string */
+            '404_view'               => 'errors/404',
             
             /* @var array */
             'error_report_attrs'     => array(
@@ -31,30 +63,40 @@ class ErrorsPlugin
                 'atomik-error-line-text'     => '',
                 'atomik-error-stack'         => ''
             )
-        	
+            
         ), $config);
         self::$config = &$config;
+
+        Atomik::registerHelper('renderException', 'Atomik\Errors::render');
     }
     
-    public static function onAtomikError($e)
+    public static function onAtomikError($e, &$cancel)
     {
+        $cancel = true;
         self::handle($e);
+        Atomik::end(false);
     }
     
     public static function onAtomikHttperror($e, &$cancel)
     {
         $cancel = true;
         self::handle($e);
+        Atomik::end(false);
     }
     
+    /**
+     * Handles an exception according to the config
+     *
+     * @param Exception $e
+     */
     public static function handle(Exception $e)
     {
         if ($e instanceof AtomikHttpException) {
             header('Location: ', false, $e->getCode());
             if ($e->getCode() === 404) {
                 header('Content-type: text/html');
-                if (file_exists($filename = self::$config['404_view'])) {
-                    include($filename);
+                if ($output = Atomik::render(self::$config['404_view'])) {
+                    echo $output;
                 } else {
                     echo '<h1>Page not found</h1>';
                 }
@@ -62,7 +104,11 @@ class ErrorsPlugin
         } else {
             header('Location: ', false, 500);
             if (self::$config['catch_errors']) {
-                echo self::renderException($e);
+                if ($output = Atomik::render(self::$config['error_view'])) {
+                    echo $output;
+                } else {
+                    echo self::render($e);
+                }
             } else if (self::$config['throw_errors']) {
                 throw $e;
             }
@@ -76,14 +122,8 @@ class ErrorsPlugin
      * @param bool $return Return the output instead of printing it
      * @return string
      */
-    public static function renderException($exception, $return = false)
+    public static function render(Exception $exception, $return = false)
     {
-        // checks if the user defined error file is available
-        if (file_exists($filename = self::$config['error_view'])) {
-            include($filename);
-            return;
-        }
-        
         $attributes = self::$config['error_report_attrs'];
     
         $html = '<div ' . $attributes['atomik-error'] . '>'

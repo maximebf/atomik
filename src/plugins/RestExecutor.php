@@ -1,7 +1,7 @@
 <?php
 /**
  * Atomik Framework
- * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ * Copyright (c) 2008-2011 Maxime Bouroumeau-Fuseau
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -11,23 +11,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @package Atomik
- * @subpackage Plugins
- * @author Maxime Bouroumeau-Fuseau
- * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
- * @license http://www.opensource.org/licenses/mit-license.php
- * @link http://www.atomikframework.com
+ * @package     Atomik
+ * @author      Maxime Bouroumeau-Fuseau
+ * @copyright   2008-2011 (c) Maxime Bouroumeau-Fuseau
+ * @license     http://www.opensource.org/licenses/mit-license.php
+ * @link        http://www.atomikframework.com
  */
 
-/**
- * @package Atomik
- * @subpackage Plugins
- */
-class SimpleClassExecutorPlugin
+namespace Atomik;
+use Atomik,
+    AtomikException;
+
+class RestExecutor
 {
-    public static function start()
+    /** @var array */
+    public static $config = array();
+    
+    /**
+     * Starts this class as a plugin
+     *
+     * @param array $config
+     */
+    public static function start(&$config)
     {
-        Atomik::set('app/executor', 'SimpleClassExecutorPlugin::execute');
+        $config = array_merge(array(
+
+            /* @var string */
+            'namespace_separator' => '\\'
+            
+        ), $config);
+       
+        Atomik::set('app/executor', 'Atomik\RestExecutor::execute');
     }
     
     /**
@@ -53,17 +67,22 @@ class SimpleClassExecutorPlugin
      */
     public static function execute($action, $method, $vars, $context)
     {
-        if (($filename = Atomik::actionFilename($action)) === false) {
-            throw new Atomik_Exception("Action file not found for $action", 404);
+        $className = str_replace(' ', self::$config['namespace_separator'], ucwords(str_replace('/', ' ', trim($action))));
+        $filename = str_replace(self::$config['namespace_separator'], DIRECTORY_SEPARATOR, $className) . '.php';
+        $className .= 'Action';
+        
+        Atomik::fireEvent('RestExecutor::Execute', array(&$className, &$filename, &$context));
+
+        if (!($include = Atomik::actionFilename($filename, null, true))) {
+            return false;
         }
+
+        list($filename, $ns) = $include;
+        $className = trim("$ns\\$className", '\\');
+        include $filename;
         
-        $className = str_replace(' ', '_', ucwords(str_replace('/', ' ', $action))) . 'Action';
-        
-        Atomik::fireEvent('SimpleClassExecutor::Execute', array(&$filename, &$className, &$context));
-        
-        require_once $filename;
         if (!class_exists($className)) {
-            throw new Atomik_Exception("Class $className not found in $filename");
+            throw new AtomikException("Class '$className' not found in '$filename'");
         }
         
         $instance = new $className($vars);

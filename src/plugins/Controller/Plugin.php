@@ -1,7 +1,7 @@
 <?php
 /**
  * Atomik Framework
- * Copyright (c) 2008-2009 Maxime Bouroumeau-Fuseau
+ * Copyright (c) 2008-2011 Maxime Bouroumeau-Fuseau
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -11,13 +11,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @package Atomik
- * @subpackage Plugins
- * @author Maxime Bouroumeau-Fuseau
- * @copyright 2008-2009 (c) Maxime Bouroumeau-Fuseau
- * @license http://www.opensource.org/licenses/mit-license.php
- * @link http://www.atomikframework.com
+ * @package     Atomik
+ * @author      Maxime Bouroumeau-Fuseau
+ * @copyright   2008-2011 (c) Maxime Bouroumeau-Fuseau
+ * @license     http://www.opensource.org/licenses/mit-license.php
+ * @link        http://www.atomikframework.com
  */
+
+namespace Atomik\Controller;
+
+use Atomik,
+    AtomikException,
+    AtomikHttpException;
 
 /**
  * Controller plugin
@@ -25,9 +30,9 @@
  * @package Atomik
  * @subpackage Plugins
  */
-class ControllerPlugin
+class Plugin
 {
-	/** @var array */
+    /** @var array */
     public static $config = array();
     
     /**
@@ -39,93 +44,59 @@ class ControllerPlugin
     {
         $config = array_merge(array(
         
-        	// default action name
-        	'default_action' => 'index',
+            // default action name
+            'default_action' => 'index',
         
             // directories where to find controllers
-        	'controller_dirs' => ATOMIK_APP_ROOT . '/controllers',
-        
-            // whether a controller must exists 
-            // (will trigger error even if a view exists)
-            'controller_must_exists' => true,
-        
+            'dirs' => 'controllers',
+
             // default controller namespaces
-        	'default_namespace' => '',
+            'namespace' => '',
         
             // namespace separator
-            'namespace_separator' => '_'
+            'namespace_separator' => '\\'
             
         ), $config);
         
-    	self::$config = &$config;
-        Atomik::set('app/executor', 'ControllerPlugin::execute');
-		
-		// adds controllers directories to php's include path
-		$includes = explode(PATH_SEPARATOR, get_include_path());
-		foreach ((array) self::$config['controller_dirs'] as $dir) {
-			if (!in_array($dir, $includes)) {
-				array_unshift($includes, $dir);
-			}
-		}
-		set_include_path(implode(PATH_SEPARATOR, $includes));
+        self::$config = &$config;
+        Atomik::set('app/executor', 'Atomik\Controller\Plugin::execute');
+        Atomik::addIncludePath(array_filter(Atomik::path((array) self::$config['dirs'])));
     }
     
     /**
-     * Returns a controller's filename
+     * Executor which defines controllers and actions MVC-style
      *
-     * @param string $controller
-     * @return string
-     */
-    public static function controllerFilename($controller)
-    {
-        $filename = str_replace(' ', '/', ucwords(str_replace('/', ' ', $controller)))
-                  . 'Controller.php';
-                  
-        return Atomik::findFile($filename, self::$config['controller_dirs']);
-    }
-	
-	/**
-	 * Executor which defines controllers and actions MVC-style
-	 *
      * @param string $action
      * @param string $method
      * @param array  $context
      * @return array
-	 */
+     */
     public static function execute($action, $method, $vars, &$context)
     {
-	    $controller = trim(dirname($action), './');
-	    $action = basename($action);
-	    if (empty($controller)) {
-	        $controller = $action;
-	        $action = self::$config['default_action'];
-	    }
-	    
-        $className = ltrim(self::$config['default_namespace'] . self::$config['namespace_separator'] 
+        $controller = trim(dirname($action), './');
+        $action = basename($action);
+        if (empty($controller)) {
+            $controller = $action;
+            $action = self::$config['default_action'];
+        }
+
+        $className = trim(self::$config['namespace'] . self::$config['namespace_separator'] 
                    . str_replace(' ', self::$config['namespace_separator'], ucwords(str_replace('/', ' ', $controller))) 
-                   . 'Controller', '_');
-	    
-        if (($filename = self::controllerFilename($controller)) === false) {
-            if (self::$config['controller_must_exists']) {
-                throw new Atomik_HttpException("Class '$className' not found", 404);
-            }
+                   . 'Controller', self::$config['namespace_separator']);
+        
+        Atomik::fireEvent('Controller::Execute', array(&$className));
+
+        if (!class_exists($className)) {
+            throw new AtomikHttpException("Class '$className' not found", 404);
+        } else if (!is_subclass_of($className, 'Atomik\Controller\Controller')) {
+            throw new AtomikException("Class '$className' must subclass 'Atomik_Controller'");
+        }
+        
+        $instance = new $className();
+        if (($instance->_dispatch($action, $method, $vars)) === false) {
             return false;
         }
-        
-        Atomik::fireEvent('Controller::Execute', array(&$filename, &$className, &$context));
-        
-        require_once $filename;
-        if (!class_exists($className)) {
-            throw new Atomik_Exception("Class $className not found in $filename");
-        } else if (!is_subclass_of($className, 'Atomik_Controller')) {
-            throw new Atomik_Exception("Class $className must subclass Atomik_Controller");
-        }
-		
-		$instance = new $className();
-		if (($instance->_dispatch($action, $method, $vars)) === false) {
-		    return false;
-		}
-		return get_object_vars($instance);
+        return get_object_vars($instance);
     }
 }
 

@@ -184,13 +184,14 @@ Atomik::set(array(
         /* @var array */
         'dirs' => array(
             'app'                => './app',
-            'plugins'            => array(__DIR__ . '/plugins', 'plugins'),
+            'public'             => '.',
+            'plugins'            => array('Atomik' => __DIR__ . '/plugins', 'plugins'),
             'actions'            => 'actions',
             'views'              => 'views',
             'layouts'            => array('views', 'layouts'),
-            'helpers'            => array(__DIR__ . '/helpers', 'helpers'),
-            'includes'           => array(__DIR__ . '/lib', './includes', 'libs'),
-            'namespaces' 		 => array(),
+            'helpers'            => array('Atomik' => __DIR__ . '/helpers', 'helpers'),
+            'includes'           => array('includes', 'libs'),
+            'namespaces' 		 => array('Atomik' => __DIR__ . '/lib'),
             'overrides'          => 'overrides'
         ),
     
@@ -200,8 +201,7 @@ Atomik::set(array(
             'config'             => 'config', // without extension
             'bootstrap'          => 'bootstrap.php',
             'pre_dispatch'       => 'pre_dispatch.php',
-            'post_dispatch'      => 'post_dispatch.php',
-            '404'                => '404.php'
+            'post_dispatch'      => 'post_dispatch.php'
         )
         
     ),
@@ -361,18 +361,17 @@ final class Atomik
         try {
         
             // config & environment
-            self::loadConfig(self::path(self::get('atomik/files/config'), null, false), false);
+            try {
+                self::set(self::loadConfig(self::path(self::get('atomik/files/config'), null, false), false));
+            } catch (AtomikException $e) {}
+            
+            $env = $env ?: (defined('ATOMIK_ENV') ? ATOMIK_ENV : null);
             if ($env !== null && self::has($env)) {
                 self::set(self::get($env));
             }
             
             self::fireEvent('Atomik::Config');
-            set_include_path(implode(PATH_SEPARATOR, array_merge(
-                array_filter(self::path((array) self::get('atomik/dirs/includes', array()))),
-                array(get_include_path())
-            )));
-            
-            set_error_handler('Atomik::errorHandler');
+            self::addIncludePath(array_filter(self::path(self::get('atomik/dirs/includes', array()))));
             
             // sets the error reporting to all errors if debug mode is on
             if (self::get('atomik/debug', false) == true) {
@@ -415,6 +414,7 @@ final class Atomik
                 include $filename;
             }
         
+            $cancel = false;
             self::fireEvent('Atomik::Start', array(&$cancel));
             if ($cancel) {
                 self::end(true);
@@ -440,24 +440,6 @@ final class Atomik
     }
     
     /**
-     * Catch errors and throw an ErrorException instead
-     *
-     * @internal
-     * @param int $errno
-     * @param string $errstr
-     * @param string $errfile
-     * @param int $errline
-     * @param mixed $errcontext
-     */
-    public static function errorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
-    {
-        // handles errors depending on the level defined with error_reporting
-        if (($errno & error_reporting()) == $errno) {
-            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-        }
-    }
-    
-    /**
      * Loads a configuration file
      *
      * Supported format are php, ini and json
@@ -465,11 +447,11 @@ final class Atomik
      * search for a file with one of the supported extensions.
      *
      * @param string $filename
-     * @param bool $triggerError Whether to throw an exception if the file does not exist
+     * @return array
      */
-    public static function loadConfig($filename, $triggerError = true)
+    public static function loadConfig($filename)
     {
-        self::fireEvent('Atomik::Loadconfig::Before', array(&$filename, &$triggerError));
+        self::fireEvent('Atomik::Loadconfig::Before', array(&$filename));
         
         // config file format
         if (!preg_match('/.+\.(php|ini|json)$/', $filename)) {
@@ -481,34 +463,31 @@ final class Atomik
                 }
             }
             if (!$found) {
-                if ($triggerError) {
-                    throw new AtomikException("Configuration file $filename not found");
-                }
-                return;
+                throw new AtomikException("Configuration file '$filename' not found");
             }
-            $filename .= '.' . $format;
+            $filename .= ".$format";
         } else {
             $format = substr($filename, strrpos($filename, '.') + 1);
         }
         
-        // loads the config file
-        if ($format === 'php') {
-            if (is_array($config = include($filename))) {
-                self::set($config);
-            }
-        } else if ($format === 'ini') {
+        $config = array();
+        if ($format === 'ini') {
             if (($data = parse_ini_file($filename, true)) === false) {
                 throw new AtomikException('INI configuration malformed');
             }
-            self::set(self::dimensionizeArray($data, '.'), null, false);
+            $config = self::dimensionizeArray($data, '.');
         } else if ($format === 'json') {
             if (($config = json_decode(file_get_contents($filename), true)) === null) {
                 throw new AtomikException('JSON configuration malformed');
             }
-            self::set($config);
+        } else {
+            if (is_array($return = include($filename))) {
+                $config = $return;
+            }
         }
         
-        self::fireEvent('Atomik::Loadconfig::After', array($filename, $triggerError));
+        self::fireEvent('Atomik::Loadconfig::After', array($filename, &$config));
+        return $config;
     }
     
     /**
@@ -771,7 +750,7 @@ final class Atomik
             }
         
             if ($pattern{0} !== '#') {
-                $pattern = '/' . trim(str_replace('/*/', '/(.+)/', $pattern), '/');
+                $pattern = trim(str_replace('/*/', '/(.+)/', $pattern), '/');
                 if (preg_match_all('#(:([a-z_]+))#i', $pattern, $matches)) {
                     for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                         $param = $matches[2][$i];
@@ -790,7 +769,7 @@ final class Atomik
                 }
                 $pattern = "#^$pattern\$#";
             }
-            
+
             if (!preg_match($pattern, $uri, $matches)) {
                 continue;
             }
@@ -985,11 +964,11 @@ final class Atomik
      * @param array $dirs Directories where actions are stored (default is using configuration)
      * @return string
      */
-    public static function actionFilename($action, $dirs = null)
+    public static function actionFilename($action, $dirs = null, $useNamespaces = false)
     {
         $dirs = self::path($dirs ?: self::get('atomik/dirs/actions'));
-        if (($filename = self::findFile($action . '.php', $dirs)) === false) {
-            return self::findFile($action . '/index.php', $dirs);
+        if (($filename = self::findFile("$action.php", $dirs, $useNamespaces)) === false) {
+            return $useNamespaces ? false : self::findFile("$action/index.php", $dirs);
         }
         return $filename;
     }
@@ -1129,8 +1108,8 @@ final class Atomik
     {
         $dirs = self::path($dirs ?: self::get('atomik/dirs/views'));
         $extension = $extension ?: ltrim(self::get('app/views/file_extension'), '.');
-        if (($filename = self::findFile($view . '.' . $extension, $dirs)) === false) {
-            return self::findFile($view . '/index.' . $extension, $dirs);
+        if (($filename = self::findFile("$view.$extension", $dirs)) === false) {
+            return self::findFile("$view/index.$extension", $dirs);
         }
         return $filename;
     }
@@ -1297,7 +1276,7 @@ final class Atomik
         }
         
         if (!is_array($key)) {
-            throw new AtomikException('The first parameter of Atomik::set() must be a string or an array, ' . gettype($key) . ' given');
+            throw new AtomikException("The first parameter of Atomik::set() must be a string or an array, '" . gettype($key) . "' given");
         }
         
         if ($dimensionize) {
@@ -1486,7 +1465,7 @@ final class Atomik
         $parentArray = &self::getRef($parentArrayKey, $array);
         
         if ($parentArray === null || !array_key_exists($key, $parentArray)) {
-            throw new AtomikException('Key "' . $key . '" does not exists');
+            throw new AtomikException("Key '$key' does not exists");
         }
         
         $value = $parentArray[$key];
@@ -1663,7 +1642,7 @@ final class Atomik
     public static function loadPlugin($name)
     {
         $name = ucfirst($name);
-        if (($config = &self::getRef('plugins/' . $name)) === null) {
+        if (($config = &self::getRef("plugins/$name")) === null) {
             $config = array();
         }
         return self::loadCustomPlugin($name, $config);
@@ -1690,9 +1669,10 @@ final class Atomik
         }
         
         $options = array_merge(array(
-            'dirs'              => self::get('atomik/dirs/plugins'),
-            'classNameTemplate' => '%Plugin',
-            'callStart'         => true
+            'dirs'                  => self::get('atomik/dirs/plugins'),
+            'classNameTemplate'     => '%',
+            'dirClassNameTemplate'  => 'Plugin',
+            'callStart'             => true
         ), $options);
         $options['dirs'] = self::path($options['dirs']);
         
@@ -1705,13 +1685,15 @@ final class Atomik
         if (!class_exists($pluginClass)) {
             // tries to load the plugin from a file
             $ns = '';
-            if (($include = self::findFile("$plugin.php", $options['dirs'], true)) === false) {
+            $filename = str_replace('\\', DIRECTORY_SEPARATOR, $plugin);
+            if (($include = self::findFile("$filename.php", $options['dirs'], true)) === false) {
                 // no file, checks for a directory
-                if (($include = self::findFile($plugin, $options['dirs'], true)) === false) {
+                if (($include = self::findFile($filename, $options['dirs'], true)) === false) {
                     throw new AtomikException("Missing plugin '$plugin' (no file or directory matching plugin name)");
                 }
                 
                 list($pluginDir, $ns) = $include;
+                $pluginClass = str_replace('%', $plugin, $options['dirClassNameTemplate']);
                 $filename = "$pluginDir/Plugin.php";
                 $appFilename = "$pluginDir/Application.php";
                 if (!empty($ns)) {
@@ -1725,16 +1707,11 @@ final class Atomik
                 if ($isPluggApp && !isset(self::$pluggableApplications[$plugin])) {
                     self::registerPluggableApplication($plugin);
                 }
-                
-                foreach (array('libraries', 'libs', 'includes') as $dir) {
-                    if (@is_dir("$pluginDir/$dir")) {
-                        if (!empty($ns)) {
-                            self::add('atomik/dirs/namespaces', array($ns => "$pluginDir/$dir"));
-                        } else {
-                            set_include_path("$pluginDir/$dir" . PATH_SEPARATOR . get_include_path());
-                        }
-                        break;
-                    }
+
+                if (!empty($ns)) {
+                    self::add('atomik/dirs/namespaces', array($ns => $pluginDir));
+                } else {
+                    set_include_path($pluginDir . PATH_SEPARATOR . get_include_path());
                 }
                 
             } else {
@@ -1744,7 +1721,7 @@ final class Atomik
             self::instance()->scoped($filename, array('config' => $config));
             $pluginClass = ltrim("$ns\\$pluginClass", '\\');
         }
-        
+
         if (class_exists($pluginClass, false)) {
             $registerEventsCallback = true;
             // call the start method on the plugin class if it's defined
@@ -1991,7 +1968,8 @@ final class Atomik
         ob_start();
         if ($__allowShortTags) {
             // from CodeIgniter (https://github.com/EllisLab/CodeIgniter)
-            eval('?>' . preg_replace("/;*\s*\?>/", "; ?>", str_replace('<?=', '<?php echo ', file_get_contents($__filename))));
+            eval('?>' . preg_replace("/;*\s*\?>/", "; ?>", 
+                str_replace('<?=', '<?php echo ', file_get_contents($__filename))));
         } else {
             include($__filename);
         }
@@ -2006,6 +1984,24 @@ final class Atomik
         }
         
         return array($content, $vars);
+    }
+
+    /**
+     * Adds a path or an array of path to the include path
+     *
+     * @param string|array $path
+     */
+    public static function addIncludePath($path)
+    {
+        $includePaths = array(get_include_path());
+        foreach ((array) $path as $ns => $dir) {
+            if (!is_numeric($ns)) {
+                self::add('atomik/dirs/namespaces', array($ns => $dir));
+            } else {
+                $includePaths[] = self::path($dir);
+            }
+        }
+        set_include_path(implode(PATH_SEPARATOR, array_filter($includePaths)));
     }
     
     /**
@@ -2043,12 +2039,14 @@ final class Atomik
      * @param bool $checkExists
      * @return string
      */
-    public static function path($filename, $relativeTo = null, $checkExists = true)
+    public static function path($filename, $relativeTo = null, $checkExists = true, $ds = null)
     {
+        $ds = $ds ?: DIRECTORY_SEPARATOR;
+
         if (is_array($filename)) {
             $pathnames = array();
-            foreach ($filename as $f) {
-                $pathnames[] = self::path($f, $relativeTo, $checkExists);
+            foreach ($filename as $k => $f) {
+                $pathnames[$k] = self::path($f, $relativeTo, $checkExists);
             }
             return $pathnames;
         }
@@ -2059,8 +2057,7 @@ final class Atomik
             if (strlen($filename) >= 2 && substr($filename, 0, 2) == './') {
                 $filename = substr($filename, 2);
             }
-            $pathname = rtrim($relativeTo, DIRECTORY_SEPARATOR) 
-                      . DIRECTORY_SEPARATOR . $filename;
+            $pathname = rtrim($relativeTo, $ds) . $ds . $filename;
         }
         if ($checkExists) {
             return realpath($pathname);
@@ -2200,7 +2197,7 @@ final class Atomik
     {
     	$plugin = ucfirst($plugin);
         if (!isset(self::$pluggableApplications[$plugin])) {
-            throw new AtomikException('Plugin ' . $plugin . ' is not registered as a pluggable application');
+            throw new AtomikException("Plugin '$plugin' is not registered as a pluggable application");
         }
         
         $route = rtrim(self::$pluggableApplications[$plugin]['route'], '/*');
@@ -2260,10 +2257,9 @@ final class Atomik
      *
      * @param string $include Filename or class name following the PEAR convention
      * @param bool $className If true, $include will be transformed from a PEAR-formed class name to a filename
-     * @param string|array $dirs Include from specific directories rather than include path
      * @return bool
      */
-    public static function needed($include, $className = true, $dirs = null)
+    public static function needed($include, $className = true)
     {
         self::fireEvent('Atomik::Needed', array(&$include, &$className, &$dirs));
         if ($include === null) {
@@ -2271,14 +2267,16 @@ final class Atomik
         }
         
         if ($className) {
-            $include = ltrim($include, '\\');
+            $include = trim($include, '\\');
             $namespaces = array_reverse((array) self::get('atomik/dirs/namespaces', array()));
             foreach ($namespaces as $prefix => $dir) {
-                $prefix = ltrim($prefix, '\\');
+                $prefix = trim($prefix, '\\');
                 if (substr($include, 0, strlen($prefix)) == $prefix) {
-                    $include = substr($include, strlen($prefix));
-                    $dirs = $dir;
-                    break;
+                    $include = str_replace('\\', '/', substr($include, strlen($prefix) + 1));
+                    if ($filename = self::findFile("$include.php", $dir)) {
+                        return include($filename);
+                    }
+                    return false;
                 }
             }
             $include = str_replace(array('_', '\\'), DIRECTORY_SEPARATOR, $include);
