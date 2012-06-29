@@ -32,15 +32,16 @@ class ClassQL
 
         ), $config);
 
-        foreach (array_filter((array) Atomik::path($config['model_dirs'])) as $ns => $dir) {
-            \ClassQL\Loader::register($ns, $dir, true);
-        }
-
         \ClassQL\Session::start($config);
+
+        $loader = new \ClassQL\ModelLoader();
+        $loader->add(array_filter((array) Atomik::path($config['model_dirs'])));
+        $loader->register();
 
         if (Atomik::isPluginLoaded('Console')) {
             Console::register('classql', function($argv) {
-                \ClassQL\CLI::run($argv);
+                $cli = new \ClassQL\CLI();
+                $cli->run($argv);
             });
         }
     }

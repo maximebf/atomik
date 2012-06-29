@@ -60,7 +60,7 @@ class Plugin
         
         self::$config = &$config;
         Atomik::set('app/executor', 'Atomik\Controller\Plugin::execute');
-        Atomik::addIncludePath(array_filter(Atomik::path((array) self::$config['dirs'])));
+        Atomik::add('atomik/dirs/includes', array_filter(Atomik::path((array) self::$config['dirs'])));
     }
     
     /**

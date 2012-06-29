@@ -190,8 +190,7 @@ Atomik::set(array(
             'views'              => 'views',
             'layouts'            => array('views', 'layouts'),
             'helpers'            => array('Atomik' => __DIR__ . '/helpers', 'helpers'),
-            'includes'           => array('includes', 'libs'),
-            'namespaces' 		 => array('Atomik' => __DIR__ . '/lib'),
+            'includes'           => array('Atomik' => __DIR__ . '/lib', 'includes', 'libs'),
             'overrides'          => 'overrides'
         ),
     
@@ -371,12 +370,14 @@ final class Atomik
             }
             
             self::fireEvent('Atomik::Config');
-            self::addIncludePath(array_filter(self::path(self::get('atomik/dirs/includes', array()))));
             
             // sets the error reporting to all errors if debug mode is on
             if (self::get('atomik/debug', false) == true) {
                 error_reporting(E_ALL | E_STRICT);
             }
+
+            // makes relative include dirs relative to app root
+            self::set('atomik/dirs/includes', self::path(self::get('atomik/dirs/includes', array())));
             
             // registers the class autoload handler
             if (self::get('atomik/class_autoload', true) == true) {
@@ -1709,7 +1710,7 @@ final class Atomik
                 }
 
                 if (!empty($ns)) {
-                    self::add('atomik/dirs/namespaces', array($ns => $pluginDir));
+                    self::add('atomik/dirs/includes', array($ns => $pluginDir));
                 } else {
                     set_include_path($pluginDir . PATH_SEPARATOR . get_include_path());
                 }
@@ -1986,22 +1987,67 @@ final class Atomik
         return array($content, $vars);
     }
 
-    /**
-     * Adds a path or an array of path to the include path
+    /*
+     * Includes a file
      *
-     * @param string|array $path
+     * @param string $include Filename or class name following the PEAR convention
+     * @param bool $className If true, $include will be transformed from a PEAR-formed class name to a filename
+     * @return bool
      */
-    public static function addIncludePath($path)
+    public static function needed($include, $className = true)
     {
-        $includePaths = array(get_include_path());
-        foreach ((array) $path as $ns => $dir) {
-            if (!is_numeric($ns)) {
-                self::add('atomik/dirs/namespaces', array($ns => $dir));
-            } else {
-                $includePaths[] = self::path($dir);
+        if ($className && (class_exists($include, false) || interface_exists($include, false))) {
+            return true;
+        }
+
+        self::fireEvent('Atomik::Needed', array(&$include, &$className, &$dirs));
+        if ($include === null) {
+            return false;
+        }
+
+        $includeDirs = (array) self::get('atomik/dirs/includes', array());
+        if ($filename = self::resolveIncludePath($include, $includeDirs, $className)) {
+            return include($filename);
+        }
+        return false;
+    }
+
+    /**
+     * Resolves an include name (either a filename or a classname) to a full pathname
+     * 
+     * @param string $include
+     * @param string|array $includeDirs
+     * @param boolean $className Whether $include can be a classname
+     * @return string
+     */
+    public function resolveIncludePath($include, $includeDirs, $className = true)
+    {
+        $ns = null;
+        $dirs = array();
+        $include = trim($include, '\\');
+
+        foreach ((array) $includeDirs as $includeNs => $includeDir) {
+            if ($ns === null && is_numeric($includeNs)) {
+                $dirs[] = $includeDir;
+                continue;
+            } else if (!$className) {
+                continue;
+            }
+            $includeNs = trim($includeNs, '\\');
+            if (substr($include, 0, strlen($includeNs)) === $includeNs) {
+                if ($ns !== null && strlen($ns) > strlen($includeNs)) {
+                    continue;
+                }
+                $ns = $includeNs;
+                $dirs = $includeDir;
             }
         }
-        set_include_path(implode(PATH_SEPARATOR, array_filter($includePaths)));
+
+        if ($ns !== null) {
+            $include = ltrim(substr($include, strlen($ns)), '\\');
+        }
+        $include = str_replace(array('_', '\\'), DIRECTORY_SEPARATOR, $include);
+        return self::findFile("$include.php", $dirs);
     }
     
     /**
@@ -2250,43 +2296,6 @@ final class Atomik
         $dirname = rtrim(sprintf($template, ucfirst($plugin)), '/');
         $filename = '/' . ltrim($filename, '/');
         return self::url($dirname . $filename, $params, false, false);
-    }
-
-    /*
-     * Includes a file
-     *
-     * @param string $include Filename or class name following the PEAR convention
-     * @param bool $className If true, $include will be transformed from a PEAR-formed class name to a filename
-     * @return bool
-     */
-    public static function needed($include, $className = true)
-    {
-        self::fireEvent('Atomik::Needed', array(&$include, &$className, &$dirs));
-        if ($include === null) {
-            return false;
-        }
-        
-        if ($className) {
-            $include = trim($include, '\\');
-            $namespaces = array_reverse((array) self::get('atomik/dirs/namespaces', array()));
-            foreach ($namespaces as $prefix => $dir) {
-                $prefix = trim($prefix, '\\');
-                if (substr($include, 0, strlen($prefix)) == $prefix) {
-                    $include = str_replace('\\', '/', substr($include, strlen($prefix) + 1));
-                    if ($filename = self::findFile("$include.php", $dir)) {
-                        return include($filename);
-                    }
-                    return false;
-                }
-            }
-            $include = str_replace(array('_', '\\'), DIRECTORY_SEPARATOR, $include);
-        }
-        
-        try {
-            return include("$include.php");
-        } catch (ErrorException $e) {
-            return false;
-        }
     }
     
     /**
