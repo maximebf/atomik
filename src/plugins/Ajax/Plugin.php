@@ -118,6 +118,10 @@ class AjaxPlugin
 		
 		/* echo's output */
 		header('Content-type: application/json; charset=utf-8');
+		//should consider a ob_clean to avoid problem with ajax queries IE7, IE8, mobile
+		//got this problem even with utf8 w/o BOM files so seems to be a problem related
+		//to this plugin
+		ob_clean();
 		echo $json;
 		
 		/* ends successfuly */

@@ -1,0 +1,302 @@
+== CHANGELOG ==
+
+* = New feature
+! = Modification to existing feature
+# = Fixed bug
+
+----------- Atomik 3.0 --------------
+
+[Atomik]
+
+ WARNING: Compatibility breaks and at least PHP 5.3 is needed
+ 
+ ! Extracted escape() as an helper (config moved to helpers/escape)
+ ! Extracted filter() as an helper (config moved to helpers/filter)
+ ! Extracted flash() as a plugin (config moved to plugin)
+ ! Removed _getFlashMessage() (see Flash plugin)
+ ! Extracted friendlify() as the linkify helper
+ ! Extracted redirect() as an helper
+ ! Removed appRedirect()
+ ! Removed pluginRedirect()
+ ! Extracted debug() as an helper
+ ! Session management extracted as a plugin (config moved to plugin)
+ ! Logging extracted as a plugin (config moved to plugin)
+ ! Removed log()
+ ! Removed logToFile()
+ ! Error management extracted as a plugin (config moved to plugin)
+ ! Removed renderException() (see Errors plugin)
+ ! Renamed _errorHandler() to errorHandler()
+ ! Renamed Atomik_Exception to AtomikException
+ ! Renamed Atomik_HttpException to AtomikHttpException
+ ! Removed atomik/urimatch_compat
+ ! Removed atomik/scriptname
+ ! Atomik does not change the directory anymore to atomik/scriptname
+ ! Renamed _dimensionizeArray() to dimensionizeArray()
+ ! Renamed _mergeRecursive() to mergeRecursive()
+ ! Removed autoload(), needed() is now directly used as the autoloader
+ * Added findFile()
+ ! Completely modified path() function
+ * Added support for namespaced plugins and helpers
+ ! Rewrite of route()
+ * New app/router key to allow alternative router or to disable the router
+ * New app/views/auto config to disable automatic render of views after actions
+ * Added support for short tags in views (will be converted to standard tags)
+ * Short tags can be disabled using app/views/short_tags
+ * Plugins can be loaded from the include path
+ ! Removed ATOMIK_APP_ROOT constant
+ ! Files and directories are now relative to the atomik/dirs/app entry
+ ! Removed error_handler
+ 
+[Helpers]
+ 
+ * Added debug
+ * Added escape
+ * Added filter
+ * Added linkify
+ * Added redirect
+ * Refactored form
+
+[Plugin:Config]
+
+Deleted
+
+[New plugins]
+
+ * Errors
+ * Flash
+ * Logger
+ * Session
+
+----------- Atomik 2.3 --------------
+
+[Atomik]
+
+ WARNING: The 2.2 class style actions have been removed from the core
+
+ ! Change in the execution process: new modular execution process
+ ! Atomik::executeFile() has completely changed: is now the file executor
+ ! Events from Atomik::execute() and Atomik::executeFile() have changed
+ * Removed the $triggerError argument in Atomik::execute() and Atomik::render()
+ * Added Atomik::instance()
+ ! Removed Atomik::_execute()
+ ! Removed Atomik::_render()
+ * Added Atomik::scoped() which replaces _execute() and _render()
+ ! removed the key atomik/display_errors
+ * Added key atomik/throw_errors
+ * Added Atomik_HttpException
+ ! Event Atomik::404 has changed
+ * Atomik::dispatch() now catch Atomik_HttpException and display 404 errors
+ ! The Atomik_HttpException message is not displayed anymore unless atomik/debug is set to true
+ ! Change in Atomik::execute*(), Atomik::render*() and Atomik::route() to
+   throw exception instead of returning false unless the file is not found
+ ! Arguments of Atomik::run() have changed
+ * Added support for config environment (first arg of Atomik::run())
+ * ATOMIK_ENV constant
+ * Dirs and files (atomik/dirs, atomik/files) are now all prefixed using the
+   constant ATOMIK_APP_ROOT
+ * Added Atomik::loadConfig()
+ * Added Atomik::registerHelper()
+ ! session_start() now happens after bootstrap.php and before the event Atomik::Start
+ * Added atomik/session_namespace
+ ! Removed Atomik::call()
+ ! Removed Atomik::registerMethod()
+ ! Atomik::__callStatic() now redirects to helpers
+ ! Change in the way uriMatch() works, compatibility break! 
+   Use atomik/urimatch_compat=true to keep compatibility (but it's still deprecated)
+   Be aware that this will be removed in the future
+ ! Atomik::url() does not forward parameters by default anymore
+ ! Atomik::url() uses &amp; instead of &.
+ ! The router do not add additional uri segments as parameters by default anymore.
+   Routes need to be appended with * (eq: /users/* or /users/*.html) for this behaviour.
+ * Added atomik/auto_uri_wildcard to automatically add * at the end of all routes.
+ * fixed bug with view contexts and content types
+ * Added Atomik::setViewContext()
+ ! Modified the way layout are rendered (no compatibility break)
+ * Added @redirect in routes
+ * Added support for PHP 5.3 namespaces in Atomik::needed()
+ * Added shortcut syntax array(route => action) for simple routes
+ ! Plugin's $config is now a reference to the plugins/PluginName entry
+ 
+[Plugin:SimpleClassExecutor]
+
+ * New plugin to define actions as classes (in the 2.2 way)
+ 
+[Plugin:Controller]
+
+ * The plugin now acts as an executor
+ * Added support for PHP 5.3 namespaces
+ 
+[Plugin:DbSession]
+
+ * new plugin to store the session in a database
+ 
+[Plugin:Db]
+
+ * Command events changed
+ 
+[Plugin:Auth]
+
+ * updated config keys
+ 
+[Lib:Db]
+
+ * added Atomik_Db_Type
+ * removed Atomik_Db_Definition
+ * removed Atomik_Db_Adapter_Factory (see Atomik_Db_Adapter::factory())
+ * removed Atomik_Db_Query_Result (going back to PDOStatement)
+ * Atomik_Db_Query now only perform SELECT statements
+ * Atomik_Db_Instance::getErrorInfo() returns the last error whether from pdo
+   or a statement (only if it is executed through the instance)
+ * Removed all cache related method on Atomik_Db
+ * Added transaction support
+ * Removed Atomik_Db_Script
+ 
+[Lib:Form]
+
+ * removed
+
+----------- Atomik 2.2 --------------
+
+[Atomik]
+
+ WARNING: MASSIVE COMPATIBILITY BREAK
+
+ ! Reorganization of configuration keys
+ ! no more $echo param on execute() and render()
+ ! change in events from execute()
+ ! _executeInScope() renamed executeFile()
+ * Added the ability to use classes in action
+ ! The store array is now available under Atomik::$store
+ # echo in action was outside of layout
+ * Added Atomik::setView()
+ * Actions specific to http methods
+ ! The http method for an action can be specified as a suffix in the first parameter of Atomik::execute()
+ * Added support for file extensions in URIs
+ * Added support for view contexts
+ ! The second parameter of Atomik::execute() can now be a string specifying the view context
+ * Added support for adding method to Atomik
+ * Added Atomik::registerMethod()
+ * Added Atomik::call()
+ * Added Atomik::__callStatic()
+ * Added Atomik::registerPluggableApplication()
+ * Added Atomik::dispatchPluggableApplication()
+ ! Atomik::url() is now relative to the application context
+ ! Modification to Atomik::pluginAsset(): the two first args have been inverted
+ * Added Atomik::pluginRedirect()
+ * Added Atomik::appRedirect()
+ * Added Atomik::pluginUrl()
+ * Added Atomik::appUrl()
+ * Added Atomik::appAsset()
+ * Added Atomik::uriMatch()
+ ! Divided Atomik::dispatch() into Atomik::run() and Atomik::dispatch()
+ ! The starting point is now Atomik::run()
+ * Added Atomik::reset()
+ * Added Atomik::loadHelper()
+ * Added Atomik::helper()
+ * Added Atomik::_render()
+ * Added Atomik::__call()
+ ! Atomik::loadPlugin() only gets a plugin name as parameter and uses the configuration from the plugins/PluginName key
+ * Added Atomik::loadCustomPlugin() : replacement for the old Atomik::loadPlugin()
+ * Added Atomik::getLoadedPlugins()
+ * Added Atomik::isPluginLoaded()
+ * Added Atomik::isPluginAvailable()
+ * Added Atomik::loadPluginIfAvailable()
+ * Added Atomik::loadCustomPluginIfAvailable()
+ * Added Atomik::actionFilename()
+ * Added Atomik::viewFilename()
+ * Added Atomik::log()
+ * Added Atomik::logToFile()
+ * Added Atomik::prepend()
+ * Added support for configuration files in php, ini or json formats
+ * Added Atomik::autoload()
+ # multiple declarations of a plugin in the plugins config could lead to error
+ * Added support regexp routes
+ * Routes can now be named
+ * Added support for index files in views and actions subfolders
+ 
+[Atomik_Db]
+ * Added support for models (beta)
+ * Added Atomik_Db::findValue()
+ * Added Atomik_Db::has()
+ * Added Atomik_Db::set()
+ 
+[Atomik_Auth (beta)]
+ * New Plugin
+ 
+[Atomik_Backend (beta)]
+ * New Plugin
+ 
+[Atomik_Config (beta)]
+ * New Plugin
+ 
+[Atomik_Form (beta)]
+ * New Plugin
+
+----------- Atomik 2.1 --------------
+
+[Atomik]
+
+ ! Templates are renamed Views (however the template folder is still available)
+ ! The file extensions for view files is now .phtml
+ * Events listener priorities
+ * Plugins can have their own directory
+ * Auto add to the include path of the libraries folder from plugin's directory (if exists)
+ * Plugins can bring their assets (css, scripts) inside an assets folder
+ ! Change to Atomik::needed(): support for class names (following the PEAR convention)
+ * Register Atomik::needed() as an autoload handler
+ ! Changes to Atomik::url(): second argument is now an array of GET parameters
+ ! @subpackage for plugins has become "Plugins" (documentation)
+ ! Atomik::Start and Atomik:Dispatch::Before events have now a $cancel parameter
+ ! Atomik::_renderInScope() replaced with Atomik::renderFile()
+ * Atomik::fireEvent() now returns an array of each callback results
+ * Added Atomik::attachClassListeners()
+ ! Event Atomik::Redirect now occurs before the call to Atomik::url() (if any)
+ * Routes are now natively supported
+ * Added Atomik::route()
+ ! Atomik::loadPlugin(): $arguments parameter dropped (use $config instead)
+ ! Atomik::loadPlugin(): new parameters allow "plugins for plugins"
+ ! Atomik::_mergeRecursive() is now public
+ * Added Atomik::_dimensionizeArray()
+ ! Atomik::set() now use Atomik::_dimensionizeArray() when the first argument is an array
+ * Added Atomik::getRef()
+ * Added Atomik::add()
+ * Added Atomik::debug()
+ * Added Atomik::asset()
+ * Added Atomik::pluginAsset()
+ * Added Atomik::filter()
+ * Added Atomik::escape()
+ ! Config file (atomik/files/config) config.php renamed bootstrap.php (atomik/files/bootstrap)
+ * Added Atomik::noRender()
+ * Added custom rendering engine support
+ # REDIRECT_URL/URI with lighthttpd
+ # slash problem on Windows in base_url
+ * Layout are now natively supported
+ * Added Atomik::renderLayout()
+ * Added Atomik::disableLayout()
+ * Session and flash messages are now natively supported
+ * Added Atomik::flash()
+ ! Add $httpCode parameter to Atomik::redirect()
+ ! Added $writeSession parameter to Atomik::end()
+ 
+[DbPlugin]
+ 
+ ! Class Db replaced with Atomik_Db
+ ! $where argument can now be an sql condition string
+ * Added Atomik_Db::count()
+ 
+[SessionPlugin]
+
+ ! Merged into core
+
+[ControllerPlugin]
+
+ * Added config keys default_controller and default_action
+ * New Atomik_Controller class (base class for controllers)
+ * Define route parameters as method doc comments
+ * Map request parameters to method parameters
+ * New argument for ControllerPlugin::start()
+ 
+[LayoutPlugin]
+
+ ! Merged into core
+ 

@@ -183,7 +183,7 @@ class DbPlugin
         
         // app
         if ((count($filter) && in_array('App', $filter)) || !count($filter)) {
-            foreach (Atomik::path(self::$config['sql_dirs'], true) as $path) {
+            foreach ((array) self::$config['sql_dirs'] as $path) {
                 if (@is_dir($path)) {
                     $sql .= self::getSqlFilesFromDir($path);
                 }

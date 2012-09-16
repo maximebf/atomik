@@ -21,18 +21,13 @@
 namespace Atomik;
 use Atomik;
 
-class HtmlAttributesHelper
+class LinkifyHelper
 {
-    public function htmlAttributes($array, $filter = null, $exclude = true)
+    public function linkify($string)
     {
-        $attrs = array();
-        foreach ($array as $key => $value) {
-            if (!empty($filter) && ((!$exclude && !in_array($key, (array) $filter)) || 
-                ($exclude && in_array($key, (array) $filter)))) {
-                continue;
-            }
-            $attrs[] = sprintf('%s="%s"', $key, $value);
-        }
-        return implode(' ', $attrs);
+        $string = str_replace('-', ' ', $string);
+        $string = preg_replace(array('/\s+/', '/[^A-Za-z0-9\-]/'), array('-', ''), $string);
+        $string = trim(strtolower($string));
+        return $string;
     }
 }

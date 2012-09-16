@@ -1,11 +1,32 @@
 <?php
+/**
+ * Atomik Framework
+ * Copyright (c) 2008-2011 Maxime Bouroumeau-Fuseau
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package     Atomik
+ * @author      Maxime Bouroumeau-Fuseau
+ * @copyright   2008-2011 (c) Maxime Bouroumeau-Fuseau
+ * @license     http://www.opensource.org/licenses/mit-license.php
+ * @link        http://www.atomikframework.com
+ */
 
-class ImgHelper extends Atomik_Helper
+namespace Atomik;
+use Atomik;
+
+class ImgHelper
 {
     public function img($src, $alt = '', $attrs = array())
     {
-        $attrs['src'] = $src;
+        $attrs['src'] = Atomik::asset($src);
         $attrs['alt'] = $alt;
-        return sprintf('<img %s />', $this->helpers->htmlAttributes($attrs));
+        return sprintf('<img %s />', Atomik::htmlAttributes($attrs));
     }
 }

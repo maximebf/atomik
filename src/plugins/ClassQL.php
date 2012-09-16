@@ -19,20 +19,30 @@
  */
 
 namespace Atomik;
+
 use Atomik;
 
-class HtmlAttributesHelper
+class ClassQL
 {
-    public function htmlAttributes($array, $filter = null, $exclude = true)
+    public static function start($config)
     {
-        $attrs = array();
-        foreach ($array as $key => $value) {
-            if (!empty($filter) && ((!$exclude && !in_array($key, (array) $filter)) || 
-                ($exclude && in_array($key, (array) $filter)))) {
-                continue;
-            }
-            $attrs[] = sprintf('%s="%s"', $key, $value);
+        $config = array_merge(array(
+
+            'model_dirs' => array('Models' => 'models')
+
+        ), $config);
+
+        \ClassQL\Session::start($config);
+
+        $loader = new \ClassQL\ModelLoader();
+        $loader->add(array_filter((array) Atomik::path($config['model_dirs'])));
+        $loader->register();
+
+        if (Atomik::isPluginLoaded('Console')) {
+            Console::register('classql', function($argv) {
+                $cli = new \ClassQL\CLI();
+                $cli->run($argv);
+            });
         }
-        return implode(' ', $attrs);
     }
 }
