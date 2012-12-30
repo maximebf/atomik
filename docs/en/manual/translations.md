@@ -1,12 +1,11 @@
 
-# Lang
+# Translations
 
-The Lang plugin adds translation features to Atomik.
+<div class="note">You will need the Translations plugin which is bundled with Atomik</div>
 
 This plugin is gettext-like. You write your application in its default language and then
 provide translations for each part of text.
-	
-	
+    
 ## Creating language files
 
 A language file provides translation from one language to another.
@@ -17,42 +16,47 @@ the first part of the locale. For example, if the file provide translation to Fr
 named *fr.php* (because the locale is fr-fr).
 
 In the language file you must defined messages using the 
-*LangPlugin::setMessages()* method. The messages is made of
+`Translations::setMessages()` method. The messages is made of
 the string of the original language and the translated one.
 
     <?php
-    LangPlugin::setMessages(array(
-	    'hello' => 'bonjour',
-	    'how are you?' => 'comment ca va?'
+    Atomik\Translations::setMessages(array(
+        'hello' => 'bonjour',
+        'how are you?' => 'comment ca va?'
     ));
 
 ## Detecting the user language
 
-By default, the plguin will autodetect the language using HTTP headers. This can be turned off
+By default, the plugin will autodetect the language using HTTP headers. This can be turned off
 by setting false to the *autodetect* configuration key.
 
 If the language cannot be detected, it will fall back on the default language defined in the
 *language* configuration key.
 
-You can also set the language manually using *LangPlugin::set()*.
+You can also set the language manually using `Translations::set()`.
 
-    LangPlugin::set('fr');
+    Atomik\Translations::set('fr');
 
-The current language is available from the global store under the *app/language* key.
+The current language is available from the global store under the *app.language* key.
 
-    $currentLanguage = A('app/language');
+    $currentLanguage = Atomik::get('app.language');
 
 ## Translating strings
 
-To enable translation for a string use the *LangPlugin::\_()* method.
+To enable translation for a string use the `Translations::translate()` method.
 
-    LangPlugin::set('fr');
-    echo LangPlugin::_('hello'); // will echo bonjour
-    echo LangPlugin::_('how are you?'); // will echo comment ca va?
+    Atomik\Translations::set('fr');
+    echo Atomik\Translations::translate('hello'); // will echo bonjour
+    echo Atomik\Translations::translate('how are you?'); // will echo comment ca va?
 
-A shortcut function is also defined: \_\_().
+The method is also available as an helper:
 
-    LangPlugin::set('fr');
+    echo $this->translate('hello');
+    echo $this->_('hello'); // alias
+
+A shortcut function is also defined: `__()`.
+
+    Atomik\Translations::set('fr');
     echo __('hello'); // will echo bonjour
     echo __('how are you?'); // will echo comment ca va?
 
