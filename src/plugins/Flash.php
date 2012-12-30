@@ -12,7 +12,7 @@ namespace Atomik;
 use Atomik,
     AtomikException;
 
-class Flash
+class Flash implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * Starts this class as a plugin
@@ -21,7 +21,7 @@ class Flash
     {
         Atomik::registerHelper('flash', 'Atomik\Flash::flash');
         Atomik::registerHelper('flashMessages', 'Atomik\Flash::renderFlashMessages');
-        Atomik::registerSelector('flash', 'Atomik\Flash::getFlashMessages');
+        Atomik::set('flash_messages', new Flash());
     }
     
     /**
@@ -92,6 +92,31 @@ class Flash
     	    return '';
     	}
     	return '<ul id="' . $id . '">' . $html . '</ul>';
+    }
+
+    public function getIterator()
+    {
+        return self::getFlashMessages();
+    }
+
+    public function offsetGet($label)
+    {
+        return self::getFlashMessages($label);
+    }
+
+    public function offsetSet($label, $value)
+    {
+
+    }
+
+    public function offsetExists($label)
+    {
+
+    }
+
+    public function offsetUnset($label)
+    {
+        self::getFlashMessages($label);
     }
 }
 
