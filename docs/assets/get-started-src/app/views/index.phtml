@@ -1,9 +1,0 @@
-<h1>Blog</h1>
-<ul>
-	<? foreach ($posts as $post): ?>
-		<li>
-			<a href="<?= $this->url('view', array('id' => $post['id'])) ?>"><?= $this->escape($post['title']) ?></a>
-		</li>
-	<? endforeach; ?>
-</ul>
-<a href="<?= $this->url('add') ?>">Add a new post</a>
