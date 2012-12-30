@@ -12,7 +12,7 @@ namespace Atomik;
 use Atomik,
     AtomikException;
 
-class Lang
+class Translations
 {
     /** @var array */
     public static $config = array();
@@ -44,8 +44,8 @@ class Lang
         ), $config);
         self::$config = &$config;
 
-        Atomik::registerHelper('translate', 'Atomik\Lang::_');
-        Atomik::registerHelper('_', 'Atomik\Lang::_');
+        Atomik::registerHelper('translate', 'Atomik\Translations::_');
+        Atomik::registerHelper('_', 'Atomik\Translations::_');
     }
     
     /**
@@ -147,7 +147,7 @@ class Lang
             self::$messages = array_merge(self::$messages, $messages);
         }
         
-        Atomik::set('app/language', $language);
+        Atomik::set('app.language', $language);
         self::$config['language'] = $language;
         if (isset($_SESSION)) {
             $_SESSION['__LANG'] = $language;
@@ -181,7 +181,7 @@ class Lang
      * @param string $text
      * @return string
      */
-    public static function _($text)
+    public static function translate($text)
     {
         $args = func_get_args();
         unset($args[0]);
@@ -205,6 +205,6 @@ if (!function_exists('__')) {
      */
     function __($text)
     {
-        return call_user_func_array('Atomik\Lang::_', func_get_args());
+        return call_user_func_array('Atomik\Translations::_', func_get_args());
     }
 }
