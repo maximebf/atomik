@@ -17,7 +17,8 @@ have been at the top of the file followed by the HTML.
 	    <input type="submit" value="send" />
     </form>
 
-This is BAD!! The application logic and the presentation layer should always be separated.
+This is BAD!! The application logic and the presentation layer should always be separated
+as explained [here](http://en.wikipedia.org/wiki/Separation_of_concerns).
 
 Now let's imagine that rather than directly doing both part in the same file we split it.
 We would have three file: one with the logic, one with the HTML and one that include both.
@@ -69,7 +70,7 @@ You shouldn't use echo or write any HTML code inside an action.
 As said before, the goal of an action is to separate the logic from the presentation.
 
 If you would like to exit the application, avoid using exit() and prefer
-*Atomik::end()* so Atomik can smoothly exit your application.
+`Atomik::end()` so Atomik can smoothly exit your application.
 
 You can use folders to organize your actions. In this case, views must follow the same
 directory structure. You can create an *index* action (*index.php*)
@@ -95,27 +96,27 @@ You can still create a global action file (in the previous example: *user.php*)
 which will be executed before any method specific action. Variables from the global action are
 available in the specific one.
 
-The current http method is available in the *app/http_method* configuration key.
+The current http method is available in the *app.http_method* configuration key.
 
 ### Allowed methods and overriding the request's method
 
-Allowed HTTP methods are defined in *app/allowed_http_methods*. By default,
+Allowed HTTP methods are defined in *app.allowed_http_methods*. By default,
 all methods available in the protocol are listed but you may want to reduce that list.
 
-Some clients does not handle well HTTP methods (Flex for example...). Thus, it is possible
+Some clients does not handle well HTTP methods. Thus, it is possible
 to override the request's method using a route parameter (which can be a GET parameter).
 The default parameter name is *_method*. This can be changed in
-*app/http_method_param*. It can also be disabled by setting false instead of
+*app.http_method_param*. It can also be disabled by setting false instead of
 a string.
 
 ## Includes
 
 Includes are php files containing common logic that you include in your actions.
 
-Includes are stored in the *app/includes* and/or the *app/libs* 
-directories. This can be changed in *atomik/dirs/includes*.
+Includes are stored either in *app/includes* or *app/libs*.
+directories. This can be changed in *atomik.dirs.includes*.
 
-To include a file from one of these directories use the *Atomik::needed()* 
+To include a file from one of these directories use the `Atomik::needed()` 
 method. It takes as first argument the path to the filename you wish to include relative to the
 previous directories and without the extension.
 
@@ -126,7 +127,7 @@ You can use sub directories. To include a file stored at *app/includes/libs/db.p
 
     Atomik::needed('libs/db');
 
-*Atomik::needed()* also allows you to include classes using
+`Atomik::needed()` also allows you to include classes using
 their name. To do so, classes have to follow the PEAR naming convention
 (http://pear.php.net/manual/en/standards.naming.php) or use PHP 5.3 namespaces.
 
@@ -134,19 +135,19 @@ their name. To do so, classes have to follow the PEAR naming convention
     Atomik::needed('Atomik_Db');
     Atomik::needed('Atomik\Db');
 
-*Atomik::needed()* is automatically registered as an spl\_autoload handler.
-This can be modified by setting *false* to the configuration key named *atomik/class\_autoload*.
+`Atomik::needed()` is automatically registered as an spl\_autoload handler.
+This can be modified by setting *false* to the configuration key named *atomik.class\_autoload*.
 
 ## Calling actions programmatically
 
 When executing a request, the action and/or the view associated to it are
 automatically called. You can however call other actions using Atomik's API.
 
-To execute an action use the *Atomik::execute()* method. It takes
+To execute an action use the `Atomik::execute()` method. It takes
 as first argument the action name.
 
 By default, if a view with the same name is found, it is rendered and the return value
-of the *execute()* method is the view output.
+of the `execute()` method is the view output.
 
 If no view is found, an empty string is returned. If false is used as second argument, 
 the return value is an array containing all *public* variables from the action.
@@ -154,9 +155,9 @@ the return value is an array containing all *public* variables from the action.
     $viewOutput = Atomik::execute('myAction');
     $variables = Atomik::execute('myAction', false);
 
-Calling an action using *Atomik::execute()* does not mean an action file
-must exist. However, in this case, a view file with the same name must exists. Otherwise,
-false is returned.
+Calling an action using `Atomik::execute()` does not mean an action file
+must exist. However, in this case, a view file with the same name must exist. Otherwise,
+an exception will be thrown.
 
 Actions executed this way will also be influenced by the HTTP method. You can specify a specific method
 by appendinf it to the action name. The global action will also be executed.

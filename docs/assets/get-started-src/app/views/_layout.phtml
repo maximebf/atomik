@@ -1,22 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title><?php echo A('title', 'My website') ?></title>
+		<title><?php echo $this->get('title', 'My website') ?></title>
 		
-		<?php foreach (A('styles', array()) as $style): ?>
-		<link rel="stylesheet" type="text/css" href="<?php echo Atomik::asset('assets/css/' . $style . '.css') ?>" />
+		<?php foreach ($this->get('styles', array()) as $style): ?>
+		<link rel="stylesheet" type="text/css" href="<?php echo $this->asset("assets/css/$style") ?>" />
 		<?php endforeach; ?>
 		
-		<?php foreach (A('scripts', array()) as $script): ?>
-		<script type="text/javascript" src="<?php echo Atomik::asset('assets/js/' . $script . '.js') ?>"></script>
+		<?php foreach ($this->get('scripts', array()) as $script): ?>
+		<script type="text/javascript" src="<?php echo $this->asset("assets/js/$script") ?>"></script>
 		<?php endforeach; ?>
 	</head>
 	<body>
 		<ul id="messages">
-			<?php foreach (A('flash:all') as $label => $messages): ?>
+			<?php foreach ($this['flash:all'] as $label => $messages): ?>
 				<?php foreach ($messages as $message): ?>
-					<li class="<?php echo $label ?>"><?php echo $message ?></li>
+					<li class="<?php echo $label ?>"><?php echo $this->escape($message) ?></li>
 				<?php endforeach; ?>
 			<?php endforeach; ?>
 		</ul>

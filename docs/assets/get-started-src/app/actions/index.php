@@ -1,3 +1,3 @@
 <?php
 
-$posts = Atomik_Db::findAll('posts');
+$posts = $this['db']->select('posts');

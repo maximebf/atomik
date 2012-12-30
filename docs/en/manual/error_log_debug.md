@@ -3,60 +3,79 @@
 
 ## Handling errors
 
-By default, Atomik won't catch any exceptions or errors, PHP's normal behavior prevail. However it is possible
-to enable error catching so you can display an error page to the user or error reports while developing.
+<div class="note">You will need the Errors plugin which is bundled with Atomik</div>
 
-The *atomik/catch\_errors* configuration key must be set to true for Atomik to catch errors. Errors
-and exceptions are treated the same way.
+By default, Atomik won't catch any exceptions or errors, PHP's normal behavior prevail. 
+However, the Errors plugin enables error catching so you can display an error page to the 
+user or error reports while developing.
 
-By default, an error report will be displayed. The report can be hidden for security purpose by setting false to
-the *atomik/display\_errors* configuration key.
+The plugin will display a page when a 404 error is triggered. The template to render
+can be specified using *404\_view*, the default one being *errors/404*:
 
-A custom error page can be used as explained in the configuration chapter.
-			
-While disabled by default, it is adviced to use Atomik's error catching mechanism coupled with a custom error page.
-This avoid critical information to be displayed to any visitor of your website.
+    Atomik::set('plugins.Errors', array(
+        '404_view' => 'unknown_page'
+    ));
 
-All exceptions thrown by Atomik are of type *Atomik\_Exception*.
+The *catch\_errors* configuration key must be set to true for Atomik to catch errors. Errors
+and exceptions are treated the same way. If an error template exists (specified in *error_view*
+and by default *errors/error*) it will be rendered otherwise an error report is displayed.
+
+    Atomik::set('plugins.Errors', array(
+        'error_view' => 'my_error_template',
+        'catch_errors' => true
+    ));
+
+By default, uncatched errors are silently droped. You can instead let the exception be thrown
+using *throw\_errors*.
+
+    Atomik::set('plugins.Errors', array(
+        'throw_errors' => true
+    ));
 	
 ## Logging
 
-Logging should be an important part of any application. To provide a unified way of logging, Atomik provides since
-version 2.2 an *Atomik::log()* method. It takes two arguments, the second one being optional:
-the message and the level (default is LOG\_ERR = 3).
+<div class="note">You will need the Logger plugin which is bundled with Atomik</div>
 
-    Atomik::log('an error has occured!', LOG_ERR);
+The Logger plugin provides a simple way of logging messages. It provides the ̀log()` helper
+which takes two arguments, the second one being optional: the message and the level (default is `LOG_ERR` = 3).
+
+    $this->log('an error has occured!', LOG_ERR);
 
 As shown in the example, you should use PHP's LOG\_* constants.
 
-The method will simply fire an event named *Atomik::Log*. Listeners will get two arguments, the message
-and the level (the same as the *log()* method).
+The helper will simply fire an event named *Logger::Log*. Listeners will get two arguments, the message
+and the level.
 
     function my_logger($message, $level) {
 	    echo 'LOG: ' . $message;
     }
-    Atomik::listenEvent('Atomik::Log', 'my_logger');
+    Atomik::listenEvent('Logger::Log', 'my_logger');
 
 Atomik provides a default logger which will save messages to a text file. To register this logger, set
-the config key named *atomik/log/register\_default* to true.
+the config key named *register\_default* to true.
 
-The filename is defined in *atomik/files/log*. You can also define from which level messages should
-be saved by setting *atomik/log/level* to the minimum level. The default level is LOG\_WARNING (4).
+The filename is defined in *filename*. You can also define from which level messages should
+be saved by setting *level* to the minimum level. The default level is `LOG_WARNING` (4).
+
+    Atomik::set('plugins.Logger', array(
+        'register_default' => true,
+        'filename' => 'log.txt'
+    ));
 
 Finally, you can define the template of the string that will be added to the log file in 
-*atomik/log/message\_template*. You can use *%date%*, *%level%* and
-*%message%* which will be replaced by the appropriate string.
+*message\_template*. You can use *%date%*, *%level%* and *%message%* which will be replaced 
+by the appropriate string.
 
 ## Debugging
 
-Atomik's only provides a simple method named *Atomik::debug()* which 
-is an alias for var\_dump(). However the method output can be hidden
-by modifying the *app/debug* configuration key.
+Atomik's only provides a simple helper named `debug()` which 
+is an alias for `var_dump()`. However the method output can be hidden
+by modifying the *atomik.debug* configuration key.
 
-Also, if *app/debug* is true, the error reporting level will be set to the maximum.
+Also, if *atomik.debug* is true, the error reporting level will be set to the maximum.
 
     Atomik::debug($myVar);
-    Atomik::set('app/debug', false);
+    Atomik::set('atomik.debug', false);
     Atomik::debug($myVar2); // no output
     Atomik::debug($myVar2, true); // use true to force the output even if debug set to false
 

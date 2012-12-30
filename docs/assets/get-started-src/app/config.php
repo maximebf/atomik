@@ -1,15 +1,13 @@
 <?php
 
 Atomik::set(array(
+    'plugins.Db' => array(
+        'dsn'         => 'mysql:host=localhost;dbname=blog',
+        'username'     => 'root',
+        'password'     => ''
+    ),
 
-	'app/layout' => '_layout',
+    'app.layout' => '_layout',
 
-	'styles' => array('main')
-    
-));
-
-Atomik::set('plugins/Db', array(
-	'dsn' 		=> 'mysql:host=localhost;dbname=blog',
-	'username' 	=> 'root',
-	'password' 	=> ''
+    'styles' => array('main.css')
 ));

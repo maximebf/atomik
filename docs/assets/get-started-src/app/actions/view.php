@@ -1,8 +1,8 @@
 <?php
 
-if (!Atomik::has('request/id')) {
-	Atomik::flash('Missing id parameter', 'error');
-	Atomik::redirect('index');
+if (!isset($this['request.id'])) {
+	$this->flash('Missing id parameter', 'error');
+	$this->redirect('index');
 }
 
-$post = Atomik_Db::find('posts', array('id' => A('request/id')));
+$post = $this['db']->select('posts', array('id' => $this['request.id']));

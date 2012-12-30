@@ -9,24 +9,9 @@ Events are implicitely declared when they're fired.
 
 ## Listening to events
 
-Atomik provides the *listenEvent* method.
+Atomik provides the `listenEvent()` method.
 It takes as first argument an event name and as second a callback.
-See http://php.net/callback for more information on callbacks.
-
-    function myEventCallback()
-    {
-	    // ...
-    }
-
-    function myArgEventCallback($arg1, $arg2)
-    {
-	    // ...
-    }
-
-    Atomik::listenEvent('myEvent', 'myEventCallback');
-    Atomik::listenEvent('myArgEvent', 'myArgEventCallback');
-
-If you're using PHP 5.3 you can use anonymous functions
+See <http://php.net/callback> for more information on callbacks.
 
     Atomik::listenEvent('myEvent', function() {
 	    // ...
@@ -50,7 +35,7 @@ to be called before other listeners of the same priority, you can use true as th
 
 ## Firing events
 
-Events are fired using the *fireEvent* method provided by Atomik. 
+Events are fired using the `fireEvent()` method provided by Atomik. 
 It takes as first argument the event name and
 optionally as second an array of arguments for callbacks.
 
@@ -71,6 +56,5 @@ Events are composed using *Atomik* or a plugin name, followed by the method from
 event was fired and optionnally the event name. Each part is separated using ":" twice and should
 start with an upper case.
 
-	The method *Atomik::dispatch()*
-	fires an event named *Atomik::Dispatch::Start*.
+The method `Atomik::dispatch()` fires an event named *Atomik::Dispatch::Start*.
 

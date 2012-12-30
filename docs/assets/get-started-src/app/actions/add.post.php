@@ -1,16 +1,16 @@
 <?php
 
-$rule = array(
-	'title' => array('required' => true),
-	'content' => array('required' => true)
+$fields = array(
+    'title' => array('required' => true),
+    'content' => array('required' => true)
 );
 
-if (($data = Atomik::filter($_POST, $rule)) === false) {
-	Atomik::flash(A('app/filters/messages'), 'error');
-	return;
+if (($data = $this->filter($_POST, $fields)) === false) {
+    $this->flash($this['app.filters.messages'], 'error');
+    return;
 }
 
-Atomik_Db::insert('posts', $data);
+$this['db']->insert('posts', $data);
 
-Atomik::flash('Post successfully added!', 'success');
-Atomik::redirect('index');
+$this->flash('Post successfully added!', 'success');
+$this->redirect('index');

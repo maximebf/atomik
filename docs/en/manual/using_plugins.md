@@ -24,8 +24,8 @@ plugins config key.
             'dsn'      => 'mysql:host=localhost;dbname=atomik',
             'username' => 'atomik',
             'password' => 'atomik'
-	    ),
-	    'Cache'
+        ),
+        'Cache'
     ));
 
 ## Pluggable applications
@@ -48,19 +48,19 @@ be /blog.
 Most pluggable applications should provide a configuration key to modify the default uri. 
 In the case of the Blog plugin, let say it's *route*.
 
-While the key is named route, the way to specify an uri here is not the same as with routes: it's simply
-an uri. We'll call it a pattern. If you want to trigger an application from /app the pattern
-would be */app*.
+While the key is named route, the way to specify an uri here is not the same as with routes: 
+it's simply an uri. We'll call it a pattern. If you want to trigger an application from /app 
+the pattern would be */app*.
 However, accessing /app/index would not trigger the application! To enable this you have to
-use the \* wildcard at the end of the pattern so that all children also triggers the app. The final pattern
-would be */app/\**.
+use the \* wildcard at the end of the pattern so that all children also triggers the app. 
+The final pattern would be */app/\**.
 
-    Atomik::set('plugins/Blog', array(
+    Atomik::set('plugins.Blog', array(
         'route' => '/my-blog/*'
     ));
 
 If a plugin does not have a configuration key to modify the route, this can be done by calling
-*Atomik::registerPluggableApplication()* from the bootstrap file. This method takes as
+`Atomik::registerPluggableApplication()` from the bootstrap file. This method takes as
 first argument the plugin name and as second the pattern.
 
     Atomik::registerPluggableApplication('MyPluggableApp', '/my-app/*')
