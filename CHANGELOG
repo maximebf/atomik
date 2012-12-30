@@ -10,6 +10,7 @@
 
  WARNING: Compatibility breaks and at least PHP 5.3 is needed
  
+ ! Separators in keys path are replaced with dots
  ! Extracted escape() as an helper (config moved to helpers/escape)
  ! Extracted filter() as an helper (config moved to helpers/filter)
  ! Extracted flash() as a plugin (config moved to plugin)
@@ -46,6 +47,8 @@
  ! Removed ATOMIK_APP_ROOT constant
  ! Files and directories are now relative to the atomik/dirs/app entry
  ! Removed error_handler
+ * Added splitArrayPath()
+ ! Removed registerSelector()
  
 [Helpers]
  

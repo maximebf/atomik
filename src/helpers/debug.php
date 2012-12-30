@@ -24,7 +24,7 @@ class DebugHelper
      */
     public function debug($data, $force = false, $echo = true)
     {
-        if (!$force && !Atomik::get('atomik/debug', false)) {
+        if (!$force && !Atomik::get('app.debug', false)) {
             return;
         }
         

@@ -27,20 +27,20 @@ class FilterHelper
     function filter($data, $filter = null, $options = null, $falseOnFail = true)
     {
         if (is_array($data)) {
-            // the $filter must be a rule or a string to a rule defined under app/filters/rules
+            // the $filter must be an array or a string to an array defined under app.filters.rules
             if (is_string($filter)) {
-                if (($rule = Atomik::get('helpers/filters/rules/' . $filter, false)) === false) {
-                    throw new AtomikException('When $data is an array, the filter must be an array of definition or a rule name in Atomik::filter()');
+                if (($rules = Atomik::get('helpers/filters/rules/' . $filter, false)) === false) {
+                    throw new AtomikException('When $data is an array, the filter must be an array of definition or a defination name in filter()');
                 }
             } else {
-                $rule = $filter;
+                $rules = $filter;
             }
             
             $results = array();
             $messages = array();
             $validate = true;
             
-            foreach ($rule as $field => $params) {
+            foreach ($rules as $field => $params) {
                 if (isset($data[$field]) && is_array($data[$field])) {
                     if (($results[$field] = $this->filter($data[$field], $params)) === false) {
                         $messages[$field] = Atomik::get('helpers/filters/messages', array());

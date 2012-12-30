@@ -80,38 +80,38 @@ Atomik::reset(array(
             
             /* List of contexts where keys are the context name.
              * Contexts can specify:
-             *  - prefix (string): the view filename's extension prefix
+             *  - suffix (string): the view filename's extension suffix
              *  - layout (bool): whether the layout should be rendered
              *  - content_type (string): the HTTP response content type
              * @var array */
             'contexts' => array(
                 'html' => array(
-                    'prefix'         => '',
+                    'suffix'         => '',
                     'layout'         => true,
                     'content_type'   => 'text/html'
                 ),
                 'ajax' => array(
-                    'prefix'         => '',
+                    'suffix'         => '',
                     'layout'         => false,
                     'content_type'   => 'text/html'
                 ),
                 'xml' => array(
-                    'prefix'         => 'xml',
+                    'suffix'         => 'xml',
                     'layout'         => false,
                     'content_type'   => 'text/xml'
                 ),
                 'json' => array(
-                    'prefix'         => 'json',
+                    'suffix'         => 'json',
                     'layout'         => false,
                     'content_type'   => 'application/json'
                 ),
                 'js' => array(
-                    'prefix'         => 'js',
+                    'suffix'         => 'js',
                     'layout'         => false,
                     'content_type'   => 'text/javascript'
                 ),
                 'css' => array(
-                    'prefix'         => 'css',
+                    'suffix'         => 'css',
                     'layout'         => false,
                     'content_type'   => 'text/css'
                 )
@@ -204,22 +204,6 @@ Atomik::set(array(
  *  CORE
  * ------------------------------------------------------------------------------------------ */
 
-// creates the A function (shortcut to Atomik::get)
-if (!function_exists('A')) {
-    /**
-     * Shortcut function to Atomik::get()
-     * Useful when dealing with selectors
-     *
-     * @see Atomik::get()
-     * @return mixed
-     */
-    function A()
-    {
-        $args = func_get_args();
-        return call_user_func_array(array('Atomik', 'get'), $args);
-    }
-}
-
 
 /**
  * Exception class for Atomik
@@ -244,7 +228,7 @@ class AtomikHttpException extends AtomikException {}
  *
  * @package Atomik
  */
-final class Atomik
+final class Atomik implements ArrayAccess
 {
     /**
      * Global store
@@ -288,16 +272,6 @@ final class Atomik
      * @var array
      */
     private static $events = array();
-    
-    /**
-     * Selectors namespaces
-     * 
-     * The array keys are the namespace name and the associated value is
-     * the callback to call when the namespace is used
-     *
-     * @var array
-     */
-    private static $namespaces = array();
     
     /**
      * Execution contexts
@@ -351,7 +325,7 @@ final class Atomik
         
             // config & environment
             try {
-                self::set(self::loadConfig(self::path(self::get('atomik/files/config'), null, false), false));
+                self::set(self::loadConfig(self::path(self::get('atomik.files.config'), null, false), false));
             } catch (AtomikException $e) {}
             
             $env = $env ?: (defined('ATOMIK_ENV') ? ATOMIK_ENV : null);
@@ -362,15 +336,15 @@ final class Atomik
             self::fireEvent('Atomik::Config');
             
             // sets the error reporting to all errors if debug mode is on
-            if (self::get('atomik/debug', false) == true) {
+            if (self::get('atomik.debug', false) == true) {
                 error_reporting(E_ALL | E_STRICT);
             }
 
             // makes relative include dirs relative to app root
-            self::set('atomik/dirs/includes', self::path(self::get('atomik/dirs/includes', array())));
+            self::set('atomik.dirs.includes', self::path(self::get('atomik.dirs.includes', array())));
             
             // registers the class autoload handler
-            if (self::get('atomik/class_autoload', true) == true) {
+            if (self::get('atomik.class_autoload', true) == true) {
                 if (!function_exists('spl_autoload_register')) {
                     throw new AtomikException("Missing 'spl_autoload_register()' function");
                 }
@@ -401,7 +375,7 @@ final class Atomik
             }
             
             self::fireEvent('Atomik::Bootstrap');
-            if ($filename = self::path(self::get('atomik/files/bootstrap'))) {
+            if ($filename = self::path(self::get('atomik.files.bootstrap'))) {
                 include $filename;
             }
         
@@ -411,8 +385,8 @@ final class Atomik
                 self::end(true);
             }
         
-            if (!self::has('atomik/url_rewriting')) {
-                self::set('atomik/url_rewriting', 
+            if (!self::has('atomik.url_rewriting')) {
+                self::set('atomik.url_rewriting', 
                     isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']));
             }
             
@@ -500,35 +474,35 @@ final class Atomik
             }
             
             if ($uri === null) {
-                $trigger = self::get('atomik/trigger', 'action');
+                $trigger = self::get('atomik.trigger', 'action');
                 if (isset($_GET[$trigger]) && !empty($_GET[$trigger])) {
                     $uri = trim($_GET[$trigger], '/');
                 }
             }
         
             // retreives the base url
-            if (self::get('atomik/base_url') === null) {
-                if (self::get('atomik/url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
+            if (self::get('atomik.base_url') === null) {
+                if (self::get('atomik.url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
                     // finds the base url from the redirected url
                     $redirectUrl = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['REDIRECT_URI'];
                     if (isset($_GET[$trigger])) {
-                        self::set('atomik/base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
+                        self::set('atomik.base_url', substr($redirectUrl, 0, -strlen($_GET[$trigger])));
                     } else {
-                        self::set('atomik/base_url', $redirectUrl);
+                        self::set('atomik.base_url', $redirectUrl);
                     }
                 } else {
                     // finds the base url from the script name
-                    self::set('atomik/base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
+                    self::set('atomik.base_url', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
                 }
             }
             
             // default uri
             if (empty($uri)) {
-                $uri = self::get('app/default_action', 'index');
+                $uri = self::get('app.default_action', 'index');
             }
 
             $request = $_GET;
-            if ($router = self::get('app/router')) {
+            if ($router = self::get('app.router')) {
                 $request = call_user_func($router, $uri, $_GET);
             }
                 
@@ -560,10 +534,10 @@ final class Atomik
                     // rewrite uri
                     $baseAction = trim($pluggAppConfig['route'], '/*');
                     $uri = substr(trim($request['action'], '/'), strlen($baseAction));
-                    if ($baseAction === '' && $uri === self::get('app/default_action')) {
+                    if ($baseAction === '' && $uri === self::get('app.default_action')) {
                         $uri = '';
                     }
-                    self::set('atomik/base_action', $baseAction);
+                    self::set('atomik.base_action', $baseAction);
                     
                     // dispatches the pluggable application
                     return self::dispatchPluggableApplication($plugin, $uri, $pluggAppConfig);
@@ -572,14 +546,14 @@ final class Atomik
             
             // fetches the http method
             $httpMethod = $_SERVER['REQUEST_METHOD'];
-            if (($param = self::get('app/http_method_param', false)) !== false) {
+            if (($param = self::get('app.http_method_param', false)) !== false) {
                 // checks if the route parameter to override the method is defined
                 $httpMethod = strtoupper(self::get($param, $httpMethod, $request));
             }
-            if (!in_array($httpMethod, self::get('app/allowed_http_methods'))) {
+            if (!in_array($httpMethod, self::get('app.allowed_http_methods'))) {
                 throw new AtomikException('HTTP method not allowed');
             }
-            self::set('app/http_method', strtoupper($httpMethod));
+            self::set('app.http_method', strtoupper($httpMethod));
             
             // sets the view context
             self::setViewContext();
@@ -591,23 +565,23 @@ final class Atomik
             }
             
             $vars = array();
-            if ($filename = self::path(self::get('atomik/files/pre_dispatch'))) {
+            if ($filename = self::path(self::get('atomik.files.pre_dispatch'))) {
                 list($content, $vars) = self::instance()->scoped($filename);
             }
             
             // executes the action
             ob_start();
-            list($content, $vars) = self::execute(self::get('request/action'), true, $vars);
+            list($content, $vars) = self::execute(self::get('request.action'), true, $vars);
             $content = ob_get_clean() . $content;
             
             // whether to propagate vars to the layout
-            if (!self::get('app/vars_to_layout', true)) {
+            if (!self::get('app.vars_to_layout', true)) {
                 $vars = array();
             }
             
             // renders the layouts if enabled
-            if (($layout = self::get('app/layout', false)) !== false && 
-                !self::get('app/disable_layout', false)) {
+            if (($layout = self::get('app.layout', false)) !== false && 
+                !self::get('app.disable_layout', false)) {
                     $content = self::renderLayout($layout, $content, $vars);
             }
             
@@ -617,7 +591,7 @@ final class Atomik
         
             self::fireEvent('Atomik::Dispatch::After');
         
-            if ($filename = self::path(self::get('atomik/files/post_dispatch'))) {
+            if ($filename = self::path(self::get('atomik.files.post_dispatch'))) {
                 require($filename);
             }
             
@@ -707,7 +681,7 @@ final class Atomik
      */
     public static function route($uri, $params = array(), $routes = null)
     {
-        $routes = $routes ?: self::get('app/routes', array());
+        $routes = $routes ?: self::get('app.routes', array());
         
         self::fireEvent('Atomik::Router::Start', array(&$uri, &$routes, &$params));
         
@@ -725,7 +699,7 @@ final class Atomik
         }
         
         // checks if the extension must be present
-        if (self::get('app/force_uri_extension', false) && $uriExtension === false) {
+        if (self::get('app.force_uri_extension', false) && $uriExtension === false) {
             throw new AtomikException('Missing file extension');
         }
         
@@ -752,7 +726,7 @@ final class Atomik
                         $pattern = str_replace($matches[1][$i], $paramRegexp, $pattern);
                     }
                 }
-                if (substr($pattern, -2) === '/*' || self::get('atomik/auto_uri_wildcard', false)) {
+                if (substr($pattern, -2) === '/*' || self::get('atomik.auto_uri_wildcard', false)) {
                     if (substr($pattern, -2) === '/*') {
                         $pattern = substr($pattern, 0, -2);
                     }
@@ -785,8 +759,8 @@ final class Atomik
         if (!$found) {
             $request = array(
                 'action' => $uri, 
-                self::get('app/views/context_param', 'format') => $uriExtension === false ? 
-                    self::get('app/views/default_context', 'html') : $uriExtension
+                self::get('app.views.context_param', 'format') => $uriExtension === false ? 
+                    self::get('app.views.default_context', 'html') : $uriExtension
             );
         }
         
@@ -819,16 +793,16 @@ final class Atomik
     public static function setViewContext($context = null)
     {
         if ($context === null) {
-            $context = self::get(self::get('app/views/context_param', 'format'), 
-                                self::get('app/views/default_context', 'html'), 
+            $context = self::get(self::get('app.views.context_param', 'format'), 
+                                self::get('app.views.default_context', 'html'), 
                                 self::get('request'));
         }
         
-        self::set('app/view_context', $context);
+        self::set('app.view_context', $context);
         
-        if (($viewContextParams = self::get('app/views/contexts/' . $context, false)) !== false) {
+        if (($viewContextParams = self::get("app.views.contexts.$context", false)) !== false) {
             if ($viewContextParams['layout'] !== true) {
-                self::set('app/layout', $viewContextParams['layout']);
+                self::set('app.layout', $viewContextParams['layout']);
             }
             header('Content-type: ' . 
                 self::get('content_type', 'text/html', $viewContextParams));
@@ -850,12 +824,12 @@ final class Atomik
     public static function execute($action, $viewContext = true, $vars = array())
     {
         $view = $action;
-        $render = self::get('app/views/auto', true) && $viewContext !== false;
+        $render = self::get('app.views.auto', true) && $viewContext !== false;
         
         if (is_bool($viewContext)) {
-            $viewContext = self::get('app/view_context');
+            $viewContext = self::get('app.view_context');
         }
-        $prefix = self::get("app/views/contexts/$viewContext/prefix", $viewContext);
+        $prefix = self::get("app.views.contexts.${viewContext}.suffix", $viewContext);
         if (!empty($prefix)) {
             $view .= '.' . $prefix;
         }
@@ -874,13 +848,13 @@ final class Atomik
             $method = strtolower(substr($action, $dot + 1));
             $action = substr($action, 0, $dot);
         } else {
-            $method = strtolower(self::get('app/http_method'));
+            $method = strtolower(self::get('app.http_method'));
         }
         $context['method'] = &$method;
     
         self::fireEvent('Atomik::Execute::Before', array(&$action, &$context, &$vars));
         
-        $executor = self::get('app/executor', 'Atomik::executeFile');
+        $executor = self::get('app.executor', 'Atomik::executeFile');
         $actionExists = true;
         if (($vars = call_user_func($executor, $action, $method, $vars, $context)) === false) {
             $vars = array();
@@ -957,7 +931,7 @@ final class Atomik
      */
     public static function actionFilename($action, $dirs = null, $useNamespaces = false)
     {
-        $dirs = self::path($dirs ?: self::get('atomik/dirs/actions'));
+        $dirs = self::path($dirs ?: self::get('atomik.dirs.actions'));
         if (($filename = self::findFile("$action.php", $dirs, $useNamespaces)) === false) {
             return $useNamespaces ? false : self::findFile("$action/index.php", $dirs);
         }
@@ -993,7 +967,7 @@ final class Atomik
      */
     public static function disableLayout($disable = true)
     {
-        self::set('app/disable_layout', $disable);
+        self::set('app.disable_layout', $disable);
     }
     
     
@@ -1015,7 +989,7 @@ final class Atomik
      */
     public static function render($view, $vars = array(), $dirs = null)
     {
-        $dirs = $dirs ?: self::get('atomik/dirs/views');
+        $dirs = $dirs ?: self::get('atomik.dirs.views');
         self::fireEvent('Atomik::Render::Start', array(&$view, &$vars, &$dirs, &$triggerError));
         if ($view === false || ($filename = self::viewFilename($view, $dirs)) === false) {
             return false;
@@ -1038,14 +1012,14 @@ final class Atomik
     {
         self::fireEvent('Atomik::Renderfile::Before', array(&$filename, &$vars));
         
-        if (($callback = self::get('app/views/engine', false)) !== false) {
+        if (($callback = self::get('app.views.engine', false)) !== false) {
             if (!is_callable($callback)) {
                 throw new AtomikException('The specified rendering engine callback cannot be called');
             }
             $output = $callback($filename, $vars);
             
         } else {
-            list($output, $vars) = self::instance()->scoped($filename, $vars, self::get('app/views/short_tags', true));
+            list($output, $vars) = self::instance()->scoped($filename, $vars, self::get('app.views.short_tags', true));
         }
         
         self::fireEvent('Atomik::Renderfile::After', array($filename, &$output, $vars));
@@ -1063,7 +1037,7 @@ final class Atomik
      */
     public static function renderLayout($layout, $content, $vars = array(), $dirs = null)
     {
-        $dirs = $dirs ?: self::get('atomik/dirs/layouts');
+        $dirs = $dirs ?: self::get('atomik.dirs.layouts');
         if (is_array($layout)) {
             foreach (array_reverse($layout) as $l) {
                 $content = self::renderLayout($l, $content, $vars, $dirs);
@@ -1072,17 +1046,17 @@ final class Atomik
         }
         
         // allows rendered files to dynamically add layouts
-        $appLayout = self::delete('app/layout');
-        self::set('app/layout', array($layout));
+        $appLayout = self::delete('app.layout');
+        self::set('app.layout', array($layout));
         
         do {
-            $layout = array_shift(self::getRef('app/layout'));
+            $layout = array_shift(self::getRef('app.layout'));
             self::fireEvent('Atomik::Renderlayout', array(&$layout, &$content, &$vars, &$dirs));
             $vars['contentForLayout'] = $content;
             $content = self::render($layout, $vars, $dirs);
-        } while (count(self::get('app/layout')));
+        } while (count(self::get('app.layout')));
         
-        self::set('app/layout', $appLayout);
+        self::set('app.layout', $appLayout);
         return $content;
     }
     
@@ -1097,8 +1071,8 @@ final class Atomik
      */
     public static function viewFilename($view, $dirs = null, $extension = null)
     {
-        $dirs = self::path($dirs ?: self::get('atomik/dirs/views'));
-        $extension = $extension ?: ltrim(self::get('app/views/file_extension'), '.');
+        $dirs = self::path($dirs ?: self::get('atomik.dirs.views'));
+        $extension = $extension ?: ltrim(self::get('app.views.file_extension'), '.');
         if (($filename = self::findFile("$view.$extension", $dirs)) === false) {
             return self::findFile("$view/index.$extension", $dirs);
         }
@@ -1128,7 +1102,7 @@ final class Atomik
         $className = $camelizedHelperName . 'Helper';
         
         if (!function_exists($functionName) && !class_exists($className)) {
-            $dirs = self::path($dirs ?: self::get('atomik/dirs/helpers'));
+            $dirs = self::path($dirs ?: self::get('atomik.dirs.helpers'));
             if (($include = self::findFile("$helperName.php", $dirs, true)) === false) {
                 throw new AtomikException("Helper '$helperName' not found");
             }
@@ -1214,7 +1188,7 @@ final class Atomik
      * The array is first dimensionized
      * You can set values from sub arrays by using a path-like key.
      * For example, to set the value inside the array $array[key1][key2]
-     * use the key 'key1/key2'
+     * use the key 'key1.key2'
      * Can be used on any array by specifying the third argument
      *
      * @see Atomik::dimensionizeArray()
@@ -1232,8 +1206,9 @@ final class Atomik
         
         // setting a key directly
         if (is_string($key)) {
-            $parentArrayKey = strpos($key, '/') !== false ? dirname($key) : null;
-            $key = basename($key);
+            $segments = self::splitArrayPath($key);
+            $key = array_pop($segments);
+            $parentArrayKey = count($segments) ? implode('.', $segments) : null;
             
             $parentArray = &self::getRef($parentArrayKey, $array);
             if ($parentArray === null) {
@@ -1289,7 +1264,7 @@ final class Atomik
      * The array is first dimensionized
      * You can add values to sub arrays by using a path-like key.
      * For example, to add a value to the array $array[key1][key2]
-     * use the key 'key1/key2'
+     * use the key 'key1.key2'
      * If the value pointed by the key is not an array, it will be
      * transformed to one.
      * Can be used on any array by specifying the third argument
@@ -1342,9 +1317,21 @@ final class Atomik
         }
         return $array;
     }
+
+    /**
+     * Splits array path into segments
+     * 
+     * @param string $path
+     * @param string $separator
+     * @return string
+     */
+    public static function splitArrayPath($path, $separator = '.')
+    {
+        return array_filter(explode($separator, $key));
+    }
     
     /**
-     * Recursively checks array for path-like keys (ie. keys containing slashes)
+     * Recursively checks array for path-like keys (ie. keys containing dots)
      * and transform them into multi dimensions array
      *
      * @internal
@@ -1352,14 +1339,15 @@ final class Atomik
      * @param string $separator
      * @return array
      */
-    public static function dimensionizeArray($array, $separator = '/')
+    public static function dimensionizeArray($array, $separator = '.')
     {
         $dimArray = array();
         
         foreach ($array as $key => $value) {
+            $key = trim($key, $separator);
             // checks if the key is a path
             if (strpos($key, $separator) !== false) {
-                $parts = explode($separator, $key);
+                $parts = self::splitArrayPath($key, $separator);
                 $firstPart = array_shift($parts);
                 // recursively dimensionize the key
                 $value = self::dimensionizeArray(array(implode($separator, $parts) => $value), $separator);
@@ -1397,7 +1385,7 @@ final class Atomik
      * You can fetch value from sub arrays by using a path-like
      * key. Separate each key with a slash. For example if you want 
      * to fetch the value from an $store[key1][key2][key3] you can use
-     * key1/key2/key3
+     * key1.key2.key3
      * Can be used on any array by specifying the third argument
      *
      * @param string|array $key The configuration key which value should be returned. If null, fetches all values
@@ -1407,15 +1395,6 @@ final class Atomik
      */
     public static function get($key = null, $default = null, $array = null)
     {
-        // checks if a namespace is used
-        if (is_string($key) && preg_match('/^([a-z]+):(.*)/', $key, $match)) {
-            if (isset(self::$namespaces[$match[1]])) {
-                $args = func_get_args();
-                $args[0] = $match[2];
-                return call_user_func_array(self::$namespaces[$match[1]], $args);
-            }
-        }
-        
         if (($value = self::getRef($key, $array)) !== null) {
             return $value;
         }
@@ -1451,8 +1430,9 @@ final class Atomik
      */
     public static function delete($key, &$array = null)
     {
-        $parentArrayKey = strpos($key, '/') !== false ? dirname($key) : null;
-        $key = basename($key);
+        $segments = self::splitArrayPath($key);
+        $key = array_pop($segments);
+        $parentArrayKey = count($segments) ? implode('.', $segments) : null;
         $parentArray = &self::getRef($parentArrayKey, $array);
         
         if ($parentArray === null || !array_key_exists($key, $parentArray)) {
@@ -1470,7 +1450,7 @@ final class Atomik
      * You can fetch value from sub arrays by using a path-like
      * key. Separate each key with a slash. For example if you want 
      * to fetch the value from an $store[key1][key2][key3] you can use
-     * key1/key2/key3
+     * key1.key2.key3
      * Can be used on any array by specifying the second argument
      *
      * @param string|array $key The configuration key which value should be returned. If null, fetches all values
@@ -1488,14 +1468,14 @@ final class Atomik
         }
         
         if (!is_array($key)) {
-            if (!strpos($key, '/')) {
+            if (!strpos($key, '.')) {
                 if (array_key_exists($key, $array)) {
                     $value =& $array[$key];
                     return $value;
                 }
                 return $null;
             }
-            $key = explode('/', $key);
+            $key = self::splitArrayPath($key);
         }
         
         $firstKey = array_shift($key);
@@ -1533,19 +1513,25 @@ final class Atomik
         
         self::$store = self::mergeRecursive(self::$store, self::$reset);
     }
-    
-    /**
-     * Registers a new selector namespace
-     * 
-     * A namespace preceed a key. When used, $callback will be 
-     * called instead of the normal logic. Applies only on get() calls.
-     *
-     * @param string $namespace
-     * @param callback $callback
-     */
-    public static function registerSelector($namespace, $callback)
+
+    public function offsetGet($key)
     {
-        self::$namespaces[$namespace] = $callback;
+        return Atomik::get($key);
+    }
+
+    public function offsetSet($key, $value)
+    {
+        return Atomik::set($key, $value);
+    }
+
+    public function offsetExists($key)
+    {
+        return Atomik::has($key);
+    }
+
+    public function offsetUnset($key)
+    {
+        $this->delete($key);
     }
     
     
@@ -1633,7 +1619,7 @@ final class Atomik
     public static function loadPlugin($name)
     {
         $name = ucfirst($name);
-        if (($config = &self::getRef("plugins/$name")) === null) {
+        if (($config = &self::getRef("plugins.$name")) === null) {
             $config = array();
         }
         return self::loadCustomPlugin($name, $config);
@@ -1660,7 +1646,7 @@ final class Atomik
         }
         
         $options = array_merge(array(
-            'dirs'                  => self::get('atomik/dirs/plugins'),
+            'dirs'                  => self::get('atomik.dirs.plugins'),
             'classNameTemplate'     => '%',
             'dirClassNameTemplate'  => 'Plugin',
             'callStart'             => true
@@ -1700,7 +1686,7 @@ final class Atomik
                 }
 
                 if (!empty($ns)) {
-                    self::add('atomik/dirs/includes', array($ns => $pluginDir));
+                    self::add('atomik.dirs.includes', array($ns => $pluginDir));
                 } else {
                     set_include_path($pluginDir . PATH_SEPARATOR . get_include_path());
                 }
@@ -1779,7 +1765,7 @@ final class Atomik
     public static function isPluginAvailable($plugin)
     {
         $plugin = ucfirst($plugin);
-        $dirs = self::path(self::get('atomik/dirs/plugins'));
+        $dirs = self::path(self::get('atomik.dirs.plugins'));
         if (self::findFile("$plugin.php", $dirs) === false) {
             return self::findFile($plugin, $dirs) !== false;
         }
@@ -1863,28 +1849,28 @@ final class Atomik
             throw new AtomikException("To be used as an application, the plugin '$plugin' must use a directory");
         }
         
-        $overrideDir = self::findFile($plugin . $rootDir, self::path(self::get('atomik/dirs/overrides')));
+        $overrideDir = self::findFile($plugin . $rootDir, self::path(self::get('atomik.dirs.overrides')));
         if ($overrideDir === false) {
             $overrideDir = 'overrides/' . $plugin . $rootDir;
         }
         
-        if (!self::has('app/running_plugin')) {
+        if (!self::has('app.running_plugin')) {
             // saves user configuration
             self::set('userapp', self::get('app'));
         }
-        self::set('app/running_plugin', $plugin); 
+        self::set('app.running_plugin', $plugin); 
         self::set('request_uri', $uri);
         
         // resets the configuration but keep the layout
         if ($config['resetConfig']) {
-            $layout = self::get('app/layout');
+            $layout = self::get('app.layout');
             self::reset();
-            self::set('app/layout', $layout);
-            self::set('app/routes', array());
+            self::set('app.layout', $layout);
+            self::set('app.routes', array());
         }
         
         // rewrite dirs
-        $dirs = self::get('atomik/dirs');
+        $dirs = self::get('atomik.dirs');
         $dirs['actions'] = array($overrideDir . '/actions', $appDir . '/actions');
         $dirs['views'] = array($overrideDir . '/views', $appDir . '/views');
         
@@ -1905,14 +1891,14 @@ final class Atomik
             (array) $dirs['helpers']
         );
         
-        self::set('atomik/dirs', $dirs);
+        self::set('atomik.dirs', $dirs);
         
         // rewrite files
         if ($config['overwriteFiles']) {
-            $files = self::get('atomik/files');
+            $files = self::get('atomik.files');
             $files['pre_dispatch'] = $appDir . '/pre_dispatch.php';
             $files['post_dispatch'] = $appDir . '/post_dispatch.php';
-            self::set('atomik/files', $files);
+            self::set('atomik.files', $files);
         }
         
         $cancel = false;
@@ -1995,7 +1981,7 @@ final class Atomik
             return false;
         }
 
-        $includeDirs = (array) self::get('atomik/dirs/includes', array());
+        $includeDirs = (array) self::get('atomik.dirs.includes', array());
         if ($filename = self::resolveIncludePath($include, $includeDirs, $className)) {
             return include($filename);
         }
@@ -2087,7 +2073,7 @@ final class Atomik
             return $pathnames;
         }
 
-        $relativeTo = $relativeTo ?: self::get('atomik/dirs/app');
+        $relativeTo = $relativeTo ?: self::get('atomik.dirs.app');
         $pathname = $filename;
         if ($filename{0} != '/' && !preg_match('#^[A-Z]:(\\|/)#', $filename)) {
             if (strlen($filename) >= 2 && substr($filename, 0, 2) == './') {
@@ -2121,7 +2107,7 @@ final class Atomik
     public static function url($action = null, $params = array(), $useIndex = true, $useBaseAction = true)
     {
         $action = $action ?: self::get('request_uri');
-        $trigger = self::get('atomik/trigger', 'action');
+        $trigger = self::get('atomik.trigger', 'action');
         if ($params === false) {
             $params = array();
         }
@@ -2152,7 +2138,7 @@ final class Atomik
         if (strlen($action) > 0 && $action{0} == '@') {
         	$routeName = substr($action, 1);
         	$action = null;
-        	foreach (self::get('app/routes') as $route => $default) {
+        	foreach (self::get('app.routes') as $route => $default) {
         		if (!is_array($default) || !isset($default['@name']) || 
         			$default['@name'] !== $routeName) {
         			    continue;
@@ -2182,14 +2168,14 @@ final class Atomik
         $url = $action;
         if (!preg_match('/^([a-z]+):\/\/.*/', $action)) {
             $action = ltrim($action, '/');
-            $url = rtrim(self::get('atomik/base_url', '.'), '/') . '/';
+            $url = rtrim(self::get('atomik.base_url', '.'), '/') . '/';
             if ($useBaseAction) {
-                $action = ltrim(trim(self::get('atomik/base_action', ''), '/') . '/' . $action, '/');
+                $action = ltrim(trim(self::get('atomik.base_action', ''), '/') . '/' . $action, '/');
             }
-            if (!$useIndex || self::get('atomik/url_rewriting', false) == true) {
+            if (!$useIndex || self::get('atomik.url_rewriting', false) == true) {
                 $url .= $action;
             } else {
-                $url .= self::get('atomik/files/index', 'index.php');
+                $url .= self::get('atomik.files.index', 'index.php');
                 $params[$trigger] = $action;
             }
         }
@@ -2251,7 +2237,7 @@ final class Atomik
      */
     public static function asset($filename, $params = array())
     {
-        if ($plugin = self::get('app/running_plugin')) {
+        if ($plugin = self::get('app.running_plugin')) {
             return self::pluginAsset($plugin, $filename, $params);
         }
         return self::appAsset($filename, $params);
@@ -2282,7 +2268,7 @@ final class Atomik
      */
     public static function pluginAsset($plugin, $filename, $params = array())
     {
-        $template = self::get('atomik/plugin_assets_tpl', 'app/plugins/%s/assets');
+        $template = self::get('atomik.plugin_assets_tpl', 'app/plugins/%s/assets');
         $dirname = rtrim(sprintf($template, ucfirst($plugin)), '/');
         $filename = '/' . ltrim($filename, '/');
         return self::url($dirname . $filename, $params, false, false);
