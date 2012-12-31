@@ -82,47 +82,47 @@ class AtomikTest extends AtomikTestCase
     
     public function testMergeRecursive()
     {
-        $array1 = array('key1' => array('key1.1' => array('value1.1-1')));
-        $array2 = array('key1' => array('key1.1' => array('value1.1-2')));
-        $array = Atomik::_mergeRecursive($array1, $array2);
-        $this->assertContains('value1.1-2', $array['key1']['key1.1']);
+        $array1 = array('key1' => array('key11' => array('value111')));
+        $array2 = array('key1' => array('key11' => array('value112')));
+        $array = Atomik::mergeRecursive($array1, $array2);
+        $this->assertContains('value112', $array['key1']['key11']);
     }
     
     public function testDimensionizeArraySimple()
     {
-        $array = array('key1/key1.1' => 'value1.1-1');
-        $dimensionizedArray = Atomik::_dimensionizeArray($array);
+        $array = array('key1.key11' => 'value111');
+        $dimensionizedArray = Atomik::dimensionizeArray($array);
         $this->assertArrayHasKey('key1', $dimensionizedArray);
-        $this->assertArrayHasKey('key1.1', $dimensionizedArray['key1']);
-        $this->assertEquals('value1.1-1', $dimensionizedArray['key1']['key1.1']);
+        $this->assertArrayHasKey('key11', $dimensionizedArray['key1']);
+        $this->assertEquals('value111', $dimensionizedArray['key1']['key11']);
     }
     
     public function testDimensionizeArrayComplex()
     {
         $array = array(
-            'key1/key1.1' => array(
-                'key1.1.1' => 'value1.1.1-1'
+            'key1.key11' => array(
+                'key111' => 'value1111'
             ),
-            'key1/key1.1/key1.1.2' => 'value1.1.2-1',
-            'key2/key2.1' => array(
-                'key2.1.1/key2.1.1.1' => 'value2.1.1.1-1'
+            'key1.key11.key112' => 'value1121',
+            'key2.key21' => array(
+                'key211.key2111' => 'value21111'
             )
         );
         
-        $dimensionizedArray = Atomik::_dimensionizeArray($array);
+        $dimensionizedArray = Atomik::dimensionizeArray($array);
         
         $this->assertArrayHasKey('key1', $dimensionizedArray);
-        $this->assertArrayHasKey('key1.1', $dimensionizedArray['key1']);
-        $this->assertArrayHasKey('key1.1.1', $dimensionizedArray['key1']['key1.1']);
-        $this->assertArrayHasKey('key1.1.2', $dimensionizedArray['key1']['key1.1']);
-        $this->assertEquals('value1.1.1-1', $dimensionizedArray['key1']['key1.1']['key1.1.1']);
-        $this->assertEquals('value1.1.2-1', $dimensionizedArray['key1']['key1.1']['key1.1.2']);
+        $this->assertArrayHasKey('key11', $dimensionizedArray['key1']);
+        $this->assertArrayHasKey('key111', $dimensionizedArray['key1']['key11']);
+        $this->assertArrayHasKey('key112', $dimensionizedArray['key1']['key11']);
+        $this->assertEquals('value1111', $dimensionizedArray['key1']['key11']['key111']);
+        $this->assertEquals('value1121', $dimensionizedArray['key1']['key11']['key112']);
         
         $this->assertArrayHasKey('key2', $dimensionizedArray);
-        $this->assertArrayHasKey('key2.1', $dimensionizedArray['key2']);
-        $this->assertArrayHasKey('key2.1.1', $dimensionizedArray['key2']['key2.1']);
-        $this->assertArrayHasKey('key2.1.1.1', $dimensionizedArray['key2']['key2.1']['key2.1.1']);
-        $this->assertEquals('value2.1.1.1-1', $dimensionizedArray['key2']['key2.1']['key2.1.1']['key2.1.1.1']);
+        $this->assertArrayHasKey('key21', $dimensionizedArray['key2']);
+        $this->assertArrayHasKey('key211', $dimensionizedArray['key2']['key21']);
+        $this->assertArrayHasKey('key2111', $dimensionizedArray['key2']['key21']['key211']);
+        $this->assertEquals('value21111', $dimensionizedArray['key2']['key21']['key211']['key2111']);
     }
     
     public function testSetWithSimpleKey()
@@ -136,7 +136,7 @@ class AtomikTest extends AtomikTestCase
     public function testSetWithPathKey()
     {
         $array = array();
-        Atomik::set('foo/bar', 'oof', true, $array);
+        Atomik::set('foo.bar', 'oof', true, $array);
         $this->assertArrayHasKey('foo', $array);
         $this->assertArrayHasKey('bar', $array['foo']);
         $this->assertEquals('oof', $array['foo']['bar']);
@@ -153,9 +153,9 @@ class AtomikTest extends AtomikTestCase
     public function testSetWithoutDimensionize()
     {
         $array = array();
-        Atomik::set(array('foo/bar' => 'oof'), null, false, $array);
-        $this->assertArrayHasKey('foo/bar', $array);
-        $this->assertEquals('oof', $array['foo/bar']);
+        Atomik::set(array('foo.bar' => 'oof'), null, false, $array);
+        $this->assertArrayHasKey('foo.bar', $array);
+        $this->assertEquals('oof', $array['foo.bar']);
     }
     
     public function testAddInArray()
@@ -198,7 +198,7 @@ class AtomikTest extends AtomikTestCase
             )
         );
         
-        $this->assertEquals('value', Atomik::get('sub/key', null, $array));
+        $this->assertEquals('value', Atomik::get('sub.key', null, $array));
     }
     
     public function testHasWithKey()
@@ -211,8 +211,8 @@ class AtomikTest extends AtomikTestCase
     public function testHasWithPath()
     {
         $array = array('sub' => array('key' => 'value'));
-        $this->assertTrue(Atomik::has('sub/key', $array));
-        $this->assertFalse(Atomik::has('sub/foo', $array));
+        $this->assertTrue(Atomik::has('sub.key', $array));
+        $this->assertFalse(Atomik::has('sub.foo', $array));
     }
     
     public function testDeleteWithKey()
@@ -225,7 +225,7 @@ class AtomikTest extends AtomikTestCase
     public function testDeleteWithPath()
     {
         $array = array('sub' => array('key' => 'value'));
-        Atomik::delete('sub/key', $array);
+        Atomik::delete('sub.key', $array);
         $this->assertArrayHasKey('sub', $array);
         $this->assertArrayNotHasKey('key', $array['sub']);
     }
@@ -243,24 +243,12 @@ class AtomikTest extends AtomikTestCase
     public function testDisableLayout()
     {
         Atomik::disableLayout();
-        $this->assertTrue(Atomik::get('app/disable_layout'));
+        $this->assertTrue(Atomik::get('app.disable_layout'));
     }
     
     public function myTestCallback($string)
     {
         return strtoupper($string);
-    }
-    
-    public function testSelector()
-    {
-        Atomik::registerSelector('up', array($this, 'myTestCallback'));
-        $this->assertEquals('HELLO WORLD', Atomik::get('up:hello world'));
-    }
-    
-    public function testCall()
-    {
-        Atomik::registerMethod('up', array($this, 'myTestCallback'));
-        $this->assertEquals('HELLO WORLD', Atomik::call('up', 'hello world'));
     }
     
     public function myTestEventCallback($string)
@@ -279,29 +267,17 @@ class AtomikTest extends AtomikTestCase
         $this->assertEquals('foo', $output);
     }
     
-    public function testPath()
-    {
-        $setOfPaths = array('/path1', '/path2');
-        $file = 'file.txt';
-        
-        $this->assertEquals('/path1', Atomik::path($setOfPaths, false, false));
-        $this->assertEquals($setOfPaths, Atomik::path($setOfPaths, true, false));
-        $this->assertType('array', Atomik::path('/path1', true, false));
-        
-        $this->assertEquals('/path1/file.txt', Atomik::path($file, $setOfPaths, false));
-    }
-    
     public function testUrlWithIndexPhp()
     {
-        Atomik::set('atomik/base_url', '');
+        Atomik::set('atomik.base_url', '');
         $this->assertEquals('/index.php?action=index', Atomik::url('/index'));
-        Atomik::set('atomik/trigger', 'uri');
+        Atomik::set('atomik.trigger', 'uri');
         $this->assertEquals('/index.php?uri=index', Atomik::url('/index'));
     }
     
     public function testUrlWithParams()
     {
-        Atomik::set('atomik/base_url', '');
+        Atomik::set('atomik.base_url', '');
         $this->assertEquals('/show/1', Atomik::url('/show/:id', array('id' => 1), false));
         $this->assertEquals('/show/1?order=asc', Atomik::url('/show/:id', array('id' => 1, 'order' => 'asc'), false));
     }
@@ -313,14 +289,15 @@ class AtomikTest extends AtomikTestCase
     
     public function testPluginAsset()
     {
-        $this->assertEquals('/app/plugins/Plugin/assets/style.css', Atomik::pluginAsset('style.css', 'plugin'));
-        Atomik::set('atomik/plugin_assets_tpl', 'plugins/%s/assets');
-        $this->assertEquals('/plugins/Plugin/assets/style.css', Atomik::pluginAsset('style.css', 'plugin'));
+        $this->assertEquals('/app/plugins/Plugin/assets/style.css', Atomik::pluginAsset('Plugin', 'style.css'));
+        Atomik::set('atomik.plugin_assets_tpl', 'plugins/%s/assets');
+        $this->assertEquals('/plugins/Plugin/assets/style.css', Atomik::pluginAsset('Plugin', 'style.css'));
     }
     
     public function testPluginUrl()
     {
-        Atomik::set('atomik/base_action', 'plugin');
-        $this->assertEquals('/plugin/index', Atomik::pluginUrl('index', array(), false));
+        Atomik::set('atomik.base_action', 'plugin');
+        Atomik::registerPluggableApplication('Test');
+        $this->assertEquals('/test/hello', Atomik::pluginUrl('Test', 'hello', array(), false));
     }
 }

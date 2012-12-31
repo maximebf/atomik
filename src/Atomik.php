@@ -10,195 +10,6 @@
 
 define('ATOMIK_VERSION', '3.0');
 
-/* -------------------------------------------------------------------------------------------
- *  APPLICATION CONFIGURATION
- * ------------------------------------------------------------------------------------------ */
-
-Atomik::reset(array(
-
-    'app' => array(
-    
-        /* @var string */
-        'default_action'        => 'index',
-
-        /* The name of the layout
-         * Add multiple layouts using an array (will be rendered in reverse order)
-         * @var array|bool|string */
-        'layout'                => false,
-    
-        /* @var bool */
-        'disable_layout'        => false,
-    
-        /* Whether to propagate view vars to the layout
-         * @var bool */
-        'vars_to_layout'        => true,
-        
-        /* An array where keys are route names and their value is an associative
-         * array of default values
-         * @see Atomik::route()
-         * @var array */
-        'routes'                => array(),
-    
-        /* @var bool */
-        'force_uri_extension'   => false,
-        
-        /**
-         * The callback used to route urls, false to disable
-         * @var callback */
-        'router'                => 'Atomik::route',
-        
-        /**
-         * The callback used to execute actions
-         * @var callback */
-        'executor'              => 'Atomik::executeFile',
-    
-        /* @see Atomik::render()
-         * @var array */
-        'views' => array(
-        
-            /* Whether to automatically render views after actions
-             * @var bool */
-            'auto'               => true,
-        
-            /* @var string */
-            'file_extension'     => '.phtml',
-            
-            /* @var bool */
-            'short_tags'         => true,
-            
-            /* Alternative rendering engine
-             * @see Atomik::renderFile()
-             * @var callback */
-            'engine'             => false,
-            
-            /* @var string */
-            'default_context'    => 'html',
-            
-            /* The GET parameter to retrieve the current context
-             * @var string */
-            'context_param'      => 'format',
-            
-            /* List of contexts where keys are the context name.
-             * Contexts can specify:
-             *  - suffix (string): the view filename's extension suffix
-             *  - layout (bool): whether the layout should be rendered
-             *  - content_type (string): the HTTP response content type
-             * @var array */
-            'contexts' => array(
-                'html' => array(
-                    'suffix'         => '',
-                    'layout'         => true,
-                    'content_type'   => 'text/html'
-                ),
-                'ajax' => array(
-                    'suffix'         => '',
-                    'layout'         => false,
-                    'content_type'   => 'text/html'
-                ),
-                'xml' => array(
-                    'suffix'         => 'xml',
-                    'layout'         => false,
-                    'content_type'   => 'text/xml'
-                ),
-                'json' => array(
-                    'suffix'         => 'json',
-                    'layout'         => false,
-                    'content_type'   => 'application/json'
-                ),
-                'js' => array(
-                    'suffix'         => 'js',
-                    'layout'         => false,
-                    'content_type'   => 'text/javascript'
-                ),
-                'css' => array(
-                    'suffix'         => 'css',
-                    'layout'         => false,
-                    'content_type'   => 'text/css'
-                )
-            )
-        ),
-        
-        /* A parameter in the route that will allow to specify the http method 
-         * (override the request's method). False to disable
-         * @var string */
-        'http_method_param'       => '_method',
-        
-        /* @var array */
-        'allowed_http_methods'    => array('GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'HEAD', 'OPTIONS', 'CONNECT')
-        
-     )       
-));
-
-
-/* -------------------------------------------------------------------------------------------
- *  CORE CONFIGURATION
- * ------------------------------------------------------------------------------------------ */
-
-Atomik::set(array(
-
-    /* @var array */
-    'plugins'                    => array(),
-
-    /* @var array */
-    'atomik' => array(
-    
-        /* Base url, set to null for auto detection
-         * @var string */
-        'base_url'               => null,
-        
-        /* Whether url rewriting is activated on the server
-         * @var bool */
-        'url_rewriting'          => false,
-
-        /* Whether to automatically allow additional params at the end of routed uris
-         * @var bool */
-        'auto_uri_wildcard'		 => false,
-    
-        /* @var bool */
-        'debug'                  => false,
-    
-        /* The GET parameter used to retreive the action
-         * @var string */
-        'trigger'                => 'action',
-
-        /* Whether to register the class autoloader
-         * @var bool */
-        'class_autoload'         => true,
-        
-        /* Plugin's assets path template. 
-         * %s will be replaced by the plugin's name
-         * @see Atomik::pluginAsset()
-         * @var string */
-        'plugin_assets_tpl'      => 'app/plugins/%s/assets/',
-    
-        /* @var array */
-        'dirs' => array(
-            'app'                => './app',
-            'public'             => '.',
-            'plugins'            => array('Atomik' => __DIR__ . '/plugins', 'plugins'),
-            'actions'            => 'actions',
-            'views'              => 'views',
-            'layouts'            => array('views', 'layouts'),
-            'helpers'            => array('Atomik' => __DIR__ . '/helpers', 'helpers'),
-            'includes'           => array('Atomik' => __DIR__ . '/lib', 'includes', 'libs'),
-            'overrides'          => 'overrides'
-        ),
-    
-        /* @var array */
-        'files' => array(
-            'index'              => 'index.php',
-            'config'             => 'config', // without extension
-            'bootstrap'          => 'bootstrap.php',
-            'pre_dispatch'       => 'pre_dispatch.php',
-            'post_dispatch'      => 'post_dispatch.php'
-        )
-        
-    ),
-    
-    /* @var int */
-    'start_time' => time() + microtime()
-));
-
 
 /* -------------------------------------------------------------------------------------------
  *  CORE
@@ -647,7 +458,7 @@ final class Atomik implements ArrayAccess
             $regexp = '#^' . str_replace('*', '(.*)', $pattern) . '$#';
         }
         
-        return preg_match($regexp, $uri);
+        return (bool) preg_match($regexp, $uri);
     }
     
     /**
@@ -716,10 +527,10 @@ final class Atomik implements ArrayAccess
         
             if ($pattern{0} !== '#') {
                 $pattern = trim(str_replace('/*/', '/(.+)/', $pattern), '/');
-                if (preg_match_all('#(:([a-z_]+))#i', $pattern, $matches)) {
+                if (preg_match_all('#(([/.]):([a-z_0-9]+))#i', $pattern, $matches)) {
                     for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
-                        $param = $matches[2][$i];
-                        $paramRegexp = "(?P<$param>[^/]+)";
+                        $param = $matches[3][$i];
+                        $paramRegexp = preg_quote($matches[2][$i], '#') . "(?P<$param>[^/]+)";
                         if (array_key_exists($param, $defaults)) {
                             $paramRegexp = "($paramRegexp|)";
                         }
@@ -1327,7 +1138,7 @@ final class Atomik implements ArrayAccess
      */
     public static function splitArrayPath($path, $separator = '.')
     {
-        return array_filter(explode($separator, $key));
+        return array_filter(explode($separator, $path));
     }
     
     /**
@@ -2284,6 +2095,195 @@ final class Atomik implements ArrayAccess
         throw new AtomikHttpException($message, 404);
     }
 }
+
+/* -------------------------------------------------------------------------------------------
+ *  APPLICATION CONFIGURATION
+ * ------------------------------------------------------------------------------------------ */
+
+Atomik::reset(array(
+
+    'app' => array(
+    
+        /* @var string */
+        'default_action'        => 'index',
+
+        /* The name of the layout
+         * Add multiple layouts using an array (will be rendered in reverse order)
+         * @var array|bool|string */
+        'layout'                => false,
+    
+        /* @var bool */
+        'disable_layout'        => false,
+    
+        /* Whether to propagate view vars to the layout
+         * @var bool */
+        'vars_to_layout'        => true,
+        
+        /* An array where keys are route names and their value is an associative
+         * array of default values
+         * @see Atomik::route()
+         * @var array */
+        'routes'                => array(),
+    
+        /* @var bool */
+        'force_uri_extension'   => false,
+        
+        /**
+         * The callback used to route urls, false to disable
+         * @var callback */
+        'router'                => 'Atomik::route',
+        
+        /**
+         * The callback used to execute actions
+         * @var callback */
+        'executor'              => 'Atomik::executeFile',
+    
+        /* @see Atomik::render()
+         * @var array */
+        'views' => array(
+        
+            /* Whether to automatically render views after actions
+             * @var bool */
+            'auto'               => true,
+        
+            /* @var string */
+            'file_extension'     => '.phtml',
+            
+            /* @var bool */
+            'short_tags'         => true,
+            
+            /* Alternative rendering engine
+             * @see Atomik::renderFile()
+             * @var callback */
+            'engine'             => false,
+            
+            /* @var string */
+            'default_context'    => 'html',
+            
+            /* The GET parameter to retrieve the current context
+             * @var string */
+            'context_param'      => 'format',
+            
+            /* List of contexts where keys are the context name.
+             * Contexts can specify:
+             *  - suffix (string): the view filename's extension suffix
+             *  - layout (bool): whether the layout should be rendered
+             *  - content_type (string): the HTTP response content type
+             * @var array */
+            'contexts' => array(
+                'html' => array(
+                    'suffix'         => '',
+                    'layout'         => true,
+                    'content_type'   => 'text/html'
+                ),
+                'ajax' => array(
+                    'suffix'         => '',
+                    'layout'         => false,
+                    'content_type'   => 'text/html'
+                ),
+                'xml' => array(
+                    'suffix'         => 'xml',
+                    'layout'         => false,
+                    'content_type'   => 'text/xml'
+                ),
+                'json' => array(
+                    'suffix'         => 'json',
+                    'layout'         => false,
+                    'content_type'   => 'application/json'
+                ),
+                'js' => array(
+                    'suffix'         => 'js',
+                    'layout'         => false,
+                    'content_type'   => 'text/javascript'
+                ),
+                'css' => array(
+                    'suffix'         => 'css',
+                    'layout'         => false,
+                    'content_type'   => 'text/css'
+                )
+            )
+        ),
+        
+        /* A parameter in the route that will allow to specify the http method 
+         * (override the request's method). False to disable
+         * @var string */
+        'http_method_param'       => '_method',
+        
+        /* @var array */
+        'allowed_http_methods'    => array('GET', 'POST', 'PUT', 'DELETE', 'TRACE', 'HEAD', 'OPTIONS', 'CONNECT')
+        
+     )       
+));
+
+
+/* -------------------------------------------------------------------------------------------
+ *  CORE CONFIGURATION
+ * ------------------------------------------------------------------------------------------ */
+
+Atomik::set(array(
+
+    /* @var array */
+    'plugins'                    => array(),
+
+    /* @var array */
+    'atomik' => array(
+    
+        /* Base url, set to null for auto detection
+         * @var string */
+        'base_url'               => null,
+        
+        /* Whether url rewriting is activated on the server
+         * @var bool */
+        'url_rewriting'          => false,
+
+        /* Whether to automatically allow additional params at the end of routed uris
+         * @var bool */
+        'auto_uri_wildcard'      => false,
+    
+        /* @var bool */
+        'debug'                  => false,
+    
+        /* The GET parameter used to retreive the action
+         * @var string */
+        'trigger'                => 'action',
+
+        /* Whether to register the class autoloader
+         * @var bool */
+        'class_autoload'         => true,
+        
+        /* Plugin's assets path template. 
+         * %s will be replaced by the plugin's name
+         * @see Atomik::pluginAsset()
+         * @var string */
+        'plugin_assets_tpl'      => 'app/plugins/%s/assets/',
+    
+        /* @var array */
+        'dirs' => array(
+            'app'                => './app',
+            'public'             => '.',
+            'plugins'            => array('Atomik' => __DIR__ . '/plugins', 'plugins'),
+            'actions'            => 'actions',
+            'views'              => 'views',
+            'layouts'            => array('views', 'layouts'),
+            'helpers'            => array('Atomik' => __DIR__ . '/helpers', 'helpers'),
+            'includes'           => array('Atomik' => __DIR__ . '/lib', 'includes', 'libs'),
+            'overrides'          => 'overrides'
+        ),
+    
+        /* @var array */
+        'files' => array(
+            'index'              => 'index.php',
+            'config'             => 'config', // without extension
+            'bootstrap'          => 'bootstrap.php',
+            'pre_dispatch'       => 'pre_dispatch.php',
+            'post_dispatch'      => 'post_dispatch.php'
+        )
+        
+    ),
+    
+    /* @var int */
+    'start_time' => time() + microtime()
+));
 
 
 // starts Atomik unless ATOMIK_AUTORUN is set to false
