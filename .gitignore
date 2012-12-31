@@ -1,4 +1,4 @@
-.buildpath
-.project
-.settings
 *.sublime-project
+composer.lock
+vendor
+example/example.db

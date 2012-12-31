@@ -52,26 +52,26 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      * @param bool $delete Whether to delete messages once retrieved
      * @return array An array of messages if the label is specified or an array of array message
      */
-    public static function getFlashMessages($label = 'all', $delete = true) {
+    public static function getFlashMessages($label = null, $delete = true) {
         if (!Atomik::has('session/__FLASH')) {
             return array();
         }
         
-        if (empty($label) || $label == 'all') {
+        if ($label === null) {
         	if ($delete) {
             	return Atomik::delete('session/__FLASH');
         	}
         	return Atomik::get('session/__FLASH');
         }
         
-        if (!Atomik::has('session/__FLASH/' . $label)) {
+        if (!Atomik::has("session/__FLASH/$label")) {
             return array();
         }
         
         if ($delete) {
-        	return Atomik::delete('session/__FLASH/' . $label);
+        	return Atomik::delete("session/__FLASH/$label");
         }
-        return Atomik::get('session/__FLASH/' . $label);
+        return Atomik::get("session/__FLASH/$label");
     }
     
     /**
@@ -96,7 +96,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     public function getIterator()
     {
-        return self::getFlashMessages();
+        return new \ArrayIterator(self::getFlashMessages());
     }
 
     public function offsetGet($label)

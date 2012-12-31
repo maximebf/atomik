@@ -19,7 +19,7 @@ class Db extends PDO
 
     private static $instance;
 
-    public static function start($atomik, &$config)
+    public static function start(&$config)
     {
         $config = array_merge(array(
 
@@ -39,37 +39,73 @@ class Db extends PDO
         Atomik::set('db', self::$instance);
     }
 
+    public function __construct($dsn, $username = null, $password = null, $driver_options = null)
+    {
+        parent::__construct($dsn, $username, $password, $driver_options);
+        $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
     /**
-     * Executes a SELECT * on $tableName
+     * Executes a SELECT statement and returns the PDOStatement object
      * 
      * @param string $query
-     * @param array $params
+     * @param string $columns
+     * @param array $where
+     * @param string $afterWhere
+     * @return PDOStatement
+     */
+    public function executeSelect($tableName, $columns = '*', $where = null, $afterWhere = '')
+    {
+        list($where, $params) = $this->_buildWhere($where);
+        $query = "SELECT $columns FROM $tableName $where $afterWhere";
+        if (!($stmt = $this->prepare($query))) {
+            return false;
+        }
+        $stmt->execute($params);
+        return $stmt;
+    }
+
+    /**
+     * Executes a SELECT * on $tableName and returns all rows as an array
+     * 
+     * @param string $query
+     * @param array $where
      * @param string $afterWhere
      * @return array
      */
     public function select($tableName, $where = null, $afterWhere = '')
     {
-        list($where, $params) = $this->_buildWhere($where);
-        $query = "SELECT * FROM $tableName $where $afterWhere";
-        $stmt = $this->prepare($query);
-        $stmt->execute($params);
+        $stmt = $this->executeSelect($tableName, '*', $where, $afterWhere);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Executes a SELECT * on $tableName and returns the first row
+     * 
+     * @param string $query
+     * @param array $where
+     * @param string $afterWhere
+     * @return array
+     */
+    public function selectOne($tableName, $where = null, $afterWhere = '')
+    {
+        $stmt = $this->executeSelect($tableName, '*', $where, $afterWhere);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $row;
     }
     
     /**
-     * Prepares and executes a statement
+     * Executes a SELECT on $tableName and returns the first column of the first row
      * 
      * @param string $query
      * @param string $column
-     * @param array $params
+     * @param array $where
      * @return mixed
      */
     public function selectValue($tableName, $column, $where = null)
     {
-        list($where, $params) = $this->_buildWhere($where);
-        $query = "SELECT $column FROM $tableName $where";
-        $stmt = $this->prepare($query);
-        $stmt->execute($params);
+        $stmt = $this->executeSelect($tableName, $column, $where, $afterWhere);
         return $stmt->fetchColumn();
     }
     
@@ -82,12 +118,7 @@ class Db extends PDO
      */
     public function count($tableName, $where = null)
     {
-        list($where, $params) = $this->_buildWhere($where);
-        $query = "SELECT COUNT(*) FROM $tableName $where";
-        
-        $stmt = $this->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetchColumn();
+        return $this->selectValue($tableName, 'COUNT(*)', $where);
     }
     
     /**
@@ -99,11 +130,11 @@ class Db extends PDO
      */
     public function insert($tableName, array $data)
     {
-        $query = sprintf("INSERT INTO $tableName (%s) VALUES(%s)",
+        $query = sprintf("INSERT INTO $tableName (%s) VALUES (%s)",
             implode(', ', array_keys($data)), 
             implode(', ', array_fill(0, count($data), '?'))
         );
-            
+
         $stmt = $this->prepare($query);
         $stmt->execute(array_values($data));
         return $stmt;

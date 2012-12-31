@@ -8,21 +8,18 @@ It will use a database to store posts. Thus, we'll use a plugin.
 
 ## Creating and configuring the database
 
-As said before, our blog application will need a database. First let's create the database with the following SQL code:
+As said before, our blog application will need a database. To keep it simple, we'll use Sqlite. 
+Here is the schema for this tutorial. Save it in *schema.sql*:
 
     CREATE TABLE posts (
-        id                 INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        publish_date     DATETIME NOT NULL,
-        title             VARCHAR(200) NOT NULL,
-        content         TEXT NOT NULL
+        id       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        title    VARCHAR(200) NOT NULL,
+        content  TEXT NOT NULL
     );
-    
-    CREATE TABLE comments (
-        id                 INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        post_id         INTEGER NOT NULL,
-        publish_date     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        content         TEXT NOT NULL
-    );
+
+Now let's creae the database file:
+
+    sqlite3 example.db < schema.sql
 
 Will now need to configure the Db plugin so it can access the database. This plugin
 simply creates a new `PDO` instance and has some useful methods.
@@ -30,9 +27,7 @@ We'll use the `Atomik::set()` method. It allows you to define keys in the global
 In the *app/config.php* file, add the following lines:
 
     Atomik::set('plugins.Db', array(
-        'dsn'         => 'mysql:host=localhost;dbname=blog',
-        'username'     => 'root',
-        'password'     => ''
+        'dsn'         => 'sqlite:example.db'
     ));
 
 You can see that we define the *plugins.Db* key has an array containing connection information.
@@ -68,10 +63,12 @@ Variables defined in the action are automatically available in the view. Thus, w
     <h1>Blog</h1>
     <ul>
        <?php foreach ($posts as $post): ?>
-            <li><?php echo $this->escape($post['title']) ?></li>
+            <li><?= $this->escape($post['title']) ?></li>
         <?php endforeach; ?>
     </ul>
-    <a href="<?php echo $this->url('add') ?>">Add a new post</a>
+    <a href="<?= $this->url('add') ?>">Add a new post</a>
+
+(Atomik automatically converts short tags to the long form)
 
 It is a good practice to escape content before outputting it which is the goal of the `escape()` helper.
 The `url()` helper generates urls from action names.
@@ -177,27 +174,27 @@ with these simple lines:
         $this->redirect('index');
     }
     
-    $post = $this['db']->select('posts', array('id' => $this['request.id']));
+    $post = $this['db']->selectOne('posts', array('id' => $this['request.id']));
 
 First we check if the id parameter is set. If not we create a flash message and redirect
 the user to the index page. Otherwise, we fetch the requested post from the database.
 
 The view (*app/views/view.phtml*) is also very simple:
 
-    <h1><?php echo $this->escape($post['title']) ?></h1>
+    <h1><?= $this->escape($post['title']) ?></h1>
     <p>
-        Published the <?php echo $post['publish_date'] ?>
+        Published the <?= $post['publish_date'] ?>
     </p>
     <p>
-        <?php echo $this->escape($post['content']) ?>
+        <?= $this->escape($post['content']) ?>
     </p>
 
 Finally, we're going to modify the index view to add a link on post titles. Replace
 the line where the post title is echoed with:
 
     <li>
-        <a href="<?php echo $this->url('view', array('id' => $post['id'])) ?>">
-            <?php echo $this->escape($post['title']) ?>
+        <a href="<?= $this->url('view', array('id' => $post['id'])) ?>">
+            <?= $this->escape($post['title']) ?>
         </a>
     </li>
 
