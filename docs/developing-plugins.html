@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Atomik Framework</title>
+    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
+    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
+    
+        <link type="text/css" rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    
+    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+</head>
+<body>
+    <div id="page">
+        <a name="top" />
+        
+            <header id="header">
+                <h1><a href="/docs/">Atomik Framework</a></h1>
+            </header>
+        
+        
+
+
+    <div id="sidebar">
+        <nav id="toc">
+            
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#introduction">Introduction</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#requirements">Requirements</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#installation">Installation</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#directory-structure">Directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#advanced-installation">Advanced installation</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#get-started">Get started</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/get-started.html#the-database">The database</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#listing-posts">Listing posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#creating-new-posts">Creating new posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#viewing-a-post">Viewing a post</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#the-global-store">The global store</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-store">Accessing the store</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#nested-arrays">Nested arrays</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-global-store-from-actions-and-views">Accessing the global store from actions and views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#using-accessors-with-any-array">Using accessors with any array</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration">Configuration</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration-file">Configuration file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#bootsrapping">Bootsrapping</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#custom-directory-structure">Custom directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#pre-and-post-dispatch-files">Pre and post dispatch files</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#urls">URLs</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/urls.html#calling-an-action">Calling an action</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#routing-urls">Routing urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#file-extensions">File extensions</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#building-urls">Building urls</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions">Actions</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/actions.html#introduction">Introduction</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#action-files">Action files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions-and-http-methods">Actions and HTTP methods</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#redirections-and-404-errors">Redirections and 404 errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#includes">Includes</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#calling-actions-programmatically">Calling actions programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#layout">Layout</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#view-contexts">View contexts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#controlling-views">Controlling views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#rendering-views-programmatically">Rendering views programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#helpers">Helpers</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/helpers.html#creating-helpers">Creating helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#using-helpers">Using helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#utilities">Utilities</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/utilities.html#escaping-text">Escaping text</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#friendly-urls">Friendly urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#filtering-and-validating-data">Filtering and validating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#using-plugins">Using plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/using-plugins.html#installing-a-plugin">Installing a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#activating-and-configuring-a-plugin">Activating and configuring a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#session">Session</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/session.html#starting-and-accessing-the-session">Starting and accessing the session</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#flash-messages">Flash messages</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#error-handling-logging-and-debugging">Error handling, logging and debugging</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#handling-errors">Handling errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#logging">Logging</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#debugging">Debugging</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#database">Database</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/database.html#connecting">Connecting</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#querying-data">Querying data</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#manipulating-data">Manipulating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#scripts">Scripts</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/scripts.html#creating-custom-scripts">Creating custom scripts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#registering-commands">Registering commands</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#built-in-commands">Built-in commands</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translations">Translations</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/translations.html#creating-language-files">Creating language files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#detecting-the-user-language">Detecting the user language</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translating-strings">Translating strings</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#controller">Controller</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/controllers.html#differences-with-the-classic-atomik-way">Differences with the classic Atomik way</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#creating-controllers">Creating controllers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events">Events</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/events.html#listening-to-events">Listening to events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#firing-events">Firing events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events-naming-convention">Events naming convention</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#developing-plugins">Developing plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#the-plugin-file">The plugin file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#configuration">Configuration</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#using-a-class">Using a class</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#assets-and-urls">Assets and urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#loading-plugins-programmaticaly">Loading plugins programmaticaly</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+</ol>
+
+        </nav>
+    </div>
+
+<article id="content">
+    <a name="developing-plugins"></a><h1>Developing plugins</h1>
+<a name="the-plugin-file"></a><h2>The plugin file</h2>
+<p>A plugin is made of one file named the same way. For example the Db plugin is in the file
+<em>Db.php</em>. Plugin&#39;s file must always start with an uppercase letter.
+
+</p>
+<p>Plugins are loaded at the beginning of a request, just after the configuration. 
+The content of the file is free or it can be a class.
+
+</p>
+<p>To build more complex plugins you can instead of a file create a folder named after your plugin.
+Your PHP file goes into that folder and must be named <em>Plugin.php</em>.
+
+</p>
+<p>When using folders, it is possible to add a sub folder named <em>libs</em> which
+will automatically be added to php&#39;s include_path.
+
+</p>
+<p>A folder must be used when creating pluggable applications.
+
+</p>
+<a name="configuration"></a><h2>Configuration</h2>
+<p>As said in the &quot;Using plugins&quot; section, plugins can have custom configuration.
+To retrieve this configuration a <code>$config</code> variable is automatically available.
+It contains the array used in the configuration.
+
+</p>
+<pre><code>// In the configuration file:
+
+Atomik::set(&#39;plugins&#39;, array(
+    &#39;MyPlugin&#39; =&gt; array(
+           &#39;name&#39; =&gt; &#39;Peter&#39;
+    )
+));
+
+// In the plugin file:
+
+echo &#39;hello &#39; . $config[&#39;name&#39;];</code></pre>
+<a name="using-a-class"></a><h2>Using a class</h2>
+<p>For better application design it is advice to use a class to define your plugin.
+When loading a plugin, it will look for a class named like the plugin.
+
+</p>
+<p>If this class has a static <code>start()</code> method, it will be called when the plugin is loaded
+with the plugin&#39;s custom configuration as argument.
+
+</p>
+<pre><code>class Db
+{
+    public static function start($config)
+    {
+        // $config[&#39;name&#39;] == &#39;Peter&#39;
+    }
+}</code></pre>
+<p>It is a good thing to always provide a default configuration. This can be done by merging
+a default configuration array with the user&#39;s configuration.
+
+</p>
+<p>The class can contain static methods that will be automatically registered as callback
+on events. These methods have to start by &quot;on&quot; followed by the event name without
+the double &quot;:&quot;.
+
+</p>
+<pre><code>class Db
+{
+    public static onAtomikDispatchStart()
+    {
+        // listener for Atomik::Dispatch::Start
+    }
+}</code></pre>
+<p>You can prevent automatic callback registration by returning false in the start method.
+
+</p>
+<a name="pluggable-applications"></a><h2>Pluggable applications</h2>
+<p>Pluggable applications are really simple to create. Create a normal plugin using a folder. 
+Create your <em>Plugin.php</em> file. Call <code>Atomik::registerPluggableApplication()</code> when
+the plugin starts using the plugin name as first parameter (and eventually the pattern to 
+trigger the application as the second). Create standard Atomik folders inside your plugin 
+folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> and code your application normally.
+
+</p>
+<pre><code>class PluggApp
+{
+    public static $config = array(
+        &#39;route&#39; =&gt; &#39;/pluggapp/*&#39;
+    );
+
+    public static start($config)
+    {
+        self::$config = array_merge(self::$config, $config);
+        Atomik::registerPluggableApplication(&#39;PluggApp&#39;, $config[&#39;route&#39;]);
+    }
+}</code></pre>
+<p>A pluggable application can also have a file named <em>Application.php</em> at the root of the plugin
+folder. This file act the same way as the <em>bootstrap.php</em> file. It will be called before
+the pluggable application is dispatched.
+
+</p>
+<p>If Atomik detects the <em>Application.php</em> file, a <em>Plugin.php</em> file is not
+necessary and the pluggable application will automatically be registered.
+
+</p>
+<p>A pluggable application behaves as a normal Atomik application and all features are available. 
+The configuration will be reseted before the dispatch occurs. These applications can provide 
+their own config in their <em>Application.php</em> file like their own routes, default action... 
+The <em>pre_dispatch.php</em> and <em>post_dispatch.php</em> files can also be used.
+
+</p>
+<p>Note that every url will be relative to the pluggable application&#39;s root. That is to say you 
+do not have to care of the route used to trigger your application. For this to work properly, 
+read carefully the next section.
+
+</p>
+<p><code>Atomik::registerPluggableApplication()</code> as more options which are described in the
+API reference.
+
+</p>
+<a name="assets-and-urls"></a><h2>Assets and urls</h2>
+<p>When using the default <em>.htaccess</em> file, plugins can have an <em>assets</em> folder which
+is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.
+
+</p>
+<p>You can use <code>Atomik::asset()</code> like with a normal application. However in the case of plugins, 
+asset&#39;s filename will be prepended with a template defined in <em>atomik.plugin_assets_tpl</em>. 
+The default is <em>app/plugins/%s/assets</em>. The <em>%s</em> sign will be replaced with the plugin name.
+
+</p>
+<pre><code>echo Atomik::asset(&#39;css/styles.css&#39;);
+echo Atomik::pluginAsset(&#39;MyPlugin&#39;, &#39;css/styles.css&#39;);
+// will output app/plugins/MyPlugin/assets/css/styles.css
+
+Atomik::set(&#39;atomik.plugin_assets_tpl&#39;, &#39;plugins/%s/assets&#39;);
+echo Atomik::asset(&#39;css/styles.css&#39;);
+echo Atomik::pluginAsset(&#39;MyPlugin&#39;, &#39;css/styles.css&#39;);
+// will output plugins/MyPlugin/assets/css/styles.css</code></pre>
+<p>It is not adviced to change the plugin&#39;s assets folder name as some plugins may not work 
+with your installation.
+
+</p>
+<a name="loading-plugins-programmaticaly"></a><h2>Loading plugins programmaticaly</h2>
+<p>It is of course possible to load plugins at runtime. Atomik provides a bunch of loading methods 
+so it&#39;s simpler for plugins to load plugins they depend on or to create custom plugins.
+
+</p>
+<p>The most common method is <code>Atomik::loadPlugin()</code> which will load a plugin and use
+the user plugin&#39;s configuration (from the plugins key) if one is available.
+
+</p>
+<p>If a plugin is not available, loading it will throw an exception. To prevent that you can use
+<code>Atomik::loadPluginIfAvailable()</code>.
+
+</p>
+<pre><code>Atomik::loadPlugin(&#39;Db&#39;);</code></pre>
+<p>You can also load plugins by specifying custom configuration. This is done using 
+̀Atomik::loadCustomPlugin()`.
+
+</p>
+<pre><code>Atomik::loadCustomPlugin(&#39;Db&#39;, array(&#39;dbname&#39; =&gt; &#39;test&#39;));
+
+// load plugins from a custom directory
+Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;dirs&#39; =&gt; &#39;/custom/plugins/directory&#39;));
+
+// using a custom plugin class name (in this case the class name will be MyPluginCustomPlugin)
+Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;classNameTemplate&#39; =&gt; &#39;%CustomPlugin&#39;));
+
+// do not call the start() method when loading plugins
+Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;callStart&#39; =&gt; false));</code></pre>
+<p><code>Atomik::loadCustomPluginIfAvailable()</code> is also available.
+
+</p>
+<p>Be aware that some plugins may need to listen to some specific events. If you register a plugin too late,
+the events may have already occured, making the plugin malfunction.
+
+</p>
+<p>You can check if a plugin is already loaded using <code>Atomik::isPluginLoaded()</code> or if it&#39;s
+available using <code>Atomik::isPluginAvailable()</code>.
+
+</p>
+<p>Finally, you can retreive all loaded plugins using <code>Atomik::getLoadedPlugins()</code>.
+
+</p>
+
+</article>
+
+        <footer id="footer">
+            Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
+            <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>
+            - <a href="?print=1">Print current page</a> - <a href="/docs/all.html?print=1">Print all pages</a>
+            
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Atomik Framework</title>
+    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
+    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
+    
+        <link type="text/css" rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    
+    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+</head>
+<body>
+    <div id="page">
+        <a name="top" />
+        
+            <header id="header">
+                <h1><a href="/docs/">Atomik Framework</a></h1>
+            </header>
+        
+        
+
+
+    <div id="sidebar">
+        <nav id="toc">
+            
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#introduction">Introduction</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#requirements">Requirements</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#installation">Installation</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#directory-structure">Directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#advanced-installation">Advanced installation</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#get-started">Get started</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/get-started.html#the-database">The database</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#listing-posts">Listing posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#creating-new-posts">Creating new posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#viewing-a-post">Viewing a post</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#the-global-store">The global store</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-store">Accessing the store</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#nested-arrays">Nested arrays</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-global-store-from-actions-and-views">Accessing the global store from actions and views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#using-accessors-with-any-array">Using accessors with any array</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration">Configuration</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration-file">Configuration file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#bootsrapping">Bootsrapping</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#custom-directory-structure">Custom directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#pre-and-post-dispatch-files">Pre and post dispatch files</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#urls">URLs</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/urls.html#calling-an-action">Calling an action</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#routing-urls">Routing urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#file-extensions">File extensions</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#building-urls">Building urls</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions">Actions</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/actions.html#introduction">Introduction</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#action-files">Action files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions-and-http-methods">Actions and HTTP methods</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#redirections-and-404-errors">Redirections and 404 errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#includes">Includes</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#calling-actions-programmatically">Calling actions programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#layout">Layout</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#view-contexts">View contexts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#controlling-views">Controlling views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#rendering-views-programmatically">Rendering views programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#helpers">Helpers</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/helpers.html#creating-helpers">Creating helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#using-helpers">Using helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#utilities">Utilities</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/utilities.html#escaping-text">Escaping text</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#friendly-urls">Friendly urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#filtering-and-validating-data">Filtering and validating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#using-plugins">Using plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/using-plugins.html#installing-a-plugin">Installing a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#activating-and-configuring-a-plugin">Activating and configuring a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#session">Session</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/session.html#starting-and-accessing-the-session">Starting and accessing the session</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#flash-messages">Flash messages</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#error-handling-logging-and-debugging">Error handling, logging and debugging</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#handling-errors">Handling errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#logging">Logging</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#debugging">Debugging</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#database">Database</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/database.html#connecting">Connecting</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#querying-data">Querying data</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#manipulating-data">Manipulating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#scripts">Scripts</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/scripts.html#creating-custom-scripts">Creating custom scripts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#registering-commands">Registering commands</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#built-in-commands">Built-in commands</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translations">Translations</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/translations.html#creating-language-files">Creating language files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#detecting-the-user-language">Detecting the user language</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translating-strings">Translating strings</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#controller">Controller</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/controllers.html#differences-with-the-classic-atomik-way">Differences with the classic Atomik way</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#creating-controllers">Creating controllers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events">Events</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/events.html#listening-to-events">Listening to events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#firing-events">Firing events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events-naming-convention">Events naming convention</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#developing-plugins">Developing plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#the-plugin-file">The plugin file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#configuration">Configuration</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#using-a-class">Using a class</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#assets-and-urls">Assets and urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#loading-plugins-programmaticaly">Loading plugins programmaticaly</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+</ol>
+
+        </nav>
+    </div>
+
+<article id="content">
+    <a name="views"></a><h1>Views</h1>
+<a name="views"></a><h2>Views</h2>
+<p>Views are stored in the <em>app/views</em> directory. The default file extension is <em>phtml</em>.
+
+</p>
+<p>The content of a view file is, as the action file, free. It should mostly be text or 
+HTML (or any presentation content, such as XML).
+
+</p>
+<p>PHP can be used to print variables from the action or to provide presentation logic like
+loops.
+
+</p>
+<pre><code>&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Example&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;?php echo $myPublicVariable; ?&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<a name="layout"></a><h2>Layout</h2>
+<p>It is common in websites that all pages share the same layout. Atomik allows you to define
+a layout that will be used with all views.
+
+</p>
+<p>The layout will be rendered after the view has been rendered. The output of the view will be
+pass to the layout as a variable named <code>$contentForLayout</code>. 
+Layouts are rendered the same way as views.
+
+</p>
+<p>Layouts can be placed in the <em>app/views</em> or <em>app/layouts</em> directories.
+The file extension is the same as the one for views.
+
+</p>
+<p>The layout name to use has to be defined in the <em>app.layout</em> configuration key. If the
+value is false (which is the default), no layout will be used.
+
+</p>
+<p>The layout can be disabled at runtime by calling <code>Atomik::disableLayout()</code>.
+It can later be re-enabled by passing false as argument to the same method.
+
+</p>
+<pre><code>// app/views/_layout.phtml
+
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;My website&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;My website&lt;/h1&gt;
+        &lt;div id=&quot;content&quot;&gt;
+            &lt;?php echo $contentForLayout; ?&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+
+// app/config.php
+
+Atomik::set(&#39;app.layout&#39;, &#39;_layout&#39;);</code></pre>
+<p>Mutliple layouts can also be used. Just use an array instead of a string in the configuration key. 
+Layouts will be rendered in reverse order (the first one in the array wrap the second, the second 
+the third, ...).
+
+</p>
+<a name="view-contexts"></a><h2>View contexts</h2>
+<p>It is sometimes needed to return content in different formats. Rather than creating multiple actions 
+doing the same thing, Atomik allows you to create a view for each content type. This is called view 
+contexts. The correct view is rendered depending on the current context.
+
+</p>
+<p>The context is defined using a route parameter. By default it is called <em>format</em>. This can be changed in
+<em>app.views.context_param</em>. As specified in the urls chapter, the format parameter is by default the
+file extension. Which means that using an url like index.xml will result in using the xml context.
+
+</p>
+<p>The default view context is <em>html</em> but it can be changed in <em>atomik.views.default_context</em>.
+
+</p>
+<p>To create a view for a context just suffix the view name with the context name like an extension. 
+For example, let&#39;s say we have an <em>article</em> view. The filename for the xml context would be 
+<em>article.xml.phtml</em>. Some context may not need any prefix like the <em>html</em> one.
+
+</p>
+<p>Depending on the view context, the layout can be disabled and the response content-type can be changed. 
+The file prefix can also be specified. All of this is done in <em>app.views.contexts</em>.
+
+</p>
+<p>Creating a custom view context:
+
+</p>
+<pre><code>Atomik::set(&#39;app.views.contexts.rdf&#39;, array(    // the context name, ie. the file extension in the url
+    &#39;suffix&#39;        =&gt; &#39;rdf&#39;,                   // the view&#39;s file extension suffix (set to false for no suffix)
+    &#39;layout&#39;        =&gt; false,                   // disables the layout
+    &#39;content-type&#39;  =&gt; &#39;application/xml+rdf&#39;    // the response&#39;s content type
+));</code></pre>
+<p>Now you can call an url like <a href="http://example.com/article.rdf">http://example.com/article.rdf</a>. In this case the view filename
+would be <em>article.rdf.phtml</em>, the layout would be disabled and the response content type
+would be <em>application/xml+rdf</em>.
+
+</p>
+<p>If a view context is not defined under <em>app.views.contexts</em>, the file prefix will be the context name,
+the layout won&#39;t be disabled and the response content type will be <em>text/html</em>.
+
+</p>
+<p>By default, four contexts are defined: html, ajax, xml and json. The ajax context is the same 
+as html but with the layout disabled. The last two disable the layout and set the appropriate 
+content type.
+
+</p>
+<a name="controlling-views"></a><h2>Controlling views</h2>
+<a name="view39s-filename-extension"></a><h3>View&#39;s filename extension</h3>
+<p>The default filename&#39;s extension for views is <em>phtml</em> as said before. This can be change using
+the configuration key named <em>app.views.file_extension</em>.
+
+</p>
+<a name="do-not-render-the-view-from-the-action"></a><h3>Do not render the view from the action</h3>
+<p>While the action is executing, you may want to avoid rendering the associated view. This can easily be done
+by calling <code>Atomik::noRender()</code> from your action.
+
+</p>
+<a name="modify-the-associated-view-from-the-action"></a><h3>Modify the associated view from the action</h3>
+<p>While the action is executing, you may want to render a different view. In this case, you can use
+<code>Atomik::setView()</code> from your action. It takes as unique argument a view name.
+
+</p>
+<a name="using-a-custom-rendering-engine"></a><h3>Using a custom rendering engine</h3>
+<p>The default rendering process only uses php&#39;s include function. You may however want to use a 
+template engine for example. This is possible by specifying a callback in <em>app.views.engine</em>.
+
+</p>
+<p>The callback will receive two parameters: the first one will be the filename and the second an 
+array containing the view variables.
+
+</p>
+<pre><code>function myCustomRenderingEngine($filename, $vars)
+{
+    // your custom engine
+    return $renderedContent;
+}
+
+Atomik::set(&#39;app.views.engine&#39;, &#39;myCustomRenderingEngine&#39;);</code></pre>
+<p>The custom rendering engine will be used whenever <code>Atomik::render()</code>,
+<code>Atomik::renderFile()</code> or <code>Atomik::renderLayout()</code> is used.
+
+</p>
+<a name="rendering-views-programmatically"></a><h2>Rendering views programmatically</h2>
+<p>When executing a request, the action and/or the view associated to it are
+automatically called. You can however render other views using Atomik&#39;s API.
+
+</p>
+<p>The most useful use of this it to render partial views, small part of presentation
+code that is reusable.
+
+</p>
+<p>To render a view use the <code>Atomik::render()</code> method.
+
+</p>
+<p>It takes as first argument the view name and optionally as second argument
+an array of key/value pairs representing variables. 
+The method returns the view output.
+
+</p>
+<pre><code>$viewOutput = Atomik::render(&#39;myView&#39;);
+$viewOutput = Atomik::render(&#39;myView&#39;, array(&#39;var&#39; =&gt; &#39;value&#39;));</code></pre>
+<p>It is also possible to render any file using <code>Atomik::renderFile()</code>. It takes
+as first parameter a filename. Variables can also be passed like with <code>Atomik::render()</code>.
+
+</p>
+<p>You can also render contextual views by adding the file extension prefix to the view name.
+
+</p>
+
+</article>
+
+        <footer id="footer">
+            Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
+            <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>
+            - <a href="?print=1">Print current page</a> - <a href="/docs/all.html?print=1">Print all pages</a>
+            
+        </footer>
+    </div>
+</body>
+</html>

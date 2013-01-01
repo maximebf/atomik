@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Atomik Framework</title>
+    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
+    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
+    
+        <link type="text/css" rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    
+    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+</head>
+<body>
+    <div id="page">
+        <a name="top" />
+        
+            <header id="header">
+                <h1><a href="/docs/">Atomik Framework</a></h1>
+            </header>
+        
+        
+
+
+    <div id="sidebar">
+        <nav id="toc">
+            
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#introduction">Introduction</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#requirements">Requirements</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#installation">Installation</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#directory-structure">Directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#advanced-installation">Advanced installation</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#get-started">Get started</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/get-started.html#the-database">The database</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#listing-posts">Listing posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#creating-new-posts">Creating new posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#viewing-a-post">Viewing a post</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#the-global-store">The global store</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-store">Accessing the store</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#nested-arrays">Nested arrays</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-global-store-from-actions-and-views">Accessing the global store from actions and views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#using-accessors-with-any-array">Using accessors with any array</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration">Configuration</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration-file">Configuration file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#bootsrapping">Bootsrapping</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#custom-directory-structure">Custom directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#pre-and-post-dispatch-files">Pre and post dispatch files</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#urls">URLs</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/urls.html#calling-an-action">Calling an action</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#routing-urls">Routing urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#file-extensions">File extensions</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#building-urls">Building urls</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions">Actions</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/actions.html#introduction">Introduction</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#action-files">Action files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions-and-http-methods">Actions and HTTP methods</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#redirections-and-404-errors">Redirections and 404 errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#includes">Includes</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#calling-actions-programmatically">Calling actions programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#layout">Layout</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#view-contexts">View contexts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#controlling-views">Controlling views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#rendering-views-programmatically">Rendering views programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#helpers">Helpers</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/helpers.html#creating-helpers">Creating helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#using-helpers">Using helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#utilities">Utilities</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/utilities.html#escaping-text">Escaping text</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#friendly-urls">Friendly urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#filtering-and-validating-data">Filtering and validating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#using-plugins">Using plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/using-plugins.html#installing-a-plugin">Installing a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#activating-and-configuring-a-plugin">Activating and configuring a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#session">Session</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/session.html#starting-and-accessing-the-session">Starting and accessing the session</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#flash-messages">Flash messages</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#error-handling-logging-and-debugging">Error handling, logging and debugging</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#handling-errors">Handling errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#logging">Logging</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#debugging">Debugging</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#database">Database</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/database.html#connecting">Connecting</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#querying-data">Querying data</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#manipulating-data">Manipulating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#scripts">Scripts</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/scripts.html#creating-custom-scripts">Creating custom scripts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#registering-commands">Registering commands</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#built-in-commands">Built-in commands</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translations">Translations</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/translations.html#creating-language-files">Creating language files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#detecting-the-user-language">Detecting the user language</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translating-strings">Translating strings</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#controller">Controller</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/controllers.html#differences-with-the-classic-atomik-way">Differences with the classic Atomik way</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#creating-controllers">Creating controllers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events">Events</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/events.html#listening-to-events">Listening to events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#firing-events">Firing events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events-naming-convention">Events naming convention</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#developing-plugins">Developing plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#the-plugin-file">The plugin file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#configuration">Configuration</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#using-a-class">Using a class</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#assets-and-urls">Assets and urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#loading-plugins-programmaticaly">Loading plugins programmaticaly</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+</ol>
+
+        </nav>
+    </div>
+
+<article id="content">
+    <a name="controller"></a><h1>Controller</h1>
+<div class="note">You will need the Controller plugin which is bundled with Atomik</div>
+
+<p>Atomik action files do not follow any conventions. However, some of you may have used MVC frameworks
+where the business logic is coded in controllers. Controllers are classes where their methods are
+actions.
+
+</p>
+<p>This plugin adds support for controllers to Atomik. Once activated you must use controllers in your
+actions. It is not possible to mix between the classic way and the controller way.
+
+</p>
+<p>The plugin will be disabled when a pluggable application starts. It can be enabled using
+
+</p>
+<pre><code>Atomik\Controller::$disable = false;</code></pre>
+<a name="differences-with-the-classic-atomik-way"></a><h2>Differences with the classic Atomik way</h2>
+<p>There are two major differences which are views and the router.
+
+</p>
+<p>Each controller have multiple actions (methods) and each action has its own view. While having
+for example one file named <em>user.php</em> in the <em>actions</em> directory which
+contains the <em>UserController</em> class (we&#39;ll come to that later), you&#39;ll need many view
+files. Thus, instead of saving your views directly in the <em>views</em> directory you will have to save
+them in a folder named after your action.
+
+</p>
+<p>When using the router, the <em>action</em> parameter is mandatory. This plugin adds another mandatory
+parameter named <em>controller</em>. This parameter refers to the controller name whereas the <em>action</em>
+parameter refers to a method of the controller class.
+
+</p>
+<p>The default route will use the last segment of the uri as the action name and the rest as the controller name.
+
+</p>
+<pre><code>// ArchivesController::view()
+Atomik::set(&#39;app.routes&#39;, array(
+    &#39;archives/:year/:month&#39; =&gt; array(
+        &#39;controller&#39; =&gt; &#39;archives&#39;,
+        &#39;action&#39; =&gt; &#39;view&#39;
+    )
+));</code></pre>
+<p>The default controller name is <em>index</em> and the default action name is <em>index</em>.
+
+</p>
+<a name="creating-controllers"></a><h2>Creating controllers</h2>
+<a name="creating-simple-controllers"></a><h3>Creating simple controllers</h3>
+<p>As said before, a controller is a class. The only condition is in the naming convention. Your class has to be named
+using the controller name starting by an upper case letter suffixed with <em>Controller</em>. So for example,
+with a controller named <em>user</em> (saved in <em>app/actions/user.php</em>), the class name will be <em>UserController</em>. 
+
+</p>
+<p>If the action file is located in a sub folder, the class name as to follow the PSR-0 convention.
+For example, if the file is <em>app/actions/auth/user.php</em> the class name will be <em>Auth\UserController</em>.
+
+</p>
+<p>Then add public methods to your class. All public methods which does not start with an underscore will 
+be callable as an action.
+
+</p>
+<p>Don&#39;t forget to also create the view associated to each action.
+
+</p>
+<pre><code>class UserController
+{
+    public function index()
+    {
+    }
+
+    public function login()
+    {
+    }
+}</code></pre>
+<p>Also create two view files: <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.
+Note that they are saved under the <em>app/views/user</em> directory where the last folder is the 
+controller name.
+
+</p>
+<p>You can then use the following urls: <a href="http://example.com/user">http://example.com/user</a> or <a href="http://example.com/user/login">http://example.com/user/login</a>.
+
+</p>
+<p>In classic actions, all defined variables where accessible from the view. This is not possible 
+anymore when using methods for scoping reasons. To forward variables to the view, simply define 
+class properties.
+
+</p>
+<pre><code>// app/actions/user.php
+
+class UserController
+{
+    public function index()
+    {
+        $this-&gt;username = &#39;peter&#39;;
+    }
+}
+
+// app/views/user/index.phtml
+
+hello &lt;php echo $username ?&gt;</code></pre>
+<a name="creating-controllers-by-subclassing-atomikcontrollercontroller"></a><h3>Creating controllers by subclassing Atomik\Controller\Controller</h3>
+<p>Subclassing Atomik\Controller\Controller when creating a controller class brings some nice features.
+
+</p>
+<p>First of all, you can define two methods <code>_before()</code> and ̀_after()`
+that will be called before and after each action.
+
+</p>
+<p>Secondly, route parameters will be automatically mapped to method arguments.
+
+</p>
+<pre><code>Atomik::set(&#39;app.routes&#39;, array(
+    &#39;archives/:year/:month&#39; =&gt; array(
+        &#39;controller&#39; =&gt; &#39;archives&#39;,
+        &#39;action&#39; =&gt; &#39;view&#39;
+    )
+));
+
+// --------------------
+
+class ArchivesController extends Atomik\Controller\Controller
+{
+    public function view($year, $month)
+    {
+    }
+}</code></pre>
+<p>The <code>$year</code> and <code>$month</code> argument will be taken from the route parameters.
+The order is not important.
+</p>
+
+</article>
+
+        <footer id="footer">
+            Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
+            <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>
+            - <a href="?print=1">Print current page</a> - <a href="/docs/all.html?print=1">Print all pages</a>
+            
+        </footer>
+    </div>
+</body>
+</html>

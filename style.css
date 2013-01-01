@@ -1,0 +1,89 @@
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #8fc23f;
+}
+
+pre {
+  white-space: normal;
+  padding: 10px;
+  background: #EEE;
+  border-radius: 3px;
+}
+
+.container {
+  width: 900px;
+  margin: 0 auto;
+}
+
+.clear {
+  clear: both;
+}
+
+#forkme {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 149px;
+  height: 149px;
+  background: url(forkme.png) no-repeat;
+}
+
+#header {
+  padding: 20px 0;
+}
+  #header .brand {
+    float: left;
+  }
+  #header .nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    float: right;
+    margin-top: 24px;
+  }
+    #header .nav li {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+      #header .nav a {
+        display: inline-block;
+        padding: 6px 13px;
+        font-size: 20px;
+        text-decoration: none;
+      }
+
+#intro {
+  background: #8FC23F;
+  color: white;
+  padding: 31px 0;
+  font-size: 19px;
+}
+  #intro h1 {
+    margin: 5px 0;
+  }
+
+#main {
+  margin-top: 30px;
+}
+  #content {
+    float: left;
+    width: 600px;
+  }
+  #sidebar {
+    float: right;
+    width: 270px;
+  }
+
+#footer {
+  margin-top: 40px;
+  margin-bottom: 20px;
+}

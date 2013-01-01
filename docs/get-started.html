@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Atomik Framework</title>
+    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
+    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
+    
+        <link type="text/css" rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    
+    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+</head>
+<body>
+    <div id="page">
+        <a name="top" />
+        
+            <header id="header">
+                <h1><a href="/docs/">Atomik Framework</a></h1>
+            </header>
+        
+        
+
+
+    <div id="sidebar">
+        <nav id="toc">
+            
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#introduction">Introduction</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#requirements">Requirements</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#installation">Installation</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#directory-structure">Directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#advanced-installation">Advanced installation</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#get-started">Get started</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/get-started.html#the-database">The database</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#listing-posts">Listing posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#creating-new-posts">Creating new posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#viewing-a-post">Viewing a post</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#the-global-store">The global store</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-store">Accessing the store</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#nested-arrays">Nested arrays</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-global-store-from-actions-and-views">Accessing the global store from actions and views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#using-accessors-with-any-array">Using accessors with any array</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration">Configuration</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration-file">Configuration file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#bootsrapping">Bootsrapping</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#custom-directory-structure">Custom directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#pre-and-post-dispatch-files">Pre and post dispatch files</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#urls">URLs</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/urls.html#calling-an-action">Calling an action</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#routing-urls">Routing urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#file-extensions">File extensions</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#building-urls">Building urls</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions">Actions</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/actions.html#introduction">Introduction</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#action-files">Action files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions-and-http-methods">Actions and HTTP methods</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#redirections-and-404-errors">Redirections and 404 errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#includes">Includes</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#calling-actions-programmatically">Calling actions programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#layout">Layout</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#view-contexts">View contexts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#controlling-views">Controlling views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#rendering-views-programmatically">Rendering views programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#helpers">Helpers</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/helpers.html#creating-helpers">Creating helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#using-helpers">Using helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#utilities">Utilities</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/utilities.html#escaping-text">Escaping text</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#friendly-urls">Friendly urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#filtering-and-validating-data">Filtering and validating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#using-plugins">Using plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/using-plugins.html#installing-a-plugin">Installing a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#activating-and-configuring-a-plugin">Activating and configuring a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#session">Session</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/session.html#starting-and-accessing-the-session">Starting and accessing the session</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#flash-messages">Flash messages</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#error-handling-logging-and-debugging">Error handling, logging and debugging</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#handling-errors">Handling errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#logging">Logging</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#debugging">Debugging</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#database">Database</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/database.html#connecting">Connecting</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#querying-data">Querying data</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#manipulating-data">Manipulating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#scripts">Scripts</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/scripts.html#creating-custom-scripts">Creating custom scripts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#registering-commands">Registering commands</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#built-in-commands">Built-in commands</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translations">Translations</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/translations.html#creating-language-files">Creating language files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#detecting-the-user-language">Detecting the user language</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translating-strings">Translating strings</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#controller">Controller</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/controllers.html#differences-with-the-classic-atomik-way">Differences with the classic Atomik way</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#creating-controllers">Creating controllers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events">Events</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/events.html#listening-to-events">Listening to events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#firing-events">Firing events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events-naming-convention">Events naming convention</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#developing-plugins">Developing plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#the-plugin-file">The plugin file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#configuration">Configuration</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#using-a-class">Using a class</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#assets-and-urls">Assets and urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#loading-plugins-programmaticaly">Loading plugins programmaticaly</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+</ol>
+
+        </nav>
+    </div>
+
+<article id="content">
+    <a name="get-started"></a><h1>Get started</h1>
+<p>In this tutorial, you will learn how to create a simple blogging application in a few minutes.
+Our blog will list posts and allow you to create new ones which will be stored in a database.
+We will use a few plugins in the process.
+
+</p>
+<p>Requirements:
+
+</p>
+<ul>
+<li>PHP 5.3</li>
+<li>A webserver (eg. Apache)</li>
+<li><a href="http://www.sqlite.org/">Sqlite</a></li>
+</ul>
+<p>Install Atomik using the skeleton app as explained in the Installation section.
+Atomik provides a skeleton application to get you started quickly. 
+
+</p>
+<p>All future paths reference in this tutorial will be relative to your installation folder.
+This path should be accessible from a web browser.
+
+</p>
+<a name="the-database"></a><h2>The database</h2>
+<p>As said before, our blog application will need a database. To keep it simple, we&#39;ll use Sqlite
+which is a very simple database engine that stores data into a single file.
+
+</p>
+<p>Here is the database schema for this tutorial. Save it in <em>schema.sql</em>:
+
+</p>
+<pre><code>CREATE TABLE posts (
+    id       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title    VARCHAR(200) NOT NULL,
+    content  TEXT NOT NULL
+);</code></pre>
+<p>Now let&#39;s create the database file:
+
+</p>
+<pre><code>$ sqlite3 -init schema.sql example.db
+sqlite&gt; .exit</code></pre>
+<p>Will now need to configure the Db plugin so it can access the database. This plugin
+simply creates a new <code>PDO</code> instance to which it adds some useful methods.
+
+</p>
+<p>Open the <em>app/config.php</em> file. You&#39;ll see that we use the <code>Atomik::set()</code> method
+to define configuration options. This method is one of many that allow you to
+manipulate the global store, a place where you can store data shared accross your app.
+
+</p>
+<p>In the plugins section, (line 5) add the following lines:
+
+</p>
+<pre><code>// ...
+&#39;plugins&#39; =&gt; array(
+    // ...
+    &#39;Db&#39; =&gt; array(
+        &#39;dsn&#39; =&gt; &#39;sqlite:example.db&#39;
+    )
+),
+// ...</code></pre>
+<p>The Db plugins creates a <code>PDO</code> instance accessible through the <em>db</em> key in the global store.
+This is all we need to connect to the database.
+
+</p>
+<a name="listing-posts"></a><h2>Listing posts</h2>
+<p>A page in Atomik is made of two files: the first one is dedicated to the business logic, 
+it is called an action. The second one is called a view and holds the presentation code, 
+which in most cases is HTML.
+
+</p>
+<p>Actions are located in the <em>app/actions</em> folder and views in the <em>app/views</em>
+folder. For example, for a page named home, we would need a <em>home.php</em> file in the actions
+folder and/or a <em>home.phtml</em> file in the views folder.
+
+</p>
+<div class="note">Both files are not mandatory when creating a page. At least one of them must exists.</div>
+
+<p>The default page is named <em>index</em>. We will list posts on this one. We&#39;ll first need to retrieve 
+posts from the database. In the action file (<em>app/actions/index.php</em>), add the following lines:
+
+</p>
+<pre><code>&lt;?php
+$posts = $this[&#39;db&#39;]-&gt;select(&#39;posts&#39;);</code></pre>
+<p>Here we access the global store through <code>$this</code> which represent the <code>Atomik</code> object. The <code>select()</code>
+function from the Db plugin creates an SQL SELECT statement.
+
+</p>
+<p>Variables defined in the action are automatically available in the view. Thus, we can iterate 
+through the <code>$posts</code> variable to list our posts.
+
+</p>
+<pre><code>&lt;h1&gt;Blog&lt;/h1&gt;
+&lt;ul&gt;
+   &lt;?php foreach ($posts as $post): ?&gt;
+        &lt;li&gt;&lt;?= $this-&gt;escape($post[&#39;title&#39;]) ?&gt;&lt;/li&gt;
+    &lt;?php endforeach; ?&gt;
+&lt;/ul&gt;
+&lt;a href=&quot;&lt;?= $this-&gt;url(&#39;add&#39;) ?&gt;&quot;&gt;Add a new post&lt;/a&gt;</code></pre>
+<p>(Atomik automatically converts short tags to the long form)
+
+</p>
+<p>It is a good practice to escape content before outputting it which is the goal of the <code>escape()</code> helper.
+The <code>url()</code> helper generates urls from action names.
+
+</p>
+<p>Helpers are utility functions available through <code>$this</code> in actions and views. Atomik comes bundled with
+a few of them to help you get started quickly.
+
+</p>
+<p>Now, navigate to <a href="http://localhost"><a href="http://localhost">http://localhost</a></a>. Don&#39;t worry if nothing shows up, we havn&#39;t created
+any post yet.
+
+</p>
+<a name="creating-new-posts"></a><h2>Creating new posts</h2>
+<p>We&#39;re going to create a new page called <em>add</em>. Let&#39;s start by creating the view
+(<em>app/views/add.phtml</em>).
+
+</p>
+<pre><code>&lt;h1&gt;New post&lt;/h1&gt;
+&lt;?= $form = $this-&gt;form($this-&gt;url(&#39;add&#39;)) ?&gt;
+  &lt;p&gt;
+    &lt;label for=&quot;title&quot;&gt;Title:&lt;/label&gt;
+    &lt;?= $form-&gt;input(&#39;title&#39;) ?&gt;
+  &lt;/p&gt;
+  &lt;p&gt;
+    &lt;label for=&quot;content&quot;&gt;Content:&lt;/label&gt;
+    &lt;?= $form-&gt;textarea(&#39;content&#39;) ?&gt;
+  &lt;/p&gt;
+  &lt;?= $form-&gt;buttons(&#39;Add post&#39;) ?&gt;
+&lt;/form&gt;</code></pre>
+<p>In this view, we&#39;ve used the <code>form()</code> helper which returns an object with functions to easily
+render common HTML inputs.
+
+</p>
+<p>Our action should only be executed when there&#39;s POST data. Atomik allows you to create
+action files for specific HTTP methods. To do so, add a suffix to the action name with a dot followed 
+by the HTTP method in lower case. Our action file will thus be named <em>app/actions/add.post.php</em>.
+
+</p>
+<p>As a side note if you&#39;re new to web programming, the HTTP protocol defines multiple verbs (or methods).
+Each one carry a meaning and eventually some data. The most common one is GET. It is the method
+your browser uses to request a page. To send some data from the browser to the server, the browser
+will perform a POST request.
+
+</p>
+<p>The first thing we need to do is filter the data. This is always an important step when dealing with
+data from an outside source as it is a common vectore of attack. We&#39;re going to use the <code>filter()</code> helper.
+
+</p>
+<p>This helper is built on top of PHP&#39;s <a href="http://fr2.php.net/manual/en/book.filter.php">filter extension</a>.
+
+</p>
+<p>This method works in two ways: it can filter a single value or it can filter an entire array.
+We&#39;re obviously going to use the latter as we&#39;re going to filter the <code>$_POST</code> array.
+
+</p>
+<p>To filter an array, the method needs a set of rules: an array listing the requirements for each
+fields in the input data. For each field, we can use a filter and define if it&#39;s required.
+The default filter is to sanitize strings (<code>FILTER_SANITIZE_STRING</code>) and we&#39;ll use that one.
+We&#39;re only going to set fields as required.
+
+</p>
+<pre><code>$fields = array(
+    &#39;title&#39; =&gt; array(&#39;required&#39; =&gt; true),
+    &#39;content&#39; =&gt; array(&#39;required&#39; =&gt; true)
+);</code></pre>
+<p>If the validation fails, the method will return false. In this case it will generate some error 
+messages stored in <em>app.filters.messages</em>. We can then use the <code>flash()</code> helper to display them 
+to the user.
+
+</p>
+<pre><code>if (($data = $this-&gt;filter($_POST, $fields)) === false) {
+    $this-&gt;flash($this[&#39;app.filters.messages&#39;], &#39;error&#39;);
+    return;
+}</code></pre>
+<p>Now that our data has been validated we&#39;re going to insert them in the database.
+We&#39;ll use the <code>insert()</code> method from the Db plugin.
+
+</p>
+<pre><code>$this[&#39;db&#39;]-&gt;insert(&#39;posts&#39;, $data);</code></pre>
+<p>Finally, we&#39;ll add a flash message announcing that the operation has been successful.
+We&#39;ll also redirect the user to the index page.
+
+</p>
+<pre><code>$this-&gt;flash(&#39;Post successfully added!&#39;, &#39;success&#39;);
+$this-&gt;redirect(&#39;index&#39;);</code></pre>
+<p>Below is the complete action:
+
+</p>
+<pre><code>&lt;?php
+
+$fields = array(
+    &#39;title&#39; =&gt; array(&#39;required&#39; =&gt; true),
+    &#39;content&#39; =&gt; array(&#39;required&#39; =&gt; true)
+);
+
+if (($data = $this-&gt;filter($_POST, $fields)) === false) {
+    $this-&gt;flash($this[&#39;app.filters.messages&#39;], &#39;error&#39;);
+    return;
+}
+
+$this[&#39;db&#39;]-&gt;insert(&#39;posts&#39;, $data);
+
+$this-&gt;flash(&#39;Post successfully added!&#39;, &#39;success&#39;);
+$this-&gt;redirect(&#39;index&#39;);</code></pre>
+<a name="viewing-a-post"></a><h2>Viewing a post</h2>
+<p>We are now going to create a page named <em>view</em> to show a single post.
+
+</p>
+<p>The page will need a request parameter named <em>id</em> which must contain the id
+of a post. Let&#39;s create the action file (<em>app/actions/view.php</em>)
+with these simple lines:
+
+</p>
+<pre><code>&lt;?php
+
+if (!isset($this[&#39;request.id&#39;])) {
+    $this-&gt;flash(&#39;Missing id parameter&#39;, &#39;error&#39;);
+    $this-&gt;redirect(&#39;index&#39;);
+}
+
+$post = $this[&#39;db&#39;]-&gt;selectOne(&#39;posts&#39;, array(&#39;id&#39; =&gt; $this[&#39;request.id&#39;]));</code></pre>
+<p>First we check if the id parameter is set. The <em>request</em> array from the global store
+contains all the parameters given through the URL and the <code>$_GET</code> array.
+
+</p>
+<p>The view (<em>app/views/view.phtml</em>) is also very simple:
+
+</p>
+<pre><code>&lt;h1&gt;&lt;?= $this-&gt;escape($post[&#39;title&#39;]) ?&gt;&lt;/h1&gt;
+&lt;p&gt;
+    Published the &lt;?= $post[&#39;publish_date&#39;] ?&gt;
+&lt;/p&gt;
+&lt;p&gt;
+    &lt;?= $this-&gt;escape($post[&#39;content&#39;]) ?&gt;
+&lt;/p&gt;</code></pre>
+<p>Finally, we&#39;re going to modify the index view to add a link on post titles. Replace
+the line where the post title is echoed with:
+
+</p>
+<pre><code>&lt;li&gt;
+    &lt;a href=&quot;&lt;?= $this-&gt;url(&#39;view&#39;, array(&#39;id&#39; =&gt; $post[&#39;id&#39;])) ?&gt;&quot;&gt;
+        &lt;?= $this-&gt;escape($post[&#39;title&#39;]) ?&gt;
+    &lt;/a&gt;
+&lt;/li&gt;</code></pre>
+
+</article>
+
+        <footer id="footer">
+            Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
+            <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>
+            - <a href="?print=1">Print current page</a> - <a href="/docs/all.html?print=1">Print all pages</a>
+            
+        </footer>
+    </div>
+</body>
+</html>

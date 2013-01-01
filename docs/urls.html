@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Atomik Framework</title>
+    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
+    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
+    
+        <link type="text/css" rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    
+    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+</head>
+<body>
+    <div id="page">
+        <a name="top" />
+        
+            <header id="header">
+                <h1><a href="/docs/">Atomik Framework</a></h1>
+            </header>
+        
+        
+
+
+    <div id="sidebar">
+        <nav id="toc">
+            
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#introduction">Introduction</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#requirements">Requirements</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#installation">Installation</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#directory-structure">Directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#advanced-installation">Advanced installation</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#get-started">Get started</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/get-started.html#the-database">The database</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#listing-posts">Listing posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#creating-new-posts">Creating new posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#viewing-a-post">Viewing a post</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#the-global-store">The global store</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-store">Accessing the store</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#nested-arrays">Nested arrays</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-global-store-from-actions-and-views">Accessing the global store from actions and views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#using-accessors-with-any-array">Using accessors with any array</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration">Configuration</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration-file">Configuration file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#bootsrapping">Bootsrapping</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#custom-directory-structure">Custom directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#pre-and-post-dispatch-files">Pre and post dispatch files</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#urls">URLs</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/urls.html#calling-an-action">Calling an action</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#routing-urls">Routing urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#file-extensions">File extensions</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#building-urls">Building urls</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions">Actions</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/actions.html#introduction">Introduction</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#action-files">Action files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions-and-http-methods">Actions and HTTP methods</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#redirections-and-404-errors">Redirections and 404 errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#includes">Includes</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#calling-actions-programmatically">Calling actions programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#layout">Layout</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#view-contexts">View contexts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#controlling-views">Controlling views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#rendering-views-programmatically">Rendering views programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#helpers">Helpers</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/helpers.html#creating-helpers">Creating helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#using-helpers">Using helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#utilities">Utilities</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/utilities.html#escaping-text">Escaping text</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#friendly-urls">Friendly urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#filtering-and-validating-data">Filtering and validating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#using-plugins">Using plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/using-plugins.html#installing-a-plugin">Installing a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#activating-and-configuring-a-plugin">Activating and configuring a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#session">Session</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/session.html#starting-and-accessing-the-session">Starting and accessing the session</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#flash-messages">Flash messages</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#error-handling-logging-and-debugging">Error handling, logging and debugging</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#handling-errors">Handling errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#logging">Logging</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#debugging">Debugging</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#database">Database</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/database.html#connecting">Connecting</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#querying-data">Querying data</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#manipulating-data">Manipulating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#scripts">Scripts</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/scripts.html#creating-custom-scripts">Creating custom scripts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#registering-commands">Registering commands</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#built-in-commands">Built-in commands</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translations">Translations</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/translations.html#creating-language-files">Creating language files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#detecting-the-user-language">Detecting the user language</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translating-strings">Translating strings</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#controller">Controller</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/controllers.html#differences-with-the-classic-atomik-way">Differences with the classic Atomik way</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#creating-controllers">Creating controllers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events">Events</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/events.html#listening-to-events">Listening to events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#firing-events">Firing events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events-naming-convention">Events naming convention</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#developing-plugins">Developing plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#the-plugin-file">The plugin file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#configuration">Configuration</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#using-a-class">Using a class</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#assets-and-urls">Assets and urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#loading-plugins-programmaticaly">Loading plugins programmaticaly</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+</ol>
+
+        </nav>
+    </div>
+
+<article id="content">
+    <a name="urls"></a><h1>URLs</h1>
+<a name="calling-an-action"></a><h2>Calling an action</h2>
+<p>Atomik provides a simple url mechanism. Whatever the page is, the url
+must always point to Atomik script, i.e. <em>index.php</em>
+
+</p>
+<p>The url should contain an HTTP GET parameter which specify which action to trigger.
+This parameter can be modified in the configuration (using the <em>atomik.trigger</em> key) 
+but its default name is <em>action</em>.
+
+</p>
+<p>The value of the parameter must only contain the action name
+without any extension. So for example if you have an <em>home.php</em>
+file in the <em>app/actions</em> directory and/or an 
+<em>home.phtml</em> file in the <em>app/views</em>
+directory, you must use <em>home</em> as parameter to call this action.
+Thus, the url should look like <a href="http://example.com/index.php?action=home">http://example.com/index.php?action=home</a>.
+
+</p>
+<p>For an action to be callable, an action file or a view file must at least exist.
+
+</p>
+<p>If the action parameter is not found in the query string, Atomik will use the default
+action defined in its configuration (the <em>app.default_action</em> key).
+The default is <em>index</em>.
+
+</p>
+<p>For cleaner and prettier url you can use url rewriting. When using Apache, simply copy the 
+code below into a <em>.htaccess</em> file in the same directory as Atomik&#39;s core file.
+
+</p>
+<pre><code>RewriteEngine on
+RewriteRule ^app/plugins/(.+)/assets - [L]
+RewriteRule ^app/ - [L,F]
+RewriteRule ^vendor/ - [L,F]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]</code></pre>
+<p>This code will also prevent access to the <em>app</em> folder from the web but
+allow access to <em>assets</em> directories provided by plugins.
+
+</p>
+<p>When using url rewriting, you can access pages by directly appending the name to the base url.
+Eg: <a href="http://example.com/home">http://example.com/home</a>
+
+</p>
+<p>Sometimes Atomik cannot detect if url rewriting is activated and <code>Atomik::url()</code>
+still uses <em>index.php</em>. To prevent this, set the <em>atomik.url_rewriting</em> 
+configuration key to true.
+
+</p>
+<p>The action that has been called can be found in the configuration key named <em>request_uri</em>.
+The base url of the website (ie. the path before the root of the site) can be found in the 
+<em>atomik.base_url</em> key.
+
+</p>
+<p>When using pluggable applications (see the plugins chapter), the <em>request_uri</em> key will
+become relative to the pluggable application&#39;s root url. To retrieve the full uri you can use
+<em>full_request_uri</em>.
+
+</p>
+<a name="routing-urls"></a><h2>Routing urls</h2>
+<a name="creating-routes"></a><h3>Creating routes</h3>
+<p>It is now a common practice to use pretty urls. This can easily be done using Atomik&#39;s router.
+The router maps urls to actions and allows you to extract parameters from these urls. An url and its
+parameters is called a route.
+
+</p>
+<p>Routes are defined in the <em>app.routes</em> configuration key.
+The action must be specified as a parameter named <em>action</em>.
+
+</p>
+<pre><code>Atomik::set(&#39;app.routes&#39;, array(
+   &#39;user/add&#39; =&gt; array(
+       &#39;action&#39; =&gt; &#39;user_add&#39;
+   )
+));</code></pre>
+<p>As you see, the route is defined as the array key and its parameters are defined in
+the sub array. You can add an unlimited number of parameters to the route. There
+must be at least the <em>action</em> parameter for the route to be valid.
+
+</p>
+<p>The real magic of the routes is the possibility to assign a parameter value with
+a segment of the uri. This is done by specifying a parameter name prefixed with <em>:</em>
+inside an uri segment (ie. between slashes).
+
+</p>
+<p>Parameters defined as uri segments can be optional if they are also defined in the
+parameters list.
+
+</p>
+<pre><code>Atomik::set(&#39;app.routes&#39;, array(
+   &#39;archives/:year/:month&#39; =&gt; array(
+       &#39;action&#39; =&gt; &#39;archives&#39;,
+       &#39;month&#39; =&gt; &#39;all&#39;
+   )
+));</code></pre>
+<p>In this route, the month parameter is optional but not the year. Thus, possible urls are
+<a href="http://example.com/archives/2008">http://example.com/archives/2008</a> or <a href="http://example.com/archives/2008/02">http://example.com/archives/2008/02</a>.
+In these case the year parameter will have the <em>2008</em> value and the month parameter in the 
+second example will have <em>02</em> as value.
+
+</p>
+<p>Note that routes are matched in reverse order.
+
+</p>
+<p>Regexp routes allow you to use regular expressions to match an uri to a route. A regexp route is
+defined the same way as classical ones but the route is replaced by the regexp which must use
+the pound sign # as its delimiter.
+
+</p>
+<p>The uri to match will always be relative (so do not use a slash at the start). To specify parameters
+inside the route, you must use named subpatterns (see <a href="http://php.net/manual/en/regexp.reference.subpatterns.php">http://php.net/manual/en/regexp.reference.subpatterns.php</a>).
+
+</p>
+<pre><code>Atomik::set(&#39;app.routes&#39;, array(
+   &#39;#archives/(?P&lt;year&gt;[0-9]{4})/(?P&lt;month&gt;[0-9]{2})#&#39; =&gt; array(
+       &#39;action&#39; =&gt; &#39;archives&#39;,
+       &#39;month&#39; =&gt; &#39;all&#39;
+   )
+));</code></pre>
+<p>To provide a name to a route, simply define the <em>@name</em> parameter. Both route
+types (classical and regexp) can be named. Route naming will be useful when 
+using <code>Atomik::url()</code>.
+
+</p>
+<pre><code>Atomik::set(&#39;app.routes&#39;, array(
+   &#39;archives/:year/:month&#39; =&gt; array(
+       &#39;@name&#39; =&gt; &#39;archives&#39;,
+       &#39;action&#39; =&gt; &#39;archives&#39;,
+       &#39;month&#39; =&gt; &#39;all&#39;
+   )
+));</code></pre>
+<a name="retrieving-route-parameters"></a><h3>Retrieving route parameters</h3>
+<p>Once the routing process is done, a configuration key named <em>request</em> is available. It contains
+an associative array with parameters and their value.
+
+</p>
+<pre><code>$params = Atomik::get(&#39;request&#39;);
+$year = Atomik::get(&#39;request.year&#39;);
+
+// inside actions and views:
+
+$params = $this[&#39;request&#39;];
+$year = $this[&#39;request.year&#39;];</code></pre>
+<a name="file-extensions"></a><h2>File extensions</h2>
+<p>Since version 2.2, Atomik can handle file extensions in urls. The file extension is optional. 
+You can force the file extension to be present by setting <em>app.force_uri_extension</em> to true.
+
+</p>
+<p>By default the file extension is the view context. View contexts are discussed in a later chapter.
+The default view context if no extension is defined is <em>html</em>. This can be changed
+in <em>app.views.default_context</em>.
+
+</p>
+<pre><code>http://example.com/home         =&gt;    action=home format=html (won&#39;t work if app.force_uri_extension is set to true)
+http://example.com/home.html    =&gt;    action=home format=html
+http://example.com/home.xml     =&gt;    action=home format=xml
+http://example.com/home.foo     =&gt;    action=home format=foo</code></pre>
+<p>Routes also support file extensions. You can specify a specific extension in your route. The extension
+can also be a parameter. In this case, if you specify a default value for it, the extension
+won&#39;t be mandatory in the url.
+
+</p>
+<pre><code>Atomik::set(&#39;app.routes&#39;, array(
+   &#39;:category/:article..:format&#39; =&gt; array(
+           &#39;action&#39; =&gt; &#39;article&#39;
+   ),
+   &#39;home..html&#39; =&gt; array(
+        &#39;action&#39; =&gt; &#39;home&#39;,
+        &#39;format&#39; =&gt; &#39;html&#39;
+   )
+));</code></pre>
+<p>(Note that the dot must be escaped in keys using a double dot)
+
+</p>
+<p>The format parameter is not automatically added in custom routes. If not specified
+it will default to the value of <em>app.views.default_context</em>.
+
+</p>
+<a name="building-urls"></a><h2>Building urls</h2>
+<p>Directly writing url into your code can lead to problems. When using a layout for example, it is hard to know the
+relative location of the current view, to include stylesheets for example. Some urls also needs lots of concatanation
+when using parameters and this can make the code less readable.
+
+</p>
+<p><code>Atomik::url()</code> tries to resolve those problems by providing three things:
+
+</p>
+<ul>
+<li>Prepend the base url</li>
+<li>Do not use <em>index.php</em> in the url if url rewriting is enabled (or use it if not)</li>
+<li>Handle url parameters</li>
+</ul>
+<p>The method works best with relative or absolute urls. It can however also works with full urls. 
+In this case, the two first points won&#39;t be applied.
+
+</p>
+<p>If null is used as the url, the current action will be used. Named routes can be used using the route
+name prepended with the @ sign.
+
+</p>
+<pre><code>$url = Atomik::url(&#39;home&#39;); // /index.php?action=home if no url rewriting or /home otherwise
+$url = Atomik::url(&#39;/user/dashboard&#39;); // /user/dashboard
+$url = Atomik::url(&#39;http://example.com&#39;); // http://example.com
+$url = Atomik::url(&#39;@my_route&#39;); // will use the route named my_route</code></pre>
+<p>You can add GET parameters to the url using an array as the second argument. You can
+re-use the current request parameters by using true instead of an array. If you want 
+the current parameters as well as new ones, use an array and add <em>__merge_GET</em>
+as value.
+
+</p>
+<pre><code>$url = Atomik::url(&#39;archives&#39;, array(&#39;year&#39; =&gt; 2008)); // /index.php?action=archives&amp;year=2008 if no url rewriting or /archives?year=2008 otherwise
+$url = Atomik::url(&#39;archives?year=2008&#39;, array(&#39;month&#39; =&gt; 02)); // /archives?year=2008&amp;month=02
+
+// if the page has been called with ?year=2008
+
+$url = Atomik::url(&#39;archives&#39;, true); // /archives?year=2008
+$url = Atomik::url(&#39;archives&#39;, array(&#39;__merge_GET&#39;, &#39;month&#39; =&gt; 02)); // /archives?year=2008&amp;month=02</code></pre>
+<p>The method also allows you to use embedded parameters. These are parameters in the uri (like in classical routes). 
+The name of the parameter must be prepended with <em>:</em>.
+
+</p>
+<pre><code>$url = Atomik::url(&#39;archives/:year&#39;, array(&#39;year&#39; =&gt; 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
+$url = Atomik::url(&#39;archives/:year&#39;, array(&#39;year&#39; =&gt; 2008, &#39;month&#39; =&gt; 02)); // /archives/2008?month=02</code></pre>
+<p>Using named routes:
+
+</p>
+<pre><code>$url = Atomik::url(&#39;@archives&#39;, array(&#39;year&#39; =&gt; 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
+$url = Atomik::url(&#39;@archives&#39;, array(&#39;year&#39; =&gt; 2008, &#39;month&#39; =&gt; 02)); // /archives/2008?month=02</code></pre>
+<p>When creating urls that point to resources you&#39;ll never want them to have the 
+<em>index.php</em> part in them. To prevent that you can use the <code>Atomik::asset()</code> method. 
+It works exactly the same as <code>Atomik::url()</code> but will never use <em>index.php</em> in the url.
+
+</p>
+<p><code>Atomik::url()</code> is relative to the application context. For example, if this method is used 
+inside views from your application, generated urls will be relative to your application&#39;s base url. 
+However, if it is used inside a pluggable application (or plugin) it will be relative to the 
+plugin&#39;s base url. It allows this method to be used everywhere while ensuring that the urls 
+are relative to the correct base url.
+
+</p>
+<p>It is however possible to use <code>Atomik::appUrl()</code> to always generate urls relative to your application&#39;s
+base url and <code>Atomik::pluginUrl()</code> to always generate urls relative to a specific plugin. The plugin
+name must be provided as the first argument of the latter, remaining arguments being the same as 
+with <code>Atomik::url()</code>.
+
+</p>
+<pre><code>$url = Atomik::appUrl(&#39;home&#39;); // always /home
+$url = Atomik::pluginUrl(&#39;my_plugin&#39;, &#39;home&#39;); // /my_plugin_base_url/home
+$url = Atomik::url(&#39;home&#39;); // either /home or /my_plugin_base_url/home depending on the context</code></pre>
+<p>For assets, it also exists <code>Atomik::appAsset()</code> and <code>Atomik::pluginAsset()</code>.
+The latter, like <code>Atomik::pluginUrl()</code>, needs a plugin name as the first argument.
+
+</p>
+<p>Inside views, you should call any Atomik methods through <code>$this</code>:
+
+</p>
+<pre><code>$url = $this-&gt;url(&#39;archives&#39;, array(&#39;year&#39; =&gt; 2008));</code></pre>
+
+</article>
+
+        <footer id="footer">
+            Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
+            <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>
+            - <a href="?print=1">Print current page</a> - <a href="/docs/all.html?print=1">Print all pages</a>
+            
+        </footer>
+    </div>
+</body>
+</html>
