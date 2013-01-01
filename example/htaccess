@@ -4,8 +4,9 @@
     # Allow access to assets folder from plugins folders
     RewriteRule ^app/plugins/(.+)/assets - [L]
 
-    # forbid access to files and folders under app
+    # forbid access to files and folders under app and vendor
     RewriteRule ^app/.*$ - [L,F]
+    RewriteRule ^vendor/.*$ - [L,F]
 
     # rewrite to index.php
     RewriteCond %{REQUEST_FILENAME} !-f

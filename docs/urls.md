@@ -29,6 +29,7 @@ code below into a *.htaccess* file in the same directory as Atomik's core file.
     RewriteEngine on
     RewriteRule ^app/plugins/(.+)/assets - [L]
     RewriteRule ^app/ - [L,F]
+    RewriteRule ^vendor/ - [L,F]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]
@@ -165,7 +166,7 @@ won't be mandatory in the url.
 The format parameter is not automatically added in custom routes. If not specified
 it will default to the value of *app.views.default\_context*.
 
-## Building urls with Atomik::url()
+## Building urls
 
 Directly writing url into your code can lead to problems. When using a layout for example, it is hard to know the
 relative location of the current view, to include stylesheets for example. Some urls also needs lots of concatanation

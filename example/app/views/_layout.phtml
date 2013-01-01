@@ -1,20 +1,20 @@
 <!doctype html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Atomik Example</title>
   </head>
   <body>
-      <ul id="messages">
-          <?php foreach ($this['flash_messages'] as $label => $messages): ?>
-              <?php foreach ($messages as $message): ?>
-                  <li class="<?php echo $label ?>"><?php echo $message ?></li>
-              <?php endforeach; ?>
-          <?php endforeach; ?>
-      </ul>
-  
-      <div id="content">
-          <?php echo $contentForLayout; ?>
-      </div>
+    <ul id="messages">
+      <?php foreach ($this['flash_messages'] as $label => $messages): ?>
+        <?php foreach ($messages as $message): ?>
+          <li class="<?php echo $label ?>"><?php echo $message ?></li>
+        <?php endforeach; ?>
+      <?php endforeach; ?>
+    </ul>
+
+    <div id="content">
+      <?php echo $contentForLayout; ?>
+    </div>
   </body>
 </html>

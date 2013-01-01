@@ -1,19 +1,7 @@
 
 # Utilities
 
-## Redirections and 404 errors
-
-To redirect the user to another page you can use the `Atomik::redirect()` method.
-It takes as argument the url to redirect to. By default, this url will first be process using 
-`Atomik::url()`. This behaviour can be disabled by passing false as the second argument.
-The response HTTP code can also be specified as the third argument.
-
-    $this->redirect('home');
-    $this->redirect('home', true, 303); // 303 http code
-
-Triggering 404 errors is even simpler. Just call the `Atomik::trigger404()` method.
-
-    $this->trigger404();
+All these utilities are helpers bundled with Atomik.
 
 ## Escaping text
 
@@ -48,10 +36,11 @@ The profile is specified as the last argument of the method.
 ## Friendly urls
 
 Having a router without a way to make friendly urls wouldn't be a complete feature. 
-`Atomik::friendlify()` transforms any string to a url friendly version.
+The `linkify()` helper transforms any string to a url friendly version.
 
-    echo Atomik::friendlify('My text in the url');
+    echo $this->friendlify('My text in the url');
     // will echo my-text-in-the-url
+
 
 ## Filtering and validating data
 

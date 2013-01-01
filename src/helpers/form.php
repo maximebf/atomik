@@ -8,7 +8,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Atomik;
+namespace Atomik\Helpers;
+
 use Atomik;
 
 class FormHelper
@@ -35,7 +36,7 @@ class FormHelper
         $attrs = array_merge($attrs, array(
             'action' => $action,
             'method' => Atomik::get('method', 'POST', $attrs),
-            'class' => Atomik::get('class', Atomik::get('helpers/form/default_form_class', ''), $attrs)
+            'class' => Atomik::get('class', Atomik::get('helpers.form.default_form_class', ''), $attrs)
         ));
         
         if ($name !== null) {
@@ -49,11 +50,6 @@ class FormHelper
     public function __toString()
     {
         return $this->open($this->action, $this->name, $this->attrs);
-    }
-    
-    public function close()
-    {
-        return '</form>';
     }
     
     public function label($label, $required = false, $attrs = array())
@@ -71,7 +67,7 @@ class FormHelper
             'name' => $name,
             'type' => $type,
             'value' => Atomik::get($name, $value, $_POST),
-            'class' => Atomik::get('class', Atomik::get('helpers/form/default_input_class', ''), $attrs)
+            'class' => Atomik::get('class', Atomik::get('helpers.form.default_input_class', ''), $attrs)
         ));
         
         return sprintf('<input %s />', Atomik::htmlAttributes($attrs));
@@ -99,7 +95,7 @@ class FormHelper
     {
         $attrs = array_merge($attrs, array(
             'name' => $name,
-            'class' => Atomik::get('class', Atomik::get('helpers/form/default_select_class', ''), $attrs)
+            'class' => Atomik::get('class', Atomik::get('helpers.form.default_select_class', ''), $attrs)
         ));
         
         $html = sprintf('<select %s>', Atomik::htmlAttributes($attrs));
@@ -119,7 +115,7 @@ class FormHelper
     {
         $attrs = array_merge($attrs, array(
             'name' => $name,
-            'class' => Atomik::get('class', Atomik::get('helpers/form/default_textarea_class', ''), $attrs)
+            'class' => Atomik::get('class', Atomik::get('helpers.form.default_textarea_class', ''), $attrs)
         ));
         
         return sprintf('<textarea %s>%s</textarea>', 
@@ -127,43 +123,22 @@ class FormHelper
                     Atomik::get($name, $value, $_POST));
     }
     
-    public function richTextarea($name, $value = '', $uEditor = array(), $attrs = array())
-    {
-        Atomik_Assets::getInstance()->addNamedAsset('uEditor');
-        
-        $uEditor = array_merge(array(
-            'toolbarItems' => array('bold', 'italic', 'link', 'image', 'orderedlist', 'unorderedlist')
-        ), $uEditor);
-        
-        $id = uniqid();
-        $attrs['id'] = $id;
-        
-        $html = $this->textarea($name, $value, $attrs);
-        $html .= '<script type="text/javascript">$(function() { '
-               . sprintf('$(\'#%s\').uEditor(%s);', $id, json_encode($uEditor))
-               . ' });</script>';
-        
-        return $html;
-    }
-    
     public function button($text, $type = 'submit', $attrs = array())
     {
         $attrs = array_merge($attrs, array(
-            'value' => $text,
             'type' => $type,
-            'class' => Atomik::get('class', Atomik::get('helpers/form/default_button_class', ''), $attrs)
+            'class' => Atomik::get('class', Atomik::get('helpers.form.default_button_class', ''), $attrs)
         ));
         
-        return sprintf('<input %s />', Atomik::htmlAttributes($attrs) );
+        return sprintf('<button %s>%s</button>', Atomik::htmlAttributes($attrs), $text);
     }
     
-    public function buttons($submitText = 'Submit', $cancelUrl = 'javascript:history.back()', $buttonAttrs = array())
+    public function buttons($submitText = 'Submit', $cancelUrl = 'javascript:history.back()', $buttonAttrs = array(), $cancelText = 'or <a href="%s">cancel</a>')
     {
-        $html = $this->formButton($submitText, 'submit', $buttonAttrs);
+        $html = $this->button($submitText, 'submit', $buttonAttrs);
         
         if ($cancelUrl !== false) {
-            $html .= sprintf('<span class="cancel">%s <a href="%s">%s</a></span>',
-                __('or'), $cancelUrl, __('cancel'));
+            $html .= sprintf($cancelText, $cancelUrl);
         }
         
         return $html;

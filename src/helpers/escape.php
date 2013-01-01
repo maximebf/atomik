@@ -8,9 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Atomik;
-use Atomik,
-    AtomikException;
+namespace Atomik\Helpers;
+
+use Atomik;
+use AtomikException;
 
 class EscapeHelper
 {
@@ -26,7 +27,7 @@ class EscapeHelper
     public function escape($text, $profile = array('htmlspecialchars', 'nl2br'))
     {
         if (!is_array($profile)) {
-            if (($functions = Atomik::get('helpers/escape/' . $profile, false)) === false) {
+            if (($functions = Atomik::get("helpers.escape.$profile", false)) === false) {
                 if (function_exists($profile)) {
                     $functions = array($profile);
                 } else {

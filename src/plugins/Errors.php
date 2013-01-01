@@ -9,9 +9,10 @@
  */
 
 namespace Atomik;
-use Atomik,
-    Exception,
-    AtomikHttpException;
+
+use Atomik;
+use Exception;
+use AtomikException;
 
 class Errors
 {
@@ -58,6 +59,11 @@ class Errors
         self::$config = &$config;
 
         Atomik::registerHelper('renderException', 'Atomik\Errors::render');
+        
+        // checks if we are in the CLI
+        if (PHP_SAPI === 'cli') {
+            return false;
+        }
     }
     
     public static function onAtomikError($e, &$cancel)

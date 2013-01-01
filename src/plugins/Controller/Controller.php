@@ -10,10 +10,10 @@
 
 namespace Atomik\Controller;
 
-use Atomik,
-    ReflectionMethod,
-    AtomikException,
-    AtomikHttpException;
+use Atomik;
+use ReflectionMethod;
+use AtomikException;
+use AtomikHttpException;
 
 /**
  * @package Atomik
@@ -151,7 +151,7 @@ class Controller
     
     protected function _setLayout($layout)
     {
-        Atomik::set('app/layout', $layout);
+        Atomik::set('app.layout', $layout);
     }
 
     protected function _disableLayout()
@@ -161,7 +161,7 @@ class Controller
     
     protected function _isPost()
     {
-        return Atomik::get('app/http_method') == 'POST';
+        return Atomik::get('app.http_method') == 'POST';
     }
     
     protected function _setHeader($name, $value)

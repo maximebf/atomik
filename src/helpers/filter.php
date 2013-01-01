@@ -8,9 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Atomik;
-use Atomik,
-    AtomikException;
+namespace Atomik\Helpers;
+
+use Atomik;
+use AtomikException;
 
 class FilterHelper
 {
@@ -29,7 +30,7 @@ class FilterHelper
         if (is_array($data)) {
             // the $filter must be an array or a string to an array defined under app.filters.rules
             if (is_string($filter)) {
-                if (($rules = Atomik::get('helpers/filters/rules/' . $filter, false)) === false) {
+                if (($rules = Atomik::get("helpers.filters.rules.$filter", false)) === false) {
                     throw new AtomikException('When $data is an array, the filter must be an array of definition or a defination name in filter()');
                 }
             } else {
@@ -43,14 +44,14 @@ class FilterHelper
             foreach ($rules as $field => $params) {
                 if (isset($data[$field]) && is_array($data[$field])) {
                     if (($results[$field] = $this->filter($data[$field], $params)) === false) {
-                        $messages[$field] = Atomik::get('helpers/filters/messages', array());
+                        $messages[$field] = Atomik::get('helpers.filters.messages', array());
                         $validate = false;
                     }
                     continue;
                 }
                 
                 $filter = FILTER_SANITIZE_STRING;
-                $message = Atomik::get('helpers/filters/default_message', 'The %s field failed to validate');
+                $message = Atomik::get('helpers.filters.default_message', 'The %s field failed to validate');
                 $required = false;
                 $default = null;
                 $label = $field;
@@ -85,7 +86,7 @@ class FilterHelper
                 if ((!isset($data[$field]) || $data[$field] == '') && $required) {
                     // the field is required and either not set or empty, this is an error
                     $results[$field] = false;
-                    $message = Atomik::get('helpers/filters/required_message', 'The %s field must be filled');
+                    $message = Atomik::get('helpers.filters.required_message', 'The %s field must be filled');
                     
                 } else if ($data[$field] === '' && !$required) {
                     // empty but not required, null value
@@ -103,7 +104,7 @@ class FilterHelper
                 }
             }
             
-            Atomik::set('helpers/filters/messages', $messages);
+            Atomik::set('helpers.filters.messages', $messages);
             return $validate || !$falseOnFail ? $results : false;
         }
         
@@ -117,7 +118,7 @@ class FilterHelper
                 $options = array('options' => array('regexp' => $filter));
                 $filter = FILTER_VALIDATE_REGEXP;
                 
-            } else if (($callback = Atomik::get('helpers/filters/callbacks/' . $filter, false)) !== false) {
+            } else if (($callback = Atomik::get("helpers.filters.callbacks.$filter", false)) !== false) {
                 // callback defined under app/filters/callbacks
                 $filter = FILTER_CALLBACK;
                 $options = $callback;

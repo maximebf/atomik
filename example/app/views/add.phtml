@@ -1,11 +1,12 @@
 <h1>New post</h1>
-<form action="" method="post">
-    <dl>
-        <dt><label for="title">Title:</label></dt>
-        <dd><input type="text" name="title" /></dd>
-        <dt><label for="content">Content:</label></dt>
-        <dd><textarea name="content" rows="10" cols="100"></textarea></dd>
-        <dt></dt>
-        <dd><input type="submit" /></dd>
-    </dl>
+<?= $form = $this->form($this->url('add')) ?>
+  <p>
+    <label for="title">Title:</label>
+    <?= $form->input('title') ?>
+  </p>
+  <p>
+    <label for="content">Content:</label>
+    <?= $form->textarea('content') ?>
+  </p>
+  <?= $form->buttons('Add post') ?>
 </form>

@@ -24,7 +24,7 @@ class Assets
 
             'packages' => array(),
 
-            'assets_dir' => 'assets',
+            'assets_dir' => 'app/assets',
 
             'public_assets_dir' => 'assets',
 
@@ -80,20 +80,23 @@ class Assets
         return $output;
     }
 
-    public static function write()
+    public static function write($args, $opts, $console)
     {
-        $publicDir = Atomik::path(self::$config['public_assets_dir'], Atomik::get('atomik/dirs/public'), false);
+        $publicDir = Atomik::path(self::$config['public_assets_dir'], Atomik::get('atomik.dirs.public'), false);
+        $checklist = new \ConsoleKit\Widgets\Checklist($console);
 
-        Console::println("Writing packages to '$publicDir'");
+        $console->writeln("Writing packages to '$publicDir'");
         foreach (array_keys(self::$config['packages']) as $name) {
             $filename = Atomik::path($name, $publicDir, false);
-            Console::touch($filename, self::dump($name), 1);
+            $checklist->step($filename, function() use ($filename, $name) {
+                return \ConsoleKit\FileSystem::touch($filename, self::dump($name));
+            });
         }
 
         if (self::$config['allow_file_assets']) {
             $dir = Atomik::path(self::$config['assets_dir']);
             $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
-            Console::println("Writing files to '$publicDir'");
+            $console->writeln("Writing files to '$publicDir'");
             foreach ($it as $file) {
                 if ($file->isDir() || substr($file->getFilename(), 0, 1) === '.') {
                     continue;
@@ -107,7 +110,7 @@ class Assets
                 } else {
                     $pathname .= '.' . $file->getExtension();
                 }
-                Console::touch($pathname, self::dump($filename), 1);
+                \ConsoleKit\FileSystem::touch($pathname, self::dump($filename));
             }
         }
 

@@ -9,10 +9,11 @@
  */
 
 namespace Atomik;
-use Atomik,
-    AtomikException;
 
-class Flash implements \ArrayAccess, \IteratorAggregate
+use Atomik;
+use AtomikException;
+
+class Flash implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * Starts this class as a plugin
@@ -38,10 +39,10 @@ class Flash implements \ArrayAccess, \IteratorAggregate
         
         Atomik::fireEvent('Atomik::Flash', array(&$message, &$label));
         
-        if (!Atomik::has('session/__FLASH/' . $label)) {
-            Atomik::set('session/__FLASH/' . $label, array());
+        if (!Atomik::has("session.__FLASH.$label")) {
+            Atomik::set("session.__FLASH.$label", array());
         }
-        Atomik::add('session/__FLASH/' . $label, $message);
+        Atomik::add("session.__FLASH.$label", $message);
     }
     
     /**
@@ -53,25 +54,25 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      * @return array An array of messages if the label is specified or an array of array message
      */
     public static function getFlashMessages($label = null, $delete = true) {
-        if (!Atomik::has('session/__FLASH')) {
+        if (!Atomik::has('session.__FLASH')) {
             return array();
         }
         
         if ($label === null) {
         	if ($delete) {
-            	return Atomik::delete('session/__FLASH');
+            	return Atomik::delete('session.__FLASH');
         	}
-        	return Atomik::get('session/__FLASH');
+        	return Atomik::get('session.__FLASH');
         }
         
-        if (!Atomik::has("session/__FLASH/$label")) {
+        if (!Atomik::has("session.__FLASH.$label")) {
             return array();
         }
         
         if ($delete) {
-        	return Atomik::delete("session/__FLASH/$label");
+        	return Atomik::delete("session.__FLASH.$label");
         }
-        return Atomik::get("session/__FLASH/$label");
+        return Atomik::get("session.__FLASH.$label");
     }
     
     /**
@@ -97,6 +98,15 @@ class Flash implements \ArrayAccess, \IteratorAggregate
     public function getIterator()
     {
         return new \ArrayIterator(self::getFlashMessages());
+    }
+
+    public function count()
+    {
+        $i = 0;
+        foreach (self::getFlashMessages(null, false) as $label => $msg) {
+            $i += count($msg);
+        }
+        return $i;
     }
 
     public function offsetGet($label)

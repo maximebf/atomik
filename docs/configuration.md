@@ -77,18 +77,16 @@ The name of this file can be changed using the *atomik.files.bootstrap* configur
 
 ## Custom directory structure
 
-As said in the installation chapter, the directory structure can be customized.
-This can be done by modifying entries in the *atomik.dirs* configuration key.
+The directory structure can be customized by modifying entries in the *atomik.dirs* configuration key.
 
 Each keys in the *dirs* array represent a type of directory. Their value can be a string for
 a single path or an array for mutliple paths.
 
-If the path is relative, it must be relative to the directory specified in the
-*atomik.dirs.app* key. The latter is relative to the *index.php* file.
+If the path is relative, it must be relative to the root directory of your application.
 
 For the *plugins*, *helpers* and *includes* keys, directories can be associated to
 a namespace. Let's say you have the Doctrine library in /usr/share/php/doctrine, the
-source being in lib/Doctrine:
+sources being in lib/Doctrine:
 
     Atomik::add('atomik.dirs.includes', array('Doctrine' => '/usr/share/php/doctrine/lib/Doctrine'));
 
@@ -100,23 +98,3 @@ will be called respectively before and after the dispatch process.
 
 Their filename can be changed using the *atomik.files.pre\_dispatch* and
 *atomik.files.post\_dispatch* configuration keys.
-
-## Advanced configuration
-
-Sometimes it may be needed to create custom distributions with specific configuration. By default, when you
-include the Atomik core class, it will automatically start the dispatch process. This can be turned off
-by setting the `ATOMIK_AUTORUN` constant to false. You can then do custom configuration using 
-accessors and finally launch Atomik using `Atomik::run()`.
-
-    <?php
-    define('ATOMIK_AUTORUN', false);
-    require 'Atomik.php';
-
-    // my configuration
-    Atomik::set(array(
-	    // .. custom config
-    ));
-
-    // launch Atomik
-    Atomik::run();
-

@@ -8,7 +8,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Atomik;
+namespace Atomik\Helpers;
+
 use Atomik;
 
 class RedirectHelper

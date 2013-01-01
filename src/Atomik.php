@@ -41,6 +41,8 @@ class AtomikHttpException extends AtomikException {}
  */
 final class Atomik implements ArrayAccess
 {
+    public static $rootDirectory;
+
     /**
      * Global store
      * 
@@ -129,8 +131,10 @@ final class Atomik implements ArrayAccess
      * @param string $uri
      * @param bool $dispatch Whether to dispatch
      */
-    public static function run($env = null, $uri = null, $dispatch = true)
+    public static function run($rootDirectory = '.', $env = null, $uri = null, $dispatch = true)
     {
+        self::$rootDirectory = $rootDirectory;
+
         // wrap the whole app inside a try/catch block to catch all errors
         try {
         
@@ -1884,7 +1888,7 @@ final class Atomik implements ArrayAccess
             return $pathnames;
         }
 
-        $relativeTo = $relativeTo ?: self::get('atomik.dirs.app');
+        $relativeTo = $relativeTo ?: self::$rootDirectory;
         $pathname = $filename;
         if ($filename{0} != '/' && !preg_match('#^[A-Z]:(\\|/)#', $filename)) {
             if (strlen($filename) >= 2 && substr($filename, 0, 2) == './') {
@@ -2259,24 +2263,23 @@ Atomik::set(array(
     
         /* @var array */
         'dirs' => array(
-            'app'                => './app',
             'public'             => '.',
-            'plugins'            => array('Atomik' => __DIR__ . '/plugins', 'plugins'),
-            'actions'            => 'actions',
-            'views'              => 'views',
-            'layouts'            => array('views', 'layouts'),
-            'helpers'            => array('Atomik' => __DIR__ . '/helpers', 'helpers'),
-            'includes'           => array('Atomik' => __DIR__ . '/lib', 'includes', 'libs'),
-            'overrides'          => 'overrides'
+            'plugins'            => array('Atomik' => __DIR__ . '/plugins', 'app/plugins'),
+            'actions'            => 'app/actions',
+            'views'              => 'app/views',
+            'layouts'            => array('app/views', 'app/layouts'),
+            'helpers'            => array('Atomik\Helpers' => __DIR__ . '/helpers', 'app/helpers'),
+            'includes'           => array('Atomik' => __DIR__ . '/plugins', 'app/includes', 'app/libs'),
+            'overrides'          => 'app/overrides'
         ),
     
         /* @var array */
         'files' => array(
             'index'              => 'index.php',
-            'config'             => 'config', // without extension
-            'bootstrap'          => 'bootstrap.php',
-            'pre_dispatch'       => 'pre_dispatch.php',
-            'post_dispatch'      => 'post_dispatch.php'
+            'config'             => 'app/config', // without extension
+            'bootstrap'          => 'app/bootstrap.php',
+            'pre_dispatch'       => 'app/pre_dispatch.php',
+            'post_dispatch'      => 'app/post_dispatch.php'
         )
         
     ),
@@ -2284,10 +2287,3 @@ Atomik::set(array(
     /* @var int */
     'start_time' => time() + microtime()
 ));
-
-
-// starts Atomik unless ATOMIK_AUTORUN is set to false
-if (!defined('ATOMIK_AUTORUN') || ATOMIK_AUTORUN === true) {
-    Atomik::run();
-}
-

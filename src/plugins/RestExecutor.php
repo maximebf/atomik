@@ -9,8 +9,9 @@
  */
 
 namespace Atomik;
-use Atomik,
-    AtomikException;
+
+use Atomik;
+use AtomikException;
 
 class RestExecutor
 {

@@ -9,8 +9,9 @@
  */
 
 namespace Atomik;
-use Atomik,
-    AtomikException;
+
+use Atomik;
+use AtomikException;
 
 class Translations
 {
@@ -39,7 +40,7 @@ class Translations
             'autodetect'    => true,
             
             /* directory where language files are stored */
-            'dir'           => 'languages'
+            'dir'           => 'app/languages'
     
         ), $config);
         self::$config = &$config;

@@ -1,6 +1,6 @@
 <?php
 
-return array(
+Atomik::set(array(
 
     'plugins' => array(
         'Db' => array(
@@ -12,4 +12,4 @@ return array(
 
     'app.layout' => '_layout'
     
-);
+));

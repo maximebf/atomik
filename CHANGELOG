@@ -42,33 +42,16 @@
  * New app/router key to allow alternative router or to disable the router
  * New app/views/auto config to disable automatic render of views after actions
  * Added support for short tags in views (will be converted to standard tags)
- * Short tags can be disabled using app/views/short_tags
+ * Short tags can be disabled using app.views.short_tags
  * Plugins can be loaded from the include path
  ! Removed ATOMIK_APP_ROOT constant
- ! Files and directories are now relative to the atomik/dirs/app entry
+ ! Files and directories are now relative to the root directory specified as first argument to run()
  ! Removed error_handler
  * Added splitArrayPath()
  ! Removed registerSelector()
  
-[Helpers]
- 
- * Added debug
- * Added escape
- * Added filter
- * Added linkify
- * Added redirect
- * Refactored form
 
-[Plugin:Config]
-
-Deleted
-
-[New plugins]
-
- * Errors
- * Flash
- * Logger
- * Session
+ALL helpers and plugins have been either rewritten or deeply modified!
 
 ----------- Atomik 2.3 --------------
 

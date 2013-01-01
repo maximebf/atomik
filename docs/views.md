@@ -20,57 +20,6 @@ loops.
 	    </body>
     </html>
 
-## Helpers
-
-When creating your views, you'll often need to execute the same piece of logic many time. 
-Formating a date for example. An helper is exactly that: a function that you can reuse 
-in your views.
-
-### Creating helpers
-
-Helpers in Atomik are stored in *app/helpers*. For example, a `format_date()` helper would 
-be stored in *app/helpers/format\_date.php*. The helpers directory can be changed using
-*atomik.dirs.helpers*.
-
-You can then define your helper in two ways: as a function or as a class. If you're using a function, 
-just create one with the same name as the helper.
-
-You can also use a class which can be pretty useful for more complex cases. The class name is a 
-camel case version (ie. without any underscores or spaces, all words starting with an upper case) 
-of the helper name suffixed with *Helper*. In our example, it would be 
-`FormatDateHelper`. This class also needs to have a method named like the 
-helper name but in camel case and starting with a lower case. In this case, it would be 
-`formatDate()`.
-
-    // function
-
-    function format_date($date)
-    {
-	    // do the formating
-	    return $date;
-    }
-    
-    // class
-
-    class FormatDateHelper
-    {
-	    public function formatDate($date)
-	    {
-		    // do the formating
-		    return $date;
-	    }
-    }
-
-### Using helpers
-
-Helpers are callable from any file that is being rendered. That is to say views, 
-layouts or any file rendered using `Atomik::renderFile`.
-They are accessible as methods of $this. Helpers are automatically loaded.
-
-Helpers are also available in the same way from actions.
-
-    <span class="date"><?php echo $this->format_date('01-01-2009') ?></span>
-
 ## Layout
 
 It is common in websites that all pages share the same layout. Atomik allows you to define

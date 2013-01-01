@@ -109,6 +109,20 @@ The default parameter name is *_method*. This can be changed in
 *app.http_method_param*. It can also be disabled by setting false instead of
 a string.
 
+## Redirections and 404 errors
+
+To redirect the user to another page you can use the `Atomik::redirect()` method.
+It takes as argument the url to redirect to. By default, this url will first be process using 
+`Atomik::url()`. This behaviour can be disabled by passing false as the second argument.
+The response HTTP code can also be specified as the third argument.
+
+    $this->redirect('home');
+    $this->redirect('home', true, 303); // 303 http code
+
+Triggering 404 errors is even simpler. Just call the `Atomik::trigger404()` method.
+
+    $this->trigger404();
+
 ## Includes
 
 Includes are php files containing common logic that you include in your actions.

@@ -9,6 +9,7 @@
  */
 
 namespace Atomik;
+
 use Atomik;
 
 class Logger

@@ -10,42 +10,46 @@ beginners to the world of web development frameworks.
 
 Here's a list of some Atomik features:
 		
-+ Very small footprint
-+ Flexible licensing (MIT)
-+ Very simple to use
-+ Contains everything to create a website
-+ It simply works
-+ Application logic separated from the presentation layer
-+ Plugins
-+ Highly extensible
+ - Very small footprint
+ - Flexible licensing (MIT)
+ - Very simple to use
+ - Contains everything to create a website
+ - It simply works
+ - Application logic separated from the presentation layer
+ - Plugins
+ - Highly extensible
 
 The manual is licensed under the Creative Commons Attribution license.
 
 ## Requirements
 
-+ HTTP Server. Apache with mod_rewrite is a good choice.
-+ PHP 5.3 or greater
+ - HTTP Server. Apache with mod_rewrite is a good choice.
+ - PHP 5.3 or greater
 
 ## Installation
 
-1. Unzip the downloaded archive
+The best way to install Atomik is using [Composer](http://getcomposer.org)
+and the [Atomik Skeleton Application](https://github.com/maximebf/atomik-skeleton). 
+The skeleton is a base Atomik application with a basic directory structure which 
+let you start building your project in a matter of seconds!
 
-2. Upload or move Atomik files and folders into a directory
-   available from the web.
+    $ php composer.phar create-project atomik/skeleton /path/to/my/install/folder
 
-3. Navigate to the url of the folder where you unpacked Atomik.
-   Eg: http://localhost/atomik.
+Navigate to your website in your browser (ie. <http://localhost>) where you should
+see a congratulation message.
 
-4. You should see a *Congratulations, you're ready to roll!* page.
+If you're not comfortable using Composer, you can download the skeleton as a zip archive
+from [here]().
 
-5. Start coding!
+## Directory structure
 
-## More about the directory structure
+Your application per se goes into the *app* directory. Actions and views have their own 
+directories under *app/actions* and *app/views*.
 
-Atomik's core file, namely *index.php*, must be situated at the root of your website.
-The default directory structure is simple because everything goes into this webroot.
+Helpers and plugins are located in *app/helpers* and *app/plugins*.
+*app/includes* will be added to PHP's include path.
 
-Your application per se goes into the *app* directory. Actions and views have their own directories.
+The configuration is stored in *app/config.php*.
 
 When using the provided Apache *.htaccess* file, the *app* directory is not 
 accessible from the web.
@@ -53,7 +57,34 @@ accessible from the web.
 If you do not use the provided *.htaccess* file, do not forget to allow *assets*
 folders in plugins directories. Such a path can look like *app/plugins/MyPlugin/assets*.
 
-In a production environment, it is always better to remove the application files from the webroot. This is not the default way
-of doing things with Atomik as it can be a bit more difficult. However it is very easy to configure. Atomik allows you to edit
-the path for each directory. This will be covered in the configuration chapter.
+## Advanced installation
 
+It is also possible to install and configure Atomik from scratch using Composer.
+In the directory of your project, create a *composer.json* file with the
+following requirements:
+
+    {
+        "require": {
+            "atomik/atomik": ">=3.0.0"
+        }
+    }
+
+Run composer from this directory to install atomik:
+
+    $ php composer.phar install
+
+Atomik will be installed in the *vendor* directory, along any other
+dependencies you add to the *require* hash in your *composer.json* file.
+
+Create the directory structure. Create the *index.php* file as follow:
+
+    <?php
+    require 'vendor/autoload.php';
+    Atomik::run();
+
+`Atomik::run()` takes as first argument the root directory of your app.
+The default value is '.' which is the current directory.
+
+Remember that in a production environment, it is always better to remove the 
+application files from the webroot, thus usually using a root directory one
+level above the publicly accessible one (ie. using `Atomik::run('..')`).

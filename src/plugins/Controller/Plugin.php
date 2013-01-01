@@ -10,9 +10,9 @@
 
 namespace Atomik\Controller;
 
-use Atomik,
-    AtomikException,
-    AtomikHttpException;
+use Atomik;
+use AtomikException;
+use AtomikHttpException;
 
 /**
  * Controller plugin
@@ -38,19 +38,16 @@ class Plugin
             'default_action' => 'index',
         
             // directories where to find controllers
-            'dirs' => 'controllers',
+            'dirs' => 'app/controllers',
 
             // default controller namespaces
-            'namespace' => '',
-        
-            // namespace separator
-            'namespace_separator' => '\\'
+            'namespace' => ''
             
         ), $config);
         
         self::$config = &$config;
         Atomik::set('app/executor', 'Atomik\Controller\Plugin::execute');
-        Atomik::add('atomik/dirs/includes', array_filter(Atomik::path((array) self::$config['dirs'])));
+        Atomik::add('atomik.dirs.includes', array_filter(Atomik::path((array) self::$config['dirs'])));
     }
     
     /**
@@ -70,9 +67,9 @@ class Plugin
             $action = self::$config['default_action'];
         }
 
-        $className = trim(self::$config['namespace'] . self::$config['namespace_separator'] 
-                   . str_replace(' ', self::$config['namespace_separator'], ucwords(str_replace('/', ' ', $controller))) 
-                   . 'Controller', self::$config['namespace_separator']);
+        $className = trim(self::$config['namespace'] . '\\' 
+                   . str_replace(' ', '\\', ucwords(str_replace('/', ' ', $controller))) 
+                   . 'Controller', '\\');
         
         Atomik::fireEvent('Controller::Execute', array(&$className));
 
