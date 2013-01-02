@@ -20,3 +20,17 @@
     padding: 0;
     padding-left: 20px;
 }
+
+#header h1 {
+    background: url(../../logo.png) no-repeat;
+    height: 66px;
+}
+#header h1 a {
+    color: #333;
+    text-decoration: none;
+    text-indent: -9999px;
+    position: relative;
+    display: inline-block;
+    width: 425px;
+    height: 65px;
+}

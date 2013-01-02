@@ -5,7 +5,7 @@
 
 The database plugin is a thin layer on top of [PDO](http://fr2.php.net/manual/en/book.pdo.php).
 
-## Connecting
+## Connecting
 
 There are 3 configuration options:
 
@@ -61,3 +61,23 @@ Finally, you can count using `count()`:
 
 ## Manipulating data
 
+Insert data using `insert()` which takes as first argument the table name and as second
+an array where keys are columns names. It returns the ̀PDOStatement` object that was
+executed (in case you want to get the last inserted id for example).
+
+    $data = array(
+        'title' => 'post title',
+        'content' => 'lorem ipsum...'
+    );
+    $db->insert('posts', $data);
+
+Updating data is very similar using the `update()` function. It can take as third parameter
+a where clause like in `select()`.
+
+    $data = array('title' => 'modified title');
+    $db->update('posts', $data, array('id' => 1));
+
+Finally, deleting data is as easy. The second argument can be a where clause (if not specified,
+all rows will be deleted).
+
+    $db->delete('posts', array('id' => 1));
