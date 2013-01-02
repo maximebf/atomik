@@ -26,7 +26,7 @@ Here's a list of some Atomik features:
 ## Installation
 
 The easiest way to install Atomik is using [Composer](http://getcomposer.org/)
-and the [Atomik Skeleton Application](https://github.com/maximebf/atomik):
+and the [Atomik Skeleton Application](https://github.com/maximebf/atomik-skeleton):
 
     php composer.phar create-project atomik/skeleton .
 
