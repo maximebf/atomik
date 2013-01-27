@@ -1811,7 +1811,7 @@ final class Atomik implements ArrayAccess
      * @param boolean $className Whether $include can be a classname
      * @return string
      */
-    public function resolveIncludePath($include, $includeDirs, $className = true)
+    public static function resolveIncludePath($include, $includeDirs, $className = true)
     {
         $ns = null;
         $dirs = array();
