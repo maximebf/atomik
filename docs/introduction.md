@@ -43,6 +43,9 @@ see a congratulation message.
 If you're not comfortable using Composer, you can download the skeleton as a zip archive
 from [here]().
 
+If you want to activate pretty URLs under Apache, rename the *htaccess.example* file
+to *.htaccess*.
+
 ## Directory structure
 
 Your application per se goes into the *app* directory. Actions and views have their own 
