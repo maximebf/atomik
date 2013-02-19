@@ -1758,10 +1758,10 @@ final class Atomik implements ArrayAccess
     {
         extract((array)$__vars);
         ob_start();
-        if ($__allowShortTags) {
+        if ($__allowShortTags && version_compare(PHP_VERSION, '5.4.0', '<') && 
+            (bool) @ini_get('short_open_tag') === false) {
             // from CodeIgniter (https://github.com/EllisLab/CodeIgniter)
-            eval('?>' . preg_replace("/;*\s*\?>/", "; ?>", 
-                str_replace('<?=', '<?php echo ', file_get_contents($__filename))));
+            eval('?>' . preg_replace("/;*\s*\?>/", "; ?>", str_replace('<?=', '<?php echo ', file_get_contents($__filename))));
         } else {
             include($__filename);
         }
