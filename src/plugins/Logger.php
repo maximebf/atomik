@@ -46,7 +46,7 @@ class Logger
         
         Atomik::registerHelper('log', 'Atomik\Logger::log');
         if ($config['register_default']) {
-            self::listenEvent('Logger::Log', 'Atomik\Logger::logToFile');
+            Atomik::listenEvent('Logger::Log', 'Atomik\Logger::logToFile');
         }
     }
     
@@ -58,7 +58,7 @@ class Logger
      */
     public static function log($message, $level = 3)
     {
-        self::fireEvent('Logger::Log', array($message, $level));
+        Atomik::fireEvent('Logger::Log', array($message, $level));
     }
     
     /**
