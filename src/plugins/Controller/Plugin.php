@@ -46,7 +46,7 @@ class Plugin
         ), $config);
         
         self::$config = &$config;
-        Atomik::set('app/executor', 'Atomik\Controller\Plugin::execute');
+        Atomik::set('app.executor', 'Atomik\Controller\Plugin::execute');
         Atomik::add('atomik.dirs.includes', array_filter(Atomik::path((array) self::$config['dirs'])));
     }
     
@@ -76,7 +76,7 @@ class Plugin
         if (!class_exists($className)) {
             throw new AtomikHttpException("Class '$className' not found", 404);
         } else if (!is_subclass_of($className, 'Atomik\Controller\Controller')) {
-            throw new AtomikException("Class '$className' must subclass 'Atomik_Controller'");
+            throw new AtomikException("Class '$className' must subclass 'Atomik\Controller\Controller'");
         }
         
         $instance = new $className();
