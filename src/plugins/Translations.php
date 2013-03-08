@@ -45,8 +45,8 @@ class Translations
         ), $config);
         self::$config = &$config;
 
-        Atomik::registerHelper('translate', 'Atomik\Translations::_');
-        Atomik::registerHelper('_', 'Atomik\Translations::_');
+        Atomik::registerHelper('translate', 'Atomik\Translations::translate');
+        Atomik::registerHelper('_', 'Atomik\Translations::translate');
     }
     
     /**
@@ -206,6 +206,6 @@ if (!function_exists('__')) {
      */
     function __($text)
     {
-        return call_user_func_array('Atomik\Translations::_', func_get_args());
+        return call_user_func_array('Atomik\Translations::translate', func_get_args());
     }
 }
