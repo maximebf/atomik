@@ -41,7 +41,7 @@ Navigate to your website in your browser (ie. <http://localhost>) where you shou
 see a congratulation message.
 
 If you're not comfortable using Composer, you can download the skeleton as a zip archive
-from [here]().
+from [here](https://dl.dropboxusercontent.com/u/153693/dev/atomik-3.0.zip).
 
 If you want to activate pretty URLs under Apache, rename the *htaccess.example* file
 to *.htaccess*.
