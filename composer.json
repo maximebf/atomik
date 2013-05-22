@@ -1,6 +1,5 @@
 {
     "name": "atomik/atomik",
-    "version": "3.0.0",
     "description": "Micro framework for PHP5.3+",
     "keywords": [],
     "homepage": "https://github.com/maximebf/atomik",
