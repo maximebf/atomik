@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-define('ATOMIK_VERSION', '3.0.1');
+define('ATOMIK_VERSION', '3.0.3');
 
 
 /* -------------------------------------------------------------------------------------------
