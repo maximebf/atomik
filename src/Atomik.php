@@ -1890,7 +1890,7 @@ final class Atomik implements ArrayAccess
 
         $relativeTo = $relativeTo ?: self::$rootDirectory;
         $pathname = $filename;
-        if ($filename{0} != '/' && !preg_match('#^[A-Z]:(\\\|/)#', $filename)) {
+        if ($filename{0} != '/' && !preg_match('#^[A-Z]:(\\\\|/)#', $filename)) {
             if (strlen($filename) >= 2 && substr($filename, 0, 2) == './') {
                 $filename = substr($filename, 2);
             }
