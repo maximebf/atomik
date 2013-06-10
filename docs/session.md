@@ -1,4 +1,3 @@
-
 # Session
 
 <div class="note">These features need the Session and Flash plugins which are bundled with Atomik</div>
@@ -41,7 +40,7 @@ Flash messages can then be retreived using the *flash\_messages* key:
 	    }
     }
 
-    foreach (Atomik::get('flash_messages.my_label) as $message) {
+    foreach (Atomik::get('flash_messages.my_label') as $message) {
 	    // ...
     }
 
