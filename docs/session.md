@@ -16,7 +16,7 @@ using *autoload* in the plugin's configuration.
 The session is available as the *session* key in the global store. Of course,
 it still remains available as the `$_SESSION` super-global variable.
 
-    echo Atomik::get('session/username');
+    echo Atomik::get('session.username');
 
 ## Flash messages
 
