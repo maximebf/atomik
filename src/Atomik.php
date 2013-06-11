@@ -1144,6 +1144,20 @@ final class Atomik implements ArrayAccess
     {
         return array_filter(explode($separator, $path));
     }
+
+    /**
+     * Checks if an array or an ArrayAccess object has the specitied key
+     *
+     * Same as array_key_exists() but supports ArrayAccess
+     * 
+     * @param string $key
+     * @param array $array
+     * @return bool
+     */
+    public static function arrayHasKey($key, $array)
+    {
+        return ($array instanceof \ArrayAccess && $array->offsetExists($key)) || array_key_exists($key, $array);
+    }
     
     /**
      * Recursively checks array for path-like keys (ie. keys containing dots)
@@ -1229,7 +1243,11 @@ final class Atomik implements ArrayAccess
      */
     public static function has($key, $array = null)
     {
-        return self::getRef($key, $array) !== null;
+        $segments = self::splitArrayPath($key);
+        $key = array_pop($segments);
+        $parentArrayKey = count($segments) ? implode('.', $segments) : null;
+        $parentArray = self::getRef($parentArrayKey, $array);
+        return !empty($parentArray) && self::arrayHasKey($key, $parentArray);
     }
     
     /**
@@ -1250,7 +1268,7 @@ final class Atomik implements ArrayAccess
         $parentArrayKey = count($segments) ? implode('.', $segments) : null;
         $parentArray = &self::getRef($parentArrayKey, $array);
         
-        if ($parentArray === null || !array_key_exists($key, $parentArray)) {
+        if ($parentArray === null || !self::arrayHasKey($key, $parentArray)) {
             throw new AtomikException("Key '$key' does not exists");
         }
         
@@ -1284,7 +1302,7 @@ final class Atomik implements ArrayAccess
         
         if (!is_array($key)) {
             if (!strpos($key, '.')) {
-                if (array_key_exists($key, $array)) {
+                if (self::arrayHasKey($key, $array)) {
                     $value =& $array[$key];
                     return $value;
                 }
@@ -1294,9 +1312,12 @@ final class Atomik implements ArrayAccess
         }
         
         $firstKey = array_shift($key);
-        if (array_key_exists($firstKey, $array)) {
+        if (self::arrayHasKey($firstKey, $array)) {
             if (count($key) > 0) {
                 return self::getRef($key, $array[$firstKey]);
+            } else if (!is_array($array)) {
+                $value = $array[$firstKey];
+                return $value;
             } else {
                 $value =& $array[$firstKey];
                 return $value;

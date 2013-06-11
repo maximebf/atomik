@@ -121,7 +121,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate, \Countable
 
     public function offsetExists($label)
     {
-
+        return Atomik::has("session.__FLASH.$label");
     }
 
     public function offsetUnset($label)
