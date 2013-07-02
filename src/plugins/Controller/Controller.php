@@ -168,4 +168,22 @@ class Controller
     {
         header("$name: $value");
     }
+
+    protected function _get($key, $default = null)
+    {
+        return Atomik::get($key, $default);
+    }
+
+    protected function _flash($message, $label = 'default')
+    {
+        if (!Atomik::isPluginLoaded('Flash')) {
+            throw new AtomikException("Controller::_flash() needs the 'Flash' plugin");
+        }
+        return Atomik::flash($message, $label);
+    }
+
+    protected function _redirect($url, $useUrl = true, $code = 302)
+    {
+        return Atomik::redirect($url, $useUrl, $code);
+    }
 }

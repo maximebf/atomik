@@ -10,19 +10,14 @@ actions.
 This plugin adds support for controllers to Atomik. Once activated you must use controllers in your
 actions. It is not possible to mix between the classic way and the controller way.
 
-The plugin will be disabled when a pluggable application starts. It can be enabled using
-
-    Atomik\Controller::$disable = false;
-
 ## Differences with the classic Atomik way
 
 There are two major differences which are views and the router.
 
 Each controller have multiple actions (methods) and each action has its own view. While having
-for example one file named *user.php* in the *actions* directory which
-contains the *UserController* class (we'll come to that later), you'll need many view
+for example one file for your controller in the *actions* directory you'll need many view
 files. Thus, instead of saving your views directly in the *views* directory you will have to save
-them in a folder named after your action.
+them in a folder named after your controller.
 
 When using the router, the *action* parameter is mandatory. This plugin adds another mandatory
 parameter named *controller*. This parameter refers to the controller name whereas the *action*
@@ -44,19 +39,23 @@ The default controller name is *index* and the default action name is *index*.
 
 ### Creating simple controllers
 
-As said before, a controller is a class. The only condition is in the naming convention. Your class has to be named
-using the controller name starting by an upper case letter suffixed with *Controller*. So for example,
-with a controller named *user* (saved in *app/actions/user.php*), the class name will be *UserController*. 
+As said before, a controller is a class. It must inherits from `Atomik\Controller\Controller` and respect
+a naming convention. Your class has to be named using the controller's name starting by an upper case letter 
+suffixed with *Controller*. 
 
-If the action file is located in a sub folder, the class name as to follow the PSR-0 convention.
-For example, if the file is *app/actions/auth/user.php* the class name will be *Auth\UserController*.
+Controller classes will be loaded, as any other classes, with the autoloader. Thus, your files must be
+named after your controller class.
+
+So for example, with a controller named *users*, it must be saved in *app/actions/UsersController.php* and
+the class name will be *UsersController*. 
+
+If the action file is located in a sub folder, the class name has to follow the PSR-0 convention.
+For example, if the file is *app/actions/Auth/UsersController.php* the class name will be `Auth\UsersController`.
 
 Then add public methods to your class. All public methods which does not start with an underscore will 
 be callable as an action.
 
-Don't forget to also create the view associated to each action.
-
-    class UserController
+    class UsersController extends Atomik\Controller\Controller
     {
 	    public function index()
 	    {
@@ -67,38 +66,39 @@ Don't forget to also create the view associated to each action.
 	    }
     }
 
-Also create two view files: *app/views/user/index.phtml* and *app/views/user/login.phtml*.
-Note that they are saved under the *app/views/user* directory where the last folder is the 
-controller name.
+The associated views must be located in the *app/views/users*.
+In our example, it would be *app/views/user/index.phtml* and *app/views/user/login.phtml*.
 
 You can then use the following urls: <http://example.com/user> or <http://example.com/user/login>.
 
-In classic actions, all defined variables where accessible from the view. This is not possible 
+In classic actions, all defined variables were accessible from the view. This is not possible 
 anymore when using methods for scoping reasons. To forward variables to the view, simply define 
-class properties.
+class properties or return an array from your action method.
 
-    // app/actions/user.php
+In *app/actions/UsersController.php*:
 
-    class UserController
+    class UsersController extends Atomik\Controller\Controller
     {
+        public $title = 'Users';
+
 	    public function index()
 	    {
-		    $this->username = 'peter';
+		    return array('username' => 'peter');
 	    }
     }
     
-    // app/views/user/index.phtml
+In *app/views/user/index.phtml*:
 
+    <h1><?php echo $title ?></h1>
     hello <php echo $username ?>
 
-### Creating controllers by subclassing Atomik\Controller\Controller
+### Controller utilities
 
-Subclassing Atomik\Controller\Controller when creating a controller class brings some nice features.
+First of all, you can define two methods `preDispatch()` and `postDispatch()`
+that will be called before and after each action. You can also define an `init()`
+method which will be called after the constructor.
 
-First of all, you can define two methods `_before()` and ̀_after()`
-that will be called before and after each action.
-
-Secondly, route parameters will be automatically mapped to method arguments.
+Route parameters will be automatically mapped to method arguments.
 
     Atomik::set('app.routes', array(
 	    'archives/:year/:month' => array(
@@ -119,3 +119,10 @@ Secondly, route parameters will be automatically mapped to method arguments.
 				
 The `$year` and `$month` argument will be taken from the route parameters.
 The order is not important.
+
+## Using controllers in Pluggable Apps
+
+The plugin will be disabled when a pluggable application starts. It can be re-enabled using
+
+    $config = array();
+    Atomik\Controller\Plugin::start($config);

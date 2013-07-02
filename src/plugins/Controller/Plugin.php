@@ -38,7 +38,7 @@ class Plugin
             'default_action' => 'index',
         
             // directories where to find controllers
-            'dirs' => 'app/controllers',
+            'dirs' => array('app/actions', 'app/controllers'),
 
             // default controller namespaces
             'namespace' => ''
@@ -80,10 +80,14 @@ class Plugin
         }
         
         $instance = new $className();
-        if (($instance->_dispatch($action, $method, $vars)) === false) {
+        if (($vars = $instance->_dispatch($action, $method, $vars)) === false) {
             return false;
         }
-        return get_object_vars($instance);
+        
+        if (!is_array($vars)) {
+            $vars = array();
+        }
+        return array_merge(get_object_vars($instance), $vars);
     }
 }
 
