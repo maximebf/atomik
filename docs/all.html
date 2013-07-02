@@ -69,7 +69,11 @@ see a congratulation message.
 
 </p>
 <p>If you&#39;re not comfortable using Composer, you can download the skeleton as a zip archive
-from <a href="">here</a>.
+from <a href="https://dl.dropboxusercontent.com/u/153693/dev/atomik-3.1.zip">here</a>.
+
+</p>
+<p>If you want to activate pretty URLs under Apache, rename the <em>htaccess.example</em> file
+to <em>.htaccess</em>.
 
 </p>
 <a name="directory-structure"></a><h2>Directory structure</h2>
@@ -171,7 +175,11 @@ see a congratulation message.
 
 </p>
 <p>If you&#39;re not comfortable using Composer, you can download the skeleton as a zip archive
-from <a href="">here</a>.
+from <a href="https://dl.dropboxusercontent.com/u/153693/dev/atomik-3.1.zip">here</a>.
+
+</p>
+<p>If you want to activate pretty URLs under Apache, rename the <em>htaccess.example</em> file
+to <em>.htaccess</em>.
 
 </p>
 <a name="directory-structure"></a><h2>Directory structure</h2>
@@ -1677,7 +1685,7 @@ using <em>autoload</em> in the plugin&#39;s configuration.
 it still remains available as the <code>$_SESSION</code> super-global variable.
 
 </p>
-<pre><code>echo Atomik::get(&#39;session/username&#39;);</code></pre>
+<pre><code>echo Atomik::get(&#39;session.username&#39;);</code></pre>
 <a name="flash-messages"></a><h2>Flash messages</h2>
 <p>Flash messages are messages which are stored in the session and are available only once.
 This allows to pass error or success messages from one page to another. 
@@ -1701,7 +1709,7 @@ $this-&gt;flash(array(&#39;message1&#39;, &#39;message2&#39;), &#39;error&#39;);
     }
 }
 
-foreach (Atomik::get(&#39;flash_messages.my_label) as $message) {
+foreach (Atomik::get(&#39;flash_messages.my_label&#39;) as $message) {
     // ...
 }</code></pre>
 
@@ -2006,19 +2014,14 @@ actions.
 actions. It is not possible to mix between the classic way and the controller way.
 
 </p>
-<p>The plugin will be disabled when a pluggable application starts. It can be enabled using
-
-</p>
-<pre><code>Atomik\Controller::$disable = false;</code></pre>
 <a name="differences-with-the-classic-atomik-way"></a><h2>Differences with the classic Atomik way</h2>
 <p>There are two major differences which are views and the router.
 
 </p>
 <p>Each controller have multiple actions (methods) and each action has its own view. While having
-for example one file named <em>user.php</em> in the <em>actions</em> directory which
-contains the <em>UserController</em> class (we&#39;ll come to that later), you&#39;ll need many view
+for example one file for your controller in the <em>actions</em> directory you&#39;ll need many view
 files. Thus, instead of saving your views directly in the <em>views</em> directory you will have to save
-them in a folder named after your action.
+them in a folder named after your controller.
 
 </p>
 <p>When using the router, the <em>action</em> parameter is mandatory. This plugin adds another mandatory
@@ -2041,23 +2044,28 @@ Atomik::set(&#39;app.routes&#39;, array(
 </p>
 <a name="creating-controllers"></a><h2>Creating controllers</h2>
 <a name="creating-simple-controllers"></a><h3>Creating simple controllers</h3>
-<p>As said before, a controller is a class. The only condition is in the naming convention. Your class has to be named
-using the controller name starting by an upper case letter suffixed with <em>Controller</em>. So for example,
-with a controller named <em>user</em> (saved in <em>app/actions/user.php</em>), the class name will be <em>UserController</em>. 
+<p>As said before, a controller is a class. It must inherits from <code>Atomik\Controller\Controller</code> and respect
+a naming convention. Your class has to be named using the controller&#39;s name starting by an upper case letter 
+suffixed with <em>Controller</em>. 
 
 </p>
-<p>If the action file is located in a sub folder, the class name as to follow the PSR-0 convention.
-For example, if the file is <em>app/actions/auth/user.php</em> the class name will be <em>Auth\UserController</em>.
+<p>Controller classes will be loaded, as any other classes, with the autoloader. Thus, your files must be
+named after your controller class.
+
+</p>
+<p>So for example, with a controller named <em>users</em>, it must be saved in <em>app/actions/UsersController.php</em> and
+the class name will be <em>UsersController</em>. 
+
+</p>
+<p>If the action file is located in a sub folder, the class name has to follow the PSR-0 convention.
+For example, if the file is <em>app/actions/Auth/UsersController.php</em> the class name will be <code>Auth\UsersController</code>.
 
 </p>
 <p>Then add public methods to your class. All public methods which does not start with an underscore will 
 be callable as an action.
 
 </p>
-<p>Don&#39;t forget to also create the view associated to each action.
-
-</p>
-<pre><code>class UserController
+<pre><code>class UsersController extends Atomik\Controller\Controller
 {
     public function index()
     {
@@ -2067,41 +2075,42 @@ be callable as an action.
     {
     }
 }</code></pre>
-<p>Also create two view files: <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.
-Note that they are saved under the <em>app/views/user</em> directory where the last folder is the 
-controller name.
+<p>The associated views must be located in the <em>app/views/users</em>.
+In our example, it would be <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.
 
 </p>
 <p>You can then use the following urls: <a href="http://example.com/user">http://example.com/user</a> or <a href="http://example.com/user/login">http://example.com/user/login</a>.
 
 </p>
-<p>In classic actions, all defined variables where accessible from the view. This is not possible 
+<p>In classic actions, all defined variables were accessible from the view. This is not possible 
 anymore when using methods for scoping reasons. To forward variables to the view, simply define 
-class properties.
+class properties or return an array from your action method.
 
 </p>
-<pre><code>// app/actions/user.php
+<p>In <em>app/actions/UsersController.php</em>:
 
-class UserController
+</p>
+<pre><code>class UsersController extends Atomik\Controller\Controller
 {
+    public $title = &#39;Users&#39;;
+
     public function index()
     {
-        $this-&gt;username = &#39;peter&#39;;
+        return array(&#39;username&#39; =&gt; &#39;peter&#39;);
     }
-}
+}</code></pre>
+<p>In <em>app/views/user/index.phtml</em>:
 
-// app/views/user/index.phtml
-
+</p>
+<pre><code>&lt;h1&gt;&lt;?php echo $title ?&gt;&lt;/h1&gt;
 hello &lt;php echo $username ?&gt;</code></pre>
-<a name="creating-controllers-by-subclassing-atomikcontrollercontroller"></a><h3>Creating controllers by subclassing Atomik\Controller\Controller</h3>
-<p>Subclassing Atomik\Controller\Controller when creating a controller class brings some nice features.
+<a name="controller-utilities"></a><h3>Controller utilities</h3>
+<p>First of all, you can define two methods <code>preDispatch()</code> and <code>postDispatch()</code>
+that will be called before and after each action. You can also define an <code>init()</code>
+method which will be called after the constructor.
 
 </p>
-<p>First of all, you can define two methods <code>_before()</code> and ̀_after()`
-that will be called before and after each action.
-
-</p>
-<p>Secondly, route parameters will be automatically mapped to method arguments.
+<p>Route parameters will be automatically mapped to method arguments.
 
 </p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
@@ -2121,7 +2130,14 @@ class ArchivesController extends Atomik\Controller\Controller
 }</code></pre>
 <p>The <code>$year</code> and <code>$month</code> argument will be taken from the route parameters.
 The order is not important.
+
 </p>
+<a name="using-controllers-in-pluggable-apps"></a><h2>Using controllers in Pluggable Apps</h2>
+<p>The plugin will be disabled when a pluggable application starts. It can be re-enabled using
+
+</p>
+<pre><code>$config = array();
+Atomik\Controller\Plugin::start($config);</code></pre>
 
 <a name="events"></a><h1>Events</h1>
 <p>Events are one of the most important concept in Atomik.
