@@ -3,37 +3,580 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
+
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
         
-        <div id='content'><a name="introduction"></a><h1>Introduction</h1>
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#introduction">Introduction</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/introduction.html#requirements">Requirements</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#installation">Installation</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#directory-structure">Directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/introduction.html#advanced-installation">Advanced installation</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#get-started">Get started</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/get-started.html#the-database">The database</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#listing-posts">Listing posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#creating-new-posts">Creating new posts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/get-started.html#viewing-a-post">Viewing a post</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#the-global-store">The global store</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-store">Accessing the store</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#nested-arrays">Nested arrays</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#accessing-the-global-store-from-actions-and-views">Accessing the global store from actions and views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/global-store.html#using-accessors-with-any-array">Using accessors with any array</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration">Configuration</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/configuration.html#configuration-file">Configuration file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#bootsrapping">Bootsrapping</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#custom-directory-structure">Custom directory structure</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/configuration.html#pre-and-post-dispatch-files">Pre and post dispatch files</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#urls">URLs</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/urls.html#calling-an-action">Calling an action</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#routing-urls">Routing urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#file-extensions">File extensions</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/urls.html#building-urls">Building urls</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions">Actions</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/actions.html#introduction">Introduction</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#action-files">Action files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#actions-and-http-methods">Actions and HTTP methods</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#redirections-and-404-errors">Redirections and 404 errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#includes">Includes</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/actions.html#calling-actions-programmatically">Calling actions programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/views.html#views">Views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#layout">Layout</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#view-contexts">View contexts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#controlling-views">Controlling views</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/views.html#rendering-views-programmatically">Rendering views programmatically</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#helpers">Helpers</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/helpers.html#creating-helpers">Creating helpers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/helpers.html#using-helpers">Using helpers</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#utilities">Utilities</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/utilities.html#escaping-text">Escaping text</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#friendly-urls">Friendly urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/utilities.html#filtering-and-validating-data">Filtering and validating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#using-plugins">Using plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/using-plugins.html#installing-a-plugin">Installing a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#activating-and-configuring-a-plugin">Activating and configuring a plugin</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/using-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#session">Session</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/session.html#starting-and-accessing-the-session">Starting and accessing the session</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/session.html#flash-messages">Flash messages</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#error-handling-logging-and-debugging">Error handling, logging and debugging</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#handling-errors">Handling errors</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#logging">Logging</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/error-log-debug.html#debugging">Debugging</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#database">Database</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/database.html#connecting">Connecting</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#querying-data">Querying data</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/database.html#manipulating-data">Manipulating data</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#scripts">Scripts</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/scripts.html#creating-custom-scripts">Creating custom scripts</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#registering-commands">Registering commands</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/scripts.html#built-in-commands">Built-in commands</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translations">Translations</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/translations.html#creating-language-files">Creating language files</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#detecting-the-user-language">Detecting the user language</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/translations.html#translating-strings">Translating strings</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#controller">Controller</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/controllers.html#differences-with-the-classic-atomik-way">Differences with the classic Atomik way</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#creating-controllers">Creating controllers</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/controllers.html#using-controllers-in-pluggable-apps">Using controllers in Pluggable Apps</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events">Events</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/events.html#listening-to-events">Listening to events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#firing-events">Firing events</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/events.html#events-naming-convention">Events naming convention</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#developing-plugins">Developing plugins</a>
+            
+                
+    <ol>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#the-plugin-file">The plugin file</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#configuration">Configuration</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#using-a-class">Using a class</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#pluggable-applications">Pluggable applications</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#assets-and-urls">Assets and urls</a>
+            
+        </li>
+    
+        <li>
+            <a href="/docs/developing-plugins.html#loading-plugins-programmaticaly">Loading plugins programmaticaly</a>
+            
+        </li>
+    
+</ol>
+
+            
+        </li>
+    
+</ol>
+
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
+
+        <div id="content">
+            <a name="introduction"></a><h1>Introduction</h1>
 <p>Atomik is an open-source micro framework for PHP 5.3+.
 Atomik is build with the KISS (Keep It Simple Stupid) and DRY (Don&#39;t Repeat Yourself)
 principles in mind as well as speed and security. It is also an ideal introduction for 
-beginners to the world of web development frameworks. 
-
-</p>
-<p>Here&#39;s a list of some Atomik features:
-
-</p>
+beginners to the world of web development frameworks. </p>
+<p>Here&#39;s a list of some Atomik features:</p>
 <ul>
 <li>Very small footprint</li>
 <li>Open Source (MIT License)</li>
@@ -48,9 +591,7 @@ beginners to the world of web development frameworks.
 <li>Highly extensible</li>
 <li>Uses existing libraries</li>
 </ul>
-<p>The manual is licensed under the Creative Commons Attribution license.
-
-</p>
+<p>The manual is licensed under the Creative Commons Attribution license.</p>
 <a name="requirements"></a><h2>Requirements</h2>
 <ul>
 <li>HTTP Server. Apache with mod_rewrite is a good choice.</li>
@@ -60,86 +601,53 @@ beginners to the world of web development frameworks.
 <p>The best way to install Atomik is using <a href="http://getcomposer.org">Composer</a>
 and the <a href="https://github.com/maximebf/atomik-skeleton">Atomik Skeleton Application</a>. 
 The skeleton is a base Atomik application with a basic directory structure which 
-let you start building your project in a matter of seconds!
-
-</p>
+let you start building your project in a matter of seconds!</p>
 <pre><code>$ php composer.phar create-project atomik/skeleton /path/to/my/install/folder</code></pre>
 <p>Navigate to your website in your browser (ie. <a href="http://localhost">http://localhost</a>) where you should
-see a congratulation message.
-
-</p>
+see a congratulation message.</p>
 <p>If you&#39;re not comfortable using Composer, you can download the skeleton as a zip archive
-from <a href="https://github.com/maximebf/atomik/releases">here</a>.
-
-</p>
+from <a href="https://github.com/maximebf/atomik/releases">here</a>.</p>
 <p>If you want to activate pretty URLs under Apache, rename the <em>htaccess.example</em> file
-to <em>.htaccess</em>.
-
-</p>
+to <em>.htaccess</em>.</p>
 <a name="directory-structure"></a><h2>Directory structure</h2>
 <p>Your application per se goes into the <em>app</em> directory. Actions and views have their own 
-directories under <em>app/actions</em> and <em>app/views</em>.
-
-</p>
+directories under <em>app/actions</em> and <em>app/views</em>.</p>
 <p>Helpers and plugins are located in <em>app/helpers</em> and <em>app/plugins</em>.
-<em>app/includes</em> will be added to PHP&#39;s include path.
-
-</p>
-<p>The configuration is stored in <em>app/config.php</em>.
-
-</p>
+<em>app/includes</em> will be added to PHP&#39;s include path.</p>
+<p>The configuration is stored in <em>app/config.php</em>.</p>
 <p>When using the provided Apache <em>.htaccess</em> file, the <em>app</em> directory is not 
-accessible from the web.
-
-</p>
+accessible from the web.</p>
 <p>If you do not use the provided <em>.htaccess</em> file, do not forget to allow <em>assets</em>
-folders in plugins directories. Such a path can look like <em>app/plugins/MyPlugin/assets</em>.
-
-</p>
+folders in plugins directories. Such a path can look like <em>app/plugins/MyPlugin/assets</em>.</p>
 <a name="advanced-installation"></a><h2>Advanced installation</h2>
 <p>It is also possible to install and configure Atomik from scratch using Composer.
 In the directory of your project, create a <em>composer.json</em> file with the
-following requirements:
-
-</p>
+following requirements:</p>
 <pre><code>{
     &quot;require&quot;: {
         &quot;atomik/atomik&quot;: &quot;&gt;=3.0.0&quot;
     }
 }</code></pre>
-<p>Run composer from this directory to install atomik:
-
-</p>
+<p>Run composer from this directory to install atomik:</p>
 <pre><code>$ php composer.phar install</code></pre>
 <p>Atomik will be installed in the <em>vendor</em> directory, along any other
-dependencies you add to the <em>require</em> hash in your <em>composer.json</em> file.
-
-</p>
-<p>Create the directory structure. Create the <em>index.php</em> file as follow:
-
-</p>
+dependencies you add to the <em>require</em> hash in your <em>composer.json</em> file.</p>
+<p>Create the directory structure. Create the <em>index.php</em> file as follow:</p>
 <pre><code>&lt;?php
 require &#39;vendor/autoload.php&#39;;
 Atomik::run();</code></pre>
 <p><code>Atomik::run()</code> takes as first argument the root directory of your app.
-The default value is &#39;.&#39; which is the current directory.
-
-</p>
+The default value is &#39;.&#39; which is the current directory.</p>
 <p>Remember that in a production environment, it is always better to remove the 
 application files from the webroot, thus usually using a root directory one
-level above the publicly accessible one (ie. using <code>Atomik::run(&#39;..&#39;)</code>).
-</p>
+level above the publicly accessible one (ie. using <code>Atomik::run(&#39;..&#39;)</code>).</p>
 
 <a name="introduction"></a><h1>Introduction</h1>
 <p>Atomik is an open-source micro framework for PHP 5.3+.
 Atomik is build with the KISS (Keep It Simple Stupid) and DRY (Don&#39;t Repeat Yourself)
 principles in mind as well as speed and security. It is also an ideal introduction for 
-beginners to the world of web development frameworks. 
-
-</p>
-<p>Here&#39;s a list of some Atomik features:
-
-</p>
+beginners to the world of web development frameworks. </p>
+<p>Here&#39;s a list of some Atomik features:</p>
 <ul>
 <li>Very small footprint</li>
 <li>Open Source (MIT License)</li>
@@ -154,9 +662,7 @@ beginners to the world of web development frameworks.
 <li>Highly extensible</li>
 <li>Uses existing libraries</li>
 </ul>
-<p>The manual is licensed under the Creative Commons Attribution license.
-
-</p>
+<p>The manual is licensed under the Creative Commons Attribution license.</p>
 <a name="requirements"></a><h2>Requirements</h2>
 <ul>
 <li>HTTP Server. Apache with mod_rewrite is a good choice.</li>
@@ -166,128 +672,79 @@ beginners to the world of web development frameworks.
 <p>The best way to install Atomik is using <a href="http://getcomposer.org">Composer</a>
 and the <a href="https://github.com/maximebf/atomik-skeleton">Atomik Skeleton Application</a>. 
 The skeleton is a base Atomik application with a basic directory structure which 
-let you start building your project in a matter of seconds!
-
-</p>
+let you start building your project in a matter of seconds!</p>
 <pre><code>$ php composer.phar create-project atomik/skeleton /path/to/my/install/folder</code></pre>
 <p>Navigate to your website in your browser (ie. <a href="http://localhost">http://localhost</a>) where you should
-see a congratulation message.
-
-</p>
+see a congratulation message.</p>
 <p>If you&#39;re not comfortable using Composer, you can download the skeleton as a zip archive
-from <a href="https://github.com/maximebf/atomik/releases">here</a>.
-
-</p>
+from <a href="https://github.com/maximebf/atomik/releases">here</a>.</p>
 <p>If you want to activate pretty URLs under Apache, rename the <em>htaccess.example</em> file
-to <em>.htaccess</em>.
-
-</p>
+to <em>.htaccess</em>.</p>
 <a name="directory-structure"></a><h2>Directory structure</h2>
 <p>Your application per se goes into the <em>app</em> directory. Actions and views have their own 
-directories under <em>app/actions</em> and <em>app/views</em>.
-
-</p>
+directories under <em>app/actions</em> and <em>app/views</em>.</p>
 <p>Helpers and plugins are located in <em>app/helpers</em> and <em>app/plugins</em>.
-<em>app/includes</em> will be added to PHP&#39;s include path.
-
-</p>
-<p>The configuration is stored in <em>app/config.php</em>.
-
-</p>
+<em>app/includes</em> will be added to PHP&#39;s include path.</p>
+<p>The configuration is stored in <em>app/config.php</em>.</p>
 <p>When using the provided Apache <em>.htaccess</em> file, the <em>app</em> directory is not 
-accessible from the web.
-
-</p>
+accessible from the web.</p>
 <p>If you do not use the provided <em>.htaccess</em> file, do not forget to allow <em>assets</em>
-folders in plugins directories. Such a path can look like <em>app/plugins/MyPlugin/assets</em>.
-
-</p>
+folders in plugins directories. Such a path can look like <em>app/plugins/MyPlugin/assets</em>.</p>
 <a name="advanced-installation"></a><h2>Advanced installation</h2>
 <p>It is also possible to install and configure Atomik from scratch using Composer.
 In the directory of your project, create a <em>composer.json</em> file with the
-following requirements:
-
-</p>
+following requirements:</p>
 <pre><code>{
     &quot;require&quot;: {
         &quot;atomik/atomik&quot;: &quot;&gt;=3.0.0&quot;
     }
 }</code></pre>
-<p>Run composer from this directory to install atomik:
-
-</p>
+<p>Run composer from this directory to install atomik:</p>
 <pre><code>$ php composer.phar install</code></pre>
 <p>Atomik will be installed in the <em>vendor</em> directory, along any other
-dependencies you add to the <em>require</em> hash in your <em>composer.json</em> file.
-
-</p>
-<p>Create the directory structure. Create the <em>index.php</em> file as follow:
-
-</p>
+dependencies you add to the <em>require</em> hash in your <em>composer.json</em> file.</p>
+<p>Create the directory structure. Create the <em>index.php</em> file as follow:</p>
 <pre><code>&lt;?php
 require &#39;vendor/autoload.php&#39;;
 Atomik::run();</code></pre>
 <p><code>Atomik::run()</code> takes as first argument the root directory of your app.
-The default value is &#39;.&#39; which is the current directory.
-
-</p>
+The default value is &#39;.&#39; which is the current directory.</p>
 <p>Remember that in a production environment, it is always better to remove the 
 application files from the webroot, thus usually using a root directory one
-level above the publicly accessible one (ie. using <code>Atomik::run(&#39;..&#39;)</code>).
-</p>
+level above the publicly accessible one (ie. using <code>Atomik::run(&#39;..&#39;)</code>).</p>
 
 <a name="get-started"></a><h1>Get started</h1>
 <p>In this tutorial, you will learn how to create a simple blogging application in a few minutes.
 Our blog will list posts and allow you to create new ones which will be stored in a database.
-We will use a few plugins in the process.
-
-</p>
-<p>Requirements:
-
-</p>
+We will use a few plugins in the process.</p>
+<p>Requirements:</p>
 <ul>
 <li>PHP 5.3</li>
 <li>A webserver (eg. Apache)</li>
 <li><a href="http://www.sqlite.org/">Sqlite</a></li>
 </ul>
 <p>Install Atomik using the skeleton app as explained in the Installation section.
-Atomik provides a skeleton application to get you started quickly. 
-
-</p>
+Atomik provides a skeleton application to get you started quickly. </p>
 <p>All future paths reference in this tutorial will be relative to your installation folder.
-This path should be accessible from a web browser.
-
-</p>
+This path should be accessible from a web browser.</p>
 <a name="the-database"></a><h2>The database</h2>
 <p>As said before, our blog application will need a database. To keep it simple, we&#39;ll use Sqlite
-which is a very simple database engine that stores data into a single file.
-
-</p>
-<p>Here is the database schema for this tutorial. Save it in <em>schema.sql</em>:
-
-</p>
+which is a very simple database engine that stores data into a single file.</p>
+<p>Here is the database schema for this tutorial. Save it in <em>schema.sql</em>:</p>
 <pre><code>CREATE TABLE posts (
     id       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     title    VARCHAR(200) NOT NULL,
     content  TEXT NOT NULL
 );</code></pre>
-<p>Now let&#39;s create the database file:
-
-</p>
+<p>Now let&#39;s create the database file:</p>
 <pre><code>$ sqlite3 -init schema.sql example.db
 sqlite&gt; .exit</code></pre>
 <p>Will now need to configure the Db plugin so it can access the database. This plugin
-simply creates a new <code>PDO</code> instance to which it adds some useful methods.
-
-</p>
+simply creates a new <code>PDO</code> instance to which it adds some useful methods.</p>
 <p>Open the <em>app/config.php</em> file. You&#39;ll see that we use the <code>Atomik::set()</code> method
 to define configuration options. This method is one of many that allow you to
-manipulate the global store, a place where you can store data shared accross your app.
-
-</p>
-<p>In the plugins section, (line 5) add the following lines:
-
-</p>
+manipulate the global store, a place where you can store data shared accross your app.</p>
+<p>In the plugins section, (line 5) add the following lines:</p>
 <pre><code>// ...
 &#39;plugins&#39; =&gt; array(
     // ...
@@ -297,36 +754,24 @@ manipulate the global store, a place where you can store data shared accross you
 ),
 // ...</code></pre>
 <p>The Db plugins creates a <code>PDO</code> instance accessible through the <em>db</em> key in the global store.
-This is all we need to connect to the database.
-
-</p>
+This is all we need to connect to the database.</p>
 <a name="listing-posts"></a><h2>Listing posts</h2>
 <p>A page in Atomik is made of two files: the first one is dedicated to the business logic, 
 it is called an action. The second one is called a view and holds the presentation code, 
-which in most cases is HTML.
-
-</p>
+which in most cases is HTML.</p>
 <p>Actions are located in the <em>app/actions</em> folder and views in the <em>app/views</em>
 folder. For example, for a page named home, we would need a <em>home.php</em> file in the actions
-folder and/or a <em>home.phtml</em> file in the views folder.
-
-</p>
+folder and/or a <em>home.phtml</em> file in the views folder.</p>
 <div class="note">Both files are not mandatory when creating a page. At least one of them must exists.</div>
 
 <p>The default page is named <em>index</em>. We will list posts on this one. We&#39;ll first need to retrieve 
-posts from the database. In the action file (<em>app/actions/index.php</em>), add the following lines:
-
-</p>
+posts from the database. In the action file (<em>app/actions/index.php</em>), add the following lines:</p>
 <pre><code>&lt;?php
 $posts = $this[&#39;db&#39;]-&gt;select(&#39;posts&#39;);</code></pre>
 <p>Here we access the global store through <code>$this</code> which represent the <code>Atomik</code> object. The <code>select()</code>
-function from the Db plugin creates an SQL SELECT statement.
-
-</p>
+function from the Db plugin creates an SQL SELECT statement.</p>
 <p>Variables defined in the action are automatically available in the view. Thus, we can iterate 
-through the <code>$posts</code> variable to list our posts.
-
-</p>
+through the <code>$posts</code> variable to list our posts.</p>
 <pre><code>&lt;h1&gt;Blog&lt;/h1&gt;
 &lt;ul&gt;
    &lt;?php foreach ($posts as $post): ?&gt;
@@ -334,26 +779,16 @@ through the <code>$posts</code> variable to list our posts.
     &lt;?php endforeach; ?&gt;
 &lt;/ul&gt;
 &lt;a href=&quot;&lt;?= $this-&gt;url(&#39;add&#39;) ?&gt;&quot;&gt;Add a new post&lt;/a&gt;</code></pre>
-<p>(Atomik automatically converts short tags to the long form)
-
-</p>
+<p>(Atomik automatically converts short tags to the long form)</p>
 <p>It is a good practice to escape content before outputting it which is the goal of the <code>escape()</code> helper.
-The <code>url()</code> helper generates urls from action names.
-
-</p>
+The <code>url()</code> helper generates urls from action names.</p>
 <p>Helpers are utility functions available through <code>$this</code> in actions and views. Atomik comes bundled with
-a few of them to help you get started quickly.
-
-</p>
+a few of them to help you get started quickly.</p>
 <p>Now, navigate to <a href="http://localhost"><a href="http://localhost">http://localhost</a></a>. Don&#39;t worry if nothing shows up, we havn&#39;t created
-any post yet.
-
-</p>
+any post yet.</p>
 <a name="creating-new-posts"></a><h2>Creating new posts</h2>
 <p>We&#39;re going to create a new page called <em>add</em>. Let&#39;s start by creating the view
-(<em>app/views/add.phtml</em>).
-
-</p>
+(<em>app/views/add.phtml</em>).</p>
 <pre><code>&lt;h1&gt;New post&lt;/h1&gt;
 &lt;?= $form = $this-&gt;form($this-&gt;url(&#39;add&#39;)) ?&gt;
   &lt;p&gt;
@@ -367,64 +802,42 @@ any post yet.
   &lt;?= $form-&gt;buttons(&#39;Add post&#39;) ?&gt;
 &lt;/form&gt;</code></pre>
 <p>In this view, we&#39;ve used the <code>form()</code> helper which returns an object with functions to easily
-render common HTML inputs.
-
-</p>
+render common HTML inputs.</p>
 <p>Our action should only be executed when there&#39;s POST data. Atomik allows you to create
 action files for specific HTTP methods. To do so, add a suffix to the action name with a dot followed 
-by the HTTP method in lower case. Our action file will thus be named <em>app/actions/add.post.php</em>.
-
-</p>
+by the HTTP method in lower case. Our action file will thus be named <em>app/actions/add.post.php</em>.</p>
 <p>As a side note if you&#39;re new to web programming, the HTTP protocol defines multiple verbs (or methods).
 Each one carry a meaning and eventually some data. The most common one is GET. It is the method
 your browser uses to request a page. To send some data from the browser to the server, the browser
-will perform a POST request.
-
-</p>
+will perform a POST request.</p>
 <p>The first thing we need to do is filter the data. This is always an important step when dealing with
-data from an outside source as it is a common vectore of attack. We&#39;re going to use the <code>filter()</code> helper.
-
-</p>
-<p>This helper is built on top of PHP&#39;s <a href="http://fr2.php.net/manual/en/book.filter.php">filter extension</a>.
-
-</p>
+data from an outside source as it is a common vectore of attack. We&#39;re going to use the <code>filter()</code> helper.</p>
+<p>This helper is built on top of PHP&#39;s <a href="http://fr2.php.net/manual/en/book.filter.php">filter extension</a>.</p>
 <p>This method works in two ways: it can filter a single value or it can filter an entire array.
-We&#39;re obviously going to use the latter as we&#39;re going to filter the <code>$_POST</code> array.
-
-</p>
+We&#39;re obviously going to use the latter as we&#39;re going to filter the <code>$_POST</code> array.</p>
 <p>To filter an array, the method needs a set of rules: an array listing the requirements for each
 fields in the input data. For each field, we can use a filter and define if it&#39;s required.
 The default filter is to sanitize strings (<code>FILTER_SANITIZE_STRING</code>) and we&#39;ll use that one.
-We&#39;re only going to set fields as required.
-
-</p>
+We&#39;re only going to set fields as required.</p>
 <pre><code>$fields = array(
     &#39;title&#39; =&gt; array(&#39;required&#39; =&gt; true),
     &#39;content&#39; =&gt; array(&#39;required&#39; =&gt; true)
 );</code></pre>
 <p>If the validation fails, the method will return false. In this case it will generate some error 
 messages stored in <em>app.filters.messages</em>. We can then use the <code>flash()</code> helper to display them 
-to the user.
-
-</p>
+to the user.</p>
 <pre><code>if (($data = $this-&gt;filter($_POST, $fields)) === false) {
     $this-&gt;flash($this[&#39;app.filters.messages&#39;], &#39;error&#39;);
     return;
 }</code></pre>
 <p>Now that our data has been validated we&#39;re going to insert them in the database.
-We&#39;ll use the <code>insert()</code> method from the Db plugin.
-
-</p>
+We&#39;ll use the <code>insert()</code> method from the Db plugin.</p>
 <pre><code>$this[&#39;db&#39;]-&gt;insert(&#39;posts&#39;, $data);</code></pre>
 <p>Finally, we&#39;ll add a flash message announcing that the operation has been successful.
-We&#39;ll also redirect the user to the index page.
-
-</p>
+We&#39;ll also redirect the user to the index page.</p>
 <pre><code>$this-&gt;flash(&#39;Post successfully added!&#39;, &#39;success&#39;);
 $this-&gt;redirect(&#39;index&#39;);</code></pre>
-<p>Below is the complete action:
-
-</p>
+<p>Below is the complete action:</p>
 <pre><code>&lt;?php
 
 $fields = array(
@@ -442,14 +855,10 @@ $this[&#39;db&#39;]-&gt;insert(&#39;posts&#39;, $data);
 $this-&gt;flash(&#39;Post successfully added!&#39;, &#39;success&#39;);
 $this-&gt;redirect(&#39;index&#39;);</code></pre>
 <a name="viewing-a-post"></a><h2>Viewing a post</h2>
-<p>We are now going to create a page named <em>view</em> to show a single post.
-
-</p>
+<p>We are now going to create a page named <em>view</em> to show a single post.</p>
 <p>The page will need a request parameter named <em>id</em> which must contain the id
 of a post. Let&#39;s create the action file (<em>app/actions/view.php</em>)
-with these simple lines:
-
-</p>
+with these simple lines:</p>
 <pre><code>&lt;?php
 
 if (!isset($this[&#39;request.id&#39;])) {
@@ -459,12 +868,8 @@ if (!isset($this[&#39;request.id&#39;])) {
 
 $post = $this[&#39;db&#39;]-&gt;selectOne(&#39;posts&#39;, array(&#39;id&#39; =&gt; $this[&#39;request.id&#39;]));</code></pre>
 <p>First we check if the id parameter is set. The <em>request</em> array from the global store
-contains all the parameters given through the URL and the <code>$_GET</code> array.
-
-</p>
-<p>The view (<em>app/views/view.phtml</em>) is also very simple:
-
-</p>
+contains all the parameters given through the URL and the <code>$_GET</code> array.</p>
+<p>The view (<em>app/views/view.phtml</em>) is also very simple:</p>
 <pre><code>&lt;h1&gt;&lt;?= $this-&gt;escape($post[&#39;title&#39;]) ?&gt;&lt;/h1&gt;
 &lt;p&gt;
     Published the &lt;?= $post[&#39;publish_date&#39;] ?&gt;
@@ -473,9 +878,7 @@ contains all the parameters given through the URL and the <code>$_GET</code> arr
     &lt;?= $this-&gt;escape($post[&#39;content&#39;]) ?&gt;
 &lt;/p&gt;</code></pre>
 <p>Finally, we&#39;re going to modify the index view to add a link on post titles. Replace
-the line where the post title is echoed with:
-
-</p>
+the line where the post title is echoed with:</p>
 <pre><code>&lt;li&gt;
     &lt;a href=&quot;&lt;?= $this-&gt;url(&#39;view&#39;, array(&#39;id&#39; =&gt; $post[&#39;id&#39;])) ?&gt;&quot;&gt;
         &lt;?= $this-&gt;escape($post[&#39;title&#39;]) ?&gt;
@@ -485,36 +888,24 @@ the line where the post title is echoed with:
 <a name="the-global-store"></a><h1>The global store</h1>
 <p>Atomik provides a global store where anything can be saved for the time of a request.
 This global store acts like an associative array with key/value pairs.
-It&#39;s mainly used to store the configuration.
-
-</p>
+It&#39;s mainly used to store the configuration.</p>
 <a name="accessing-the-store"></a><h2>Accessing the store</h2>
 <p>Accessors are methods provided by the Atomik class that allow you to 
 access the global store. They are six of them: <em>get</em>, <em>set</em>, <em>add</em>, <em>prepend</em>,
-<em>has</em> and <em>delete</em>.
-
-</p>
+<em>has</em> and <em>delete</em>.</p>
 <p>The <code>get()</code> method allows you to retrieve the value
 associated to the key passed as first argument. If a second argument is 
 specified it will be use as a default value in the case where the key is
-not found.
-
-</p>
+not found.</p>
 <pre><code>echo Atomik::get(&#39;key&#39;);
 echo Atomik::get(&#39;keyThatDoesntExist&#39;, &#39;defaultValue&#39;);</code></pre>
 <p>There&#39;s also a <code>Atomik::getRef()</code> method to obtain a
 reference to the value. However this method do not have a default value parameter
-and it will return null if the key is not found.
-
-</p>
+and it will return null if the key is not found.</p>
 <p>The <code>set()</code> method allows you to define a key and its
-associated value. It will overwrite any existing value.
-
-</p>
+associated value. It will overwrite any existing value.</p>
 <p>This accessor can also take an array as argument to set multiple key/value pairs
-at once. This array will be merged with the store.
-
-</p>
+at once. This array will be merged with the store.</p>
 <pre><code>Atomik::set(&#39;key&#39;, &#39;value&#39;);
 
 Atomik::set(array(
@@ -525,13 +916,9 @@ Atomik::set(array(
 method but rather than replacing values when they already exists, adds them. For
 example if the key points to an array, the value will be added to this array as a new
 item. If the key points to a value which is not an array, it will be transformed to
-one.
-
-</p>
+one.</p>
 <p><code>prepend()</code> is exactly the same but adds the value at the beginning
-of the array.
-
-</p>
+of the array.</p>
 <pre><code>Atomik::set(&#39;key1&#39;, array(&#39;item1&#39;));
 Atomik::add(&#39;key1&#39;, &#39;item2&#39;);
 Atomik::add(&#39;key1&#39;, array(&#39;item3&#39;, &#39;item4&#39;));
@@ -539,17 +926,13 @@ $array = Atomik::get(&#39;key1&#39;); // array(&#39;item1&#39;, &#39;item2&#39;,
 <p>The <code>has()</code> and <code>delete()</code>
 methods only take a key as argument. The first one checks if the key exists
 and the second deletes the key and its value. The method also returns the value
-which had the deleted key or false if the key didn&#39;t exist.
-
-</p>
+which had the deleted key or false if the key didn&#39;t exist.</p>
 <pre><code>if (Atomik::has(&#39;key&#39;)) {
     Atomik::delete(&#39;key&#39;);
 }</code></pre>
 <a name="nested-arrays"></a><h2>Nested arrays</h2>
 <p>Dots can be used to access nested arrays. Each segment in the key has to point to a nested
-array unless it&#39;s the last one.
-
-</p>
+array unless it&#39;s the last one.</p>
 <pre><code>Atomik::set(&#39;users&#39;, array(
     &#39;paul&#39; =&gt; array(
         &#39;id&#39; =&gt; 1,
@@ -571,9 +954,7 @@ Atomik::set(&#39;users.sofia&#39;, array(
 ));
 
 $sofiaAge = Atomik::get(&#39;users.sofia.age&#39;);</code></pre>
-<p>You can also use paths in sub arrays when setting some values.
-
-</p>
+<p>You can also use paths in sub arrays when setting some values.</p>
 <pre><code>Atomik::set(array(
     &#39;users&#39; =&gt; array(
         &#39;paul.age&#39; =&gt; 22,
@@ -591,25 +972,17 @@ array(
         &#39;age&#39; =&gt; 20
     )
 )</code></pre>
-<p><code>Atomik::dimensionizeArray()</code> can be used to <em>dimensionize</em> any array.
-
-</p>
+<p><code>Atomik::dimensionizeArray()</code> can be used to <em>dimensionize</em> any array.</p>
 <p>When using an array, be aware that it will be <em>dimensionized</em> before being
 merged. This is done using <code>Atomik::dimensionizeArray()</code>. It can be avoided
-using false as the third argument of <code>set()</code>.
-
-</p>
-<p>To avoid a key to be dimensionized, you can escape dots using double dots:
-
-</p>
+using false as the third argument of <code>set()</code>.</p>
+<p>To avoid a key to be dimensionized, you can escape dots using double dots:</p>
 <pre><code>Atomik::set(&#39;routes&#39;, array(
     &#39;/users..json&#39; =&gt; array(&#39;action&#39; =&gt; &#39;users&#39;, &#39;format&#39; =&gt; &#39;json&#39;)
 ));</code></pre>
 <a name="accessing-the-global-store-from-actions-and-views"></a><h2>Accessing the global store from actions and views</h2>
 <p>You should always access the global store through <code>$this</code> from actions
-and views. Get values using the same syntax as with arrays:
-
-</p>
+and views. Get values using the same syntax as with arrays:</p>
 <pre><code>$this[&#39;users&#39;] = array(
     &#39;paul&#39; =&gt; array(
         &#39;id&#39; =&gt; 1,
@@ -620,16 +993,12 @@ if (isset($this[&#39;users.paul&#39;])) {
     $age = $this[&#39;users.paul.age&#39;];
     unset($this[&#39;users.paul&#39;]);
 }</code></pre>
-<p>Accessors are also available as methods of ̀$this`:
-
-</p>
+<p>Accessors are also available as methods of ̀$this`:</p>
 <pre><code>$age = $this-&gt;get(&#39;users.paul.age&#39;, 21);</code></pre>
 <a name="using-accessors-with-any-array"></a><h2>Using accessors with any array</h2>
 <p>Accessors can be used with any array. You need to pass as argument an array
 (the position of the argument depends on the method). See the API guide for 
-more information. Still, here&#39;s an example:
-
-</p>
+more information. Still, here&#39;s an example:</p>
 <pre><code>$array = array();
 Atomik::set(&#39;key&#39;, &#39;value&#39;, $array);
 echo Atomik::get(&#39;key&#39;, null, $array);</code></pre>
@@ -638,21 +1007,13 @@ echo Atomik::get(&#39;key&#39;, null, $array);</code></pre>
 <a name="configuration-file"></a><h2>Configuration file</h2>
 <p>Atomik provides a default configuration for everything (to fullfill the convention
 over configuration principle). However, you can override it and provide plugin&#39;s
-configuration or even your own.
-
-</p>
+configuration or even your own.</p>
 <p>Three file formats are available for the configuration: PHP (which is the default), INI or JSON.
-The format will be chosen depending on the file extension (either php, ini or json - in lower case).
-
-</p>
+The format will be chosen depending on the file extension (either php, ini or json - in lower case).</p>
 <p>The file is by default located in the app directory and named <em>config</em>.
-This can be changed in <em>atomik.files.config</em>. Do NOT specify the extension.
-
-</p>
+This can be changed in <em>atomik.files.config</em>. Do NOT specify the extension.</p>
 <p>When using PHP, the script can return an array that will be use with <code>Atomik::set()</code>.
-You can also directly use accessors in the file.
-
-</p>
+You can also directly use accessors in the file.</p>
 <pre><code>return array(
     &#39;my_key&#39; =&gt; &#39;my value&#39;,
     &#39;plugins&#39; =&gt; array(
@@ -667,12 +1028,8 @@ You can also directly use accessors in the file.
     )
 );</code></pre>
 <p>When using INI, you can use dots in keys to specify multi-dimensional keys. You can use dots
-in JSON keys or child objects.
-
-</p>
-<p>INI categories will be treated as parent keys and also dimensionized.
-
-</p>
+in JSON keys or child objects.</p>
+<p>INI categories will be treated as parent keys and also dimensionized.</p>
 <pre><code>my_key = my value
 
 [plugins]
@@ -682,9 +1039,7 @@ Db.username = root
 [atomik.files]
 pre_dispatch = pre.php
 post_dispatch = post.php</code></pre>
-<p>When using JSON, the data must be wrapped in an object.
-
-</p>
+<p>When using JSON, the data must be wrapped in an object.</p>
 <pre><code>{
     &quot;my_key&quot;: &quot;my value&quot;,
 
@@ -703,75 +1058,46 @@ post_dispatch = post.php</code></pre>
 <a name="bootsrapping"></a><h2>Bootsrapping</h2>
 <p>Once the configuration is loaded, Atomik will setup the environment and load plugins. Once ready,
 it will try to load a bootstrap file. It can be used to prepare the application, load additional
-libraries or plugins...
-
-</p>
+libraries or plugins...</p>
 <p>The file must be named <em>bootstrap.php</em> and located in the <em>app</em> directory.
 In this file, you can use accessors (the <code>set()</code> method of course)
-to define configuration keys.
-
-</p>
-<p>The name of this file can be changed using the <em>atomik.files.bootstrap</em> configuration key.
-
-</p>
+to define configuration keys.</p>
+<p>The name of this file can be changed using the <em>atomik.files.bootstrap</em> configuration key.</p>
 <a name="custom-directory-structure"></a><h2>Custom directory structure</h2>
-<p>The directory structure can be customized by modifying entries in the <em>atomik.dirs</em> configuration key.
-
-</p>
+<p>The directory structure can be customized by modifying entries in the <em>atomik.dirs</em> configuration key.</p>
 <p>Each keys in the <em>dirs</em> array represent a type of directory. Their value can be a string for
-a single path or an array for mutliple paths.
-
-</p>
-<p>If the path is relative, it must be relative to the root directory of your application.
-
-</p>
+a single path or an array for mutliple paths.</p>
+<p>If the path is relative, it must be relative to the root directory of your application.</p>
 <p>For the <em>plugins</em>, <em>helpers</em> and <em>includes</em> keys, directories can be associated to
 a namespace. Let&#39;s say you have the Doctrine library in /usr/share/php/doctrine, the
-sources being in lib/Doctrine:
-
-</p>
+sources being in lib/Doctrine:</p>
 <pre><code>Atomik::add(&#39;atomik.dirs.includes&#39;, array(&#39;Doctrine&#39; =&gt; &#39;/usr/share/php/doctrine/lib/Doctrine&#39;));</code></pre>
 <a name="pre-and-post-dispatch-files"></a><h2>Pre and post dispatch files</h2>
 <p>Atomik allows you to create two files: <em>pre_dispatch.php</em> and 
 <em>post_dispatch.php</em> in the <em>app</em> directory. These files
-will be called respectively before and after the dispatch process.
-
-</p>
+will be called respectively before and after the dispatch process.</p>
 <p>Their filename can be changed using the <em>atomik.files.pre_dispatch</em> and
-<em>atomik.files.post_dispatch</em> configuration keys.
-</p>
+<em>atomik.files.post_dispatch</em> configuration keys.</p>
 
 <a name="urls"></a><h1>URLs</h1>
 <a name="calling-an-action"></a><h2>Calling an action</h2>
 <p>Atomik provides a simple url mechanism. Whatever the page is, the url
-must always point to Atomik script, i.e. <em>index.php</em>
-
-</p>
+must always point to Atomik script, i.e. <em>index.php</em></p>
 <p>The url should contain an HTTP GET parameter which specify which action to trigger.
 This parameter can be modified in the configuration (using the <em>atomik.trigger</em> key) 
-but its default name is <em>action</em>.
-
-</p>
+but its default name is <em>action</em>.</p>
 <p>The value of the parameter must only contain the action name
 without any extension. So for example if you have an <em>home.php</em>
 file in the <em>app/actions</em> directory and/or an 
 <em>home.phtml</em> file in the <em>app/views</em>
 directory, you must use <em>home</em> as parameter to call this action.
-Thus, the url should look like <a href="http://example.com/index.php?action=home">http://example.com/index.php?action=home</a>.
-
-</p>
-<p>For an action to be callable, an action file or a view file must at least exist.
-
-</p>
+Thus, the url should look like <a href="http://example.com/index.php?action=home">http://example.com/index.php?action=home</a>.</p>
+<p>For an action to be callable, an action file or a view file must at least exist.</p>
 <p>If the action parameter is not found in the query string, Atomik will use the default
 action defined in its configuration (the <em>app.default_action</em> key).
-The default is <em>index</em>.
-
-</p>
+The default is <em>index</em>.</p>
 <p>For cleaner and prettier url you can use url rewriting. When using Apache, simply copy the 
-code below into a <em>.htaccess</em> file in the same directory as Atomik&#39;s core file.
-
-</p>
+code below into a <em>.htaccess</em> file in the same directory as Atomik&#39;s core file.</p>
 <pre><code>RewriteEngine on
 RewriteRule ^app/plugins/(.+)/assets - [L]
 RewriteRule ^app/ - [L,F]
@@ -780,39 +1106,25 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]</code></pre>
 <p>This code will also prevent access to the <em>app</em> folder from the web but
-allow access to <em>assets</em> directories provided by plugins.
-
-</p>
+allow access to <em>assets</em> directories provided by plugins.</p>
 <p>When using url rewriting, you can access pages by directly appending the name to the base url.
-Eg: <a href="http://example.com/home">http://example.com/home</a>
-
-</p>
+Eg: <a href="http://example.com/home">http://example.com/home</a></p>
 <p>Sometimes Atomik cannot detect if url rewriting is activated and <code>Atomik::url()</code>
 still uses <em>index.php</em>. To prevent this, set the <em>atomik.url_rewriting</em> 
-configuration key to true.
-
-</p>
+configuration key to true.</p>
 <p>The action that has been called can be found in the configuration key named <em>request_uri</em>.
 The base url of the website (ie. the path before the root of the site) can be found in the 
-<em>atomik.base_url</em> key.
-
-</p>
+<em>atomik.base_url</em> key.</p>
 <p>When using pluggable applications (see the plugins chapter), the <em>request_uri</em> key will
 become relative to the pluggable application&#39;s root url. To retrieve the full uri you can use
-<em>full_request_uri</em>.
-
-</p>
+<em>full_request_uri</em>.</p>
 <a name="routing-urls"></a><h2>Routing urls</h2>
 <a name="creating-routes"></a><h3>Creating routes</h3>
 <p>It is now a common practice to use pretty urls. This can easily be done using Atomik&#39;s router.
 The router maps urls to actions and allows you to extract parameters from these urls. An url and its
-parameters is called a route.
-
-</p>
+parameters is called a route.</p>
 <p>Routes are defined in the <em>app.routes</em> configuration key.
-The action must be specified as a parameter named <em>action</em>.
-
-</p>
+The action must be specified as a parameter named <em>action</em>.</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
    &#39;user/add&#39; =&gt; array(
        &#39;action&#39; =&gt; &#39;user_add&#39;
@@ -820,18 +1132,12 @@ The action must be specified as a parameter named <em>action</em>.
 ));</code></pre>
 <p>As you see, the route is defined as the array key and its parameters are defined in
 the sub array. You can add an unlimited number of parameters to the route. There
-must be at least the <em>action</em> parameter for the route to be valid.
-
-</p>
+must be at least the <em>action</em> parameter for the route to be valid.</p>
 <p>The real magic of the routes is the possibility to assign a parameter value with
 a segment of the uri. This is done by specifying a parameter name prefixed with <em>:</em>
-inside an uri segment (ie. between slashes).
-
-</p>
+inside an uri segment (ie. between slashes).</p>
 <p>Parameters defined as uri segments can be optional if they are also defined in the
-parameters list.
-
-</p>
+parameters list.</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
    &#39;archives/:year/:month&#39; =&gt; array(
        &#39;action&#39; =&gt; &#39;archives&#39;,
@@ -841,21 +1147,13 @@ parameters list.
 <p>In this route, the month parameter is optional but not the year. Thus, possible urls are
 <a href="http://example.com/archives/2008">http://example.com/archives/2008</a> or <a href="http://example.com/archives/2008/02">http://example.com/archives/2008/02</a>.
 In these case the year parameter will have the <em>2008</em> value and the month parameter in the 
-second example will have <em>02</em> as value.
-
-</p>
-<p>Note that routes are matched in reverse order.
-
-</p>
+second example will have <em>02</em> as value.</p>
+<p>Note that routes are matched in reverse order.</p>
 <p>Regexp routes allow you to use regular expressions to match an uri to a route. A regexp route is
 defined the same way as classical ones but the route is replaced by the regexp which must use
-the pound sign # as its delimiter.
-
-</p>
+the pound sign # as its delimiter.</p>
 <p>The uri to match will always be relative (so do not use a slash at the start). To specify parameters
-inside the route, you must use named subpatterns (see <a href="http://php.net/manual/en/regexp.reference.subpatterns.php">http://php.net/manual/en/regexp.reference.subpatterns.php</a>).
-
-</p>
+inside the route, you must use named subpatterns (see <a href="http://php.net/manual/en/regexp.reference.subpatterns.php">http://php.net/manual/en/regexp.reference.subpatterns.php</a>).</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
    &#39;#archives/(?P&lt;year&gt;[0-9]{4})/(?P&lt;month&gt;[0-9]{2})#&#39; =&gt; array(
        &#39;action&#39; =&gt; &#39;archives&#39;,
@@ -864,9 +1162,7 @@ inside the route, you must use named subpatterns (see <a href="http://php.net/ma
 ));</code></pre>
 <p>To provide a name to a route, simply define the <em>@name</em> parameter. Both route
 types (classical and regexp) can be named. Route naming will be useful when 
-using <code>Atomik::url()</code>.
-
-</p>
+using <code>Atomik::url()</code>.</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
    &#39;archives/:year/:month&#39; =&gt; array(
        &#39;@name&#39; =&gt; &#39;archives&#39;,
@@ -876,9 +1172,7 @@ using <code>Atomik::url()</code>.
 ));</code></pre>
 <a name="retrieving-route-parameters"></a><h3>Retrieving route parameters</h3>
 <p>Once the routing process is done, a configuration key named <em>request</em> is available. It contains
-an associative array with parameters and their value.
-
-</p>
+an associative array with parameters and their value.</p>
 <pre><code>$params = Atomik::get(&#39;request&#39;);
 $year = Atomik::get(&#39;request.year&#39;);
 
@@ -888,23 +1182,17 @@ $params = $this[&#39;request&#39;];
 $year = $this[&#39;request.year&#39;];</code></pre>
 <a name="file-extensions"></a><h2>File extensions</h2>
 <p>Since version 2.2, Atomik can handle file extensions in urls. The file extension is optional. 
-You can force the file extension to be present by setting <em>app.force_uri_extension</em> to true.
-
-</p>
+You can force the file extension to be present by setting <em>app.force_uri_extension</em> to true.</p>
 <p>By default the file extension is the view context. View contexts are discussed in a later chapter.
 The default view context if no extension is defined is <em>html</em>. This can be changed
-in <em>app.views.default_context</em>.
-
-</p>
+in <em>app.views.default_context</em>.</p>
 <pre><code>http://example.com/home         =&gt;    action=home format=html (won&#39;t work if app.force_uri_extension is set to true)
 http://example.com/home.html    =&gt;    action=home format=html
 http://example.com/home.xml     =&gt;    action=home format=xml
 http://example.com/home.foo     =&gt;    action=home format=foo</code></pre>
 <p>Routes also support file extensions. You can specify a specific extension in your route. The extension
 can also be a parameter. In this case, if you specify a default value for it, the extension
-won&#39;t be mandatory in the url.
-
-</p>
+won&#39;t be mandatory in the url.</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
    &#39;:category/:article..:format&#39; =&gt; array(
            &#39;action&#39; =&gt; &#39;article&#39;
@@ -914,35 +1202,23 @@ won&#39;t be mandatory in the url.
         &#39;format&#39; =&gt; &#39;html&#39;
    )
 ));</code></pre>
-<p>(Note that the dot must be escaped in keys using a double dot)
-
-</p>
+<p>(Note that the dot must be escaped in keys using a double dot)</p>
 <p>The format parameter is not automatically added in custom routes. If not specified
-it will default to the value of <em>app.views.default_context</em>.
-
-</p>
+it will default to the value of <em>app.views.default_context</em>.</p>
 <a name="building-urls"></a><h2>Building urls</h2>
 <p>Directly writing url into your code can lead to problems. When using a layout for example, it is hard to know the
 relative location of the current view, to include stylesheets for example. Some urls also needs lots of concatanation
-when using parameters and this can make the code less readable.
-
-</p>
-<p><code>Atomik::url()</code> tries to resolve those problems by providing three things:
-
-</p>
+when using parameters and this can make the code less readable.</p>
+<p><code>Atomik::url()</code> tries to resolve those problems by providing three things:</p>
 <ul>
 <li>Prepend the base url</li>
 <li>Do not use <em>index.php</em> in the url if url rewriting is enabled (or use it if not)</li>
 <li>Handle url parameters</li>
 </ul>
 <p>The method works best with relative or absolute urls. It can however also works with full urls. 
-In this case, the two first points won&#39;t be applied.
-
-</p>
+In this case, the two first points won&#39;t be applied.</p>
 <p>If null is used as the url, the current action will be used. Named routes can be used using the route
-name prepended with the @ sign.
-
-</p>
+name prepended with the @ sign.</p>
 <pre><code>$url = Atomik::url(&#39;home&#39;); // /index.php?action=home if no url rewriting or /home otherwise
 $url = Atomik::url(&#39;/user/dashboard&#39;); // /user/dashboard
 $url = Atomik::url(&#39;http://example.com&#39;); // http://example.com
@@ -950,9 +1226,7 @@ $url = Atomik::url(&#39;@my_route&#39;); // will use the route named my_route</c
 <p>You can add GET parameters to the url using an array as the second argument. You can
 re-use the current request parameters by using true instead of an array. If you want 
 the current parameters as well as new ones, use an array and add <em>__merge_GET</em>
-as value.
-
-</p>
+as value.</p>
 <pre><code>$url = Atomik::url(&#39;archives&#39;, array(&#39;year&#39; =&gt; 2008)); // /index.php?action=archives&amp;year=2008 if no url rewriting or /archives?year=2008 otherwise
 $url = Atomik::url(&#39;archives?year=2008&#39;, array(&#39;month&#39; =&gt; 02)); // /archives?year=2008&amp;month=02
 
@@ -961,53 +1235,37 @@ $url = Atomik::url(&#39;archives?year=2008&#39;, array(&#39;month&#39; =&gt; 02)
 $url = Atomik::url(&#39;archives&#39;, true); // /archives?year=2008
 $url = Atomik::url(&#39;archives&#39;, array(&#39;__merge_GET&#39;, &#39;month&#39; =&gt; 02)); // /archives?year=2008&amp;month=02</code></pre>
 <p>The method also allows you to use embedded parameters. These are parameters in the uri (like in classical routes). 
-The name of the parameter must be prepended with <em>:</em>.
-
-</p>
+The name of the parameter must be prepended with <em>:</em>.</p>
 <pre><code>$url = Atomik::url(&#39;archives/:year&#39;, array(&#39;year&#39; =&gt; 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
 $url = Atomik::url(&#39;archives/:year&#39;, array(&#39;year&#39; =&gt; 2008, &#39;month&#39; =&gt; 02)); // /archives/2008?month=02</code></pre>
-<p>Using named routes:
-
-</p>
+<p>Using named routes:</p>
 <pre><code>$url = Atomik::url(&#39;@archives&#39;, array(&#39;year&#39; =&gt; 2008)); // /index.php?action=archives/2008 if no url rewriting or /archives/2008 otherwise
 $url = Atomik::url(&#39;@archives&#39;, array(&#39;year&#39; =&gt; 2008, &#39;month&#39; =&gt; 02)); // /archives/2008?month=02</code></pre>
 <p>When creating urls that point to resources you&#39;ll never want them to have the 
 <em>index.php</em> part in them. To prevent that you can use the <code>Atomik::asset()</code> method. 
-It works exactly the same as <code>Atomik::url()</code> but will never use <em>index.php</em> in the url.
-
-</p>
+It works exactly the same as <code>Atomik::url()</code> but will never use <em>index.php</em> in the url.</p>
 <p><code>Atomik::url()</code> is relative to the application context. For example, if this method is used 
 inside views from your application, generated urls will be relative to your application&#39;s base url. 
 However, if it is used inside a pluggable application (or plugin) it will be relative to the 
 plugin&#39;s base url. It allows this method to be used everywhere while ensuring that the urls 
-are relative to the correct base url.
-
-</p>
+are relative to the correct base url.</p>
 <p>It is however possible to use <code>Atomik::appUrl()</code> to always generate urls relative to your application&#39;s
 base url and <code>Atomik::pluginUrl()</code> to always generate urls relative to a specific plugin. The plugin
 name must be provided as the first argument of the latter, remaining arguments being the same as 
-with <code>Atomik::url()</code>.
-
-</p>
+with <code>Atomik::url()</code>.</p>
 <pre><code>$url = Atomik::appUrl(&#39;home&#39;); // always /home
 $url = Atomik::pluginUrl(&#39;my_plugin&#39;, &#39;home&#39;); // /my_plugin_base_url/home
 $url = Atomik::url(&#39;home&#39;); // either /home or /my_plugin_base_url/home depending on the context</code></pre>
 <p>For assets, it also exists <code>Atomik::appAsset()</code> and <code>Atomik::pluginAsset()</code>.
-The latter, like <code>Atomik::pluginUrl()</code>, needs a plugin name as the first argument.
-
-</p>
-<p>Inside views, you should call any Atomik methods through <code>$this</code>:
-
-</p>
+The latter, like <code>Atomik::pluginUrl()</code>, needs a plugin name as the first argument.</p>
+<p>Inside views, you should call any Atomik methods through <code>$this</code>:</p>
 <pre><code>$url = $this-&gt;url(&#39;archives&#39;, array(&#39;year&#39; =&gt; 2008));</code></pre>
 
 <a name="actions"></a><h1>Actions</h1>
 <a name="introduction"></a><h2>Introduction</h2>
 <p>Without using Atomik, one way of doing things would have been to create a file
 per page. The page logic (i.e. connecting to a database, handling form data...) would
-have been at the top of the file followed by the HTML. 
-
-</p>
+have been at the top of the file followed by the HTML. </p>
 <pre><code>&lt;?php
     if (count($_POST)) {
         echo &#39;Form data received!&#39;;
@@ -1018,13 +1276,9 @@ have been at the top of the file followed by the HTML.
     &lt;input type=&quot;submit&quot; value=&quot;send&quot; /&gt;
 &lt;/form&gt;</code></pre>
 <p>This is BAD!! The application logic and the presentation layer should always be separated
-as explained <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">here</a>.
-
-</p>
+as explained <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">here</a>.</p>
 <p>Now let&#39;s imagine that rather than directly doing both part in the same file we split it.
-We would have three file: one with the logic, one with the HTML and one that include both.
-
-</p>
+We would have three file: one with the logic, one with the HTML and one that include both.</p>
 <pre><code>// page_logic.php
 
 &lt;?php
@@ -1045,166 +1299,104 @@ if (count($_POST)) {
 include &#39;page_logic.php&#39;;
 include &#39;page_html.php&#39;;</code></pre>
 <p>Now replace the third file (the one with the includes) with Atomik and you&#39;ll have the concept
-behind Atomik. The logic script is named an action and the html a view.
-
-</p>
+behind Atomik. The logic script is named an action and the html a view.</p>
 <a name="action-files"></a><h2>Action files</h2>
 <p>Actions are stored in the <em>app/actions</em> directory. Both the action and the 
 view filename must be the same. Action files must have the <em>php</em> extension.
-If the action or view filename starts with an underscore, the action won&#39;t be accessible using an url.
-
-</p>
+If the action or view filename starts with an underscore, the action won&#39;t be accessible using an url.</p>
 <p>There are no requirements for the content of an action file. It can be anything you want. 
-So you just do your logic as you used to.
-
-</p>
+So you just do your logic as you used to.</p>
 <p>Be aware that actions run in their own scope and not in the global scope as you
-might think.
-
-</p>
+might think.</p>
 <p>Variables declared in the action are forwarded to the view. If you want to keep some
 variables private (i.e. which will only be available in your action) prefixed them
-with an underscore.
-
-</p>
+with an underscore.</p>
 <pre><code>&lt;?php
 $myPublicVariable = &#39;value&#39;;
 $_myPrivateVariable = &#39;secret&#39;;</code></pre>
 <p>You shouldn&#39;t use echo or write any HTML code inside an action.
-As said before, the goal of an action is to separate the logic from the presentation.
-
-</p>
+As said before, the goal of an action is to separate the logic from the presentation.</p>
 <p>If you would like to exit the application, avoid using exit() and prefer
-<code>Atomik::end()</code> so Atomik can smoothly exit your application.
-
-</p>
+<code>Atomik::end()</code> so Atomik can smoothly exit your application.</p>
 <p>You can use folders to organize your actions. In this case, views must follow the same
 directory structure. You can create an <em>index</em> action (<em>index.php</em>)
-inside a folder and it will be use as the folder&#39;s default page. Views follow the same principle.
-
-</p>
+inside a folder and it will be use as the folder&#39;s default page. Views follow the same principle.</p>
 <pre><code>app/actions/users.php           &lt;- will be used if url = /users
 app/actions/users/index.php     &lt;- will be used if url = /users AND if app/actions/users.php does not exist
 app/actions/users/messages.php  &lt;- will be used if url = /users/messages whatever the default page is</code></pre>
 <a name="actions-and-http-methods"></a><h2>Actions and HTTP methods</h2>
 <p>Atomik allows you to create multiple files for one action, each of them targeting a specific HTTP
-method. This enables RESTful websites to be build.
-
-</p>
+method. This enables RESTful websites to be build.</p>
 <a name="targeting-http-methods"></a><h3>Targeting HTTP methods</h3>
 <p>Method specific action files must be suffixed with the method name. So for example, if you have
 a <em>user</em> action and you would like to target the POST method, you would create a
 file named <em>user.post.php</em>. With the PUT method it would have been
-<em>user.put.php</em>. These files must be located in the actions folder.
-
-</p>
+<em>user.put.php</em>. These files must be located in the actions folder.</p>
 <p>You can still create a global action file (in the previous example: <em>user.php</em>)
 which will be executed before any method specific action. Variables from the global action are
-available in the specific one.
-
-</p>
-<p>The current http method is available in the <em>app.http_method</em> configuration key.
-
-</p>
-<a name="allowed-methods-and-overriding-the-request39s-method"></a><h3>Allowed methods and overriding the request&#39;s method</h3>
+available in the specific one.</p>
+<p>The current http method is available in the <em>app.http_method</em> configuration key.</p>
+<a name="allowed-methods-and-overriding-the-requests-method"></a><h3>Allowed methods and overriding the request&#39;s method</h3>
 <p>Allowed HTTP methods are defined in <em>app.allowed_http_methods</em>. By default,
-all methods available in the protocol are listed but you may want to reduce that list.
-
-</p>
+all methods available in the protocol are listed but you may want to reduce that list.</p>
 <p>Some clients does not handle well HTTP methods. Thus, it is possible
 to override the request&#39;s method using a route parameter (which can be a GET parameter).
 The default parameter name is <em>_method</em>. This can be changed in
 <em>app.http_method_param</em>. It can also be disabled by setting false instead of
-a string.
-
-</p>
+a string.</p>
 <a name="redirections-and-404-errors"></a><h2>Redirections and 404 errors</h2>
 <p>To redirect the user to another page you can use the <code>Atomik::redirect()</code> method.
 It takes as argument the url to redirect to. By default, this url will first be process using 
 <code>Atomik::url()</code>. This behaviour can be disabled by passing false as the second argument.
-The response HTTP code can also be specified as the third argument.
-
-</p>
+The response HTTP code can also be specified as the third argument.</p>
 <pre><code>$this-&gt;redirect(&#39;home&#39;);
 $this-&gt;redirect(&#39;home&#39;, true, 303); // 303 http code</code></pre>
-<p>Triggering 404 errors is even simpler. Just call the <code>Atomik::trigger404()</code> method.
-
-</p>
+<p>Triggering 404 errors is even simpler. Just call the <code>Atomik::trigger404()</code> method.</p>
 <pre><code>$this-&gt;trigger404();</code></pre>
 <a name="includes"></a><h2>Includes</h2>
-<p>Includes are php files containing common logic that you include in your actions.
-
-</p>
+<p>Includes are php files containing common logic that you include in your actions.</p>
 <p>Includes are stored either in <em>app/includes</em> or <em>app/libs</em>.
-directories. This can be changed in <em>atomik.dirs.includes</em>.
-
-</p>
+directories. This can be changed in <em>atomik.dirs.includes</em>.</p>
 <p>To include a file from one of these directories use the <code>Atomik::needed()</code> 
 method. It takes as first argument the path to the filename you wish to include relative to the
-previous directories and without the extension.
-
-</p>
+previous directories and without the extension.</p>
 <pre><code>// includes app/includes/common.php
 Atomik::needed(&#39;common&#39;);</code></pre>
-<p>You can use sub directories. To include a file stored at <em>app/includes/libs/db.php</em>:
-
-</p>
+<p>You can use sub directories. To include a file stored at <em>app/includes/libs/db.php</em>:</p>
 <pre><code>Atomik::needed(&#39;libs/db&#39;);</code></pre>
 <p><code>Atomik::needed()</code> also allows you to include classes using
 their name. To do so, classes have to follow the PEAR naming convention
-(<a href="http://pear.php.net/manual/en/standards.naming.php">http://pear.php.net/manual/en/standards.naming.php</a>) or use PHP 5.3 namespaces.
-
-</p>
+(<a href="http://pear.php.net/manual/en/standards.naming.php">http://pear.php.net/manual/en/standards.naming.php</a>) or use PHP 5.3 namespaces.</p>
 <pre><code>// app/libraries/Atomik/Db.php
 Atomik::needed(&#39;Atomik_Db&#39;);
 Atomik::needed(&#39;Atomik\Db&#39;);</code></pre>
 <p><code>Atomik::needed()</code> is automatically registered as an spl_autoload handler.
-This can be modified by setting <em>false</em> to the configuration key named <em>atomik.class_autoload</em>.
-
-</p>
+This can be modified by setting <em>false</em> to the configuration key named <em>atomik.class_autoload</em>.</p>
 <a name="calling-actions-programmatically"></a><h2>Calling actions programmatically</h2>
 <p>When executing a request, the action and/or the view associated to it are
-automatically called. You can however call other actions using Atomik&#39;s API.
-
-</p>
+automatically called. You can however call other actions using Atomik&#39;s API.</p>
 <p>To execute an action use the <code>Atomik::execute()</code> method. It takes
-as first argument the action name.
-
-</p>
+as first argument the action name.</p>
 <p>By default, if a view with the same name is found, it is rendered and the return value
-of the <code>execute()</code> method is the view output.
-
-</p>
+of the <code>execute()</code> method is the view output.</p>
 <p>If no view is found, an empty string is returned. If false is used as second argument, 
-the return value is an array containing all <em>public</em> variables from the action.
-
-</p>
+the return value is an array containing all <em>public</em> variables from the action.</p>
 <pre><code>$viewOutput = Atomik::execute(&#39;myAction&#39;);
 $variables = Atomik::execute(&#39;myAction&#39;, false);</code></pre>
 <p>Calling an action using <code>Atomik::execute()</code> does not mean an action file
 must exist. However, in this case, a view file with the same name must exist. Otherwise,
-an exception will be thrown.
-
-</p>
+an exception will be thrown.</p>
 <p>Actions executed this way will also be influenced by the HTTP method. You can specify a specific method
-by appendinf it to the action name. The global action will also be executed.
-
-</p>
+by appendinf it to the action name. The global action will also be executed.</p>
 <pre><code>$viewOutput = Atomik::execute(&#39;myAction.post&#39;);</code></pre>
 
 <a name="views"></a><h1>Views</h1>
 <a name="views"></a><h2>Views</h2>
-<p>Views are stored in the <em>app/views</em> directory. The default file extension is <em>phtml</em>.
-
-</p>
+<p>Views are stored in the <em>app/views</em> directory. The default file extension is <em>phtml</em>.</p>
 <p>The content of a view file is, as the action file, free. It should mostly be text or 
-HTML (or any presentation content, such as XML).
-
-</p>
+HTML (or any presentation content, such as XML).</p>
 <p>PHP can be used to print variables from the action or to provide presentation logic like
-loops.
-
-</p>
+loops.</p>
 <pre><code>&lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;Example&lt;/title&gt;
@@ -1215,26 +1407,16 @@ loops.
 &lt;/html&gt;</code></pre>
 <a name="layout"></a><h2>Layout</h2>
 <p>It is common in websites that all pages share the same layout. Atomik allows you to define
-a layout that will be used with all views.
-
-</p>
+a layout that will be used with all views.</p>
 <p>The layout will be rendered after the view has been rendered. The output of the view will be
 pass to the layout as a variable named <code>$contentForLayout</code>. 
-Layouts are rendered the same way as views.
-
-</p>
+Layouts are rendered the same way as views.</p>
 <p>Layouts can be placed in the <em>app/views</em> or <em>app/layouts</em> directories.
-The file extension is the same as the one for views.
-
-</p>
+The file extension is the same as the one for views.</p>
 <p>The layout name to use has to be defined in the <em>app.layout</em> configuration key. If the
-value is false (which is the default), no layout will be used.
-
-</p>
+value is false (which is the default), no layout will be used.</p>
 <p>The layout can be disabled at runtime by calling <code>Atomik::disableLayout()</code>.
-It can later be re-enabled by passing false as argument to the same method.
-
-</p>
+It can later be re-enabled by passing false as argument to the same method.</p>
 <pre><code>// app/views/_layout.phtml
 
 &lt;html&gt;
@@ -1254,35 +1436,21 @@ It can later be re-enabled by passing false as argument to the same method.
 Atomik::set(&#39;app.layout&#39;, &#39;_layout&#39;);</code></pre>
 <p>Mutliple layouts can also be used. Just use an array instead of a string in the configuration key. 
 Layouts will be rendered in reverse order (the first one in the array wrap the second, the second 
-the third, ...).
-
-</p>
+the third, ...).</p>
 <a name="view-contexts"></a><h2>View contexts</h2>
 <p>It is sometimes needed to return content in different formats. Rather than creating multiple actions 
 doing the same thing, Atomik allows you to create a view for each content type. This is called view 
-contexts. The correct view is rendered depending on the current context.
-
-</p>
+contexts. The correct view is rendered depending on the current context.</p>
 <p>The context is defined using a route parameter. By default it is called <em>format</em>. This can be changed in
 <em>app.views.context_param</em>. As specified in the urls chapter, the format parameter is by default the
-file extension. Which means that using an url like index.xml will result in using the xml context.
-
-</p>
-<p>The default view context is <em>html</em> but it can be changed in <em>atomik.views.default_context</em>.
-
-</p>
+file extension. Which means that using an url like index.xml will result in using the xml context.</p>
+<p>The default view context is <em>html</em> but it can be changed in <em>atomik.views.default_context</em>.</p>
 <p>To create a view for a context just suffix the view name with the context name like an extension. 
 For example, let&#39;s say we have an <em>article</em> view. The filename for the xml context would be 
-<em>article.xml.phtml</em>. Some context may not need any prefix like the <em>html</em> one.
-
-</p>
+<em>article.xml.phtml</em>. Some context may not need any prefix like the <em>html</em> one.</p>
 <p>Depending on the view context, the layout can be disabled and the response content-type can be changed. 
-The file prefix can also be specified. All of this is done in <em>app.views.contexts</em>.
-
-</p>
-<p>Creating a custom view context:
-
-</p>
+The file prefix can also be specified. All of this is done in <em>app.views.contexts</em>.</p>
+<p>Creating a custom view context:</p>
 <pre><code>Atomik::set(&#39;app.views.contexts.rdf&#39;, array(    // the context name, ie. the file extension in the url
     &#39;suffix&#39;        =&gt; &#39;rdf&#39;,                   // the view&#39;s file extension suffix (set to false for no suffix)
     &#39;layout&#39;        =&gt; false,                   // disables the layout
@@ -1290,43 +1458,27 @@ The file prefix can also be specified. All of this is done in <em>app.views.cont
 ));</code></pre>
 <p>Now you can call an url like <a href="http://example.com/article.rdf">http://example.com/article.rdf</a>. In this case the view filename
 would be <em>article.rdf.phtml</em>, the layout would be disabled and the response content type
-would be <em>application/xml+rdf</em>.
-
-</p>
+would be <em>application/xml+rdf</em>.</p>
 <p>If a view context is not defined under <em>app.views.contexts</em>, the file prefix will be the context name,
-the layout won&#39;t be disabled and the response content type will be <em>text/html</em>.
-
-</p>
+the layout won&#39;t be disabled and the response content type will be <em>text/html</em>.</p>
 <p>By default, four contexts are defined: html, ajax, xml and json. The ajax context is the same 
 as html but with the layout disabled. The last two disable the layout and set the appropriate 
-content type.
-
-</p>
+content type.</p>
 <a name="controlling-views"></a><h2>Controlling views</h2>
-<a name="view39s-filename-extension"></a><h3>View&#39;s filename extension</h3>
+<a name="views-filename-extension"></a><h3>View&#39;s filename extension</h3>
 <p>The default filename&#39;s extension for views is <em>phtml</em> as said before. This can be change using
-the configuration key named <em>app.views.file_extension</em>.
-
-</p>
+the configuration key named <em>app.views.file_extension</em>.</p>
 <a name="do-not-render-the-view-from-the-action"></a><h3>Do not render the view from the action</h3>
 <p>While the action is executing, you may want to avoid rendering the associated view. This can easily be done
-by calling <code>Atomik::noRender()</code> from your action.
-
-</p>
+by calling <code>Atomik::noRender()</code> from your action.</p>
 <a name="modify-the-associated-view-from-the-action"></a><h3>Modify the associated view from the action</h3>
 <p>While the action is executing, you may want to render a different view. In this case, you can use
-<code>Atomik::setView()</code> from your action. It takes as unique argument a view name.
-
-</p>
+<code>Atomik::setView()</code> from your action. It takes as unique argument a view name.</p>
 <a name="using-a-custom-rendering-engine"></a><h3>Using a custom rendering engine</h3>
 <p>The default rendering process only uses php&#39;s include function. You may however want to use a 
-template engine for example. This is possible by specifying a callback in <em>app.views.engine</em>.
-
-</p>
+template engine for example. This is possible by specifying a callback in <em>app.views.engine</em>.</p>
 <p>The callback will receive two parameters: the first one will be the filename and the second an 
-array containing the view variables.
-
-</p>
+array containing the view variables.</p>
 <pre><code>function myCustomRenderingEngine($filename, $vars)
 {
     // your custom engine
@@ -1335,51 +1487,31 @@ array containing the view variables.
 
 Atomik::set(&#39;app.views.engine&#39;, &#39;myCustomRenderingEngine&#39;);</code></pre>
 <p>The custom rendering engine will be used whenever <code>Atomik::render()</code>,
-<code>Atomik::renderFile()</code> or <code>Atomik::renderLayout()</code> is used.
-
-</p>
+<code>Atomik::renderFile()</code> or <code>Atomik::renderLayout()</code> is used.</p>
 <a name="rendering-views-programmatically"></a><h2>Rendering views programmatically</h2>
 <p>When executing a request, the action and/or the view associated to it are
-automatically called. You can however render other views using Atomik&#39;s API.
-
-</p>
+automatically called. You can however render other views using Atomik&#39;s API.</p>
 <p>The most useful use of this it to render partial views, small part of presentation
-code that is reusable.
-
-</p>
-<p>To render a view use the <code>Atomik::render()</code> method.
-
-</p>
+code that is reusable.</p>
+<p>To render a view use the <code>Atomik::render()</code> method.</p>
 <p>It takes as first argument the view name and optionally as second argument
 an array of key/value pairs representing variables. 
-The method returns the view output.
-
-</p>
+The method returns the view output.</p>
 <pre><code>$viewOutput = Atomik::render(&#39;myView&#39;);
 $viewOutput = Atomik::render(&#39;myView&#39;, array(&#39;var&#39; =&gt; &#39;value&#39;));</code></pre>
 <p>It is also possible to render any file using <code>Atomik::renderFile()</code>. It takes
-as first parameter a filename. Variables can also be passed like with <code>Atomik::render()</code>.
-
-</p>
-<p>You can also render contextual views by adding the file extension prefix to the view name.
-
-</p>
+as first parameter a filename. Variables can also be passed like with <code>Atomik::render()</code>.</p>
+<p>You can also render contextual views by adding the file extension prefix to the view name.</p>
 
 <a name="helpers"></a><h1>Helpers</h1>
 <p>Helpers are small utility functions, accessible through the <code>Atomik</code> object. They are
-loaded on demand.
-
-</p>
+loaded on demand.</p>
 <a name="creating-helpers"></a><h2>Creating helpers</h2>
 <p>Helpers in Atomik are stored in <em>app/helpers</em>. For example, a <code>format_date()</code> helper would 
 be stored in <em>app/helpers/format_date.php</em>. The helpers directory can be changed using
-<em>atomik.dirs.helpers</em>.
-
-</p>
+<em>atomik.dirs.helpers</em>.</p>
 <p>You can then define your helper in two ways: as a function or as a class. If you&#39;re using a function, 
-just create one with the same name as the helper.
-
-</p>
+just create one with the same name as the helper.</p>
 <pre><code>function format_date($date)
 {
     // do the formating
@@ -1390,9 +1522,7 @@ camel case version (ie. without any underscores or spaces, all words starting wi
 of the helper name suffixed with <em>Helper</em>. In our example, it would be 
 <code>FormatDateHelper</code>. This class also needs to have a method named like the 
 helper name but in camel case and starting with a lower case. In this case, it would be 
-<code>formatDate()</code>.
-
-</p>
+<code>formatDate()</code>.</p>
 <pre><code>class FormatDateHelper
 {
     public function formatDate($date)
@@ -1403,42 +1533,37 @@ helper name but in camel case and starting with a lower case. In this case, it w
 }</code></pre>
 <a name="using-helpers"></a><h2>Using helpers</h2>
 <p>Helpers are callable from any action or view file.
-They are accessible as methods of <code>$this</code>.
-
-</p>
+They are accessible as methods of <code>$this</code>.</p>
 <pre><code>&lt;span class=&quot;date&quot;&gt;&lt;?php echo $this-&gt;format_date(&#39;01-01-2009&#39;) ?&gt;&lt;/span&gt;</code></pre>
-<a name="registering-helpers"></a><h2> Registering helpers</h2>
-<p>You can also registers helper using the <code>Atomik::registerHelper()</code> function:
-
-</p>
+<h2>Registering helpers</h2>
+<p>You can also registers helper using the <code>Atomik::registerHelper()</code> function:</p>
+<pre><code>Atomik::registerHelper(&#39;say_hello&#39;, function() {
+    echo &#39;hello&#39;;
+});</code></pre>
+,<a name="using-helpers"></a><h2>Using helpers</h2>
+<p>Helpers are callable from any action or view file.
+They are accessible as methods of <code>$this</code>.</p>
+<pre><code>&lt;span class=&quot;date&quot;&gt;&lt;?php echo $this-&gt;format_date(&#39;01-01-2009&#39;) ?&gt;&lt;/span&gt;</code></pre>
+<a name="registering-helpers"></a><h2>Registering helpers</h2>
+<p>You can also registers helper using the <code>Atomik::registerHelper()</code> function:</p>
 <pre><code>Atomik::registerHelper(&#39;say_hello&#39;, function() {
     echo &#39;hello&#39;;
 });</code></pre>
 
 <a name="utilities"></a><h1>Utilities</h1>
-<p>All these utilities are helpers bundled with Atomik.
-
-</p>
+<p>All these utilities are helpers bundled with Atomik.</p>
 <a name="escaping-text"></a><h2>Escaping text</h2>
 <p>It is a common (and very good) practice to escape data when outputting it on the page.
-The <code>escape()</code> helper is dedicated to this purpose.
-
-</p>
+The <code>escape()</code> helper is dedicated to this purpose.</p>
 <pre><code>echo $this-&gt;escape(&#39;my text&#39;);</code></pre>
 <p>This helper relies on other functions to escape data. It simply executes them one after an other 
-and returns the result. You can for example, execute the <code>htmlspecialchars()</code> function followed by <code>nl2br()</code>.
-
-</p>
+and returns the result. You can for example, execute the <code>htmlspecialchars()</code> function followed by <code>nl2br()</code>.</p>
 <p>The functions to execute are grouped under profiles. Thus, you can create multiple escaping profiles 
 depending on the data you need to escape. Profiles are defined in the <em>app.escaping</em> 
 configuration key. To specify which functions to execute in a profile, you can use a string or an 
 array of strings. Functions will be executed in the order they appear in the array.
-The default profile is called <em>default</em>.
-
-</p>
-<p>The profile is specified as the last argument of the method.
-
-</p>
+The default profile is called <em>default</em>.</p>
+<p>The profile is specified as the last argument of the method.</p>
 <pre><code>// creating profiles
 Atomik::set(&#39;app.escaping&#39;, array(
     &#39;default&#39; =&gt; array(&#39;htmlspecialchars&#39;, &#39;nl2br&#39;),
@@ -1452,34 +1577,22 @@ echo $this-&gt;escape(&#39;my text&#39;);
 echo $this-&gt;escape(&#39;my url param&#39;, &#39;url&#39;);</code></pre>
 <a name="friendly-urls"></a><h2>Friendly urls</h2>
 <p>Having a router without a way to make friendly urls wouldn&#39;t be a complete feature. 
-The <code>linkify()</code> helper transforms any string to a url friendly version.
-
-</p>
+The <code>linkify()</code> helper transforms any string to a url friendly version.</p>
 <pre><code>echo $this-&gt;friendlify(&#39;My text in the url&#39;);
 // will echo my-text-in-the-url</code></pre>
 <a name="filtering-and-validating-data"></a><h2>Filtering and validating data</h2>
 <p>Filtering and validating user input is a very important task and Atomik had to provide a helper for
-this purpose. This helper is <em>filter()</em> and it heavily relies on PHP&#39;s filter extension.
-
-</p>
+this purpose. This helper is <em>filter()</em> and it heavily relies on PHP&#39;s filter extension.</p>
 <p>PHP&#39;s filter extension is built-in since version 5.2 and its documentation is available 
-at <a href="http://php.net/filter">http://php.net/filter</a>.
-
-</p>
+at <a href="http://php.net/filter">http://php.net/filter</a>.</p>
 <p>You can find a good documentation (better than the official one) about available filters on the w3schools
-website at <a href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</a>
-
-</p>
+website at <a href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</a></p>
 <p>To understand and use <code>filter()</code> you must know how to use PHP&#39;s filter
-extension. However, Atomik&#39;s method adds some features.
-
-</p>
+extension. However, Atomik&#39;s method adds some features.</p>
 <p><code>filter()</code> has the same arguments as <code>filter_var()</code>.
 However, you can also use a regular expression as filter in the second argument. The regexp must use
 slashes as delimiters. You can also define custom filters in the <em>app.filters.callbacks</em>
-configuration key and use the callback name as filter.
-
-</p>
+configuration key and use the callback name as filter.</p>
 <pre><code>// using a php filter
 $result = $this-&gt;filter(&#39;me@example.com&#39;, FILTER_VALIDATE_EMAIL);
 $result = $this-&gt;filter(&#39;me@example.com&#39;, &#39;validate_email&#39;); // using the filter name instead of its id
@@ -1491,55 +1604,33 @@ $result = $this-&gt;filter(&#39;12478&#39;, &#39;/\d+/&#39;);
 // using a callback
 Atomik::set(&#39;app.filters.callbacks.my_custom_filter&#39;, &#39;myFilterFunction&#39;);
 $result = $this-&gt;filter($data, &#39;my_custom_filter&#39;);</code></pre>
-<p>It will return false if an error occured, or the value otherwise.
-
-</p>
+<p>It will return false if an error occured, or the value otherwise.</p>
 <p>The method can also be used to filter arrays in the same way as <code>filter_var_array()</code>. It works
-exactly the same as this function but it also adds more features.
-
-</p>
+exactly the same as this function but it also adds more features.</p>
 <p>The method will return false if any of the item failed to validate. This can be turned off by passing
-false as the fourth argument.
-
-</p>
+false as the fourth argument.</p>
 <p>While the second argument is named a definition in the PHP&#39;s extension, Atomik called it rules. 
 Rules are arrays where keys are field&#39;s name and their value a filter or an array 
 (like with ̀filter_var_array()`). You can pass a rule as the second argument. 
 Rules can also be defined in the <em>app.filters.rules</em> configuration key. 
-You can then use their name instead of an array as the second argument.
-
-</p>
+You can then use their name instead of an array as the second argument.</p>
 <p>The method also adds the notion of required fields. If you set the <em>required</em> key to true in 
-the field&#39;s array, the validation will fail if the field is missing or empty. 
-
-</p>
+the field&#39;s array, the validation will fail if the field is missing or empty. </p>
 <p>When a field is empty but not required, its value will be null. This can be changed by setting 
-the <em>default</em> key in the field&#39;s array.
-
-</p>
+the <em>default</em> key in the field&#39;s array.</p>
 <p>The <em>filter</em> key in the field&#39;s array follows the same rule as the filter parameter described previously. 
-Thus it can be a filter&#39;s id or name, a regexp or a custom filter&#39;s name.
-
-</p>
-<p>The helper also supports multi-dimension array as input.
-
-</p>
+Thus it can be a filter&#39;s id or name, a regexp or a custom filter&#39;s name.</p>
+<p>The helper also supports multi-dimension array as input.</p>
 <p>Finally, support for validation messages has also been added. When filtering the array, if any values 
 failed validating, a message will be created. Messages can then be retreived in the 
 <em>app.filters.messages</em> configuration key. There ar two default messages configured in 
 <em>app.filters.default_message</em> and <em>app.filters.required_message</em>.
-The former will be used when a field failed to validate while the later when the required condition has not been met.
-
-</p>
+The former will be used when a field failed to validate while the later when the required condition has not been met.</p>
 <p>When setting the two message keys, you can use <em>%s</em> which will be replaced with the field&#39;s name. 
 As field names aren&#39;t usually pretty, you can use the <em>label</em> key in the field&#39;s array to define 
-the text which will be used to replace <em>%s</em>.
-
-</p>
+the text which will be used to replace <em>%s</em>.</p>
 <p>You can override the failed to validate message for each field by setting the <em>message</em> 
-key in the field&#39;s array.
-
-</p>
+key in the field&#39;s array.</p>
 <pre><code>// using a custom message when a field is missing or empty
 Atomik::set(&#39;app.filters.required_message&#39;, &#39;You forgot to fill the %s field!&#39;);
 
@@ -1574,22 +1665,16 @@ if (($filteredData = $this-&gt;filter($dataToFilter, $fields)) === false) {
 <a name="using-plugins"></a><h1>Using plugins</h1>
 <a name="installing-a-plugin"></a><h2>Installing a plugin</h2>
 <p>Plugins are stored in the <em>app/plugins</em> directory. 
-Simply copy the plugin file or folder into this directory.
-
-</p>
+Simply copy the plugin file or folder into this directory.</p>
 <a name="activating-and-configuring-a-plugin"></a><h2>Activating and configuring a plugin</h2>
 <p>Plugins are not automatically activated. To do so, it&#39;s needed to add an
-entry in the <em>plugins</em> configuration key.
-
-</p>
+entry in the <em>plugins</em> configuration key.</p>
 <pre><code>Atomik::set(&#39;plugins&#39;, array(
     &#39;Db&#39;,
     &#39;Cache&#39;
 ));</code></pre>
 <p>Some plugins need custom configuration which can be specified in the
-plugins config key.
-
-</p>
+plugins config key.</p>
 <pre><code>Atomik::set(&#39;plugins&#39;, array(
     &#39;Db&#39; =&gt; array(
         &#39;dsn&#39;      =&gt; &#39;mysql:host=localhost;dbname=atomik&#39;,
@@ -1601,108 +1686,70 @@ plugins config key.
 <a name="pluggable-applications"></a><h2>Pluggable applications</h2>
 <p>Pluggable applications are a great new thing introduced in version 2.2. It allows any
 plugin to act as a complete application. It can have its own actions, views, layouts,
-configuration... Let&#39;s say you need a blog, just drop in the Blog plugin and you&#39;re done!
-
-</p>
+configuration... Let&#39;s say you need a blog, just drop in the Blog plugin and you&#39;re done!</p>
 <p>Pluggable applications are then connected to an uri. When this uri is accessed, the
-application starts.
-
-</p>
+application starts.</p>
 <a name="activating-and-accessing-pluggable-applications"></a><h3>Activating and accessing pluggable applications</h3>
 <p>As these applications are plugins, activating them is as simple as dropping them in the
-<em>app/plugins</em> folder and adding their name to the <em>plugins</em> key.
-
-</p>
+<em>app/plugins</em> folder and adding their name to the <em>plugins</em> key.</p>
 <p>The application is then available at /pluginName. In the previous example it would
-be /blog.
-
-</p>
+be /blog.</p>
 <p>Most pluggable applications should provide a configuration key to modify the default uri. 
-In the case of the Blog plugin, let say it&#39;s <em>route</em>.
-
-</p>
+In the case of the Blog plugin, let say it&#39;s <em>route</em>.</p>
 <p>While the key is named route, the way to specify an uri here is not the same as with routes: 
 it&#39;s simply an uri. We&#39;ll call it a pattern. If you want to trigger an application from /app 
 the pattern would be <em>/app</em>.
 However, accessing /app/index would not trigger the application! To enable this you have to
 use the * wildcard at the end of the pattern so that all children also triggers the app. 
-The final pattern would be <em>/app/*</em>.
-
-</p>
+The final pattern would be <em>/app/*</em>.</p>
 <pre><code>Atomik::set(&#39;plugins.Blog&#39;, array(
     &#39;route&#39; =&gt; &#39;/my-blog/*&#39;
 ));</code></pre>
 <p>If a plugin does not have a configuration key to modify the route, this can be done by calling
 <code>Atomik::registerPluggableApplication()</code> from the bootstrap file. This method takes as
-first argument the plugin name and as second the pattern.
-
-</p>
+first argument the plugin name and as second the pattern.</p>
 <pre><code>Atomik::registerPluggableApplication(&#39;MyPluggableApp&#39;, &#39;/my-app/*&#39;)</code></pre>
 <p>When available, use the plugin configuration as it could override any predefined pattern.
-You can connect any application to the root of your application using <em>/*</em>.
-
-</p>
+You can connect any application to the root of your application using <em>/*</em>.</p>
 <a name="overrides"></a><h3>Overrides</h3>
 <p>Using pluggable applications is great! They do everything for you. However, you&#39;ll sometimes want
-to customize these applications. Atomik provides an easy way to do that: overrides.
-
-</p>
+to customize these applications. Atomik provides an easy way to do that: overrides.</p>
 <p>With overrides you will be able to replace any action, view, layout or helper from a pluggable
-application.
-
-</p>
+application.</p>
 <p>Overrides are stored in <em>app/overrides</em>. In this directory, create a folder named
 after the plugin. This folder can then contain the classic Atomik folders: <em>actions</em>, 
-<em>views</em>, <em>helpers</em> and <em>layouts</em>.
-
-</p>
+<em>views</em>, <em>helpers</em> and <em>layouts</em>.</p>
 <p>For example, to override the <em>index</em> view from the Blog plugin, you would create the file 
-<em>app/overrides/Blog/views/index.phtml</em>.
-
-</p>
+<em>app/overrides/Blog/views/index.phtml</em>.</p>
 <p>Some plugins may allow your actions and views from your <em>app</em> folder to be accessible
 from the application. This is not considered overrides as plugins have priority in this case. But it
 can be a nice way to add features to a pluggable application. You cannot enable this yourself, only
-plugin can do it, see the plugin documentation.
-
-</p>
+plugin can do it, see the plugin documentation.</p>
 
 <a name="session"></a><h1>Session</h1>
 <div class="note">These features need the Session and Flash plugins which are bundled with Atomik</div>
 
 <a name="starting-and-accessing-the-session"></a><h2>Starting and accessing the session</h2>
-<p>You&#39;ll need to register the Session plugin:
-
-</p>
+<p>You&#39;ll need to register the Session plugin:</p>
 <pre><code>Atomik::add(&#39;plugins&#39;, array(
     &#39;Session&#39;
 ));</code></pre>
 <p>By default, Atomik will automatically starts the session. This can be turned off
-using <em>autoload</em> in the plugin&#39;s configuration.
-
-</p>
+using <em>autoload</em> in the plugin&#39;s configuration.</p>
 <p>The session is available as the <em>session</em> key in the global store. Of course,
-it still remains available as the <code>$_SESSION</code> super-global variable.
-
-</p>
+it still remains available as the <code>$_SESSION</code> super-global variable.</p>
 <pre><code>echo Atomik::get(&#39;session.username&#39;);</code></pre>
 <a name="flash-messages"></a><h2>Flash messages</h2>
 <p>Flash messages are messages which are stored in the session and are available only once.
-This allows to pass error or success messages from one page to another. 
-
-</p>
+This allows to pass error or success messages from one page to another. </p>
 <p>To create a flash message call the <code>flash()</code> helper. It takes as
 first parameter a message or an array of messages. Messages can also have labels. 
 For example <em>error</em> or <em>success</em>. To specify a label, use the second argument. 
-The default label is <em>default</em>.
-
-</p>
+The default label is <em>default</em>.</p>
 <pre><code>$this-&gt;flash(&#39;The action has completed successfully&#39;);
 $this-&gt;flash(&#39;The action has failed&#39;, &#39;error&#39;); // with a label
 $this-&gt;flash(array(&#39;message1&#39;, &#39;message2&#39;), &#39;error&#39;);</code></pre>
-<p>Flash messages can then be retreived using the <em>flash_messages</em> key:
-
-</p>
+<p>Flash messages can then be retreived using the <em>flash_messages</em> key:</p>
 <pre><code>foreach (Atomik::get(&#39;flash_messages&#39;) as $label =&gt; $messages) {
     foreach ($messages as $message) {
         // ...
@@ -1719,77 +1766,53 @@ foreach (Atomik::get(&#39;flash_messages.my_label&#39;) as $message) {
 
 <p>By default, Atomik won&#39;t catch any exceptions or errors, PHP&#39;s normal behavior prevail. 
 However, the Errors plugin enables error catching so you can display an error page to the 
-user or error reports while developing.
-
-</p>
+user or error reports while developing.</p>
 <p>The plugin will display a page when a 404 error is triggered. The template to render
-can be specified using <em>404_view</em>, the default one being <em>errors/404</em>:
-
-</p>
+can be specified using <em>404_view</em>, the default one being <em>errors/404</em>:</p>
 <pre><code>Atomik::set(&#39;plugins.Errors&#39;, array(
     &#39;404_view&#39; =&gt; &#39;unknown_page&#39;
 ));</code></pre>
 <p>The <em>catch_errors</em> configuration key must be set to true for Atomik to catch errors. Errors
 and exceptions are treated the same way. If an error template exists (specified in <em>error_view</em>
-and by default <em>errors/error</em>) it will be rendered otherwise an error report is displayed.
-
-</p>
+and by default <em>errors/error</em>) it will be rendered otherwise an error report is displayed.</p>
 <pre><code>Atomik::set(&#39;plugins.Errors&#39;, array(
     &#39;error_view&#39; =&gt; &#39;my_error_template&#39;,
     &#39;catch_errors&#39; =&gt; true
 ));</code></pre>
 <p>By default, uncatched errors are silently droped. You can instead let the exception be thrown
-using <em>throw_errors</em>.
-
-</p>
+using <em>throw_errors</em>.</p>
 <pre><code>Atomik::set(&#39;plugins.Errors&#39;, array(
     &#39;throw_errors&#39; =&gt; true
 ));</code></pre>
 <a name="logging"></a><h2>Logging</h2>
 <div class="note">You will need the Logger plugin which is bundled with Atomik as well as Monolog which you&#39;ll need to install</div>
 
-<p>The Logger plugin provides a simple way of logging messages. It provides the ̀log()<code> helper
-which takes two arguments, the second one being optional: the message and the level (default is </code>LOG_ERR` = 3).
-
-</p>
+<p>The Logger plugin provides a simple way of logging messages. It provides the ̀log()<code>helper
+which takes two arguments, the second one being optional: the message and the level (default is</code>LOG_ERR` = 3).</p>
 <pre><code>$this-&gt;log(&#39;an error has occured!&#39;, LOG_ERR);</code></pre>
-<p>As shown in the example, you should use PHP&#39;s LOG_* constants.
-
-</p>
+<p>As shown in the example, you should use PHP&#39;s LOG_* constants.</p>
 <p>The helper will simply fire an event named <em>Logger::Log</em>. Listeners will get two arguments, the message
-and the level.
-
-</p>
+and the level.</p>
 <pre><code>function my_logger($message, $level) {
     echo &#39;LOG: &#39; . $message;
 }
 Atomik::listenEvent(&#39;Logger::Log&#39;, &#39;my_logger&#39;);</code></pre>
 <p>Atomik provides a default logger which will save messages to a text file. To register this logger, set
-the config key named <em>register_default</em> to true.
-
-</p>
+the config key named <em>register_default</em> to true.</p>
 <p>The filename is defined in <em>filename</em>. You can also define from which level messages should
-be saved by setting <em>level</em> to the minimum level. The default level is <code>LOG_WARNING</code> (4).
-
-</p>
+be saved by setting <em>level</em> to the minimum level. The default level is <code>LOG_WARNING</code> (4).</p>
 <pre><code>Atomik::set(&#39;plugins.Logger&#39;, array(
     &#39;register_default&#39; =&gt; true,
     &#39;filename&#39; =&gt; &#39;log.txt&#39;
 ));</code></pre>
 <p>Finally, you can define the template of the string that will be added to the log file in 
 <em>message_template</em>. You can use <em>%date%</em>, <em>%level%</em> and <em>%message%</em> which will be replaced 
-by the appropriate string.
-
-</p>
+by the appropriate string.</p>
 <a name="debugging"></a><h2>Debugging</h2>
 <p>Atomik&#39;s only provides a simple helper named <code>debug()</code> which 
 is an alias for <code>var_dump()</code>. However the method output can be hidden
-by modifying the <em>atomik.debug</em> configuration key.
-
-</p>
-<p>Also, if <em>atomik.debug</em> is true, the error reporting level will be set to the maximum.
-
-</p>
+by modifying the <em>atomik.debug</em> configuration key.</p>
+<p>Also, if <em>atomik.debug</em> is true, the error reporting level will be set to the maximum.</p>
 <pre><code>Atomik::debug($myVar);
 Atomik::set(&#39;atomik.debug&#39;, false);
 Atomik::debug($myVar2); // no output
@@ -1798,113 +1821,75 @@ Atomik::debug($myVar2, true); // use true to force the output even if debug set 
 <a name="database"></a><h1>Database</h1>
 <div class="note">You will need the Db plugin which is bundled with Atomik</div>
 
-<p>The database plugin is a thin layer on top of <a href="http://fr2.php.net/manual/en/book.pdo.php">PDO</a>.
-
-</p>
+<p>The database plugin is a thin layer on top of <a href="http://fr2.php.net/manual/en/book.pdo.php">PDO</a>.</p>
 <a name="connecting"></a><h2>Connecting</h2>
-<p>There are 3 configuration options:
-
-</p>
+<p>There are 3 configuration options:</p>
 <ul>
 <li><em>dsn</em></li>
 <li><em>username</em></li>
 <li><em>password</em></li>
 </ul>
-<p>Activate the plugin:
-
-</p>
+<p>Activate the plugin:</p>
 <pre><code>Atomik::set(&#39;plugins.Db&#39;, array(
     &#39;dsn&#39; =&gt; &#39;mysql:host=localhost;dbname=example&#39;,
     &#39;username&#39; =&gt; &#39;root&#39;,
     &#39;password&#39; =&gt; &#39;rootpassword&#39;
 ));</code></pre>
-<p>This creates a <code>PDO</code> instance which is stored under the <em>db</em> key in the global store.
-
-</p>
+<p>This creates a <code>PDO</code> instance which is stored under the <em>db</em> key in the global store.</p>
 <pre><code>$db = Atomik::get(&#39;db&#39;);
 
 // or in actions:
 
 $db = $this[&#39;db&#39;];</code></pre>
-<p>You can then use this object as you would with a normal PDO instance:
-
-</p>
+<p>You can then use this object as you would with a normal PDO instance:</p>
 <pre><code>$stmt = $this[&#39;db&#39;]-&gt;prepare(&#39;insert into posts (title, content) values (?, ?)&#39;);
 $stmt-&gt;execute(array(&#39;my new post&#39;, &#39;lorem ipsum ...&#39;));</code></pre>
 <a name="querying-data"></a><h2>Querying data</h2>
 <p>Some useful methods are added to quickly query the database. The <code>select()</code> function
-takes as first argument the table name. By default it will execute a SELECT * statement.
-
-</p>
+takes as first argument the table name. By default it will execute a SELECT * statement.</p>
 <pre><code>$posts = $db-&gt;select(&#39;posts&#39;);</code></pre>
 <p>The second argument is a where statement. It can either be an SQL string (without the WHERE
-keyword) or an array of column/value mapping:
-
-</p>
+keyword) or an array of column/value mapping:</p>
 <pre><code>$clothes = $db-&gt;select(&#39;products&#39;, &quot;category = &#39;clothes&#39;&quot;);
 // or:
 $clothes = $db-&gt;select(&#39;products&#39;, array(&#39;category&#39; =&gt; &#39;clothes&#39;));</code></pre>
-<p>To select only one row, use <code>selectOne()</code>.
-
-</p>
+<p>To select only one row, use <code>selectOne()</code>.</p>
 <p>To select the value of the first column of the first line, use <code>selectValue</code> which needs
-a column name as the second argument.
-
-</p>
+a column name as the second argument.</p>
 <pre><code>$postTitle = $db-&gt;selectValue(&#39;posts&#39;, &#39;title&#39;, array(&#39;id&#39; =&gt; 1));</code></pre>
-<p>Finally, you can count using <code>count()</code>:
-
-</p>
+<p>Finally, you can count using <code>count()</code>:</p>
 <pre><code>$nbClothes = $db-&gt;count(&#39;products&#39;, array(&#39;category&#39; =&gt; &#39;clothes&#39;));</code></pre>
 <a name="manipulating-data"></a><h2>Manipulating data</h2>
 <p>Insert data using <code>insert()</code> which takes as first argument the table name and as second
 an array where keys are columns names. It returns the ̀PDOStatement` object that was
-executed (in case you want to get the last inserted id for example).
-
-</p>
+executed (in case you want to get the last inserted id for example).</p>
 <pre><code>$data = array(
     &#39;title&#39; =&gt; &#39;post title&#39;,
     &#39;content&#39; =&gt; &#39;lorem ipsum...&#39;
 );
 $db-&gt;insert(&#39;posts&#39;, $data);</code></pre>
 <p>Updating data is very similar using the <code>update()</code> function. It can take as third parameter
-a where clause like in <code>select()</code>.
-
-</p>
+a where clause like in <code>select()</code>.</p>
 <pre><code>$data = array(&#39;title&#39; =&gt; &#39;modified title&#39;);
 $db-&gt;update(&#39;posts&#39;, $data, array(&#39;id&#39; =&gt; 1));</code></pre>
 <p>Finally, deleting data is as easy. The second argument can be a where clause (if not specified,
-all rows will be deleted).
-
-</p>
+all rows will be deleted).</p>
 <pre><code>$db-&gt;delete(&#39;posts&#39;, array(&#39;id&#39; =&gt; 1));</code></pre>
 
 <a name="scripts"></a><h1>Scripts</h1>
 <div class="note">You will need the Console plugin which is bundled with Atomik</div>
 
 <p>The Console plugin allows Atomik to be used in a terminal. It allows other plugins to provide
-custom commands and to create scripts to better administer your application.
-
-</p>
+custom commands and to create scripts to better administer your application.</p>
 <p>It is built on top of <a href="https://github.com/maximebf/ConsoleKit">ConsoleKit</a> which you&#39;ll
-need to install.
-
-</p>
-<p>To call your application from the command line, use the following command
-
-</p>
+need to install.</p>
+<p>To call your application from the command line, use the following command</p>
 <pre><code>php index.php [command] [args]</code></pre>
-<p>Where <em>index.php</em> is Atomik&#39;s core file.
-
-</p>
+<p>Where <em>index.php</em> is Atomik&#39;s core file.</p>
 <a name="creating-custom-scripts"></a><h2>Creating custom scripts</h2>
 <p>You can create ConsoleKit Commands inside the <em>app/scripts</em> folder (which can be changed
-using the <em>scripts_dir</em> config key).
-
-</p>
-<p>Let&#39;s create a script in <em>app/scripts/CleanupDbCommand.php</em>
-
-</p>
+using the <em>scripts_dir</em> config key).</p>
+<p>Let&#39;s create a script in <em>app/scripts/CleanupDbCommand.php</em></p>
 <pre><code>&lt;?php
 
 class CleanupDbCommand extends ConsoleKit\Command
@@ -1914,23 +1899,17 @@ class CleanupDbCommand extends ConsoleKit\Command
         $this-&gt;writeln(sprintf(&quot;cleaning %s&quot;, $args[0]));
     }
 }</code></pre>
-<p>To call this script use the following command:
-
-</p>
+<p>To call this script use the following command:</p>
 <pre><code>$ php index.php cleanup-db dbname</code></pre>
 <a name="registering-commands"></a><h2>Registering commands</h2>
-<p>Instead of using files, you can manually register commands using ̀Console::register()`:
-
-</p>
+<p>Instead of using files, you can manually register commands using ̀Console::register()`:</p>
 <pre><code>Atomik\Console::register(&#39;cleanup-db&#39;, function($args, $opts, $console) {
     // code
 });</code></pre>
 <a name="built-in-commands"></a><h2>Built-in commands</h2>
 <p>The plugin provides one built-in command to generate new actions and views. 
 Just specify a name and the action file and the view file will be generated. 
-You can generate multiple pages by separating them by a space
-
-</p>
+You can generate multiple pages by separating them by a space</p>
 <pre><code>php index.php generate home
 php index.php generate photos about</code></pre>
 
@@ -1938,24 +1917,16 @@ php index.php generate photos about</code></pre>
 <div class="note">You will need the Translations plugin which is bundled with Atomik</div>
 
 <p>This plugin is gettext-like. You write your application in its default language and then
-provide translations for each part of text.
-
-</p>
+provide translations for each part of text.</p>
 <a name="creating-language-files"></a><h2>Creating language files</h2>
-<p>A language file provides translation from one language to another.
-
-</p>
+<p>A language file provides translation from one language to another.</p>
 <p>They are stored in the <em>app/languages</em> directory. This can
 be changed using the <em>dir</em> configuration key. Files be named after
 the first part of the locale. For example, if the file provide translation to French, it has to be
-named <em>fr.php</em> (because the locale is fr-fr).
-
-</p>
+named <em>fr.php</em> (because the locale is fr-fr).</p>
 <p>In the language file you must defined messages using the 
 <code>Translations::setMessages()</code> method. The messages is made of
-the string of the original language and the translated one.
-
-</p>
+the string of the original language and the translated one.</p>
 <pre><code>&lt;?php
 Atomik\Translations::setMessages(array(
     &#39;hello&#39; =&gt; &#39;bonjour&#39;,
@@ -1963,43 +1934,27 @@ Atomik\Translations::setMessages(array(
 ));</code></pre>
 <a name="detecting-the-user-language"></a><h2>Detecting the user language</h2>
 <p>By default, the plugin will autodetect the language using HTTP headers. This can be turned off
-by setting false to the <em>autodetect</em> configuration key.
-
-</p>
+by setting false to the <em>autodetect</em> configuration key.</p>
 <p>If the language cannot be detected, it will fall back on the default language defined in the
-<em>language</em> configuration key.
-
-</p>
-<p>You can also set the language manually using <code>Translations::set()</code>.
-
-</p>
+<em>language</em> configuration key.</p>
+<p>You can also set the language manually using <code>Translations::set()</code>.</p>
 <pre><code>Atomik\Translations::set(&#39;fr&#39;);</code></pre>
-<p>The current language is available from the global store under the <em>app.language</em> key.
-
-</p>
+<p>The current language is available from the global store under the <em>app.language</em> key.</p>
 <pre><code>$currentLanguage = Atomik::get(&#39;app.language&#39;);</code></pre>
 <a name="translating-strings"></a><h2>Translating strings</h2>
-<p>To enable translation for a string use the <code>Translations::translate()</code> method.
-
-</p>
+<p>To enable translation for a string use the <code>Translations::translate()</code> method.</p>
 <pre><code>Atomik\Translations::set(&#39;fr&#39;);
 echo Atomik\Translations::translate(&#39;hello&#39;); // will echo bonjour
 echo Atomik\Translations::translate(&#39;how are you?&#39;); // will echo comment ca va?</code></pre>
-<p>The method is also available as an helper:
-
-</p>
+<p>The method is also available as an helper:</p>
 <pre><code>echo $this-&gt;translate(&#39;hello&#39;);
 echo $this-&gt;_(&#39;hello&#39;); // alias</code></pre>
-<p>A shortcut function is also defined: <code>__()</code>.
-
-</p>
+<p>A shortcut function is also defined: <code>__()</code>.</p>
 <pre><code>Atomik\Translations::set(&#39;fr&#39;);
 echo __(&#39;hello&#39;); // will echo bonjour
 echo __(&#39;how are you?&#39;); // will echo comment ca va?</code></pre>
 <p>This method can also be use like the vsprintf() function. It can replace
-patterns in the string by values provided as an array as the second argument.
-
-</p>
+patterns in the string by values provided as an array as the second argument.</p>
 <pre><code>echo __(&#39;hello %s&#39;, array(&#39;Peter&#39;));</code></pre>
 
 <a name="controller"></a><h1>Controller</h1>
@@ -2007,31 +1962,19 @@ patterns in the string by values provided as an array as the second argument.
 
 <p>Atomik action files do not follow any conventions. However, some of you may have used MVC frameworks
 where the business logic is coded in controllers. Controllers are classes where their methods are
-actions.
-
-</p>
+actions.</p>
 <p>This plugin adds support for controllers to Atomik. Once activated you must use controllers in your
-actions. It is not possible to mix between the classic way and the controller way.
-
-</p>
+actions. It is not possible to mix between the classic way and the controller way.</p>
 <a name="differences-with-the-classic-atomik-way"></a><h2>Differences with the classic Atomik way</h2>
-<p>There are two major differences which are views and the router.
-
-</p>
+<p>There are two major differences which are views and the router.</p>
 <p>Each controller have multiple actions (methods) and each action has its own view. While having
 for example one file for your controller in the <em>actions</em> directory you&#39;ll need many view
 files. Thus, instead of saving your views directly in the <em>views</em> directory you will have to save
-them in a folder named after your controller.
-
-</p>
+them in a folder named after your controller.</p>
 <p>When using the router, the <em>action</em> parameter is mandatory. This plugin adds another mandatory
 parameter named <em>controller</em>. This parameter refers to the controller name whereas the <em>action</em>
-parameter refers to a method of the controller class.
-
-</p>
-<p>The default route will use the last segment of the uri as the action name and the rest as the controller name.
-
-</p>
+parameter refers to a method of the controller class.</p>
+<p>The default route will use the last segment of the uri as the action name and the rest as the controller name.</p>
 <pre><code>// ArchivesController::view()
 Atomik::set(&#39;app.routes&#39;, array(
     &#39;archives/:year/:month&#39; =&gt; array(
@@ -2039,32 +1982,20 @@ Atomik::set(&#39;app.routes&#39;, array(
         &#39;action&#39; =&gt; &#39;view&#39;
     )
 ));</code></pre>
-<p>The default controller name is <em>index</em> and the default action name is <em>index</em>.
-
-</p>
+<p>The default controller name is <em>index</em> and the default action name is <em>index</em>.</p>
 <a name="creating-controllers"></a><h2>Creating controllers</h2>
 <a name="creating-simple-controllers"></a><h3>Creating simple controllers</h3>
 <p>As said before, a controller is a class. It must inherits from <code>Atomik\Controller\Controller</code> and respect
 a naming convention. Your class has to be named using the controller&#39;s name starting by an upper case letter 
-suffixed with <em>Controller</em>. 
-
-</p>
+suffixed with <em>Controller</em>. </p>
 <p>Controller classes will be loaded, as any other classes, with the autoloader. Thus, your files must be
-named after your controller class.
-
-</p>
+named after your controller class.</p>
 <p>So for example, with a controller named <em>users</em>, it must be saved in <em>app/actions/UsersController.php</em> and
-the class name will be <em>UsersController</em>. 
-
-</p>
+the class name will be <em>UsersController</em>. </p>
 <p>If the action file is located in a sub folder, the class name has to follow the PSR-0 convention.
-For example, if the file is <em>app/actions/Auth/UsersController.php</em> the class name will be <code>Auth\UsersController</code>.
-
-</p>
+For example, if the file is <em>app/actions/Auth/UsersController.php</em> the class name will be <code>Auth\UsersController</code>.</p>
 <p>Then add public methods to your class. All public methods which does not start with an underscore will 
-be callable as an action.
-
-</p>
+be callable as an action.</p>
 <pre><code>class UsersController extends Atomik\Controller\Controller
 {
     public function index()
@@ -2076,20 +2007,12 @@ be callable as an action.
     }
 }</code></pre>
 <p>The associated views must be located in the <em>app/views/users</em>.
-In our example, it would be <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.
-
-</p>
-<p>You can then use the following urls: <a href="http://example.com/user">http://example.com/user</a> or <a href="http://example.com/user/login">http://example.com/user/login</a>.
-
-</p>
+In our example, it would be <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.</p>
+<p>You can then use the following urls: <a href="http://example.com/user">http://example.com/user</a> or <a href="http://example.com/user/login">http://example.com/user/login</a>.</p>
 <p>In classic actions, all defined variables were accessible from the view. This is not possible 
 anymore when using methods for scoping reasons. To forward variables to the view, simply define 
-class properties or return an array from your action method.
-
-</p>
-<p>In <em>app/actions/UsersController.php</em>:
-
-</p>
+class properties or return an array from your action method.</p>
+<p>In <em>app/actions/UsersController.php</em>:</p>
 <pre><code>class UsersController extends Atomik\Controller\Controller
 {
     public $title = &#39;Users&#39;;
@@ -2099,20 +2022,14 @@ class properties or return an array from your action method.
         return array(&#39;username&#39; =&gt; &#39;peter&#39;);
     }
 }</code></pre>
-<p>In <em>app/views/user/index.phtml</em>:
-
-</p>
+<p>In <em>app/views/user/index.phtml</em>:</p>
 <pre><code>&lt;h1&gt;&lt;?php echo $title ?&gt;&lt;/h1&gt;
 hello &lt;php echo $username ?&gt;</code></pre>
 <a name="controller-utilities"></a><h3>Controller utilities</h3>
 <p>First of all, you can define two methods <code>preDispatch()</code> and <code>postDispatch()</code>
 that will be called before and after each action. You can also define an <code>init()</code>
-method which will be called after the constructor.
-
-</p>
-<p>Route parameters will be automatically mapped to method arguments.
-
-</p>
+method which will be called after the constructor.</p>
+<p>Route parameters will be automatically mapped to method arguments.</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
     &#39;archives/:year/:month&#39; =&gt; array(
         &#39;controller&#39; =&gt; &#39;archives&#39;,
@@ -2129,31 +2046,21 @@ class ArchivesController extends Atomik\Controller\Controller
     }
 }</code></pre>
 <p>The <code>$year</code> and <code>$month</code> argument will be taken from the route parameters.
-The order is not important.
-
-</p>
+The order is not important.</p>
 <a name="using-controllers-in-pluggable-apps"></a><h2>Using controllers in Pluggable Apps</h2>
-<p>The plugin will be disabled when a pluggable application starts. It can be re-enabled using
-
-</p>
+<p>The plugin will be disabled when a pluggable application starts. It can be re-enabled using</p>
 <pre><code>$config = array();
 Atomik\Controller\Plugin::start($config);</code></pre>
 
 <a name="events"></a><h1>Events</h1>
 <p>Events are one of the most important concept in Atomik.
 Callbacks can be registered to listen to any events. When an event
-is fired, all listening callbacks are called. 
-
-</p>
-<p>Events are implicitely declared when they&#39;re fired.
-
-</p>
+is fired, all listening callbacks are called. </p>
+<p>Events are implicitely declared when they&#39;re fired.</p>
 <a name="listening-to-events"></a><h2>Listening to events</h2>
 <p>Atomik provides the <code>listenEvent()</code> method.
 It takes as first argument an event name and as second a callback.
-See <a href="http://php.net/callback">http://php.net/callback</a> for more information on callbacks.
-
-</p>
+See <a href="http://php.net/callback">http://php.net/callback</a> for more information on callbacks.</p>
 <pre><code>Atomik::listenEvent(&#39;myEvent&#39;, function() {
     // ...
 });
@@ -2162,71 +2069,45 @@ Atomik::listenEvent(&#39;myArgEvent&#39;, function($arg1, $arg2) {
     // ...
 });</code></pre>
 <p>Listeners also have priorities. The priority is a number, smaller numbers have a higher priority.
-The priority is specified when registering the listener.
-
-</p>
+The priority is specified when registering the listener.</p>
 <pre><code>Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback&#39;, 10);
 Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback2&#39;, 5); // will be called first</code></pre>
 <p>Multiple listeners can have the same priority. If you dim your listener more important and want it 
-to be called before other listeners of the same priority, you can use true as the fourth parameter.
-
-</p>
+to be called before other listeners of the same priority, you can use true as the fourth parameter.</p>
 <pre><code>Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback&#39;, 10);
 Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback2&#39;, 10, true); // will be called first</code></pre>
 <a name="firing-events"></a><h2>Firing events</h2>
 <p>Events are fired using the <code>fireEvent()</code> method provided by Atomik. 
 It takes as first argument the event name and
-optionally as second an array of arguments for callbacks.
-
-</p>
+optionally as second an array of arguments for callbacks.</p>
 <pre><code>Atomik::fireEvent(&#39;myEvent&#39;);
 Atomik::fireEvent(&#39;myArgEvent&#39;, array(&#39;arg1Value&#39;, &#39;arg2Value&#39;));</code></pre>
 <p>This method returns an array with results from each callbacks. A string can also be returned
-when passing true as the third parameter. The string will be the concatanation of all results.
-
-</p>
+when passing true as the third parameter. The string will be the concatanation of all results.</p>
 <pre><code>$results = Atomik::fireEvent(&#39;myEvent&#39;); // array
 $string = Atomik::fireEvent(&#39;myStringEvent&#39;, array(), true); // string</code></pre>
 <a name="events-naming-convention"></a><h2>Events naming convention</h2>
-<p>While events name can be anything you want, Atomik uses a naming convention for its own events.
-
-</p>
+<p>While events name can be anything you want, Atomik uses a naming convention for its own events.</p>
 <p>Events are composed using <em>Atomik</em> or a plugin name, followed by the method from which the
 event was fired and optionnally the event name. Each part is separated using &quot;:&quot; twice and should
-start with an upper case.
-
-</p>
-<p>The method <code>Atomik::dispatch()</code> fires an event named <em>Atomik::Dispatch::Start</em>.
-
-</p>
+start with an upper case.</p>
+<p>The method <code>Atomik::dispatch()</code> fires an event named <em>Atomik::Dispatch::Start</em>.</p>
 
 <a name="developing-plugins"></a><h1>Developing plugins</h1>
 <a name="the-plugin-file"></a><h2>The plugin file</h2>
 <p>A plugin is made of one file named the same way. For example the Db plugin is in the file
-<em>Db.php</em>. Plugin&#39;s file must always start with an uppercase letter.
-
-</p>
+<em>Db.php</em>. Plugin&#39;s file must always start with an uppercase letter.</p>
 <p>Plugins are loaded at the beginning of a request, just after the configuration. 
-The content of the file is free or it can be a class.
-
-</p>
+The content of the file is free or it can be a class.</p>
 <p>To build more complex plugins you can instead of a file create a folder named after your plugin.
-Your PHP file goes into that folder and must be named <em>Plugin.php</em>.
-
-</p>
+Your PHP file goes into that folder and must be named <em>Plugin.php</em>.</p>
 <p>When using folders, it is possible to add a sub folder named <em>libs</em> which
-will automatically be added to php&#39;s include_path.
-
-</p>
-<p>A folder must be used when creating pluggable applications.
-
-</p>
+will automatically be added to php&#39;s include_path.</p>
+<p>A folder must be used when creating pluggable applications.</p>
 <a name="configuration"></a><h2>Configuration</h2>
 <p>As said in the &quot;Using plugins&quot; section, plugins can have custom configuration.
 To retrieve this configuration a <code>$config</code> variable is automatically available.
-It contains the array used in the configuration.
-
-</p>
+It contains the array used in the configuration.</p>
 <pre><code>// In the configuration file:
 
 Atomik::set(&#39;plugins&#39;, array(
@@ -2240,13 +2121,9 @@ Atomik::set(&#39;plugins&#39;, array(
 echo &#39;hello &#39; . $config[&#39;name&#39;];</code></pre>
 <a name="using-a-class"></a><h2>Using a class</h2>
 <p>For better application design it is advice to use a class to define your plugin.
-When loading a plugin, it will look for a class named like the plugin.
-
-</p>
+When loading a plugin, it will look for a class named like the plugin.</p>
 <p>If this class has a static <code>start()</code> method, it will be called when the plugin is loaded
-with the plugin&#39;s custom configuration as argument.
-
-</p>
+with the plugin&#39;s custom configuration as argument.</p>
 <pre><code>class Db
 {
     public static function start($config)
@@ -2255,14 +2132,10 @@ with the plugin&#39;s custom configuration as argument.
     }
 }</code></pre>
 <p>It is a good thing to always provide a default configuration. This can be done by merging
-a default configuration array with the user&#39;s configuration.
-
-</p>
+a default configuration array with the user&#39;s configuration.</p>
 <p>The class can contain static methods that will be automatically registered as callback
 on events. These methods have to start by &quot;on&quot; followed by the event name without
-the double &quot;:&quot;.
-
-</p>
+the double &quot;:&quot;.</p>
 <pre><code>class Db
 {
     public static onAtomikDispatchStart()
@@ -2270,17 +2143,13 @@ the double &quot;:&quot;.
         // listener for Atomik::Dispatch::Start
     }
 }</code></pre>
-<p>You can prevent automatic callback registration by returning false in the start method.
-
-</p>
+<p>You can prevent automatic callback registration by returning false in the start method.</p>
 <a name="pluggable-applications"></a><h2>Pluggable applications</h2>
 <p>Pluggable applications are really simple to create. Create a normal plugin using a folder. 
 Create your <em>Plugin.php</em> file. Call <code>Atomik::registerPluggableApplication()</code> when
 the plugin starts using the plugin name as first parameter (and eventually the pattern to 
 trigger the application as the second). Create standard Atomik folders inside your plugin 
-folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> and code your application normally.
-
-</p>
+folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> and code your application normally.</p>
 <pre><code>class PluggApp
 {
     public static $config = array(
@@ -2295,38 +2164,24 @@ folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> 
 }</code></pre>
 <p>A pluggable application can also have a file named <em>Application.php</em> at the root of the plugin
 folder. This file act the same way as the <em>bootstrap.php</em> file. It will be called before
-the pluggable application is dispatched.
-
-</p>
+the pluggable application is dispatched.</p>
 <p>If Atomik detects the <em>Application.php</em> file, a <em>Plugin.php</em> file is not
-necessary and the pluggable application will automatically be registered.
-
-</p>
+necessary and the pluggable application will automatically be registered.</p>
 <p>A pluggable application behaves as a normal Atomik application and all features are available. 
 The configuration will be reseted before the dispatch occurs. These applications can provide 
 their own config in their <em>Application.php</em> file like their own routes, default action... 
-The <em>pre_dispatch.php</em> and <em>post_dispatch.php</em> files can also be used.
-
-</p>
+The <em>pre_dispatch.php</em> and <em>post_dispatch.php</em> files can also be used.</p>
 <p>Note that every url will be relative to the pluggable application&#39;s root. That is to say you 
 do not have to care of the route used to trigger your application. For this to work properly, 
-read carefully the next section.
-
-</p>
+read carefully the next section.</p>
 <p><code>Atomik::registerPluggableApplication()</code> as more options which are described in the
-API reference.
-
-</p>
+API reference.</p>
 <a name="assets-and-urls"></a><h2>Assets and urls</h2>
 <p>When using the default <em>.htaccess</em> file, plugins can have an <em>assets</em> folder which
-is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.
-
-</p>
+is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.</p>
 <p>You can use <code>Atomik::asset()</code> like with a normal application. However in the case of plugins, 
 asset&#39;s filename will be prepended with a template defined in <em>atomik.plugin_assets_tpl</em>. 
-The default is <em>app/plugins/%s/assets</em>. The <em>%s</em> sign will be replaced with the plugin name.
-
-</p>
+The default is <em>app/plugins/%s/assets</em>. The <em>%s</em> sign will be replaced with the plugin name.</p>
 <pre><code>echo Atomik::asset(&#39;css/styles.css&#39;);
 echo Atomik::pluginAsset(&#39;MyPlugin&#39;, &#39;css/styles.css&#39;);
 // will output app/plugins/MyPlugin/assets/css/styles.css
@@ -2336,27 +2191,17 @@ echo Atomik::asset(&#39;css/styles.css&#39;);
 echo Atomik::pluginAsset(&#39;MyPlugin&#39;, &#39;css/styles.css&#39;);
 // will output plugins/MyPlugin/assets/css/styles.css</code></pre>
 <p>It is not adviced to change the plugin&#39;s assets folder name as some plugins may not work 
-with your installation.
-
-</p>
+with your installation.</p>
 <a name="loading-plugins-programmaticaly"></a><h2>Loading plugins programmaticaly</h2>
 <p>It is of course possible to load plugins at runtime. Atomik provides a bunch of loading methods 
-so it&#39;s simpler for plugins to load plugins they depend on or to create custom plugins.
-
-</p>
+so it&#39;s simpler for plugins to load plugins they depend on or to create custom plugins.</p>
 <p>The most common method is <code>Atomik::loadPlugin()</code> which will load a plugin and use
-the user plugin&#39;s configuration (from the plugins key) if one is available.
-
-</p>
+the user plugin&#39;s configuration (from the plugins key) if one is available.</p>
 <p>If a plugin is not available, loading it will throw an exception. To prevent that you can use
-<code>Atomik::loadPluginIfAvailable()</code>.
-
-</p>
+<code>Atomik::loadPluginIfAvailable()</code>.</p>
 <pre><code>Atomik::loadPlugin(&#39;Db&#39;);</code></pre>
 <p>You can also load plugins by specifying custom configuration. This is done using 
-̀Atomik::loadCustomPlugin()`.
-
-</p>
+̀Atomik::loadCustomPlugin()`.</p>
 <pre><code>Atomik::loadCustomPlugin(&#39;Db&#39;, array(&#39;dbname&#39; =&gt; &#39;test&#39;));
 
 // load plugins from a custom directory
@@ -2367,22 +2212,18 @@ Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;classNameTempla
 
 // do not call the start() method when loading plugins
 Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;callStart&#39; =&gt; false));</code></pre>
-<p><code>Atomik::loadCustomPluginIfAvailable()</code> is also available.
-
-</p>
+<p><code>Atomik::loadCustomPluginIfAvailable()</code> is also available.</p>
 <p>Be aware that some plugins may need to listen to some specific events. If you register a plugin too late,
-the events may have already occured, making the plugin malfunction.
-
-</p>
+the events may have already occured, making the plugin malfunction.</p>
 <p>You can check if a plugin is already loaded using <code>Atomik::isPluginLoaded()</code> or if it&#39;s
-available using <code>Atomik::isPluginAvailable()</code>.
+available using <code>Atomik::isPluginAvailable()</code>.</p>
+<p>Finally, you can retreive all loaded plugins using <code>Atomik::getLoadedPlugins()</code>.</p>
 
-</p>
-<p>Finally, you can retreive all loaded plugins using <code>Atomik::getLoadedPlugins()</code>.
 
-</p>
 
-</div>
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

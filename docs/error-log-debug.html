@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,94 +560,79 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="error-handling-logging-and-debugging"></a><h1>Error handling, logging and debugging</h1>
+        <div id="content">
+            <a name="error-handling-logging-and-debugging"></a><h1>Error handling, logging and debugging</h1>
 <a name="handling-errors"></a><h2>Handling errors</h2>
 <div class="note">You will need the Errors plugin which is bundled with Atomik</div>
 
 <p>By default, Atomik won&#39;t catch any exceptions or errors, PHP&#39;s normal behavior prevail. 
 However, the Errors plugin enables error catching so you can display an error page to the 
-user or error reports while developing.
-
-</p>
+user or error reports while developing.</p>
 <p>The plugin will display a page when a 404 error is triggered. The template to render
-can be specified using <em>404_view</em>, the default one being <em>errors/404</em>:
-
-</p>
+can be specified using <em>404_view</em>, the default one being <em>errors/404</em>:</p>
 <pre><code>Atomik::set(&#39;plugins.Errors&#39;, array(
     &#39;404_view&#39; =&gt; &#39;unknown_page&#39;
 ));</code></pre>
 <p>The <em>catch_errors</em> configuration key must be set to true for Atomik to catch errors. Errors
 and exceptions are treated the same way. If an error template exists (specified in <em>error_view</em>
-and by default <em>errors/error</em>) it will be rendered otherwise an error report is displayed.
-
-</p>
+and by default <em>errors/error</em>) it will be rendered otherwise an error report is displayed.</p>
 <pre><code>Atomik::set(&#39;plugins.Errors&#39;, array(
     &#39;error_view&#39; =&gt; &#39;my_error_template&#39;,
     &#39;catch_errors&#39; =&gt; true
 ));</code></pre>
 <p>By default, uncatched errors are silently droped. You can instead let the exception be thrown
-using <em>throw_errors</em>.
-
-</p>
+using <em>throw_errors</em>.</p>
 <pre><code>Atomik::set(&#39;plugins.Errors&#39;, array(
     &#39;throw_errors&#39; =&gt; true
 ));</code></pre>
 <a name="logging"></a><h2>Logging</h2>
 <div class="note">You will need the Logger plugin which is bundled with Atomik as well as Monolog which you&#39;ll need to install</div>
 
-<p>The Logger plugin provides a simple way of logging messages. It provides the ̀log()<code> helper
-which takes two arguments, the second one being optional: the message and the level (default is </code>LOG_ERR` = 3).
-
-</p>
+<p>The Logger plugin provides a simple way of logging messages. It provides the ̀log()<code>helper
+which takes two arguments, the second one being optional: the message and the level (default is</code>LOG_ERR` = 3).</p>
 <pre><code>$this-&gt;log(&#39;an error has occured!&#39;, LOG_ERR);</code></pre>
-<p>As shown in the example, you should use PHP&#39;s LOG_* constants.
-
-</p>
+<p>As shown in the example, you should use PHP&#39;s LOG_* constants.</p>
 <p>The helper will simply fire an event named <em>Logger::Log</em>. Listeners will get two arguments, the message
-and the level.
-
-</p>
+and the level.</p>
 <pre><code>function my_logger($message, $level) {
     echo &#39;LOG: &#39; . $message;
 }
 Atomik::listenEvent(&#39;Logger::Log&#39;, &#39;my_logger&#39;);</code></pre>
 <p>Atomik provides a default logger which will save messages to a text file. To register this logger, set
-the config key named <em>register_default</em> to true.
-
-</p>
+the config key named <em>register_default</em> to true.</p>
 <p>The filename is defined in <em>filename</em>. You can also define from which level messages should
-be saved by setting <em>level</em> to the minimum level. The default level is <code>LOG_WARNING</code> (4).
-
-</p>
+be saved by setting <em>level</em> to the minimum level. The default level is <code>LOG_WARNING</code> (4).</p>
 <pre><code>Atomik::set(&#39;plugins.Logger&#39;, array(
     &#39;register_default&#39; =&gt; true,
     &#39;filename&#39; =&gt; &#39;log.txt&#39;
 ));</code></pre>
 <p>Finally, you can define the template of the string that will be added to the log file in 
 <em>message_template</em>. You can use <em>%date%</em>, <em>%level%</em> and <em>%message%</em> which will be replaced 
-by the appropriate string.
-
-</p>
+by the appropriate string.</p>
 <a name="debugging"></a><h2>Debugging</h2>
 <p>Atomik&#39;s only provides a simple helper named <code>debug()</code> which 
 is an alias for <code>var_dump()</code>. However the method output can be hidden
-by modifying the <em>atomik.debug</em> configuration key.
-
-</p>
-<p>Also, if <em>atomik.debug</em> is true, the error reporting level will be set to the maximum.
-
-</p>
+by modifying the <em>atomik.debug</em> configuration key.</p>
+<p>Also, if <em>atomik.debug</em> is true, the error reporting level will be set to the maximum.</p>
 <pre><code>Atomik::debug($myVar);
 Atomik::set(&#39;atomik.debug&#39;, false);
 Atomik::debug($myVar2); // no output
 Atomik::debug($myVar2, true); // use true to force the output even if debug set to false</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

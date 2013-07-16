@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,40 +560,35 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="controller"></a><h1>Controller</h1>
+        <div id="content">
+            <a name="controller"></a><h1>Controller</h1>
 <div class="note">You will need the Controller plugin which is bundled with Atomik</div>
 
 <p>Atomik action files do not follow any conventions. However, some of you may have used MVC frameworks
 where the business logic is coded in controllers. Controllers are classes where their methods are
-actions.
-
-</p>
+actions.</p>
 <p>This plugin adds support for controllers to Atomik. Once activated you must use controllers in your
-actions. It is not possible to mix between the classic way and the controller way.
-
-</p>
+actions. It is not possible to mix between the classic way and the controller way.</p>
 <a name="differences-with-the-classic-atomik-way"></a><h2>Differences with the classic Atomik way</h2>
-<p>There are two major differences which are views and the router.
-
-</p>
+<p>There are two major differences which are views and the router.</p>
 <p>Each controller have multiple actions (methods) and each action has its own view. While having
 for example one file for your controller in the <em>actions</em> directory you&#39;ll need many view
 files. Thus, instead of saving your views directly in the <em>views</em> directory you will have to save
-them in a folder named after your controller.
-
-</p>
+them in a folder named after your controller.</p>
 <p>When using the router, the <em>action</em> parameter is mandatory. This plugin adds another mandatory
 parameter named <em>controller</em>. This parameter refers to the controller name whereas the <em>action</em>
-parameter refers to a method of the controller class.
-
-</p>
-<p>The default route will use the last segment of the uri as the action name and the rest as the controller name.
-
-</p>
+parameter refers to a method of the controller class.</p>
+<p>The default route will use the last segment of the uri as the action name and the rest as the controller name.</p>
 <pre><code>// ArchivesController::view()
 Atomik::set(&#39;app.routes&#39;, array(
     &#39;archives/:year/:month&#39; =&gt; array(
@@ -603,32 +596,20 @@ Atomik::set(&#39;app.routes&#39;, array(
         &#39;action&#39; =&gt; &#39;view&#39;
     )
 ));</code></pre>
-<p>The default controller name is <em>index</em> and the default action name is <em>index</em>.
-
-</p>
+<p>The default controller name is <em>index</em> and the default action name is <em>index</em>.</p>
 <a name="creating-controllers"></a><h2>Creating controllers</h2>
 <a name="creating-simple-controllers"></a><h3>Creating simple controllers</h3>
 <p>As said before, a controller is a class. It must inherits from <code>Atomik\Controller\Controller</code> and respect
 a naming convention. Your class has to be named using the controller&#39;s name starting by an upper case letter 
-suffixed with <em>Controller</em>. 
-
-</p>
+suffixed with <em>Controller</em>. </p>
 <p>Controller classes will be loaded, as any other classes, with the autoloader. Thus, your files must be
-named after your controller class.
-
-</p>
+named after your controller class.</p>
 <p>So for example, with a controller named <em>users</em>, it must be saved in <em>app/actions/UsersController.php</em> and
-the class name will be <em>UsersController</em>. 
-
-</p>
+the class name will be <em>UsersController</em>. </p>
 <p>If the action file is located in a sub folder, the class name has to follow the PSR-0 convention.
-For example, if the file is <em>app/actions/Auth/UsersController.php</em> the class name will be <code>Auth\UsersController</code>.
-
-</p>
+For example, if the file is <em>app/actions/Auth/UsersController.php</em> the class name will be <code>Auth\UsersController</code>.</p>
 <p>Then add public methods to your class. All public methods which does not start with an underscore will 
-be callable as an action.
-
-</p>
+be callable as an action.</p>
 <pre><code>class UsersController extends Atomik\Controller\Controller
 {
     public function index()
@@ -640,20 +621,12 @@ be callable as an action.
     }
 }</code></pre>
 <p>The associated views must be located in the <em>app/views/users</em>.
-In our example, it would be <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.
-
-</p>
-<p>You can then use the following urls: <a href="http://example.com/user">http://example.com/user</a> or <a href="http://example.com/user/login">http://example.com/user/login</a>.
-
-</p>
+In our example, it would be <em>app/views/user/index.phtml</em> and <em>app/views/user/login.phtml</em>.</p>
+<p>You can then use the following urls: <a href="http://example.com/user">http://example.com/user</a> or <a href="http://example.com/user/login">http://example.com/user/login</a>.</p>
 <p>In classic actions, all defined variables were accessible from the view. This is not possible 
 anymore when using methods for scoping reasons. To forward variables to the view, simply define 
-class properties or return an array from your action method.
-
-</p>
-<p>In <em>app/actions/UsersController.php</em>:
-
-</p>
+class properties or return an array from your action method.</p>
+<p>In <em>app/actions/UsersController.php</em>:</p>
 <pre><code>class UsersController extends Atomik\Controller\Controller
 {
     public $title = &#39;Users&#39;;
@@ -663,20 +636,14 @@ class properties or return an array from your action method.
         return array(&#39;username&#39; =&gt; &#39;peter&#39;);
     }
 }</code></pre>
-<p>In <em>app/views/user/index.phtml</em>:
-
-</p>
+<p>In <em>app/views/user/index.phtml</em>:</p>
 <pre><code>&lt;h1&gt;&lt;?php echo $title ?&gt;&lt;/h1&gt;
 hello &lt;php echo $username ?&gt;</code></pre>
 <a name="controller-utilities"></a><h3>Controller utilities</h3>
 <p>First of all, you can define two methods <code>preDispatch()</code> and <code>postDispatch()</code>
 that will be called before and after each action. You can also define an <code>init()</code>
-method which will be called after the constructor.
-
-</p>
-<p>Route parameters will be automatically mapped to method arguments.
-
-</p>
+method which will be called after the constructor.</p>
+<p>Route parameters will be automatically mapped to method arguments.</p>
 <pre><code>Atomik::set(&#39;app.routes&#39;, array(
     &#39;archives/:year/:month&#39; =&gt; array(
         &#39;controller&#39; =&gt; &#39;archives&#39;,
@@ -693,18 +660,16 @@ class ArchivesController extends Atomik\Controller\Controller
     }
 }</code></pre>
 <p>The <code>$year</code> and <code>$month</code> argument will be taken from the route parameters.
-The order is not important.
-
-</p>
+The order is not important.</p>
 <a name="using-controllers-in-pluggable-apps"></a><h2>Using controllers in Pluggable Apps</h2>
-<p>The plugin will be disabled when a pluggable application starts. It can be re-enabled using
-
-</p>
+<p>The plugin will be disabled when a pluggable application starts. It can be re-enabled using</p>
 <pre><code>$config = array();
 Atomik\Controller\Plugin::start($config);</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,46 +560,41 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="session"></a><h1>Session</h1>
+        <div id="content">
+            <a name="session"></a><h1>Session</h1>
 <div class="note">These features need the Session and Flash plugins which are bundled with Atomik</div>
 
 <a name="starting-and-accessing-the-session"></a><h2>Starting and accessing the session</h2>
-<p>You&#39;ll need to register the Session plugin:
-
-</p>
+<p>You&#39;ll need to register the Session plugin:</p>
 <pre><code>Atomik::add(&#39;plugins&#39;, array(
     &#39;Session&#39;
 ));</code></pre>
 <p>By default, Atomik will automatically starts the session. This can be turned off
-using <em>autoload</em> in the plugin&#39;s configuration.
-
-</p>
+using <em>autoload</em> in the plugin&#39;s configuration.</p>
 <p>The session is available as the <em>session</em> key in the global store. Of course,
-it still remains available as the <code>$_SESSION</code> super-global variable.
-
-</p>
+it still remains available as the <code>$_SESSION</code> super-global variable.</p>
 <pre><code>echo Atomik::get(&#39;session.username&#39;);</code></pre>
 <a name="flash-messages"></a><h2>Flash messages</h2>
 <p>Flash messages are messages which are stored in the session and are available only once.
-This allows to pass error or success messages from one page to another. 
-
-</p>
+This allows to pass error or success messages from one page to another. </p>
 <p>To create a flash message call the <code>flash()</code> helper. It takes as
 first parameter a message or an array of messages. Messages can also have labels. 
 For example <em>error</em> or <em>success</em>. To specify a label, use the second argument. 
-The default label is <em>default</em>.
-
-</p>
+The default label is <em>default</em>.</p>
 <pre><code>$this-&gt;flash(&#39;The action has completed successfully&#39;);
 $this-&gt;flash(&#39;The action has failed&#39;, &#39;error&#39;); // with a label
 $this-&gt;flash(array(&#39;message1&#39;, &#39;message2&#39;), &#39;error&#39;);</code></pre>
-<p>Flash messages can then be retreived using the <em>flash_messages</em> key:
-
-</p>
+<p>Flash messages can then be retreived using the <em>flash_messages</em> key:</p>
 <pre><code>foreach (Atomik::get(&#39;flash_messages&#39;) as $label =&gt; $messages) {
     foreach ($messages as $message) {
         // ...
@@ -612,8 +605,10 @@ foreach (Atomik::get(&#39;flash_messages.my_label&#39;) as $message) {
     // ...
 }</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

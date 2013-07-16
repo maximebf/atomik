@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,25 +560,26 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="events"></a><h1>Events</h1>
+        <div id="content">
+            <a name="events"></a><h1>Events</h1>
 <p>Events are one of the most important concept in Atomik.
 Callbacks can be registered to listen to any events. When an event
-is fired, all listening callbacks are called. 
-
-</p>
-<p>Events are implicitely declared when they&#39;re fired.
-
-</p>
+is fired, all listening callbacks are called. </p>
+<p>Events are implicitely declared when they&#39;re fired.</p>
 <a name="listening-to-events"></a><h2>Listening to events</h2>
 <p>Atomik provides the <code>listenEvent()</code> method.
 It takes as first argument an event name and as second a callback.
-See <a href="http://php.net/callback">http://php.net/callback</a> for more information on callbacks.
-
-</p>
+See <a href="http://php.net/callback">http://php.net/callback</a> for more information on callbacks.</p>
 <pre><code>Atomik::listenEvent(&#39;myEvent&#39;, function() {
     // ...
 });
@@ -589,46 +588,34 @@ Atomik::listenEvent(&#39;myArgEvent&#39;, function($arg1, $arg2) {
     // ...
 });</code></pre>
 <p>Listeners also have priorities. The priority is a number, smaller numbers have a higher priority.
-The priority is specified when registering the listener.
-
-</p>
+The priority is specified when registering the listener.</p>
 <pre><code>Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback&#39;, 10);
 Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback2&#39;, 5); // will be called first</code></pre>
 <p>Multiple listeners can have the same priority. If you dim your listener more important and want it 
-to be called before other listeners of the same priority, you can use true as the fourth parameter.
-
-</p>
+to be called before other listeners of the same priority, you can use true as the fourth parameter.</p>
 <pre><code>Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback&#39;, 10);
 Atomik::listenEvent(&#39;myEvent&#39;, &#39;myEventCallback2&#39;, 10, true); // will be called first</code></pre>
 <a name="firing-events"></a><h2>Firing events</h2>
 <p>Events are fired using the <code>fireEvent()</code> method provided by Atomik. 
 It takes as first argument the event name and
-optionally as second an array of arguments for callbacks.
-
-</p>
+optionally as second an array of arguments for callbacks.</p>
 <pre><code>Atomik::fireEvent(&#39;myEvent&#39;);
 Atomik::fireEvent(&#39;myArgEvent&#39;, array(&#39;arg1Value&#39;, &#39;arg2Value&#39;));</code></pre>
 <p>This method returns an array with results from each callbacks. A string can also be returned
-when passing true as the third parameter. The string will be the concatanation of all results.
-
-</p>
+when passing true as the third parameter. The string will be the concatanation of all results.</p>
 <pre><code>$results = Atomik::fireEvent(&#39;myEvent&#39;); // array
 $string = Atomik::fireEvent(&#39;myStringEvent&#39;, array(), true); // string</code></pre>
 <a name="events-naming-convention"></a><h2>Events naming convention</h2>
-<p>While events name can be anything you want, Atomik uses a naming convention for its own events.
-
-</p>
+<p>While events name can be anything you want, Atomik uses a naming convention for its own events.</p>
 <p>Events are composed using <em>Atomik</em> or a plugin name, followed by the method from which the
 event was fired and optionnally the event name. Each part is separated using &quot;:&quot; twice and should
-start with an upper case.
+start with an upper case.</p>
+<p>The method <code>Atomik::dispatch()</code> fires an event named <em>Atomik::Dispatch::Start</em>.</p>
 
-</p>
-<p>The method <code>Atomik::dispatch()</code> fires an event named <em>Atomik::Dispatch::Start</em>.
 
-</p>
 
-</article>
 
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

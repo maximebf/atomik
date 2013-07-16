@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,32 +560,31 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="translations"></a><h1>Translations</h1>
+        <div id="content">
+            <a name="translations"></a><h1>Translations</h1>
 <div class="note">You will need the Translations plugin which is bundled with Atomik</div>
 
 <p>This plugin is gettext-like. You write your application in its default language and then
-provide translations for each part of text.
-
-</p>
+provide translations for each part of text.</p>
 <a name="creating-language-files"></a><h2>Creating language files</h2>
-<p>A language file provides translation from one language to another.
-
-</p>
+<p>A language file provides translation from one language to another.</p>
 <p>They are stored in the <em>app/languages</em> directory. This can
 be changed using the <em>dir</em> configuration key. Files be named after
 the first part of the locale. For example, if the file provide translation to French, it has to be
-named <em>fr.php</em> (because the locale is fr-fr).
-
-</p>
+named <em>fr.php</em> (because the locale is fr-fr).</p>
 <p>In the language file you must defined messages using the 
 <code>Translations::setMessages()</code> method. The messages is made of
-the string of the original language and the translated one.
-
-</p>
+the string of the original language and the translated one.</p>
 <pre><code>&lt;?php
 Atomik\Translations::setMessages(array(
     &#39;hello&#39; =&gt; &#39;bonjour&#39;,
@@ -595,47 +592,33 @@ Atomik\Translations::setMessages(array(
 ));</code></pre>
 <a name="detecting-the-user-language"></a><h2>Detecting the user language</h2>
 <p>By default, the plugin will autodetect the language using HTTP headers. This can be turned off
-by setting false to the <em>autodetect</em> configuration key.
-
-</p>
+by setting false to the <em>autodetect</em> configuration key.</p>
 <p>If the language cannot be detected, it will fall back on the default language defined in the
-<em>language</em> configuration key.
-
-</p>
-<p>You can also set the language manually using <code>Translations::set()</code>.
-
-</p>
+<em>language</em> configuration key.</p>
+<p>You can also set the language manually using <code>Translations::set()</code>.</p>
 <pre><code>Atomik\Translations::set(&#39;fr&#39;);</code></pre>
-<p>The current language is available from the global store under the <em>app.language</em> key.
-
-</p>
+<p>The current language is available from the global store under the <em>app.language</em> key.</p>
 <pre><code>$currentLanguage = Atomik::get(&#39;app.language&#39;);</code></pre>
 <a name="translating-strings"></a><h2>Translating strings</h2>
-<p>To enable translation for a string use the <code>Translations::translate()</code> method.
-
-</p>
+<p>To enable translation for a string use the <code>Translations::translate()</code> method.</p>
 <pre><code>Atomik\Translations::set(&#39;fr&#39;);
 echo Atomik\Translations::translate(&#39;hello&#39;); // will echo bonjour
 echo Atomik\Translations::translate(&#39;how are you?&#39;); // will echo comment ca va?</code></pre>
-<p>The method is also available as an helper:
-
-</p>
+<p>The method is also available as an helper:</p>
 <pre><code>echo $this-&gt;translate(&#39;hello&#39;);
 echo $this-&gt;_(&#39;hello&#39;); // alias</code></pre>
-<p>A shortcut function is also defined: <code>__()</code>.
-
-</p>
+<p>A shortcut function is also defined: <code>__()</code>.</p>
 <pre><code>Atomik\Translations::set(&#39;fr&#39;);
 echo __(&#39;hello&#39;); // will echo bonjour
 echo __(&#39;how are you?&#39;); // will echo comment ca va?</code></pre>
 <p>This method can also be use like the vsprintf() function. It can replace
-patterns in the string by values provided as an array as the second argument.
-
-</p>
+patterns in the string by values provided as an array as the second argument.</p>
 <pre><code>echo __(&#39;hello %s&#39;, array(&#39;Peter&#39;));</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

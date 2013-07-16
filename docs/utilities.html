@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,34 +560,31 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="utilities"></a><h1>Utilities</h1>
-<p>All these utilities are helpers bundled with Atomik.
-
-</p>
+        <div id="content">
+            <a name="utilities"></a><h1>Utilities</h1>
+<p>All these utilities are helpers bundled with Atomik.</p>
 <a name="escaping-text"></a><h2>Escaping text</h2>
 <p>It is a common (and very good) practice to escape data when outputting it on the page.
-The <code>escape()</code> helper is dedicated to this purpose.
-
-</p>
+The <code>escape()</code> helper is dedicated to this purpose.</p>
 <pre><code>echo $this-&gt;escape(&#39;my text&#39;);</code></pre>
 <p>This helper relies on other functions to escape data. It simply executes them one after an other 
-and returns the result. You can for example, execute the <code>htmlspecialchars()</code> function followed by <code>nl2br()</code>.
-
-</p>
+and returns the result. You can for example, execute the <code>htmlspecialchars()</code> function followed by <code>nl2br()</code>.</p>
 <p>The functions to execute are grouped under profiles. Thus, you can create multiple escaping profiles 
 depending on the data you need to escape. Profiles are defined in the <em>app.escaping</em> 
 configuration key. To specify which functions to execute in a profile, you can use a string or an 
 array of strings. Functions will be executed in the order they appear in the array.
-The default profile is called <em>default</em>.
-
-</p>
-<p>The profile is specified as the last argument of the method.
-
-</p>
+The default profile is called <em>default</em>.</p>
+<p>The profile is specified as the last argument of the method.</p>
 <pre><code>// creating profiles
 Atomik::set(&#39;app.escaping&#39;, array(
     &#39;default&#39; =&gt; array(&#39;htmlspecialchars&#39;, &#39;nl2br&#39;),
@@ -603,34 +598,22 @@ echo $this-&gt;escape(&#39;my text&#39;);
 echo $this-&gt;escape(&#39;my url param&#39;, &#39;url&#39;);</code></pre>
 <a name="friendly-urls"></a><h2>Friendly urls</h2>
 <p>Having a router without a way to make friendly urls wouldn&#39;t be a complete feature. 
-The <code>linkify()</code> helper transforms any string to a url friendly version.
-
-</p>
+The <code>linkify()</code> helper transforms any string to a url friendly version.</p>
 <pre><code>echo $this-&gt;friendlify(&#39;My text in the url&#39;);
 // will echo my-text-in-the-url</code></pre>
 <a name="filtering-and-validating-data"></a><h2>Filtering and validating data</h2>
 <p>Filtering and validating user input is a very important task and Atomik had to provide a helper for
-this purpose. This helper is <em>filter()</em> and it heavily relies on PHP&#39;s filter extension.
-
-</p>
+this purpose. This helper is <em>filter()</em> and it heavily relies on PHP&#39;s filter extension.</p>
 <p>PHP&#39;s filter extension is built-in since version 5.2 and its documentation is available 
-at <a href="http://php.net/filter">http://php.net/filter</a>.
-
-</p>
+at <a href="http://php.net/filter">http://php.net/filter</a>.</p>
 <p>You can find a good documentation (better than the official one) about available filters on the w3schools
-website at <a href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</a>
-
-</p>
+website at <a href="http://www.w3schools.com/php/php_ref_filter.asp">http://www.w3schools.com/php/php_ref_filter.asp</a></p>
 <p>To understand and use <code>filter()</code> you must know how to use PHP&#39;s filter
-extension. However, Atomik&#39;s method adds some features.
-
-</p>
+extension. However, Atomik&#39;s method adds some features.</p>
 <p><code>filter()</code> has the same arguments as <code>filter_var()</code>.
 However, you can also use a regular expression as filter in the second argument. The regexp must use
 slashes as delimiters. You can also define custom filters in the <em>app.filters.callbacks</em>
-configuration key and use the callback name as filter.
-
-</p>
+configuration key and use the callback name as filter.</p>
 <pre><code>// using a php filter
 $result = $this-&gt;filter(&#39;me@example.com&#39;, FILTER_VALIDATE_EMAIL);
 $result = $this-&gt;filter(&#39;me@example.com&#39;, &#39;validate_email&#39;); // using the filter name instead of its id
@@ -642,55 +625,33 @@ $result = $this-&gt;filter(&#39;12478&#39;, &#39;/\d+/&#39;);
 // using a callback
 Atomik::set(&#39;app.filters.callbacks.my_custom_filter&#39;, &#39;myFilterFunction&#39;);
 $result = $this-&gt;filter($data, &#39;my_custom_filter&#39;);</code></pre>
-<p>It will return false if an error occured, or the value otherwise.
-
-</p>
+<p>It will return false if an error occured, or the value otherwise.</p>
 <p>The method can also be used to filter arrays in the same way as <code>filter_var_array()</code>. It works
-exactly the same as this function but it also adds more features.
-
-</p>
+exactly the same as this function but it also adds more features.</p>
 <p>The method will return false if any of the item failed to validate. This can be turned off by passing
-false as the fourth argument.
-
-</p>
+false as the fourth argument.</p>
 <p>While the second argument is named a definition in the PHP&#39;s extension, Atomik called it rules. 
 Rules are arrays where keys are field&#39;s name and their value a filter or an array 
 (like with ̀filter_var_array()`). You can pass a rule as the second argument. 
 Rules can also be defined in the <em>app.filters.rules</em> configuration key. 
-You can then use their name instead of an array as the second argument.
-
-</p>
+You can then use their name instead of an array as the second argument.</p>
 <p>The method also adds the notion of required fields. If you set the <em>required</em> key to true in 
-the field&#39;s array, the validation will fail if the field is missing or empty. 
-
-</p>
+the field&#39;s array, the validation will fail if the field is missing or empty. </p>
 <p>When a field is empty but not required, its value will be null. This can be changed by setting 
-the <em>default</em> key in the field&#39;s array.
-
-</p>
+the <em>default</em> key in the field&#39;s array.</p>
 <p>The <em>filter</em> key in the field&#39;s array follows the same rule as the filter parameter described previously. 
-Thus it can be a filter&#39;s id or name, a regexp or a custom filter&#39;s name.
-
-</p>
-<p>The helper also supports multi-dimension array as input.
-
-</p>
+Thus it can be a filter&#39;s id or name, a regexp or a custom filter&#39;s name.</p>
+<p>The helper also supports multi-dimension array as input.</p>
 <p>Finally, support for validation messages has also been added. When filtering the array, if any values 
 failed validating, a message will be created. Messages can then be retreived in the 
 <em>app.filters.messages</em> configuration key. There ar two default messages configured in 
 <em>app.filters.default_message</em> and <em>app.filters.required_message</em>.
-The former will be used when a field failed to validate while the later when the required condition has not been met.
-
-</p>
+The former will be used when a field failed to validate while the later when the required condition has not been met.</p>
 <p>When setting the two message keys, you can use <em>%s</em> which will be replaced with the field&#39;s name. 
 As field names aren&#39;t usually pretty, you can use the <em>label</em> key in the field&#39;s array to define 
-the text which will be used to replace <em>%s</em>.
-
-</p>
+the text which will be used to replace <em>%s</em>.</p>
 <p>You can override the failed to validate message for each field by setting the <em>message</em> 
-key in the field&#39;s array.
-
-</p>
+key in the field&#39;s array.</p>
 <pre><code>// using a custom message when a field is missing or empty
 Atomik::set(&#39;app.filters.required_message&#39;, &#39;You forgot to fill the %s field!&#39;);
 
@@ -722,8 +683,10 @@ if (($filteredData = $this-&gt;filter($dataToFilter, $fields)) === false) {
 // success
 // do something with $filteredData</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

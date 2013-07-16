@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,29 +560,30 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="using-plugins"></a><h1>Using plugins</h1>
+        <div id="content">
+            <a name="using-plugins"></a><h1>Using plugins</h1>
 <a name="installing-a-plugin"></a><h2>Installing a plugin</h2>
 <p>Plugins are stored in the <em>app/plugins</em> directory. 
-Simply copy the plugin file or folder into this directory.
-
-</p>
+Simply copy the plugin file or folder into this directory.</p>
 <a name="activating-and-configuring-a-plugin"></a><h2>Activating and configuring a plugin</h2>
 <p>Plugins are not automatically activated. To do so, it&#39;s needed to add an
-entry in the <em>plugins</em> configuration key.
-
-</p>
+entry in the <em>plugins</em> configuration key.</p>
 <pre><code>Atomik::set(&#39;plugins&#39;, array(
     &#39;Db&#39;,
     &#39;Cache&#39;
 ));</code></pre>
 <p>Some plugins need custom configuration which can be specified in the
-plugins config key.
-
-</p>
+plugins config key.</p>
 <pre><code>Atomik::set(&#39;plugins&#39;, array(
     &#39;Db&#39; =&gt; array(
         &#39;dsn&#39;      =&gt; &#39;mysql:host=localhost;dbname=atomik&#39;,
@@ -596,74 +595,50 @@ plugins config key.
 <a name="pluggable-applications"></a><h2>Pluggable applications</h2>
 <p>Pluggable applications are a great new thing introduced in version 2.2. It allows any
 plugin to act as a complete application. It can have its own actions, views, layouts,
-configuration... Let&#39;s say you need a blog, just drop in the Blog plugin and you&#39;re done!
-
-</p>
+configuration... Let&#39;s say you need a blog, just drop in the Blog plugin and you&#39;re done!</p>
 <p>Pluggable applications are then connected to an uri. When this uri is accessed, the
-application starts.
-
-</p>
+application starts.</p>
 <a name="activating-and-accessing-pluggable-applications"></a><h3>Activating and accessing pluggable applications</h3>
 <p>As these applications are plugins, activating them is as simple as dropping them in the
-<em>app/plugins</em> folder and adding their name to the <em>plugins</em> key.
-
-</p>
+<em>app/plugins</em> folder and adding their name to the <em>plugins</em> key.</p>
 <p>The application is then available at /pluginName. In the previous example it would
-be /blog.
-
-</p>
+be /blog.</p>
 <p>Most pluggable applications should provide a configuration key to modify the default uri. 
-In the case of the Blog plugin, let say it&#39;s <em>route</em>.
-
-</p>
+In the case of the Blog plugin, let say it&#39;s <em>route</em>.</p>
 <p>While the key is named route, the way to specify an uri here is not the same as with routes: 
 it&#39;s simply an uri. We&#39;ll call it a pattern. If you want to trigger an application from /app 
 the pattern would be <em>/app</em>.
 However, accessing /app/index would not trigger the application! To enable this you have to
 use the * wildcard at the end of the pattern so that all children also triggers the app. 
-The final pattern would be <em>/app/*</em>.
-
-</p>
+The final pattern would be <em>/app/*</em>.</p>
 <pre><code>Atomik::set(&#39;plugins.Blog&#39;, array(
     &#39;route&#39; =&gt; &#39;/my-blog/*&#39;
 ));</code></pre>
 <p>If a plugin does not have a configuration key to modify the route, this can be done by calling
 <code>Atomik::registerPluggableApplication()</code> from the bootstrap file. This method takes as
-first argument the plugin name and as second the pattern.
-
-</p>
+first argument the plugin name and as second the pattern.</p>
 <pre><code>Atomik::registerPluggableApplication(&#39;MyPluggableApp&#39;, &#39;/my-app/*&#39;)</code></pre>
 <p>When available, use the plugin configuration as it could override any predefined pattern.
-You can connect any application to the root of your application using <em>/*</em>.
-
-</p>
+You can connect any application to the root of your application using <em>/*</em>.</p>
 <a name="overrides"></a><h3>Overrides</h3>
 <p>Using pluggable applications is great! They do everything for you. However, you&#39;ll sometimes want
-to customize these applications. Atomik provides an easy way to do that: overrides.
-
-</p>
+to customize these applications. Atomik provides an easy way to do that: overrides.</p>
 <p>With overrides you will be able to replace any action, view, layout or helper from a pluggable
-application.
-
-</p>
+application.</p>
 <p>Overrides are stored in <em>app/overrides</em>. In this directory, create a folder named
 after the plugin. This folder can then contain the classic Atomik folders: <em>actions</em>, 
-<em>views</em>, <em>helpers</em> and <em>layouts</em>.
-
-</p>
+<em>views</em>, <em>helpers</em> and <em>layouts</em>.</p>
 <p>For example, to override the <em>index</em> view from the Blog plugin, you would create the file 
-<em>app/overrides/Blog/views/index.phtml</em>.
-
-</p>
+<em>app/overrides/Blog/views/index.phtml</em>.</p>
 <p>Some plugins may allow your actions and views from your <em>app</em> folder to be accessible
 from the application. This is not considered overrides as plugins have priority in this case. But it
 can be a nice way to add features to a pluggable application. You cannot enable this yourself, only
-plugin can do it, see the plugin documentation.
+plugin can do it, see the plugin documentation.</p>
 
-</p>
 
-</article>
 
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

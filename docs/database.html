@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,96 +560,79 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="database"></a><h1>Database</h1>
+        <div id="content">
+            <a name="database"></a><h1>Database</h1>
 <div class="note">You will need the Db plugin which is bundled with Atomik</div>
 
-<p>The database plugin is a thin layer on top of <a href="http://fr2.php.net/manual/en/book.pdo.php">PDO</a>.
-
-</p>
+<p>The database plugin is a thin layer on top of <a href="http://fr2.php.net/manual/en/book.pdo.php">PDO</a>.</p>
 <a name="connecting"></a><h2>Connecting</h2>
-<p>There are 3 configuration options:
-
-</p>
+<p>There are 3 configuration options:</p>
 <ul>
 <li><em>dsn</em></li>
 <li><em>username</em></li>
 <li><em>password</em></li>
 </ul>
-<p>Activate the plugin:
-
-</p>
+<p>Activate the plugin:</p>
 <pre><code>Atomik::set(&#39;plugins.Db&#39;, array(
     &#39;dsn&#39; =&gt; &#39;mysql:host=localhost;dbname=example&#39;,
     &#39;username&#39; =&gt; &#39;root&#39;,
     &#39;password&#39; =&gt; &#39;rootpassword&#39;
 ));</code></pre>
-<p>This creates a <code>PDO</code> instance which is stored under the <em>db</em> key in the global store.
-
-</p>
+<p>This creates a <code>PDO</code> instance which is stored under the <em>db</em> key in the global store.</p>
 <pre><code>$db = Atomik::get(&#39;db&#39;);
 
 // or in actions:
 
 $db = $this[&#39;db&#39;];</code></pre>
-<p>You can then use this object as you would with a normal PDO instance:
-
-</p>
+<p>You can then use this object as you would with a normal PDO instance:</p>
 <pre><code>$stmt = $this[&#39;db&#39;]-&gt;prepare(&#39;insert into posts (title, content) values (?, ?)&#39;);
 $stmt-&gt;execute(array(&#39;my new post&#39;, &#39;lorem ipsum ...&#39;));</code></pre>
 <a name="querying-data"></a><h2>Querying data</h2>
 <p>Some useful methods are added to quickly query the database. The <code>select()</code> function
-takes as first argument the table name. By default it will execute a SELECT * statement.
-
-</p>
+takes as first argument the table name. By default it will execute a SELECT * statement.</p>
 <pre><code>$posts = $db-&gt;select(&#39;posts&#39;);</code></pre>
 <p>The second argument is a where statement. It can either be an SQL string (without the WHERE
-keyword) or an array of column/value mapping:
-
-</p>
+keyword) or an array of column/value mapping:</p>
 <pre><code>$clothes = $db-&gt;select(&#39;products&#39;, &quot;category = &#39;clothes&#39;&quot;);
 // or:
 $clothes = $db-&gt;select(&#39;products&#39;, array(&#39;category&#39; =&gt; &#39;clothes&#39;));</code></pre>
-<p>To select only one row, use <code>selectOne()</code>.
-
-</p>
+<p>To select only one row, use <code>selectOne()</code>.</p>
 <p>To select the value of the first column of the first line, use <code>selectValue</code> which needs
-a column name as the second argument.
-
-</p>
+a column name as the second argument.</p>
 <pre><code>$postTitle = $db-&gt;selectValue(&#39;posts&#39;, &#39;title&#39;, array(&#39;id&#39; =&gt; 1));</code></pre>
-<p>Finally, you can count using <code>count()</code>:
-
-</p>
+<p>Finally, you can count using <code>count()</code>:</p>
 <pre><code>$nbClothes = $db-&gt;count(&#39;products&#39;, array(&#39;category&#39; =&gt; &#39;clothes&#39;));</code></pre>
 <a name="manipulating-data"></a><h2>Manipulating data</h2>
 <p>Insert data using <code>insert()</code> which takes as first argument the table name and as second
 an array where keys are columns names. It returns the ̀PDOStatement` object that was
-executed (in case you want to get the last inserted id for example).
-
-</p>
+executed (in case you want to get the last inserted id for example).</p>
 <pre><code>$data = array(
     &#39;title&#39; =&gt; &#39;post title&#39;,
     &#39;content&#39; =&gt; &#39;lorem ipsum...&#39;
 );
 $db-&gt;insert(&#39;posts&#39;, $data);</code></pre>
 <p>Updating data is very similar using the <code>update()</code> function. It can take as third parameter
-a where clause like in <code>select()</code>.
-
-</p>
+a where clause like in <code>select()</code>.</p>
 <pre><code>$data = array(&#39;title&#39; =&gt; &#39;modified title&#39;);
 $db-&gt;update(&#39;posts&#39;, $data, array(&#39;id&#39; =&gt; 1));</code></pre>
 <p>Finally, deleting data is as easy. The second argument can be a where clause (if not specified,
-all rows will be deleted).
-
-</p>
+all rows will be deleted).</p>
 <pre><code>$db-&gt;delete(&#39;posts&#39;, array(&#39;id&#39; =&gt; 1));</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

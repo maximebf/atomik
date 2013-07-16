@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,36 +560,31 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="scripts"></a><h1>Scripts</h1>
+        <div id="content">
+            <a name="scripts"></a><h1>Scripts</h1>
 <div class="note">You will need the Console plugin which is bundled with Atomik</div>
 
 <p>The Console plugin allows Atomik to be used in a terminal. It allows other plugins to provide
-custom commands and to create scripts to better administer your application.
-
-</p>
+custom commands and to create scripts to better administer your application.</p>
 <p>It is built on top of <a href="https://github.com/maximebf/ConsoleKit">ConsoleKit</a> which you&#39;ll
-need to install.
-
-</p>
-<p>To call your application from the command line, use the following command
-
-</p>
+need to install.</p>
+<p>To call your application from the command line, use the following command</p>
 <pre><code>php index.php [command] [args]</code></pre>
-<p>Where <em>index.php</em> is Atomik&#39;s core file.
-
-</p>
+<p>Where <em>index.php</em> is Atomik&#39;s core file.</p>
 <a name="creating-custom-scripts"></a><h2>Creating custom scripts</h2>
 <p>You can create ConsoleKit Commands inside the <em>app/scripts</em> folder (which can be changed
-using the <em>scripts_dir</em> config key).
-
-</p>
-<p>Let&#39;s create a script in <em>app/scripts/CleanupDbCommand.php</em>
-
-</p>
+using the <em>scripts_dir</em> config key).</p>
+<p>Let&#39;s create a script in <em>app/scripts/CleanupDbCommand.php</em></p>
 <pre><code>&lt;?php
 
 class CleanupDbCommand extends ConsoleKit\Command
@@ -601,28 +594,24 @@ class CleanupDbCommand extends ConsoleKit\Command
         $this-&gt;writeln(sprintf(&quot;cleaning %s&quot;, $args[0]));
     }
 }</code></pre>
-<p>To call this script use the following command:
-
-</p>
+<p>To call this script use the following command:</p>
 <pre><code>$ php index.php cleanup-db dbname</code></pre>
 <a name="registering-commands"></a><h2>Registering commands</h2>
-<p>Instead of using files, you can manually register commands using ̀Console::register()`:
-
-</p>
+<p>Instead of using files, you can manually register commands using ̀Console::register()`:</p>
 <pre><code>Atomik\Console::register(&#39;cleanup-db&#39;, function($args, $opts, $console) {
     // code
 });</code></pre>
 <a name="built-in-commands"></a><h2>Built-in commands</h2>
 <p>The plugin provides one built-in command to generate new actions and views. 
 Just specify a name and the action file and the view file will be generated. 
-You can generate multiple pages by separating them by a space
-
-</p>
+You can generate multiple pages by separating them by a space</p>
 <pre><code>php index.php generate home
 php index.php generate photos about</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

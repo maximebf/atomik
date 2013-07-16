@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,37 +560,32 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="developing-plugins"></a><h1>Developing plugins</h1>
+        <div id="content">
+            <a name="developing-plugins"></a><h1>Developing plugins</h1>
 <a name="the-plugin-file"></a><h2>The plugin file</h2>
 <p>A plugin is made of one file named the same way. For example the Db plugin is in the file
-<em>Db.php</em>. Plugin&#39;s file must always start with an uppercase letter.
-
-</p>
+<em>Db.php</em>. Plugin&#39;s file must always start with an uppercase letter.</p>
 <p>Plugins are loaded at the beginning of a request, just after the configuration. 
-The content of the file is free or it can be a class.
-
-</p>
+The content of the file is free or it can be a class.</p>
 <p>To build more complex plugins you can instead of a file create a folder named after your plugin.
-Your PHP file goes into that folder and must be named <em>Plugin.php</em>.
-
-</p>
+Your PHP file goes into that folder and must be named <em>Plugin.php</em>.</p>
 <p>When using folders, it is possible to add a sub folder named <em>libs</em> which
-will automatically be added to php&#39;s include_path.
-
-</p>
-<p>A folder must be used when creating pluggable applications.
-
-</p>
+will automatically be added to php&#39;s include_path.</p>
+<p>A folder must be used when creating pluggable applications.</p>
 <a name="configuration"></a><h2>Configuration</h2>
 <p>As said in the &quot;Using plugins&quot; section, plugins can have custom configuration.
 To retrieve this configuration a <code>$config</code> variable is automatically available.
-It contains the array used in the configuration.
-
-</p>
+It contains the array used in the configuration.</p>
 <pre><code>// In the configuration file:
 
 Atomik::set(&#39;plugins&#39;, array(
@@ -606,13 +599,9 @@ Atomik::set(&#39;plugins&#39;, array(
 echo &#39;hello &#39; . $config[&#39;name&#39;];</code></pre>
 <a name="using-a-class"></a><h2>Using a class</h2>
 <p>For better application design it is advice to use a class to define your plugin.
-When loading a plugin, it will look for a class named like the plugin.
-
-</p>
+When loading a plugin, it will look for a class named like the plugin.</p>
 <p>If this class has a static <code>start()</code> method, it will be called when the plugin is loaded
-with the plugin&#39;s custom configuration as argument.
-
-</p>
+with the plugin&#39;s custom configuration as argument.</p>
 <pre><code>class Db
 {
     public static function start($config)
@@ -621,14 +610,10 @@ with the plugin&#39;s custom configuration as argument.
     }
 }</code></pre>
 <p>It is a good thing to always provide a default configuration. This can be done by merging
-a default configuration array with the user&#39;s configuration.
-
-</p>
+a default configuration array with the user&#39;s configuration.</p>
 <p>The class can contain static methods that will be automatically registered as callback
 on events. These methods have to start by &quot;on&quot; followed by the event name without
-the double &quot;:&quot;.
-
-</p>
+the double &quot;:&quot;.</p>
 <pre><code>class Db
 {
     public static onAtomikDispatchStart()
@@ -636,17 +621,13 @@ the double &quot;:&quot;.
         // listener for Atomik::Dispatch::Start
     }
 }</code></pre>
-<p>You can prevent automatic callback registration by returning false in the start method.
-
-</p>
+<p>You can prevent automatic callback registration by returning false in the start method.</p>
 <a name="pluggable-applications"></a><h2>Pluggable applications</h2>
 <p>Pluggable applications are really simple to create. Create a normal plugin using a folder. 
 Create your <em>Plugin.php</em> file. Call <code>Atomik::registerPluggableApplication()</code> when
 the plugin starts using the plugin name as first parameter (and eventually the pattern to 
 trigger the application as the second). Create standard Atomik folders inside your plugin 
-folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> and code your application normally.
-
-</p>
+folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> and code your application normally.</p>
 <pre><code>class PluggApp
 {
     public static $config = array(
@@ -661,38 +642,24 @@ folder: <em>actions</em>, <em>views</em>, <em>helpers</em> and <em>layouts</em> 
 }</code></pre>
 <p>A pluggable application can also have a file named <em>Application.php</em> at the root of the plugin
 folder. This file act the same way as the <em>bootstrap.php</em> file. It will be called before
-the pluggable application is dispatched.
-
-</p>
+the pluggable application is dispatched.</p>
 <p>If Atomik detects the <em>Application.php</em> file, a <em>Plugin.php</em> file is not
-necessary and the pluggable application will automatically be registered.
-
-</p>
+necessary and the pluggable application will automatically be registered.</p>
 <p>A pluggable application behaves as a normal Atomik application and all features are available. 
 The configuration will be reseted before the dispatch occurs. These applications can provide 
 their own config in their <em>Application.php</em> file like their own routes, default action... 
-The <em>pre_dispatch.php</em> and <em>post_dispatch.php</em> files can also be used.
-
-</p>
+The <em>pre_dispatch.php</em> and <em>post_dispatch.php</em> files can also be used.</p>
 <p>Note that every url will be relative to the pluggable application&#39;s root. That is to say you 
 do not have to care of the route used to trigger your application. For this to work properly, 
-read carefully the next section.
-
-</p>
+read carefully the next section.</p>
 <p><code>Atomik::registerPluggableApplication()</code> as more options which are described in the
-API reference.
-
-</p>
+API reference.</p>
 <a name="assets-and-urls"></a><h2>Assets and urls</h2>
 <p>When using the default <em>.htaccess</em> file, plugins can have an <em>assets</em> folder which
-is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.
-
-</p>
+is accessible from the Web. Of course, to use this folder, the plugin must come as a folder.</p>
 <p>You can use <code>Atomik::asset()</code> like with a normal application. However in the case of plugins, 
 asset&#39;s filename will be prepended with a template defined in <em>atomik.plugin_assets_tpl</em>. 
-The default is <em>app/plugins/%s/assets</em>. The <em>%s</em> sign will be replaced with the plugin name.
-
-</p>
+The default is <em>app/plugins/%s/assets</em>. The <em>%s</em> sign will be replaced with the plugin name.</p>
 <pre><code>echo Atomik::asset(&#39;css/styles.css&#39;);
 echo Atomik::pluginAsset(&#39;MyPlugin&#39;, &#39;css/styles.css&#39;);
 // will output app/plugins/MyPlugin/assets/css/styles.css
@@ -702,27 +669,17 @@ echo Atomik::asset(&#39;css/styles.css&#39;);
 echo Atomik::pluginAsset(&#39;MyPlugin&#39;, &#39;css/styles.css&#39;);
 // will output plugins/MyPlugin/assets/css/styles.css</code></pre>
 <p>It is not adviced to change the plugin&#39;s assets folder name as some plugins may not work 
-with your installation.
-
-</p>
+with your installation.</p>
 <a name="loading-plugins-programmaticaly"></a><h2>Loading plugins programmaticaly</h2>
 <p>It is of course possible to load plugins at runtime. Atomik provides a bunch of loading methods 
-so it&#39;s simpler for plugins to load plugins they depend on or to create custom plugins.
-
-</p>
+so it&#39;s simpler for plugins to load plugins they depend on or to create custom plugins.</p>
 <p>The most common method is <code>Atomik::loadPlugin()</code> which will load a plugin and use
-the user plugin&#39;s configuration (from the plugins key) if one is available.
-
-</p>
+the user plugin&#39;s configuration (from the plugins key) if one is available.</p>
 <p>If a plugin is not available, loading it will throw an exception. To prevent that you can use
-<code>Atomik::loadPluginIfAvailable()</code>.
-
-</p>
+<code>Atomik::loadPluginIfAvailable()</code>.</p>
 <pre><code>Atomik::loadPlugin(&#39;Db&#39;);</code></pre>
 <p>You can also load plugins by specifying custom configuration. This is done using 
-̀Atomik::loadCustomPlugin()`.
-
-</p>
+̀Atomik::loadCustomPlugin()`.</p>
 <pre><code>Atomik::loadCustomPlugin(&#39;Db&#39;, array(&#39;dbname&#39; =&gt; &#39;test&#39;));
 
 // load plugins from a custom directory
@@ -733,23 +690,17 @@ Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;classNameTempla
 
 // do not call the start() method when loading plugins
 Atomik::loadCustomPlugin(&#39;MyPlugin&#39;, array(), array(&#39;callStart&#39; =&gt; false));</code></pre>
-<p><code>Atomik::loadCustomPluginIfAvailable()</code> is also available.
-
-</p>
+<p><code>Atomik::loadCustomPluginIfAvailable()</code> is also available.</p>
 <p>Be aware that some plugins may need to listen to some specific events. If you register a plugin too late,
-the events may have already occured, making the plugin malfunction.
-
-</p>
+the events may have already occured, making the plugin malfunction.</p>
 <p>You can check if a plugin is already loaded using <code>Atomik::isPluginLoaded()</code> or if it&#39;s
-available using <code>Atomik::isPluginAvailable()</code>.
+available using <code>Atomik::isPluginAvailable()</code>.</p>
+<p>Finally, you can retreive all loaded plugins using <code>Atomik::getLoadedPlugins()</code>.</p>
 
-</p>
-<p>Finally, you can retreive all loaded plugins using <code>Atomik::getLoadedPlugins()</code>.
 
-</p>
 
-</article>
 
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

@@ -571,55 +571,32 @@
 </div>
 
         <div id="content">
-            <a name="helpers"></a><h1>Helpers</h1>
-<p>Helpers are small utility functions, accessible through the <code>Atomik</code> object. They are
-loaded on demand.</p>
-<a name="creating-helpers"></a><h2>Creating helpers</h2>
-<p>Helpers in Atomik are stored in <em>app/helpers</em>. For example, a <code>format_date()</code> helper would 
-be stored in <em>app/helpers/format_date.php</em>. The helpers directory can be changed using
-<em>atomik.dirs.helpers</em>.</p>
-<p>You can then define your helper in two ways: as a function or as a class. If you&#39;re using a function, 
-just create one with the same name as the helper.</p>
-<pre><code>function format_date($date)
-{
-    // do the formating
-    return $date;
-}</code></pre>
-<p>You can also use a class which can be pretty useful for more complex cases. The class name is a 
-camel case version (ie. without any underscores or spaces, all words starting with an upper case) 
-of the helper name suffixed with <em>Helper</em>. In our example, it would be 
-<code>FormatDateHelper</code>. This class also needs to have a method named like the 
-helper name but in camel case and starting with a lower case. In this case, it would be 
-<code>formatDate()</code>.</p>
-<pre><code>class FormatDateHelper
-{
-    public function formatDate($date)
-    {
-        // do the formating
-        return $date;
+            <h2>Search results for "<span id="search-q"></span>"</h2>
+<ul id="search-results"></ul>
+<script type="text/javascript" src="/docs/lunr-index.js"></script>
+<script type="text/javascript">
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
-}</code></pre>
-<a name="using-helpers"></a><h2>Using helpers</h2>
-<p>Helpers are callable from any action or view file.
-They are accessible as methods of <code>$this</code>.</p>
-<pre><code>&lt;span class=&quot;date&quot;&gt;&lt;?php echo $this-&gt;format_date(&#39;01-01-2009&#39;) ?&gt;&lt;/span&gt;</code></pre>
-<h2>Registering helpers</h2>
-<p>You can also registers helper using the <code>Atomik::registerHelper()</code> function:</p>
-<pre><code>Atomik::registerHelper(&#39;say_hello&#39;, function() {
-    echo &#39;hello&#39;;
-});</code></pre>
-,<a name="using-helpers"></a><h2>Using helpers</h2>
-<p>Helpers are callable from any action or view file.
-They are accessible as methods of <code>$this</code>.</p>
-<pre><code>&lt;span class=&quot;date&quot;&gt;&lt;?php echo $this-&gt;format_date(&#39;01-01-2009&#39;) ?&gt;&lt;/span&gt;</code></pre>
-<a name="registering-helpers"></a><h2>Registering helpers</h2>
-<p>You can also registers helper using the <code>Atomik::registerHelper()</code> function:</p>
-<pre><code>Atomik::registerHelper(&#39;say_hello&#39;, function() {
-    echo &#39;hello&#39;;
-});</code></pre>
 
+    $(function() {
+        var q = getParameterByName('q'), 
+            ul = $('#search-results').empty(),
+            results = index.search(q);
 
-
+        $('#search-q').text(q);
+        if (results.length > 0) {
+            for (var i = 0; i < results.length; i++) {
+                ul.append($('<li><a href="' + results[i].ref + '">' + documentTitles[results[i].ref] + '</a></li>'));
+            }
+        } else {
+            ul.append($('<li class="no-results">No results found</li>'));
+        }
+    })
+</script>
 
         </div>
         <footer id="footer">

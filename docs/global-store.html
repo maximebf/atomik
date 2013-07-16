@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,43 +560,38 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="the-global-store"></a><h1>The global store</h1>
+        <div id="content">
+            <a name="the-global-store"></a><h1>The global store</h1>
 <p>Atomik provides a global store where anything can be saved for the time of a request.
 This global store acts like an associative array with key/value pairs.
-It&#39;s mainly used to store the configuration.
-
-</p>
+It&#39;s mainly used to store the configuration.</p>
 <a name="accessing-the-store"></a><h2>Accessing the store</h2>
 <p>Accessors are methods provided by the Atomik class that allow you to 
 access the global store. They are six of them: <em>get</em>, <em>set</em>, <em>add</em>, <em>prepend</em>,
-<em>has</em> and <em>delete</em>.
-
-</p>
+<em>has</em> and <em>delete</em>.</p>
 <p>The <code>get()</code> method allows you to retrieve the value
 associated to the key passed as first argument. If a second argument is 
 specified it will be use as a default value in the case where the key is
-not found.
-
-</p>
+not found.</p>
 <pre><code>echo Atomik::get(&#39;key&#39;);
 echo Atomik::get(&#39;keyThatDoesntExist&#39;, &#39;defaultValue&#39;);</code></pre>
 <p>There&#39;s also a <code>Atomik::getRef()</code> method to obtain a
 reference to the value. However this method do not have a default value parameter
-and it will return null if the key is not found.
-
-</p>
+and it will return null if the key is not found.</p>
 <p>The <code>set()</code> method allows you to define a key and its
-associated value. It will overwrite any existing value.
-
-</p>
+associated value. It will overwrite any existing value.</p>
 <p>This accessor can also take an array as argument to set multiple key/value pairs
-at once. This array will be merged with the store.
-
-</p>
+at once. This array will be merged with the store.</p>
 <pre><code>Atomik::set(&#39;key&#39;, &#39;value&#39;);
 
 Atomik::set(array(
@@ -609,13 +602,9 @@ Atomik::set(array(
 method but rather than replacing values when they already exists, adds them. For
 example if the key points to an array, the value will be added to this array as a new
 item. If the key points to a value which is not an array, it will be transformed to
-one.
-
-</p>
+one.</p>
 <p><code>prepend()</code> is exactly the same but adds the value at the beginning
-of the array.
-
-</p>
+of the array.</p>
 <pre><code>Atomik::set(&#39;key1&#39;, array(&#39;item1&#39;));
 Atomik::add(&#39;key1&#39;, &#39;item2&#39;);
 Atomik::add(&#39;key1&#39;, array(&#39;item3&#39;, &#39;item4&#39;));
@@ -623,17 +612,13 @@ $array = Atomik::get(&#39;key1&#39;); // array(&#39;item1&#39;, &#39;item2&#39;,
 <p>The <code>has()</code> and <code>delete()</code>
 methods only take a key as argument. The first one checks if the key exists
 and the second deletes the key and its value. The method also returns the value
-which had the deleted key or false if the key didn&#39;t exist.
-
-</p>
+which had the deleted key or false if the key didn&#39;t exist.</p>
 <pre><code>if (Atomik::has(&#39;key&#39;)) {
     Atomik::delete(&#39;key&#39;);
 }</code></pre>
 <a name="nested-arrays"></a><h2>Nested arrays</h2>
 <p>Dots can be used to access nested arrays. Each segment in the key has to point to a nested
-array unless it&#39;s the last one.
-
-</p>
+array unless it&#39;s the last one.</p>
 <pre><code>Atomik::set(&#39;users&#39;, array(
     &#39;paul&#39; =&gt; array(
         &#39;id&#39; =&gt; 1,
@@ -655,9 +640,7 @@ Atomik::set(&#39;users.sofia&#39;, array(
 ));
 
 $sofiaAge = Atomik::get(&#39;users.sofia.age&#39;);</code></pre>
-<p>You can also use paths in sub arrays when setting some values.
-
-</p>
+<p>You can also use paths in sub arrays when setting some values.</p>
 <pre><code>Atomik::set(array(
     &#39;users&#39; =&gt; array(
         &#39;paul.age&#39; =&gt; 22,
@@ -675,25 +658,17 @@ array(
         &#39;age&#39; =&gt; 20
     )
 )</code></pre>
-<p><code>Atomik::dimensionizeArray()</code> can be used to <em>dimensionize</em> any array.
-
-</p>
+<p><code>Atomik::dimensionizeArray()</code> can be used to <em>dimensionize</em> any array.</p>
 <p>When using an array, be aware that it will be <em>dimensionized</em> before being
 merged. This is done using <code>Atomik::dimensionizeArray()</code>. It can be avoided
-using false as the third argument of <code>set()</code>.
-
-</p>
-<p>To avoid a key to be dimensionized, you can escape dots using double dots:
-
-</p>
+using false as the third argument of <code>set()</code>.</p>
+<p>To avoid a key to be dimensionized, you can escape dots using double dots:</p>
 <pre><code>Atomik::set(&#39;routes&#39;, array(
     &#39;/users..json&#39; =&gt; array(&#39;action&#39; =&gt; &#39;users&#39;, &#39;format&#39; =&gt; &#39;json&#39;)
 ));</code></pre>
 <a name="accessing-the-global-store-from-actions-and-views"></a><h2>Accessing the global store from actions and views</h2>
 <p>You should always access the global store through <code>$this</code> from actions
-and views. Get values using the same syntax as with arrays:
-
-</p>
+and views. Get values using the same syntax as with arrays:</p>
 <pre><code>$this[&#39;users&#39;] = array(
     &#39;paul&#39; =&gt; array(
         &#39;id&#39; =&gt; 1,
@@ -704,22 +679,20 @@ if (isset($this[&#39;users.paul&#39;])) {
     $age = $this[&#39;users.paul.age&#39;];
     unset($this[&#39;users.paul&#39;]);
 }</code></pre>
-<p>Accessors are also available as methods of ̀$this`:
-
-</p>
+<p>Accessors are also available as methods of ̀$this`:</p>
 <pre><code>$age = $this-&gt;get(&#39;users.paul.age&#39;, 21);</code></pre>
 <a name="using-accessors-with-any-array"></a><h2>Using accessors with any array</h2>
 <p>Accessors can be used with any array. You need to pass as argument an array
 (the position of the argument depends on the method). See the API guide for 
-more information. Still, here&#39;s an example:
-
-</p>
+more information. Still, here&#39;s an example:</p>
 <pre><code>$array = array();
 Atomik::set(&#39;key&#39;, &#39;value&#39;, $array);
 echo Atomik::get(&#39;key&#39;, null, $array);</code></pre>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>

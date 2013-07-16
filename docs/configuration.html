@@ -3,33 +3,36 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Atomik Framework</title>
-    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin">
-    <link type="text/css" rel="stylesheet" href="/docs/css/reset.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/docs.css">
-    <link type="text/css" rel="stylesheet" href="/docs/css/print.css" media="print">
+
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/reset.css">
     <link type="text/css" rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/sunburst.min.css">
-    
-        <link type="text/css" rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/docs.css">
+    <link type="text/css" rel="stylesheet" href="/docs/assets/css/print.css" media="print">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <script type="text/javascript" src="/docs/assets/js/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+    <script type="text/javascript" src="/docs/assets/js/lunr.min.js"></script>
+
     
-    <script type="text/javascript" src="/docs/js/viewer.js"></script>
+
+    <script type="text/javascript">var BASE_URL = "/docs/";</script>
+    <script type="text/javascript" src="/docs/assets/js/viewer.js"></script>
+
+    
 </head>
 <body>
     <div id="page">
         <a name="top" />
-        
-            <header id="header">
-                <h1><a href="/docs/">Atomik Framework</a></h1>
-            </header>
-        
+        <header id="header">
+            <h1><a href="/docs/">Atomik Framework</a></h1>
+        </header>
         
 
-
-    <div id="sidebar">
-        <nav id="toc">
-            
+<div id="sidebar">
+    <form action="/docs/search.html"><input id="search" type="text" placeholder="Search" name="q" /></form>
+    <nav id="toc">
+        
     <ol>
     
         <li>
@@ -277,11 +280,6 @@
     
         <li>
             <a href="/docs/helpers.html#using-helpers">Using helpers</a>
-            
-        </li>
-    
-        <li>
-            <a href="/docs/helpers.html#registering-helpers"> Registering helpers</a>
             
         </li>
     
@@ -562,29 +560,28 @@
     
 </ol>
 
-        </nav>
-    </div>
+    </nav>
+    
+    <nav id="links">
+        <ul>
+            
+        </ul>
+    </nav>
+    
+</div>
 
-<article id="content">
-    <a name="configuration"></a><h1>Configuration</h1>
+        <div id="content">
+            <a name="configuration"></a><h1>Configuration</h1>
 <a name="configuration-file"></a><h2>Configuration file</h2>
 <p>Atomik provides a default configuration for everything (to fullfill the convention
 over configuration principle). However, you can override it and provide plugin&#39;s
-configuration or even your own.
-
-</p>
+configuration or even your own.</p>
 <p>Three file formats are available for the configuration: PHP (which is the default), INI or JSON.
-The format will be chosen depending on the file extension (either php, ini or json - in lower case).
-
-</p>
+The format will be chosen depending on the file extension (either php, ini or json - in lower case).</p>
 <p>The file is by default located in the app directory and named <em>config</em>.
-This can be changed in <em>atomik.files.config</em>. Do NOT specify the extension.
-
-</p>
+This can be changed in <em>atomik.files.config</em>. Do NOT specify the extension.</p>
 <p>When using PHP, the script can return an array that will be use with <code>Atomik::set()</code>.
-You can also directly use accessors in the file.
-
-</p>
+You can also directly use accessors in the file.</p>
 <pre><code>return array(
     &#39;my_key&#39; =&gt; &#39;my value&#39;,
     &#39;plugins&#39; =&gt; array(
@@ -599,12 +596,8 @@ You can also directly use accessors in the file.
     )
 );</code></pre>
 <p>When using INI, you can use dots in keys to specify multi-dimensional keys. You can use dots
-in JSON keys or child objects.
-
-</p>
-<p>INI categories will be treated as parent keys and also dimensionized.
-
-</p>
+in JSON keys or child objects.</p>
+<p>INI categories will be treated as parent keys and also dimensionized.</p>
 <pre><code>my_key = my value
 
 [plugins]
@@ -614,9 +607,7 @@ Db.username = root
 [atomik.files]
 pre_dispatch = pre.php
 post_dispatch = post.php</code></pre>
-<p>When using JSON, the data must be wrapped in an object.
-
-</p>
+<p>When using JSON, the data must be wrapped in an object.</p>
 <pre><code>{
     &quot;my_key&quot;: &quot;my value&quot;,
 
@@ -635,46 +626,31 @@ post_dispatch = post.php</code></pre>
 <a name="bootsrapping"></a><h2>Bootsrapping</h2>
 <p>Once the configuration is loaded, Atomik will setup the environment and load plugins. Once ready,
 it will try to load a bootstrap file. It can be used to prepare the application, load additional
-libraries or plugins...
-
-</p>
+libraries or plugins...</p>
 <p>The file must be named <em>bootstrap.php</em> and located in the <em>app</em> directory.
 In this file, you can use accessors (the <code>set()</code> method of course)
-to define configuration keys.
-
-</p>
-<p>The name of this file can be changed using the <em>atomik.files.bootstrap</em> configuration key.
-
-</p>
+to define configuration keys.</p>
+<p>The name of this file can be changed using the <em>atomik.files.bootstrap</em> configuration key.</p>
 <a name="custom-directory-structure"></a><h2>Custom directory structure</h2>
-<p>The directory structure can be customized by modifying entries in the <em>atomik.dirs</em> configuration key.
-
-</p>
+<p>The directory structure can be customized by modifying entries in the <em>atomik.dirs</em> configuration key.</p>
 <p>Each keys in the <em>dirs</em> array represent a type of directory. Their value can be a string for
-a single path or an array for mutliple paths.
-
-</p>
-<p>If the path is relative, it must be relative to the root directory of your application.
-
-</p>
+a single path or an array for mutliple paths.</p>
+<p>If the path is relative, it must be relative to the root directory of your application.</p>
 <p>For the <em>plugins</em>, <em>helpers</em> and <em>includes</em> keys, directories can be associated to
 a namespace. Let&#39;s say you have the Doctrine library in /usr/share/php/doctrine, the
-sources being in lib/Doctrine:
-
-</p>
+sources being in lib/Doctrine:</p>
 <pre><code>Atomik::add(&#39;atomik.dirs.includes&#39;, array(&#39;Doctrine&#39; =&gt; &#39;/usr/share/php/doctrine/lib/Doctrine&#39;));</code></pre>
 <a name="pre-and-post-dispatch-files"></a><h2>Pre and post dispatch files</h2>
 <p>Atomik allows you to create two files: <em>pre_dispatch.php</em> and 
 <em>post_dispatch.php</em> in the <em>app</em> directory. These files
-will be called respectively before and after the dispatch process.
-
-</p>
+will be called respectively before and after the dispatch process.</p>
 <p>Their filename can be changed using the <em>atomik.files.pre_dispatch</em> and
-<em>atomik.files.post_dispatch</em> configuration keys.
-</p>
+<em>atomik.files.post_dispatch</em> configuration keys.</p>
 
-</article>
 
+
+
+        </div>
         <footer id="footer">
             Powered by <a href="http://github.com/maximebf/beautiful-docs">beautiful-docs</a> -
             <a href="#top">Back to top</a> - <a href="/docs/all.html">Everything on a single page</a>
