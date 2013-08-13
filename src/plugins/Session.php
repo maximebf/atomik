@@ -48,6 +48,7 @@ class Session
             } else {
                 Atomik::$store['session'] = &$_SESSION;
             }
+            Atomik::fireEvent('Session::Start', array($ns));
         }
     }
 }
