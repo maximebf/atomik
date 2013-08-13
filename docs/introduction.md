@@ -46,6 +46,17 @@ from [here](https://github.com/maximebf/atomik/releases).
 If you want to activate pretty URLs under Apache, rename the *htaccess.example* file
 to *.htaccess*.
 
+## About the skeleton
+
+Atomik Skeleton Application is a base Atomik application with a basic directory structure 
+which let you start building your project in a matter of seconds!
+
+It includes [Twitter Bootstrap](http://getbootstrap.com/), [jQuery](http://jquery.com) and
+[PHP DebugBar](http://phpdebugbar.com).
+
+The skeleton comes with debug mode activated. Don't forget to change *atomik.debug* to
+`false` in the config file when you switch to production mode.
+
 ## Directory structure
 
 Your application per se goes into the *app* directory. Actions and views have their own 

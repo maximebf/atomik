@@ -79,3 +79,39 @@ Also, if *atomik.debug* is true, the error reporting level will be set to the ma
     Atomik::debug($myVar2); // no output
     Atomik::debug($myVar2, true); // use true to force the output even if debug set to false
 
+## Debug Bar
+
+Atomik provides a plugin to easily integrate [PHP DebugBar](http://phpdebugbar.com).
+The skeleton application comes with the debug bar thus you don't need to do the following steps.
+
+You'll need to install PHP Debug Bar by yourself. If you are using the skeleton, this
+can be done as follow:
+
+ - add the requirement in the *composer.json* file (`"maximebf/debugbar": "1.*"`)
+ - run `$ composer.phar update`
+
+Activate the plugin in the config and enable debug mode:
+
+    Atomik::add('plugins', 'DebugBar');
+    Atomik::set('atomik.debug', true);
+
+Render the debug bar in your layout:
+
+    <html>
+        <head>
+            ...
+            <?php if ($this['atomik.debug']) echo $this->renderDebugBarHead(); ?>
+        </head>
+        <body>
+            ...
+            <?php if ($this['atomik.debug']) echo $this->renderDebugBar(); ?>
+        </body>
+    </html>
+
+Be aware that the debug bar includes jQuery and FontAwesome. The debug bar needs
+at least jQuery to run properly. If you are using jQuery in your project, you can
+disable debug bar's own version using:
+
+    // this only includes FontAwesome
+    // set to false to include none of them
+    Atomik::set('plugins.DebugBar.include_vendors', 'css');
