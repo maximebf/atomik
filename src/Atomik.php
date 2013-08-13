@@ -1367,7 +1367,7 @@ final class Atomik implements ArrayAccess
 
     public function offsetUnset($key)
     {
-        $this->delete($key);
+        return Atomik::delete($key);
     }
     
     
