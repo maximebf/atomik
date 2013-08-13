@@ -52,6 +52,11 @@
         </li>
     
         <li>
+            <a href="/docs/introduction.html#about-the-skeleton">About the skeleton</a>
+            
+        </li>
+    
+        <li>
             <a href="/docs/introduction.html#directory-structure">Directory structure</a>
             
         </li>
@@ -382,6 +387,11 @@
             
         </li>
     
+        <li>
+            <a href="/docs/error-log-debug.html#debug-bar">Debug Bar</a>
+            
+        </li>
+    
 </ol>
 
             
@@ -600,15 +610,6 @@ helper name but in camel case and starting with a lower case. In this case, it w
     }
 }</code></pre>
 <a name="using-helpers"></a><h2>Using helpers</h2>
-<p>Helpers are callable from any action or view file.
-They are accessible as methods of <code>$this</code>.</p>
-<pre><code>&lt;span class=&quot;date&quot;&gt;&lt;?php echo $this-&gt;format_date(&#39;01-01-2009&#39;) ?&gt;&lt;/span&gt;</code></pre>
-<h2>Registering helpers</h2>
-<p>You can also registers helper using the <code>Atomik::registerHelper()</code> function:</p>
-<pre><code>Atomik::registerHelper(&#39;say_hello&#39;, function() {
-    echo &#39;hello&#39;;
-});</code></pre>
-,<a name="using-helpers"></a><h2>Using helpers</h2>
 <p>Helpers are callable from any action or view file.
 They are accessible as methods of <code>$this</code>.</p>
 <pre><code>&lt;span class=&quot;date&quot;&gt;&lt;?php echo $this-&gt;format_date(&#39;01-01-2009&#39;) ?&gt;&lt;/span&gt;</code></pre>

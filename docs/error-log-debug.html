@@ -52,6 +52,11 @@
         </li>
     
         <li>
+            <a href="/docs/introduction.html#about-the-skeleton">About the skeleton</a>
+            
+        </li>
+    
+        <li>
             <a href="/docs/introduction.html#directory-structure">Directory structure</a>
             
         </li>
@@ -382,6 +387,11 @@
             
         </li>
     
+        <li>
+            <a href="/docs/error-log-debug.html#debug-bar">Debug Bar</a>
+            
+        </li>
+    
 </ol>
 
             
@@ -628,6 +638,35 @@ by modifying the <em>atomik.debug</em> configuration key.</p>
 Atomik::set(&#39;atomik.debug&#39;, false);
 Atomik::debug($myVar2); // no output
 Atomik::debug($myVar2, true); // use true to force the output even if debug set to false</code></pre>
+<a name="debug-bar"></a><h2>Debug Bar</h2>
+<p>Atomik provides a plugin to easily integrate <a href="http://phpdebugbar.com">PHP DebugBar</a>.
+The skeleton application comes with the debug bar thus you don&#39;t need to do the following steps.</p>
+<p>You&#39;ll need to install PHP Debug Bar by yourself. If you are using the skeleton, this
+can be done as follow:</p>
+<ul>
+<li>add the requirement in the <em>composer.json</em> file (<code>&quot;maximebf/debugbar&quot;: &quot;1.*&quot;</code>)</li>
+<li>run <code>$ composer.phar update</code></li>
+</ul>
+<p>Activate the plugin in the config and enable debug mode:</p>
+<pre><code>Atomik::add(&#39;plugins&#39;, &#39;DebugBar&#39;);
+Atomik::set(&#39;atomik.debug&#39;, true);</code></pre>
+<p>Render the debug bar in your layout:</p>
+<pre><code>&lt;html&gt;
+    &lt;head&gt;
+        ...
+        &lt;?php if ($this[&#39;atomik.debug&#39;]) echo $this-&gt;renderDebugBarHead(); ?&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        ...
+        &lt;?php if ($this[&#39;atomik.debug&#39;]) echo $this-&gt;renderDebugBar(); ?&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Be aware that the debug bar includes jQuery and FontAwesome. The debug bar needs
+at least jQuery to run properly. If you are using jQuery in your project, you can
+disable debug bar&#39;s own version using:</p>
+<pre><code>// this only includes FontAwesome
+// set to false to include none of them
+Atomik::set(&#39;plugins.DebugBar.include_vendors&#39;, &#39;css&#39;);</code></pre>
 
 
 

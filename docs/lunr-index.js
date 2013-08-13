@@ -29,6 +29,13 @@ index.add({
     body: "## Installation  The best way to install Atomik is using [Composer](http://getcomposer.org) and the [Atomik Skeleton Application](https://github.com/maximebf/atomik-skeleton).  The skeleton is a base Atomik application with a basic directory structure which  let you start building your project in a matter of seconds!      $ php composer.phar create-project atomik/skeleton /path/to/my/install/folder  Navigate to your website in your browser (ie. &lt;http://localhost&gt;) where you should see a congratulation message.  If you're not comfortable using Composer, you can download the skeleton as a zip archive from [here](https://github.com/maximebf/atomik/releases).  If you want to activate pretty URLs under Apache, rename the *htaccess.example* file to *.htaccess*.  "
 });
 
+documentTitles["/docs/introduction.html#about-the-skeleton"] = "About the skeleton";
+index.add({
+    url: "/docs/introduction.html#about-the-skeleton",
+    title: "About the skeleton",
+    body: "## About the skeleton  Atomik Skeleton Application is a base Atomik application with a basic directory structure  which let you start building your project in a matter of seconds!  It includes [Twitter Bootstrap](http://getbootstrap.com/), [jQuery](http://jquery.com) and [PHP DebugBar](http://phpdebugbar.com).  The skeleton comes with debug mode activated. Don't forget to change *atomik.debug* to `false` in the config file when you switch to production mode.  "
+});
+
 documentTitles["/docs/introduction.html#directory-structure"] = "Directory structure";
 index.add({
     url: "/docs/introduction.html#directory-structure",
@@ -64,6 +71,13 @@ index.add({
     url: "/docs/introduction.html#installation",
     title: "Installation",
     body: "## Installation  The best way to install Atomik is using [Composer](http://getcomposer.org) and the [Atomik Skeleton Application](https://github.com/maximebf/atomik-skeleton).  The skeleton is a base Atomik application with a basic directory structure which  let you start building your project in a matter of seconds!      $ php composer.phar create-project atomik/skeleton /path/to/my/install/folder  Navigate to your website in your browser (ie. &lt;http://localhost&gt;) where you should see a congratulation message.  If you're not comfortable using Composer, you can download the skeleton as a zip archive from [here](https://github.com/maximebf/atomik/releases).  If you want to activate pretty URLs under Apache, rename the *htaccess.example* file to *.htaccess*.  "
+});
+
+documentTitles["/docs/introduction.html#about-the-skeleton"] = "About the skeleton";
+index.add({
+    url: "/docs/introduction.html#about-the-skeleton",
+    title: "About the skeleton",
+    body: "## About the skeleton  Atomik Skeleton Application is a base Atomik application with a basic directory structure  which let you start building your project in a matter of seconds!  It includes [Twitter Bootstrap](http://getbootstrap.com/), [jQuery](http://jquery.com) and [PHP DebugBar](http://phpdebugbar.com).  The skeleton comes with debug mode activated. Don't forget to change *atomik.debug* to `false` in the config file when you switch to production mode.  "
 });
 
 documentTitles["/docs/introduction.html#directory-structure"] = "Directory structure";
@@ -527,6 +541,13 @@ index.add({
     url: "/docs/error-log-debug.html#debugging",
     title: "Debugging",
     body: "## Debugging  Atomik's only provides a simple helper named `debug()` which  is an alias for `var_dump()`. However the method output can be hidden by modifying the *atomik.debug* configuration key.  Also, if *atomik.debug* is true, the error reporting level will be set to the maximum.      Atomik::debug($myVar);     Atomik::set('atomik.debug', false);     Atomik::debug($myVar2); // no output     Atomik::debug($myVar2, true); // use true to force the output even if debug set to false  "
+});
+
+documentTitles["/docs/error-log-debug.html#debug-bar"] = "Debug Bar";
+index.add({
+    url: "/docs/error-log-debug.html#debug-bar",
+    title: "Debug Bar",
+    body: "## Debug Bar  Atomik provides a plugin to easily integrate [PHP DebugBar](http://phpdebugbar.com). The skeleton application comes with the debug bar thus you don't need to do the following steps.  You'll need to install PHP Debug Bar by yourself. If you are using the skeleton, this can be done as follow:   - add the requirement in the *composer.json* file (`\&quot;maximebf/debugbar\&quot;: \&quot;1.*\&quot;`)  - run `$ composer.phar update`  Activate the plugin in the config and enable debug mode:      Atomik::add('plugins', 'DebugBar');     Atomik::set('atomik.debug', true);  Render the debug bar in your layout:      &lt;html&gt;         &lt;head&gt;             ...             &lt;?php if ($this['atomik.debug']) echo $this-&gt;renderDebugBarHead(); ?&gt;         &lt;/head&gt;         &lt;body&gt;             ...             &lt;?php if ($this['atomik.debug']) echo $this-&gt;renderDebugBar(); ?&gt;         &lt;/body&gt;     &lt;/html&gt;  Be aware that the debug bar includes jQuery and FontAwesome. The debug bar needs at least jQuery to run properly. If you are using jQuery in your project, you can disable debug bar's own version using:      // this only includes FontAwesome     // set to false to include none of them     Atomik::set('plugins.DebugBar.include_vendors', 'css');"
 });
 
 
