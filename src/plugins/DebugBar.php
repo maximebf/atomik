@@ -57,7 +57,7 @@ class DebugBar
     public static function onAtomikStart(&$cancel)
     {
         if (Atomik::isPluginLoaded('Db')) {
-            Atomik::set('db', new \DebugBar\DataCollector\PDO\TraceablePDO(Atomik::get('db')));
+            Atomik::set('db', new \Atomik\DebugBar\TraceableDb(Atomik::get('db')));
             self::$instance->addCollector(new \DebugBar\DataCollector\PDO\PDOCollector(Atomik::get('db'), self::$instance['time']));
         }
 
