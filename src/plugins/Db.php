@@ -48,7 +48,7 @@ class Db extends PDO
     /**
      * Executes a SELECT statement and returns the PDOStatement object
      * 
-     * @param string $query
+     * @param string $tableName
      * @param string $columns
      * @param array $where
      * @param string $afterWhere
@@ -68,7 +68,7 @@ class Db extends PDO
     /**
      * Executes a SELECT * on $tableName and returns all rows as an array
      * 
-     * @param string $query
+     * @param string $tableName
      * @param array $where
      * @param string $afterWhere
      * @return array
@@ -82,7 +82,7 @@ class Db extends PDO
     /**
      * Executes a SELECT * on $tableName and returns the first row
      * 
-     * @param string $query
+     * @param string $tableName
      * @param array $where
      * @param string $afterWhere
      * @return array
@@ -98,7 +98,7 @@ class Db extends PDO
     /**
      * Executes a SELECT on $tableName and returns the first column of the first row
      * 
-     * @param string $query
+     * @param string $tableName
      * @param string $column
      * @param array $where
      * @return mixed
