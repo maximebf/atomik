@@ -794,8 +794,7 @@ final class Atomik implements ArrayAccess
      * Renders a view
      * 
      * Searches for a file called after the view inside
-     * directories configured in atomik/dirs/views. If no file is found, an 
-     * exception is thrown unless $triggerError is false.
+     * directories configured in atomik/dirs/views. If no file is found, an exception is thrown.
      *
      * @param string $view The view name
      * @param array $vars An array containing key/value pairs that will be transformed to variables accessible inside the view
@@ -805,7 +804,7 @@ final class Atomik implements ArrayAccess
     public static function render($view, $vars = array(), $dirs = null)
     {
         $dirs = $dirs ?: self::get('atomik.dirs.views');
-        self::fireEvent('Atomik::Render::Start', array(&$view, &$vars, &$dirs, &$triggerError));
+        self::fireEvent('Atomik::Render::Start', array(&$view, &$vars, &$dirs));
         if ($view === false || ($filename = self::viewFilename($view, $dirs)) === false) {
             return false;
         }
