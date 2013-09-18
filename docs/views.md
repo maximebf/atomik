@@ -1,4 +1,3 @@
-
 # Views
 
 ## Views
@@ -84,7 +83,7 @@ Creating a custom view context:
     Atomik::set('app.views.contexts.rdf', array(    // the context name, ie. the file extension in the url
 	    'suffix'        => 'rdf',                   // the view's file extension suffix (set to false for no suffix)
 	    'layout'        => false,                   // disables the layout
-	    'content-type'  => 'application/xml+rdf'    // the response's content type
+	    'content_type'  => 'application/xml+rdf'    // the response's content type
     ));
 
 Now you can call an url like http://example.com/article.rdf. In this case the view filename
