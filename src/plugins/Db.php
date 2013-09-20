@@ -31,11 +31,16 @@ class Db extends PDO
             
             // password
             'password'          => '',
+            
+            // driver options
+            'driver_options'    => array( 
+                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' 
+            ),
 
         ), $config);
 
         self::$config = &$config;
-        self::$instance = new Db($config['dsn'], $config['username'], $config['password']);
+        self::$instance = new Db($config['dsn'], $config['username'], $config['password'], $config['driver_options']);
         Atomik::set('db', self::$instance);
     }
 
