@@ -572,10 +572,14 @@ final class Atomik implements ArrayAccess
         }
         
         if (!$found) {
+            $format = self::get('app.views.default_context', 'html');
+            if ($uriExtension !== false) {
+                $uri = substr($uri, 0, -strlen($uriExtension) - 1);
+                $format = $uriExtension;
+            }
             $request = array(
                 'action' => $uri, 
-                self::get('app.views.context_param', 'format') => $uriExtension === false ? 
-                    self::get('app.views.default_context', 'html') : $uriExtension
+                self::get('app.views.context_param', 'format') => $format
             );
         }
         

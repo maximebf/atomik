@@ -7,9 +7,13 @@ Atomik::set(array(
             'dsn' => 'sqlite:example.db'
         ),
         'Session',
-        'Flash'
+        'Flash',
+        'Errors' => array(
+            'catch_errors' => true
+        )
     ),
 
+    'atomik.debug' => true,
     'app.layout' => '_layout'
     
 ));
