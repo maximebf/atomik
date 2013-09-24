@@ -1,4 +1,3 @@
-
 # Utilities
 
 All these utilities are helpers bundled with Atomik.
@@ -135,7 +134,7 @@ key in the field's array.
 
     if (($filteredData = $this->filter($dataToFilter, $fields)) === false) {
 	    // failed validation, showing messages
-	    Atomik::flash(A('app.filters.messages'), 'error');
+	    Atomik::flash(Atomik::get('app.filters.messages'), 'error');
 	    return;
     }
 
