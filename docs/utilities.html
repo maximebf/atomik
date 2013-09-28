@@ -686,7 +686,7 @@ $fields = array(
 
 if (($filteredData = $this-&gt;filter($dataToFilter, $fields)) === false) {
     // failed validation, showing messages
-    Atomik::flash(A(&#39;app.filters.messages&#39;), &#39;error&#39;);
+    Atomik::flash(Atomik::get(&#39;app.filters.messages&#39;), &#39;error&#39;);
     return;
 }
 

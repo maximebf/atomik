@@ -1,4 +1,3 @@
-
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #333;
@@ -11,7 +10,6 @@ a {
 }
 
 pre {
-  white-space: normal;
   padding: 10px;
   background: #EEE;
   border-radius: 3px;
@@ -22,8 +20,13 @@ pre {
   margin: 0 auto;
 }
 
-.clear {
+.clearfix:after {
+  content: ".";
+  display: block;
   clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
 }
 
 #forkme {
@@ -33,15 +36,22 @@ pre {
   right: 0;
   width: 149px;
   height: 149px;
-  background: url(forkme.png) no-repeat;
+  background: url(assets/forkme.png) no-repeat;
 }
 
 #header {
-  padding: 20px 0;
+  padding: 20px 0 30px 0;
 }
   #header .brand {
     float: left;
+    text-decoration: none;
   }
+    #header .brand span {
+      display: block;
+      margin-top: 24px;
+      font-size: 26px;
+      font-weight: bold;
+    }
   #header .nav {
     list-style: none;
     margin: 0;
@@ -60,13 +70,19 @@ pre {
         font-size: 20px;
         text-decoration: none;
       }
+      #header .nav a:hover {
+        text-decoration: underline;
+      }
 
 #intro {
-  background: #8FC23F;
+  background: #8fc23f;
   color: white;
   padding: 31px 0;
   font-size: 19px;
 }
+  #intro img {
+    float: right;
+  }
   #intro h1 {
     margin: 5px 0;
   }
@@ -84,6 +100,32 @@ pre {
   }
 
 #footer {
-  margin-top: 40px;
-  margin-bottom: 20px;
+  background: #191818;
+  color: #9a9a9a;
+  margin-top: 50px;
+  padding: 15px 0 20px;
+  border-top: 2px solid #403d3d;
 }
+  #footer .column {
+    float: left;
+    width: 400px;
+    margin-right: 50px;
+  }
+    #footer h2 {
+      font-size: 18px;
+    }
+    #footer ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+      #footer li {
+        display: inline;
+        margin-right: 10px;
+      }
+  #footer .copy {
+    text-align: center;
+    font-size: 11px;
+    padding-bottom: 10px;
+  }
+

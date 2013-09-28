@@ -4,105 +4,128 @@
     <meta charset="utf-8">
     <title>Atomik Framework</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4384243-3']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+    
+
+
   </head>
   <body>
     <a id="forkme" href="https://github.com/maximebf/atomik"></a>
-    <header id="header" class="container">
+    <div id="header" class="container clearfix">
       <a class="brand" href="/"><img src="logo.png" alt="Atomik Framework"></a>
       <ul class="nav">
+        
         <li><a href="install.html">Install</a></li>
+        
         <li><a href="docs">Documentation</a></li>
         <li><a href="https://github.com/maximebf/atomik">Code</a></li>
       </ul>
-      <div class="clear"></div>
-    </header>
+    </div>
     <div id="intro">
-      <div class="container">
-        <h1>The little big framework for PHP 5.3+</h1>
-        <p>
-          Atomik is a PHP micro framework that provides everything you need
-          to make small to medium websites and get you started as quickly as possible. 
-          It's simple nature makes it the perfect fit for beginners.
-        </p>
+  <div class="container">
+    <h1>The little big framework for PHP 5.3+</h1>
+    <p>
+      Atomik is a PHP micro framework that provides everything you need
+      to make small to medium websites and get you started as quickly as possible. 
+      It's simple nature makes it the perfect fit for beginners.
+    </p>
+  </div>
+</div>
+<div id="main" class="container clearfix">
+  <div id="content">
+    <p>
+      Atomik is much simpler than other framework yet provides some awesome
+      features right out of the box.
+      Get started in minutes with our skeleton application:
+    </p>
+    <pre><code>$ php composer.phar create-project atomik/skeleton .</code></pre>
+    <p>
+      The main concept in Atomik is the separation of the application logic and
+      the presentation layer. All your PHP code goes inside an <strong>action</strong>
+      and all your HTML code goes inside a <strong>view</strong>.
+    </p>
+    <p>
+      In <em>app/actions/index.php</em>, add the following lines:
+    </p>
+    <pre><code>&lt;?php
+$message = "hello world!";</code></pre>
+    <p>
+      Modify the view in <em>app/views/index.phtml</em> to print this message:
+    </p>
+    <pre><code>&lt;?= $this->escape($message) ?&gt;</code></pre>
+    <p>
+      As you can see, variables define in the action are automatically carried to the
+      view, it's that easy!
+    </p>
+    <p>
+      Learn more in the <a href="docs/get-started.html">Get Started</a> tutorial.
+    </p>
+    <p style="font-size: 12px;margin-top: 39px;border-top: 1px solid #ccc;padding-top: 5px;">
+      <strong>Current version: 3.1</strong>. Older versions are still available <a href="old-versions.html">here</a>
+    </p>
+  </div>
+  <div id="sidebar">
+    <p>
+      Here's a list of some Atomik features:
+    </p>
+    <ul>
+     <li>Very small footprint</li>
+     <li>Open Source (MIT License)</li>
+     <li>Very simple to use</li>
+     <li>Good documentation</li>
+     <li>Easy to use router for pretty URLs</li>
+     <li>Powerful templating: helpers, layouts, content types...</li>
+     <li>Flash messages</li>
+     <li>Errors handling</li>
+     <li>Intuitive architecture for beginners</li>
+     <li>Respect good programming practices</li>
+     <li>Plugins and pluggable applications</li>
+     <li>Highly extensible</li>
+     <li>Uses existing libraries</li>
+    </ul>
+  </div>
+</div>
+    <div id="footer">
+      <div class="container clearfix">
+        <div class="column">
+          <h2>An Open Source project by <a href="http://maximebf.com">maximebf</a></h2>
+          <p>
+            I'm a freelance web developer specialized in PHP, Python and Javascript. 
+            I build well crafted components for backend development.
+          </p>
+          <p>
+            <a href="http://maximebf.com/freelancing">Hire me for your next project</a>
+          </p>
+        </div>
+        <div class="column">
+          <h2>Check out all my open source projects</h2>
+          <ul>
+            <li><a href="http://atomikframework.com">Atomik Framework</a></li>
+            <li><a href="http://phpdebugbar.com">PHP Debug Bar</a></li>
+            <li><a href="http://beautifuldocs.com">Beautiful Docs</a></li>
+            <li><a href="http://github.com/maximebf/events">Events</a></li>
+            <li><a href="http://github.com/maximebf/ConsoleKit">ConsoleKit</a></li>
+            <li><a href="http://github.com/maximebf/CacheCache">CacheCache</a></li>
+          </ul>
+          <p>
+            They are all <a href="http://github.com/maximebf">hosted on Github</a>
+          </p>
+        </div>
+      </div>
+      <div class="copy container">
+        &copy; Maxime Bouroumeau-Fuseau 2013
       </div>
     </div>
-    <div id="main" class="container">
-      <div id="content">
-        <p>
-          Atomik is much simpler than other framework yet provides some awesome
-          features right out of the box.
-          Get started in minutes with our skeleton application:
-        </p>
-        <pre>
-          <code>$ php composer.phar create-project atomik/skeleton .</code>
-        </pre>
-        <p>
-          The main concept in Atomik is the separation of the application logic and
-          the presentation layer. All your PHP code goes inside an <strong>action</strong>
-          and all your HTML code goes inside a <strong>view</strong>.
-        </p>
-        <p>
-          In <em>app/actions/index.php</em>, add the following lines:
-        </p>
-        <pre>
-          <code>
-            &lt;?php
-            $message = "hello world!";
-          </code>
-        </pre>
-        <p>
-          Modify the view in <em>app/views/index.phtml</em> to print this message:
-        </p>
-        <pre>
-          <code>
-            &lt;?= $this->escape($message) ?&gt;
-          </code>
-        </pre>
-        <p>
-          As you can see, variables define in the action are automatically carried to the
-          view, it's that easy!
-        </p>
-        <p>
-          Learn more in the <a href="docs/get-started.html">Get Started</a> tutorial.
-        </p>
-        <p style="font-size: 12px;margin-top: 39px;border-top: 1px solid #ccc;padding-top: 5px;">
-          <strong>Current version: 3.1</strong>. Older versions are still available <a href="old-versions.html">here</a>
-        </p>
-      </div>
-      <div id="sidebar">
-        <p>
-          Here's a list of some Atomik features:
-        </p>
-        <ul>
-         <li>Very small footprint</li>
-         <li>Open Source (MIT License)</li>
-         <li>Very simple to use</li>
-         <li>Good documentation</li>
-         <li>Easy to use router for pretty URLs</li>
-         <li>Powerful templating: helpers, layouts, content types...</li>
-         <li>Flash messages</li>
-         <li>Errors handling</li>
-         <li>Intuitive architecture for beginners</li>
-         <li>Respect good programming practices</li>
-         <li>Plugins and pluggable applications</li>
-         <li>Highly extensible</li>
-         <li>Uses existing libraries</li>
-        </ul>
-      </div>
-      <div class="clear"></div>
-    </div>
-    <footer id="footer" class="container">
-      &copy; Atomik Framework 2013
-    </div>
-    <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-    var pageTracker = _gat._getTracker("UA-4384243-3");
-    pageTracker._initData();
-    pageTracker._trackPageview();
-    </script>
   </body>
 </html>
 

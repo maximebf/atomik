@@ -645,7 +645,7 @@ The file prefix can also be specified. All of this is done in <em>app.views.cont
 <pre><code>Atomik::set(&#39;app.views.contexts.rdf&#39;, array(    // the context name, ie. the file extension in the url
     &#39;suffix&#39;        =&gt; &#39;rdf&#39;,                   // the view&#39;s file extension suffix (set to false for no suffix)
     &#39;layout&#39;        =&gt; false,                   // disables the layout
-    &#39;content-type&#39;  =&gt; &#39;application/xml+rdf&#39;    // the response&#39;s content type
+    &#39;content_type&#39;  =&gt; &#39;application/xml+rdf&#39;    // the response&#39;s content type
 ));</code></pre>
 <p>Now you can call an url like <a href="http://example.com/article.rdf">http://example.com/article.rdf</a>. In this case the view filename
 would be <em>article.rdf.phtml</em>, the layout would be disabled and the response content type

@@ -1,69 +1,94 @@
 <!doctype html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
     <title>Atomik Framework</title>
-
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4384243-3']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+    
+
+
   </head>
   <body>
     <a id="forkme" href="https://github.com/maximebf/atomik"></a>
-    <header id="header" class="container">
+    <div id="header" class="container clearfix">
       <a class="brand" href="/"><img src="logo.png" alt="Atomik Framework"></a>
       <ul class="nav">
+        
         <li><a href="install.html">Install</a></li>
+        
         <li><a href="docs">Documentation</a></li>
         <li><a href="https://github.com/maximebf/atomik">Code</a></li>
       </ul>
-      <div class="clear"></div>
-    </header>
-    <div id="intro">
-      <div class="container">
-        <h1>The little big framework for PHP 5.3+</h1>
-        <p>
-          Atomik is a PHP micro framework that provides everything you need
-          to make small to medium websites and get you started as quickly as possible. 
-          It's simple nature makes it the perfect fit for beginners.
-        </p>
+    </div>
+    
+<div id="intro">
+    <div class="container">
+        <h1>Installation</h1>
+    </div>
+</div>
+
+<div id="main" class="container clearfix">
+  <h2>Using Composer</h2>
+<p>
+  <a href="http://getcomposer.org">Composer</a> is a package manager for PHP.
+  It's the best way to install and manage your project dependencies.
+</p>
+<p>
+  Install Composer:
+</p>
+<pre><code>curl -s https://getcomposer.org/installer | php</code></pre>
+<p>
+    Create a project using the skeleton application:
+</p>
+<pre><code>$ php composer.phar create-project atomik/skeleton .</code></pre>
+<h2>Using an archive</h2>
+<p>
+  If you're not comfortable using Composer, download the archive
+  from <a href="https://github.com/maximebf/atomik/releases">here</a>.
+</p>
+</div>
+    <div id="footer">
+      <div class="container clearfix">
+        <div class="column">
+          <h2>An Open Source project by <a href="http://maximebf.com">maximebf</a></h2>
+          <p>
+            I'm a freelance web developer specialized in PHP, Python and Javascript. 
+            I build well crafted components for backend development.
+          </p>
+          <p>
+            <a href="http://maximebf.com/freelancing">Hire me for your next project</a>
+          </p>
+        </div>
+        <div class="column">
+          <h2>Check out all my open source projects</h2>
+          <ul>
+            <li><a href="http://atomikframework.com">Atomik Framework</a></li>
+            <li><a href="http://phpdebugbar.com">PHP Debug Bar</a></li>
+            <li><a href="http://beautifuldocs.com">Beautiful Docs</a></li>
+            <li><a href="http://github.com/maximebf/events">Events</a></li>
+            <li><a href="http://github.com/maximebf/ConsoleKit">ConsoleKit</a></li>
+            <li><a href="http://github.com/maximebf/CacheCache">CacheCache</a></li>
+          </ul>
+          <p>
+            They are all <a href="http://github.com/maximebf">hosted on Github</a>
+          </p>
+        </div>
+      </div>
+      <div class="copy container">
+        &copy; Maxime Bouroumeau-Fuseau 2013
       </div>
     </div>
-    <div id="main" class="container">
-      <div id="content">
-        <h2>Installation using Composer</h2>
-        <p>
-          <a href="http://getcomposer.org">Composer</a> is a package manager for PHP.
-          It's the best way to install and manage your project dependencies.
-        </p>
-        <p>
-          Install Composer:
-        </p>
-        <pre>
-          <code>curl -s https://getcomposer.org/installer | php</code>
-        </pre>
-        <p>Create a project using the skeleton application:</p>
-        <pre>
-          <code>$ php composer.phar create-project atomik/skeleton .</code>
-        </pre>
-        <h2>Using an archive</h2>
-        <p>
-          If you're not comfortable using Composer, download the archive
-          from <a href="https://github.com/maximebf/atomik/releases">here</a>.
-        </p>
-      </div>
-      <div class="clear"></div>
-    </div>
-    <footer id="footer" class="container">
-      &copy; Atomik Framework 2013
-    </div>
-    <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-    var pageTracker = _gat._getTracker("UA-4384243-3");
-    pageTracker._initData();
-    pageTracker._trackPageview();
-    </script>
   </body>
 </html>
 
