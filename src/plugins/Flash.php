@@ -94,6 +94,11 @@ class Flash implements \ArrayAccess, \IteratorAggregate, \Countable
     	}
     	return '<ul id="' . $id . '">' . $html . '</ul>';
     }
+    
+    public function __construct()
+    {
+        
+    }
 
     public function getIterator()
     {
