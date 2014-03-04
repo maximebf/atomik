@@ -27,9 +27,13 @@ For cleaner and prettier url you can use url rewriting. When using Apache, simpl
 code below into a *.htaccess* file in the same directory as Atomik's core file.
 
     RewriteEngine on
+    # Allow access to assets folder
     RewriteRule ^app/plugins/(.+)/assets - [L]
-    RewriteRule ^app/ - [L,F]
-    RewriteRule ^vendor/ - [L,F]
+    RewriteRule ^vendor/maximebf/debugbar/src/DebugBar/Resources - [L]
+    # forbid access to files and folders under app and vendor
+    RewriteRule ^app/.*$ - [L,F]
+    RewriteRule ^vendor/.*$ - [L,F]
+    # rewrite to index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php?action=$1 [L,QSA]

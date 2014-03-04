@@ -72,6 +72,41 @@ class FormHelper
         
         return sprintf('<input %s />', Atomik::htmlAttributes($attrs));
     }
+
+    public function password($name, $attrs = array())
+    {
+        return $this->input($name, '', 'password', $attrs);
+    }
+
+    public function email($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'email', $attrs);
+    }
+
+    public function date($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'date', $attrs);
+    }
+
+    public function time($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'time', $attrs);
+    }
+
+    public function number($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'number', $attrs);
+    }
+
+    public function url($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'url', $attrs);
+    }
+
+    public function datetime($name, $value = '', $attrs = array())
+    {
+        return $this->input($name, $value, 'datetime', $attrs);
+    }
     
     public function checkbox($name, $checked = false, $value = 1, $attrs = array())
     {
