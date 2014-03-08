@@ -531,7 +531,7 @@ final class Atomik implements ArrayAccess
         
             if ($pattern{0} !== '#') {
                 $pattern = trim(str_replace('/*/', '/(.+)/', $pattern), '/');
-                if (preg_match_all('#(([/.]):([a-z_0-9]+))#i', $pattern, $matches)) {
+                if (preg_match_all('#((^|[/.]):([a-z_0-9]+))#i', $pattern, $matches)) {
                     for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                         $param = $matches[3][$i];
                         $paramRegexp = preg_quote($matches[2][$i], '#') . "(?P<$param>[^/]+)";
