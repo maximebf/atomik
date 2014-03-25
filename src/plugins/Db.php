@@ -199,15 +199,27 @@ class Db extends PDO
      */
     protected function _buildWhere($where)
     {
+        var_dump($where);
         if (empty($where)) {
             return array('', array());
         }
         if (is_string($where)) {
             return array("WHERE $where", array());
         }
+        $values = array();
+        $output = 'WHERE ';
+        foreach ($where as $key => $value) {
+            if (is_array($value)) {
+                $output .= $key . ' IN(' . implode(', ', array_fill(0, count($value), '?')) . ') AND ';
+                $values = array_merge($values, $value);
+            } else {
+                $output .= $key . ' = ? AND ';
+                array_push($values, $value);
+            }
+        }
         return array(
-            'WHERE ' . implode(' = ? AND ', array_keys($where)) . ' = ?',
-            array_values($where)
+            rtrim($output, 'AND '),
+            $values
         );
     }
 }
