@@ -199,7 +199,6 @@ class Db extends PDO
      */
     protected function _buildWhere($where)
     {
-        var_dump($where);
         if (empty($where)) {
             return array('', array());
         }
@@ -214,7 +213,7 @@ class Db extends PDO
                 $values = array_merge($values, $value);
             } else {
                 $output .= $key . ' = ? AND ';
-                array_push($values, $value);
+                $values[] = $value;
             }
         }
         return array(
