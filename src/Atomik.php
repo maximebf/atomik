@@ -295,7 +295,7 @@ final class Atomik implements ArrayAccess
                 }
             }
         
-            // retreives the base url
+            // retrieves the base url
             if (self::get('atomik.base_url') === null) {
                 if (self::get('atomik.url_rewriting') && (isset($_SERVER['REDIRECT_URL']) || isset($_SERVER['REDIRECT_URI']))) {
                     // finds the base url from the redirected url
@@ -322,7 +322,7 @@ final class Atomik implements ArrayAccess
             }
                 
             // checking if no dot are in the action name to avoid any hack attempt and if no 
-            // underscore is use as first character in a segment
+            // underscore is used as first character in a segment
             if (strpos($request['action'], '..') !== false || substr($request['action'], 0, 1) === '_' 
                 || strpos($request['action'], '/_') !== false) {
                     throw new AtomikException('Action outside of bound');
