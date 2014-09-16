@@ -1994,14 +1994,23 @@ final class Atomik implements ArrayAccess
         }
         
         // injects parameters into the url
+        $builtAction = $action;
         if (preg_match_all('/(:([a-z0-9_]+))/i', $action, $matches)) {
             for ($i = 0, $c = count($matches[0]); $i < $c; $i++) {
                 if (array_key_exists($matches[2][$i], $params)) {
                     $action = str_replace($matches[1][$i], $params[$matches[2][$i]], $action);
                     unset($params[$matches[2][$i]]);
+                } else {
+                    // remove non-specified parameters with default value from the url
+                    $default_values = self::get('app.routes.' . $action);
+                    if (array_key_exists($matches[2][$i], $default_values)) {
+                        $builtAction = str_replace('/'.$matches[1][$i], '', $builtAction);
+                    }
                 }
             }
         }
+        $action = $builtAction;
+        unset($builtAction);
         
         // checks if $action is not an url (checking if there is a protocol)
         $url = $action;
