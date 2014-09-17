@@ -91,7 +91,7 @@ class Errors
             header('Location: ', false, $e->getCode());
             if ($e->getCode() === 404) {
                 header('Content-type: text/html');
-                if ($output = Atomik::render(self::$config['404_view'])) {
+                if ($output = Atomik::render(self::$config['404_view'], array('exception' => $e))) {
                     echo $output;
                 } else {
                     echo '<h1>Page not found</h1>';
@@ -100,7 +100,7 @@ class Errors
         } else {
             header('Location: ', false, 500);
             if (self::$config['catch_errors']) {
-                if ($output = Atomik::render(self::$config['error_view'])) {
+                if ($output = Atomik::render(self::$config['error_view'], array('exception' => $e))) {
                     echo $output;
                 } else {
                     echo self::render($e);
