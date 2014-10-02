@@ -46,7 +46,7 @@ class DebugBar
 
     public static function log($message, $level = LogLevel::DEBUG)
     {
-        self::$instance['mesages']->addMessage($message, $level);
+        self::$instance['messages']->addMessage($message, $level);
     }
 
     public static function onAtomikBootstrap()
