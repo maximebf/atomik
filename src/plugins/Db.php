@@ -205,19 +205,19 @@ class Db extends PDO
         if (is_string($where)) {
             return array("WHERE $where", array());
         }
+        $conditions = array();
         $values = array();
-        $output = 'WHERE ';
         foreach ($where as $key => $value) {
             if (is_array($value)) {
-                $output .= $key . ' IN(' . implode(', ', array_fill(0, count($value), '?')) . ') AND ';
+                $conditions[] = "$key IN(" . implode(', ', array_fill(0, count($value), '?')) . ')';
                 $values = array_merge($values, $value);
             } else {
-                $output .= $key . ' = ? AND ';
+                $conditions[] = "$key = ?";
                 $values[] = $value;
             }
         }
         return array(
-            rtrim($output, 'AND '),
+            'WHERE ' . implode($conditions, ' AND '),
             $values
         );
     }
