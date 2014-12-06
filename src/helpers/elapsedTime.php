@@ -31,7 +31,7 @@ class ElapsedTimeHelper
         if ($timestamp instanceof DateTime) {
             $timestamp = $timestamp->format('U');
         } else if (is_string($timestamp)) {
-            $time = strtotime($timestamp);
+            $timestamp = strtotime($timestamp);
         }
         
         $diff = time() - $timestamp; 
