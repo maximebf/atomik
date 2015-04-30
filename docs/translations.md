@@ -15,7 +15,7 @@ be changed using the *dir* configuration key. Files be named after
 the first part of the locale. For example, if the file provide translation to French, it has to be
 named *fr.php* (because the locale is fr-fr).
 
-In the language file you must defined messages using the 
+In the language file you must define messages using the 
 `Translations::setMessages()` method. The messages is made of
 the string of the original language and the translated one.
 

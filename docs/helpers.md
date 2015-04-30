@@ -44,7 +44,7 @@ They are accessible as methods of `$this`.
 
 ## Registering helpers
 
-You can also registers helper using the `Atomik::registerHelper()` function:
+You can also register helpers using the `Atomik::registerHelper()` function:
 
     Atomik::registerHelper('say_hello', function() {
         echo 'hello';

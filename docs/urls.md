@@ -239,6 +239,6 @@ with `Atomik::url()`.
 For assets, it also exists `Atomik::appAsset()` and `Atomik::pluginAsset()`.
 The latter, like `Atomik::pluginUrl()`, needs a plugin name as the first argument.
 
-Inside views, you should call any Atomik methods through `$this`:
+Inside views, you should call any Atomik method through `$this`:
 
     $url = $this->url('archives', array('year' => 2008));
