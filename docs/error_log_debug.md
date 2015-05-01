@@ -25,7 +25,7 @@ and by default *errors/error*) it will be rendered otherwise an error report is 
         'catch_errors' => true
     ));
 
-By default, uncatched errors are silently droped. You can instead let the exception be thrown
+By default, uncatched errors are silently dropped. You can instead let the exception be thrown
 using *throw\_errors*.
 
     Atomik::set('plugins.Errors', array(
