@@ -110,7 +110,7 @@ class Db extends PDO
      */
     public function selectValue($tableName, $column, $where = null, $afterWhere = '')
     {
-        $stmt = $this->executeSelect($tableName, $column, $where);
+        $stmt = $this->executeSelect($tableName, $column, $where, $afterWhere);
         return $stmt->fetchColumn();
     }
     
