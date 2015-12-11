@@ -108,9 +108,9 @@ class Db extends PDO
      * @param array $where
      * @return mixed
      */
-    public function selectValue($tableName, $column, $where = null)
+    public function selectValue($tableName, $column, $where = null, $afterWhere = '')
     {
-        $stmt = $this->executeSelect($tableName, $column, $where);
+        $stmt = $this->executeSelect($tableName, $column, $where, $afterWhere);
         return $stmt->fetchColumn();
     }
     
