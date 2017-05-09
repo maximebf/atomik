@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/maximebf/atomik.png?branch=master)](http://travis-ci.org/maximebf/atomik)
 
+**Not maintained anymore**
+
 Atomik is an Open-Source micro framework for PHP 5.3+. Atomik is built for 
 small web applications that do not need heavy frameworks but still want powerful 
 features. It is build with the KISS principle in mind as well as speed and security. 
