@@ -25,7 +25,7 @@ and by default *errors/error*) it will be rendered otherwise an error report is 
         'catch_errors' => true
     ));
 
-By default, uncatched errors are silently droped. You can instead let the exception be thrown
+By default, uncatched errors are silently dropped. You can instead let the exception be thrown
 using *throw\_errors*.
 
     Atomik::set('plugins.Errors', array(
@@ -36,7 +36,7 @@ using *throw\_errors*.
 
 <div class="note">You will need the Logger plugin which is bundled with Atomik as well as Monolog which you'll need to install</div>
 
-The Logger plugin provides a simple way of logging messages. It provides the ̀log()` helper
+The Logger plugin provides a simple way of logging messages. It provides the `log()` helper
 which takes two arguments, the second one being optional: the message and the level (default is `LOG_ERR` = 3).
 
     $this->log('an error has occured!', LOG_ERR);

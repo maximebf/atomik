@@ -134,7 +134,7 @@ and views. Get values using the same syntax as with arrays:
         unset($this['users.paul']);
     }
 
-Accessors are also available as methods of ̀$this`:
+Accessors are also available as methods of `$this`:
 
     $age = $this->get('users.paul.age', 21);
 

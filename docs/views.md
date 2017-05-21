@@ -138,7 +138,7 @@ The custom rendering engine will be used whenever `Atomik::render()`,
 When executing a request, the action and/or the view associated to it are
 automatically called. You can however render other views using Atomik's API.
 
-The most useful use of this it to render partial views, small part of presentation
+The most useful use of this is to render partial views, small part of presentation
 code that is reusable.
 
 To render a view use the `Atomik::render()` method.
